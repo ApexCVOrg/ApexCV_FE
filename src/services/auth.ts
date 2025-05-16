@@ -26,15 +26,15 @@ class AuthService {
   // Login
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, credentials);
-    this.setAuthData(response);
-    return response;
+    this.setAuthData(response.data);
+    return response.data;
   }
 
   // Register
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
-    this.setAuthData(response);
-    return response;
+    this.setAuthData(response.data);
+    return response.data;
   }
 
   // Logout
@@ -52,8 +52,8 @@ class AuthService {
     const response = await apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       refreshToken,
     });
-    this.setAuthData(response);
-    return response;
+    this.setAuthData(response.data);
+    return response.data;
   }
 
   // Forgot Password
