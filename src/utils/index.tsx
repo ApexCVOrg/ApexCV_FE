@@ -1,0 +1,1 @@
+//các hàm tiện ích chung

@@ -1,0 +1,78 @@
+src/app/
+Đây là thư mục chính chứa các route và pages của ứng dụng Next.js
+Sử dụng App Router của Next.js 13+
+Các thư mục con như (auth), (dashboard) là route groups để tổ chức code tốt hơn
+
+
+src/components/
+Chứa các React components có thể tái sử dụng
+Được chia thành các thư mục con theo chức năng:
+
+ui/: Components UI cơ bản (Button, Input, Card...)
+
+layout/: Components liên quan đến layout (Header, Footer, Sidebar...)
+
+forms/: Components liên quan đến form
+
+shared/: Components dùng chung
+
+
+
+src/context/
+Chứa các React Context để quản lý state toàn cục
+ThemeContext.tsx: Quản lý theme (dark/light mode) của ứng dụng
+
+
+
+src/hooks/
+Chứa các custom React hooks
+useTheme.ts: Hook để sử dụng theme context
+useAuth.ts: Hook để xử lý authentication
+
+
+
+src/lib/
+Chứa các utility functions và configurations
+utils.ts: Các hàm tiện ích
+constants.ts: Các hằng số được sử dụng trong ứng dụng
+
+
+
+src/services/
+Chứa các service để gọi API
+api.ts: Cấu hình và setup cho API calls
+auth.ts: Xử lý các API liên quan đến authentication
+
+
+
+src/styles/
+Chứa các file styles
+_variables.scss: Biến SCSS (màu sắc, spacing, breakpoints...)
+_mixins.scss: Các SCSS mixins để tái sử dụng
+global.scss: Styles toàn cục
+
+
+
+src/types/
+Chứa các TypeScript type definitions
+index.ts: Export các types
+auth.ts: Types liên quan đến authentication
+user.ts: Types liên quan đến user
+
+
+
+public/
+Chứa các static assets
+images/: Hình ảnh
+icons/: Icons
+fonts/: Fonts
+Các file cấu hình quan trọng:
+next.config.js: Cấu hình Next.js
+tailwind.config.js: Cấu hình Tailwind CSS
+tsconfig.json: Cấu hình TypeScript
+package.json: Dependencies và scripts
+.env: Biến môi trường
+Các thư mục khác:
+node_modules/: Chứa các dependencies
+.next/: Build output của Next.js
+.git/: Git repository

@@ -1,0 +1,1 @@
+//Để lưu trữ các hằng số, config cố định
