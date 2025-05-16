@@ -12,9 +12,9 @@ jobs:
   build-fe:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./fe  # Thư mục frontend
+    #defaults:
+      #run:
+        #working-directory: ./fe  # Thư mục frontend
 
     steps:
       - uses: actions/checkout@v4
