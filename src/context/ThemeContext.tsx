@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { THEME, STORAGE_KEYS } from '@/lib/constants';
+import { THEME, STORAGE_KEYS } from '@/lib/constants/constants';
 
 interface ThemeContextType {
   theme: string;

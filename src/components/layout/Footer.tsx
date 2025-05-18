@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useTheme } from '@/hooks/useTheme';
-import { ROUTES } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants/constants';
 
 const Footer = () => {
     const { theme } = useTheme();

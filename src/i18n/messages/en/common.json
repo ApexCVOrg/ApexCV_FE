@@ -1,0 +1,52 @@
+{
+  "hero": {
+    "title": "Welcome to ApexCV",
+    "subtitle": "Create your professional CV in minutes.",
+    "getStarted": "Get Started",
+    "viewTemplates": "View Templates"
+  },
+  "features": {
+    "title": "Features",
+    "templates": {
+      "title": "Professional Templates",
+      "description": "Choose from a variety of modern and professional templates."
+    },
+    "easyUse": {
+      "title": "Easy to Use",
+      "description": "Our intuitive editor makes CV creation simple."
+    },
+    "export": {
+      "title": "Export Options",
+      "description": "Download your CV in PDF or Word format."
+    }
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "step1": {
+      "title": "Choose a Template",
+      "description": "Select a template that fits your style."
+    },
+    "step2": {
+      "title": "Fill in Your Details",
+      "description": "Add your personal and professional information."
+    },
+    "step3": {
+      "title": "Export Your CV",
+      "description": "Download your finished CV instantly."
+    }
+  },
+  "cta": {
+    "title": "Ready to build your CV?",
+    "subtitle": "Join now and take the next step in your career.",
+    "button": "Sign Up"
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist.",
+    "backHome": "Back to Home"
+  },
+  "error": {
+    "tryAgain": "Try Again",
+    "backHome": "Back to Home"
+  }
+}

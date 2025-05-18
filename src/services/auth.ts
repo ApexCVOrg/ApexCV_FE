@@ -1,4 +1,4 @@
-import { API_ENDPOINTS, STORAGE_KEYS } from '@/lib/constants';
+import { API_ENDPOINTS, STORAGE_KEYS } from '@/lib/constants/constants';
 import apiService from './api';
 
 export interface LoginCredentials {
@@ -9,16 +9,16 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  username: string;
+  fullName: string;
 }
 
 export interface AuthResponse {
   token: string;
   refreshToken: string;
   user: {
-    id: string;
+    id: number;
     email: string;
-    username: string;
+    fullName: string;
   };
 }
 
@@ -70,7 +70,7 @@ class AuthService {
   }
 
   // Get current user
-  getCurrentUser() {
+  getCurrentUser(): AuthResponse['user'] | null {
     const userStr = localStorage.getItem(STORAGE_KEYS.USER);
     return userStr ? JSON.parse(userStr) : null;
   }
@@ -96,4 +96,4 @@ class AuthService {
 }
 
 export const authService = new AuthService();
-export default authService; 
+export default authService;

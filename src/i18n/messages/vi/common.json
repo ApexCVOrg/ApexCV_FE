@@ -1,0 +1,52 @@
+{
+  "hero": {
+    "title": "Chào mừng đến với ApexCV",
+    "subtitle": "Tạo CV chuyên nghiệp chỉ trong vài phút.",
+    "getStarted": "Bắt đầu ngay",
+    "viewTemplates": "Xem mẫu"
+  },
+  "features": {
+    "title": "Tính năng",
+    "templates": {
+      "title": "Mẫu CV chuyên nghiệp",
+      "description": "Chọn từ nhiều mẫu hiện đại và chuyên nghiệp."
+    },
+    "easyUse": {
+      "title": "Dễ sử dụng",
+      "description": "Trình chỉnh sửa trực quan giúp tạo CV đơn giản."
+    },
+    "export": {
+      "title": "Tùy chọn xuất file",
+      "description": "Tải CV của bạn dưới dạng PDF hoặc Word."
+    }
+  },
+  "howItWorks": {
+    "title": "Cách hoạt động",
+    "step1": {
+      "title": "Chọn mẫu CV",
+      "description": "Lựa chọn mẫu phù hợp với phong cách của bạn."
+    },
+    "step2": {
+      "title": "Điền thông tin",
+      "description": "Thêm thông tin cá nhân và kinh nghiệm làm việc."
+    },
+    "step3": {
+      "title": "Xuất CV",
+      "description": "Tải xuống CV hoàn chỉnh của bạn ngay lập tức."
+    }
+  },
+  "cta": {
+    "title": "Sẵn sàng tạo CV của bạn?",
+    "subtitle": "Tham gia ngay để tiến thêm một bước trong sự nghiệp.",
+    "button": "Đăng ký"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn đang tìm không tồn tại.",
+    "backHome": "Về trang chủ"
+  },
+  "error": {
+    "tryAgain": "Thử lại",
+    "backHome": "Về trang chủ"
+  }
+}

@@ -1,5 +1,12 @@
 import { NextConfig } from 'next';
-
+const createNextIntlPlugin = require('next-intl/plugin');
+ 
+const withNextIntl = createNextIntlPlugin();
+ 
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+ 
+module.exports = withNextIntl(nextConfig);
 const config: NextConfig = {
   reactStrictMode: true,
   images: {
