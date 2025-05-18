@@ -14,7 +14,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./fe  # Thư mục frontend
+        working-directory: .  # Thư mục frontend
 
     steps:
       - uses: actions/checkout@v4
