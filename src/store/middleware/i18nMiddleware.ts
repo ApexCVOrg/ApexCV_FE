@@ -2,11 +2,14 @@
 // import createMiddleware from 'next-intl/middleware';
 // import { NextRequest } from 'next/server';
 
-// const intlMiddleware = createMiddleware({
-//   locales: ['vi', 'en'],
-//   defaultLocale: 'vi',
-// });
+import createMiddleware from 'next-intl/middleware';
+import { NextRequest } from 'next/server';
 
-// export function handleI18nMiddleware(request: NextRequest) {
-//   return intlMiddleware(request);
-// }
+const intlMiddleware = createMiddleware({
+  locales: ['vi', 'en'],
+  defaultLocale: 'vi',
+});
+
+export function handleI18nMiddleware(request: NextRequest) {
+  return intlMiddleware(request);
+}

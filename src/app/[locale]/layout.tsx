@@ -7,12 +7,13 @@ import '@/styles/global.scss';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
+import { Box, Container } from '@mui/material';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'ApexCV - Professional CV Builder',
-  description: 'Create your professional CV with ease',
+  title: 'Nidas - Choose your style',
+  description: 'Nidas - Choose your style',
 };
 
 export default async function LocaleLayout({
@@ -22,7 +23,6 @@ export default async function LocaleLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  // Ensure that the incoming `locale` is valid
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) {
     notFound();
@@ -32,14 +32,14 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={inter.className}>
         <ThemeProvider>
-          <NextIntlClientProvider>
-            <div className="app-container">
+          <NextIntlClientProvider locale={locale}>
+            <Box className="app-container">
               <Header />
-              <main className="main-content">
+              <Container component="main" className="main-content">
                 {children}
-              </main>
+              </Container>
               <Footer />
-            </div>
+            </Box>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

@@ -3,72 +3,176 @@
 import Link from 'next/link';
 import { useTheme } from '@/hooks/useTheme';
 import { ROUTES } from '@/lib/constants/constants';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Stack,
+  IconButton,
+  Badge,
+  useMediaQuery,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+} from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import { usePathname, useParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+const NAV_LINKS = [
+  { title: 'Men', href: ROUTES.MEN },
+  { title: 'Women', href: ROUTES.WOMEN },
+  { title: 'Kids', href: ROUTES.KIDS },
+  { title: 'Accessories', href: ROUTES.ACCESSORIES },
+  { title: 'Sale', href: ROUTES.SALE },
+];
 
 const Header = () => {
   const { theme } = useTheme();
-  const pathname = usePathname(); // ví dụ: /en, /vi/some-page
-  const params = useParams(); // { locale: 'en' hoặc 'vi' }
+  const pathname = usePathname();
+  const router = useRouter();
+  const isMobile = useMediaQuery('(max-width:900px)');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Lấy locale hiện tại, mặc định là 'vi'
-  const currentLocale = params?.locale || 'vi';
-
-  // Hàm chuyển đổi locale trong URL
-  const switchLocale = (locale: string) => {
-    if (!pathname) return `/${locale}`;
-
-    const segments = pathname.split('/').filter(Boolean);
-    if (segments.length === 0) return `/${locale}`;
-
-    // Nếu segment đầu tiên là locale, thay nó
-    if (segments[0] === 'vi' || segments[0] === 'en') {
-      segments[0] = locale;
-    } else {
-      // Nếu URL không có locale, thêm locale vào đầu
-      segments.unshift(locale);
-    }
-
-    return '/' + segments.join('/');
+  const toggleDrawer = (open: boolean) => () => {
+    setDrawerOpen(open);
   };
 
   return (
-    <header className={`header ${theme}`}>
-      <div className="header-container">
-        <Link href={ROUTES.HOME} className="logo">
-          ApexCV
-        </Link>
-
-        <nav className="nav-menu">
-          <Link href={ROUTES.HOME}>Home</Link>
-          <Link href={ROUTES.DASHBOARD}>Dashboard</Link>
-          <Link href={ROUTES.PROFILE}>Profile</Link>
-        </nav>
-
-        {/* Link đổi ngôn ngữ */}
-        <nav className="locale-switcher" style={{ marginLeft: '20px' }}>
-          <Link
-            href={switchLocale('vi')}
-            style={{ fontWeight: currentLocale === 'vi' ? 'bold' : 'normal', marginRight: 10 }}
-          >
-            Tiếng Việt
+    <>
+      <AppBar
+        position="sticky"
+        sx={{
+          bgcolor: theme === 'dark' ? '#000' : '#fff',
+          color: theme === 'dark' ? '#fff' : '#000',
+          borderBottom: '1px solid',
+          borderColor: theme === 'dark' ? 'grey.800' : 'grey.300',
+          px: 2,
+        }}
+        elevation={0}
+      >
+        <Toolbar 
+          sx={{
+            maxWidth: 1200,
+            mx: 'auto',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            py: 1,
+          }}
+        >
+          {/* Logo Adidas style */}
+          <Link href={ROUTES.HOME} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 900,
+                letterSpacing: 6,
+                cursor: 'pointer',
+                fontFamily: "'Anton', sans-serif",
+              }}
+            >
+              NIDAS
+            </Typography>
           </Link>
-          <Link
-            href={switchLocale('en')}
-            style={{ fontWeight: currentLocale === 'en' ? 'bold' : 'normal' }}
-          >
-            English
-          </Link>
-        </nav>
 
-        <div className="header-actions">
-          <ThemeToggle />
-          <Link href={ROUTES.LOGIN} className="btn btn-primary">
-            Login
-          </Link>
-        </div>
-      </div>
-    </header>
+          {/* Desktop Nav */}
+          {!isMobile && (
+            <Stack direction="row" spacing={4} sx={{ flexGrow: 1, ml: 6 }}>
+              {NAV_LINKS.map(({ title, href }) => (
+                <Button
+                  key={title}
+                  component={Link}
+                  href={href}
+                  color="inherit"
+                  sx={{
+                    fontWeight: pathname.startsWith(href) ? 'bold' : 'normal',
+                    fontSize: '1rem',
+                    textTransform: 'uppercase',
+                    '&:hover': {
+                      borderBottom: '3px solid',
+                      borderColor: theme === 'dark' ? 'white' : 'black',
+                      fontWeight: 'bold',
+                    },
+                  }}
+                >
+                  {title}
+                </Button>
+              ))}
+            </Stack>
+          )}
+
+          {/* Right icons */}
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ThemeToggle />
+            <IconButton
+              aria-label="cart"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.CART)}
+            >
+              <Badge badgeContent={0} color="secondary">
+                <ShoppingCartIcon />
+              </Badge>
+            </IconButton>
+            <IconButton
+              aria-label="profile"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.PROFILE)}
+            >
+              <AccountCircleIcon />
+            </IconButton>
+
+            {/* Mobile menu button */}
+            {isMobile && (
+              <IconButton
+                aria-label="menu"
+                color="inherit"
+                size="large"
+                onClick={toggleDrawer(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+          </Stack>
+        </Toolbar>
+      </AppBar>
+
+      {/* Drawer Mobile */}
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <Box
+          sx={{ width: 240, bgcolor: theme === 'dark' ? '#111' : '#fff', height: '100%' }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
+        >
+          <List>
+            {NAV_LINKS.map(({ title, href }) => (
+              <ListItem key={title} disablePadding>
+                <ListItemButton component={Link} href={href}>
+                  <ListItemText
+                    primary={title}
+                    primaryTypographyProps={{
+                      fontWeight: pathname.startsWith(href) ? 'bold' : 'normal',
+                      textTransform: 'uppercase',
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 
