@@ -1,0 +1,325 @@
+# Hướng Dẫn Cấu Trúc Dự Án ApexCV
+
+## Cấu Trúc Thư Mục Gốc
+```
+/
+├── src/                    # Thư mục chứa mã nguồn chính
+├── public/                 # Thư mục chứa các file tĩnh (hình ảnh, fonts...)
+├── .next/                  # Thư mục chứa kết quả build của Next.js
+├── node_modules/           # Thư mục chứa các thư viện đã cài đặt
+├── .github/               # Cấu hình cho GitHub (workflows, templates...)
+├── .husky/                # Cấu hình Git hooks để kiểm tra code trước khi commit
+├── .vscode/               # Cấu hình cho VS Code (settings, extensions...)
+└── các file cấu hình      # Các file cấu hình của dự án
+```
+
+## Cấu Trúc Mã Nguồn (src/)
+
+### 1. app/ - Next.js App Router
+```
+app/
+├── [locale]/              # Route động cho đa ngôn ngữ
+│   ├── page.tsx          # Trang chủ
+│   ├── about/            # Trang giới thiệu
+│   └── layout.tsx        # Layout gốc
+├── api/                  # API routes
+└── globals.css          # CSS toàn cục
+```
+Mục đích: Chứa tất cả các trang và layout của ứng dụng sử dụng Next.js 13+ App Router.
+- `[locale]`: Thư mục động để hỗ trợ đa ngôn ngữ
+- `page.tsx`: File chứa nội dung trang
+- `layout.tsx`: File định nghĩa layout chung cho các trang
+- `api/`: Chứa các API endpoints
+
+### 2. components/ - React Components
+```
+components/
+├── common/              # Components dùng chung
+│   ├── Button/         # Component nút bấm
+│   ├── Input/          # Component input
+│   └── Card/           # Component card
+├── layout/             # Components layout
+│   ├── Header/         # Header của trang
+│   ├── Footer/         # Footer của trang
+│   └── Sidebar/        # Sidebar navigation
+├── features/          # Components theo tính năng
+│   ├── auth/          # Components xác thực
+│   ├── cv/            # Components CV
+│   └── profile/       # Components profile
+└── ui/               # UI components cơ bản
+    ├── icons/        # Các icon
+    └── typography/   # Các style chữ
+```
+Mục đích: Chứa tất cả các React components được tổ chức theo chức năng và khả năng tái sử dụng.
+- `common/`: Components có thể dùng lại ở nhiều nơi
+- `layout/`: Components liên quan đến bố cục trang
+- `features/`: Components đặc thù cho từng tính năng
+- `ui/`: Components UI cơ bản
+
+### 3. i18n/ - Đa Ngôn Ngữ
+```
+i18n/
+├── messages/          # File dịch
+│   ├── en/           # Tiếng Anh
+│   │   └── common.json
+│   └── vi/           # Tiếng Việt
+│       └── common.json
+├── navigation.ts     # Cấu hình navigation với i18n
+├── request.ts       # Xử lý load messages
+└── routing.ts       # Cấu hình routing cho i18n
+```
+Mục đích: Xử lý tất cả các tính năng đa ngôn ngữ và bản địa hóa.
+- `messages/`: Chứa các file dịch cho từng ngôn ngữ
+- `navigation.ts`: Cấu hình điều hướng với i18n
+- `request.ts`: Xử lý việc tải messages
+- `routing.ts`: Cấu hình routing cho i18n
+
+### 4. styles/ - Styling
+```
+styles/
+├── globals.css      # CSS toàn cục
+├── variables.css    # Biến CSS
+├── mixins.css      # CSS mixins
+└── themes/         # Theme styles
+    ├── light.css   # Theme sáng
+    └── dark.css    # Theme tối
+```
+Mục đích: Chứa tất cả các file liên quan đến styling và cấu hình theme.
+- `globals.css`: CSS áp dụng cho toàn bộ ứng dụng
+- `variables.css`: Định nghĩa các biến CSS
+- `mixins.css`: Các mixin CSS để tái sử dụng
+- `themes/`: Các theme khác nhau của ứng dụng
+
+### 5. types/ - TypeScript Types
+```
+types/
+├── index.ts        # Export tất cả types
+├── api.ts          # Types cho API
+├── auth.ts         # Types cho xác thực
+└── cv.ts          # Types cho CV
+```
+Mục đích: Chứa các định nghĩa TypeScript types và interfaces.
+- `index.ts`: Export tất cả các types
+- `api.ts`: Types liên quan đến API
+- `auth.ts`: Types liên quan đến xác thực
+- `cv.ts`: Types liên quan đến CV
+
+### 6. store/ - Quản Lý State
+```
+store/
+├── index.ts        # Cấu hình store
+├── slices/         # Các state slices
+│   ├── auth.ts     # State xác thực
+│   └── cv.ts       # State CV
+└── hooks.ts        # Custom hooks cho store
+```
+Mục đích: Quản lý state của ứng dụng sử dụng Redux hoặc tương tự.
+- `index.ts`: Cấu hình store
+- `slices/`: Các phần state riêng biệt
+- `hooks.ts`: Custom hooks để sử dụng store
+
+### 7. lib/ - Utilities và Helpers
+```
+lib/
+├── utils/          # Các hàm tiện ích
+│   ├── format.ts   # Format dữ liệu
+│   └── validation.ts # Validate dữ liệu
+├── constants/      # Constants
+│   └── index.ts    # Export constants
+└── api/           # API clients
+    └── index.ts    # Cấu hình API
+```
+Mục đích: Chứa các hàm tiện ích, constants và helper methods.
+- `utils/`: Các hàm tiện ích
+- `constants/`: Các hằng số
+- `api/`: Cấu hình và clients cho API
+
+### 8. hooks/ - Custom React Hooks
+```
+hooks/
+├── index.ts       # Export tất cả hooks
+├── useAuth.ts     # Hook xác thực
+├── useCV.ts       # Hook CV
+└── useTheme.ts    # Hook theme
+```
+Mục đích: Chứa các custom React hooks cho logic có thể tái sử dụng.
+- `useAuth.ts`: Hook xử lý xác thực
+- `useCV.ts`: Hook xử lý CV
+- `useTheme.ts`: Hook xử lý theme
+
+### 9. config/ - Cấu Hình
+```
+config/
+├── index.ts       # Export tất cả configs
+├── api.ts         # Cấu hình API
+├── auth.ts        # Cấu hình xác thực
+└── theme.ts       # Cấu hình theme
+```
+Mục đích: Chứa các file cấu hình của ứng dụng.
+- `api.ts`: Cấu hình API
+- `auth.ts`: Cấu hình xác thực
+- `theme.ts`: Cấu hình theme
+
+### 10. services/ - API Services
+```
+services/
+├── index.ts      # Export tất cả services
+├── api.ts        # Service API cơ bản
+├── auth.ts       # Service xác thực
+└── cv.ts         # Service CV
+```
+Mục đích: Chứa service layer cho API calls và business logic.
+- `api.ts`: Service cơ bản cho API
+- `auth.ts`: Service xử lý xác thực
+- `cv.ts`: Service xử lý CV
+
+### 11. context/ - React Contexts
+```
+context/
+├── index.ts      # Export tất cả contexts
+├── AuthContext.tsx # Context xác thực
+├── ThemeContext.tsx # Context theme
+└── CVContext.tsx   # Context CV
+```
+Mục đích: Chứa các React contexts để quản lý state toàn cục.
+- `AuthContext.tsx`: Context xử lý xác thực
+- `ThemeContext.tsx`: Context xử lý theme
+- `CVContext.tsx`: Context xử lý CV
+
+### 12. assets/ - Static Assets
+```
+assets/
+├── images/       # Hình ảnh
+├── icons/        # Icons
+├── fonts/        # Fonts
+└── styles/       # Styles cho assets
+```
+Mục đích: Chứa các static assets được sử dụng trong ứng dụng.
+- `images/`: Chứa hình ảnh
+- `icons/`: Chứa icons
+- `fonts/`: Chứa fonts
+- `styles/`: Styles đặc thù cho assets
+
+## Các File Cấu Hình Quan Trọng
+
+### 1. next.config.ts
+Mục đích: Cấu hình Next.js bao gồm:
+- Cài đặt i18n
+- Biến môi trường
+- Cài đặt build
+- Module aliases
+
+### 2. tsconfig.json
+Mục đích: Cấu hình TypeScript bao gồm:
+- Tùy chọn compiler
+- Path aliases
+- Định nghĩa types
+- Module resolution
+
+### 3. package.json
+Mục đích: Metadata và dependencies của project:
+- Danh sách dependencies
+- Scripts
+- Thông tin project
+- Version control
+
+### 4. .env
+Mục đích: Biến môi trường:
+- API keys
+- Giá trị cấu hình
+- Cài đặt theo môi trường
+
+## Tính Năng Chính và Best Practices
+
+1. **Đa Ngôn Ngữ**
+   - Sử dụng next-intl cho i18n
+   - Hỗ trợ nhiều ngôn ngữ (en, vi)
+   - Routing động với [locale]
+
+2. **Xác Thực**
+   - Xác thực dựa trên JWT
+   - Cơ chế refresh token
+   - Xử lý lưu trữ an toàn
+
+3. **Quản Lý State**
+   - Store tập trung
+   - Actions type-safe
+   - Cập nhật hiệu quả
+
+4. **Tích Hợp API**
+   - API client dựa trên Axios
+   - API calls type-safe
+   - Xử lý lỗi
+
+5. **Styling**
+   - CSS Modules
+   - Hỗ trợ theme
+   - Thiết kế responsive
+
+6. **Type Safety**
+   - Hỗ trợ TypeScript đầy đủ
+   - Kiểm tra type nghiêm ngặt
+   - Định nghĩa interface
+
+## Hướng Dẫn Phát Triển
+
+1. **Cấu Trúc Component**
+   - Sử dụng functional components
+   - Implement prop types đúng cách
+   - Tuân thủ nguyên tắc atomic design
+
+2. **Quản Lý State**
+   - Sử dụng hooks cho local state
+   - Sử dụng context cho global state
+   - Implement error boundaries
+
+3. **API Calls**
+   - Sử dụng service layer
+   - Implement xử lý lỗi
+   - Sử dụng TypeScript interfaces
+
+4. **Styling**
+   - Sử dụng CSS Modules
+   - Tuân thủ BEM naming
+   - Implement responsive design
+
+5. **Testing**
+   - Viết unit tests
+   - Implement integration tests
+   - Sử dụng mocking phù hợp
+
+## Bắt Đầu
+
+1. Cài đặt dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Thiết lập biến môi trường:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Chạy development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Build cho production:
+   ```bash
+   npm run build
+   ```
+
+## Đóng Góp
+
+1. Tuân thủ coding standards
+2. Viết commit messages có ý nghĩa
+3. Tạo pull requests đúng cách
+4. Cập nhật documentation
+
+## Triển Khai
+
+1. Build ứng dụng
+2. Thiết lập biến môi trường
+3. Deploy lên hosting platform
+4. Giám sát hiệu suất
