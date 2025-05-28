@@ -24,7 +24,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { usePathname, useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const NAV_LINKS = [
   { title: 'Men', href: ROUTES.MEN },
@@ -34,6 +34,10 @@ const NAV_LINKS = [
   { title: 'Sale', href: ROUTES.SALE },
 ];
 
+// Các ngôn ngữ hỗ trợ
+const LANGUAGES = ['en', 'vi'] as const;
+type Language = typeof LANGUAGES[number];
+
 const Header = () => {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -41,8 +45,43 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
+  const getCurrentLanguage = (): Language => {
+    const pathParts = pathname?.split('/') || [];
+    if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
+      return pathParts[1] as Language;
+    }
+    return 'en'; // mặc định là English nếu không có prefix
+  };
+
+  const [language, setLanguage] = useState<Language>('en');
+
+  useEffect(() => {
+    setLanguage(getCurrentLanguage());
+  }, [pathname]);
+
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
+  };
+
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en' ? 'vi' : 'en';
+
+    // Thay đổi URL
+    const pathParts = pathname.split('/');
+
+    // Nếu URL hiện tại có prefix ngôn ngữ, thay prefix mới
+    if (LANGUAGES.includes(pathParts[1] as Language)) {
+      pathParts[1] = newLang;
+    } else {
+      // Nếu không có prefix, thêm prefix mới vào đầu (bỏ phần đầu rỗng)
+      pathParts.splice(1, 0, newLang);
+    }
+
+    const newPath = pathParts.join('/') || '/';
+
+    setLanguage(newLang);
+    router.push(newPath);
   };
 
   return (
@@ -113,22 +152,34 @@ const Header = () => {
           {/* Right icons and Sign Up button */}
           <Stack direction="row" spacing={1} alignItems="center">
             <ThemeToggle />
-            <IconButton
-              aria-label="cart"
-              color="inherit"
-              size="large"
-              onClick={() => router.push(ROUTES.CART)}
+
+            {/* Nút đổi ngôn ngữ */}
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={toggleLanguage}
+              sx={{
+                color: 'inherit',
+                borderColor: 'inherit',
+                textTransform: 'uppercase',
+                minWidth: 48,
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+                '&:hover': {
+                  borderColor: theme === 'dark' ? 'white' : 'black',
+                  backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                },
+              }}
             >
+              {language.toUpperCase()}
+            </Button>
+
+            <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              aria-label="profile"
-              color="inherit"
-              size="large"
-              onClick={() => router.push(ROUTES.PROFILE)}
-            >
+            <IconButton aria-label="profile" color="inherit" size="large" onClick={() => router.push(ROUTES.PROFILE)}>
               <AccountCircleIcon />
             </IconButton>
 
