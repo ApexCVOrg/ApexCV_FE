@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   AppBar,
@@ -19,14 +19,18 @@ import {
   ListItemButton,
   ListItemText,
   Badge,
+  useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { usePathname, useRouter } from 'next/navigation';
-import {ROUTES} from '@/lib/constants/constants';
+import { ROUTES } from '@/lib/constants/constants';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
-import ThemeToggle from '@/components/ui/ThemeToggle'; // Đường dẫn giữ nguyên tùy bạn
+// Các ngôn ngữ hỗ trợ
+const LANGUAGES = ['en', 'vi'] as const;
+type Language = typeof LANGUAGES[number];
 
 const NAV_LINKS = [
   {
@@ -76,7 +80,7 @@ const NAV_LINKS = [
   },
   {
     title: 'Accessories',
-    href: ROUTES.ACCESSORIES,
+    href: ROUTES.ACCESSORIES.ROOT,
     submenu: [
       { title: 'Túi xách', href: ROUTES.ACCESSORIES.BAGS },
       { title: 'Mũ', href: ROUTES.ACCESSORIES.HATS },
@@ -87,7 +91,7 @@ const NAV_LINKS = [
   },
   {
     title: 'Sale',
-    href: ROUTES.SALE,
+    href: ROUTES.SALE.ROOT,
     submenu: [
       { title: 'Men Sale', href: ROUTES.SALE.MEN_SALE },
       { title: 'Women Sale', href: ROUTES.SALE.WOMEN_SALE },
@@ -102,10 +106,26 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
+  const muiTheme = useTheme();
+  const isDarkMode = muiTheme.palette.mode === 'dark';
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
+
+  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
+  const getCurrentLanguage = (): Language => {
+    const pathParts = pathname?.split('/') || [];
+    if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
+      return pathParts[1] as Language;
+    }
+    return 'en'; // mặc định là English nếu không có prefix
+  };
+
+  useEffect(() => {
+    setLanguage(getCurrentLanguage());
+  }, [pathname]);
 
   // Xử lý khi hover vào menu
   const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
@@ -131,9 +151,39 @@ const Header = () => {
     setDrawerOpen(open);
   };
 
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en' ? 'vi' : 'en';
+
+    // Thay đổi URL
+    const pathParts = pathname.split('/');
+
+    // Nếu URL hiện tại có prefix ngôn ngữ, thay prefix mới
+    if (LANGUAGES.includes(pathParts[1] as Language)) {
+      pathParts[1] = newLang;
+    } else {
+      // Nếu không có prefix, thêm prefix mới vào đầu (bỏ phần đầu rỗng)
+      pathParts.splice(1, 0, newLang);
+    }
+
+    const newPath = pathParts.join('/') || '/';
+
+    setLanguage(newLang);
+    router.push(newPath);
+  };
+
   return (
     <>
-      <AppBar position="sticky" color="default" elevation={1}>
+      <AppBar
+        position="sticky"
+        sx={{
+          bgcolor: isDarkMode ? '#000' : '#fff',
+          color: isDarkMode ? '#fff' : '#000',
+          borderBottom: '1px solid',
+          borderColor: isDarkMode ? 'grey.800' : 'grey.300',
+          px: 2,
+        }}
+        elevation={0}
+      >
         <Toolbar
           sx={{
             maxWidth: 1200,
@@ -239,6 +289,28 @@ const Header = () => {
           {/* Right Icons */}
           <Stack direction="row" spacing={1} alignItems="center">
             <ThemeToggle />
+
+            {/* Nút đổi ngôn ngữ */}
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={toggleLanguage}
+              sx={{
+                color: 'inherit',
+                borderColor: 'inherit',
+                textTransform: 'uppercase',
+                minWidth: 48,
+                fontWeight: 'bold',
+                fontSize: '0.875rem',
+                '&:hover': {
+                  borderColor: isDarkMode ? 'white' : 'black',
+                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                },
+              }}
+            >
+              {language.toUpperCase()}
+            </Button>
+
             <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
@@ -259,7 +331,11 @@ const Header = () => {
       </AppBar>
 
       {/* Mobile Drawer */}
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+      >
         <Box sx={{ width: 240 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
           <List>
             {NAV_LINKS.map(({ title, href, submenu }) => (
@@ -268,7 +344,7 @@ const Header = () => {
                   <ListItemButton
                     component={Link}
                     href={href as string}
-                    onClick={() => setDrawerOpen(false)} // Đóng drawer khi chọn
+                    onClick={() => setDrawerOpen(false)}
                   >
                     <ListItemText primary={title} primaryTypographyProps={{ textTransform: 'uppercase' }} />
                   </ListItemButton>
@@ -279,7 +355,7 @@ const Header = () => {
                       <ListItemButton
                         component={Link}
                         href={sub.href as string}
-                        onClick={() => setDrawerOpen(false)} // Đóng drawer khi chọn
+                        onClick={() => setDrawerOpen(false)}
                       >
                         <ListItemText primary={sub.title} />
                       </ListItemButton>
