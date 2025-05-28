@@ -58,7 +58,7 @@ const Header = () => {
         }}
         elevation={0}
       >
-        <Toolbar 
+        <Toolbar
           sx={{
             maxWidth: 1200,
             mx: 'auto',
@@ -69,7 +69,7 @@ const Header = () => {
             py: 1,
           }}
         >
-          {/* Logo Adidas style */}
+          {/* Logo */}
           <Link href={ROUTES.HOME} style={{ textDecoration: 'none', color: 'inherit' }}>
             <Typography
               variant="h4"
@@ -110,7 +110,7 @@ const Header = () => {
             </Stack>
           )}
 
-          {/* Right icons */}
+          {/* Right icons and Sign Up button */}
           <Stack direction="row" spacing={1} alignItems="center">
             <ThemeToggle />
             <IconButton
@@ -132,14 +132,19 @@ const Header = () => {
               <AccountCircleIcon />
             </IconButton>
 
+            {/* Sign Up button */}
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={() => router.push(ROUTES.REGISTER)}
+              sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+            >
+              Sign Up
+            </Button>
+
             {/* Mobile menu button */}
             {isMobile && (
-              <IconButton
-                aria-label="menu"
-                color="inherit"
-                size="large"
-                onClick={toggleDrawer(true)}
-              >
+              <IconButton aria-label="menu" color="inherit" size="large" onClick={toggleDrawer(true)}>
                 <MenuIcon />
               </IconButton>
             )}

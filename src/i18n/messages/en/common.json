@@ -15,5 +15,26 @@
   },
   "collections": {
     "title": "Featured Collections"
+  },
+  
+  "login": {
+    "title": "Login to Your Account",
+    "subtitle": "Don't have an account?",
+    "registerLink": "Register",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "forgotPassword": "Forgot Password?"
+  },
+
+  "register": {
+    "title": "Create a New Account",
+    "subtitle": "Already have an account?",
+    "loginLink": "Login",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "register": "Register"
   }
 }

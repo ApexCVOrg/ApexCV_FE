@@ -23,8 +23,6 @@ export const API_ENDPOINTS = {
   // Thêm các endpoints khác ở đây
 };
 
-// API Base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -44,7 +42,7 @@ export const THEME = {
 export const ROUTES = {
   HOME: '/home',
   LOGIN: '/login',
-  REGISTER: '/register',
+  REGISTER: 'auth/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   SETTINGS: '/settings',

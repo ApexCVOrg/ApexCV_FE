@@ -15,5 +15,24 @@
   },
   "collections": {
     "title": "Bộ sưu tập nổi bật"
+  },
+  "login": {
+    "title": "Đăng nhập vào tài khoản của bạn",
+    "subtitle": "Bạn chưa có tài khoản?",
+    "registerLink": "Đăng ký",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "login": "Đăng nhập",
+    "forgotPassword": "Quên mật khẩu?"
+  },
+  "register": {
+    "title": "Tạo tài khoản mới",
+    "subtitle": "Bạn đã có tài khoản?",
+    "loginLink": "Đăng nhập",
+    "name": "Tên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "register": "Đăng ký"
   }
 }
