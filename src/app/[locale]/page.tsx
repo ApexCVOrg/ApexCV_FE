@@ -1,78 +1,269 @@
-import Link from 'next/link';
-import { ROUTES } from '@/lib/constants/constants';
-import { useTranslations } from 'next-intl';
-import { Link as I18nLink } from '@/i18n/navigation';
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Grid,
+  Box,
+  Typography,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Slider,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  Divider,
+  TextField,
+  InputAdornment,
+  CircularProgress,
+} from '@mui/material';
+import ProductCard from '@/components/card';
+import SearchIcon from '@mui/icons-material/Search';
+
+interface Product {
+  _id: string;
+  name: string;
+  images: string[]; // theo model
+  price: number;
+  discountPrice?: number;
+  tags: string[];
+  categories: { _id: string; name: string }[]; // theo model
+  brand: { _id: string; name: string };
+}
+
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface Brand {
+  _id: string;
+  name: string;
+}
 
 export default function Home() {
-  const t = useTranslations(); // Uses the default namespace or root if not specified
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 5000000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState('newest');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch initial categories and brands only once
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [categoriesRes, brandsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
+        ]);
+        const [categoriesData, brandsData] = await Promise.all([
+          categoriesRes.json(),
+          brandsRes.json(),
+        ]);
+        setCategories(categoriesData);
+        setBrands(brandsData);
+      } catch (error) {
+        console.error('Error fetching categories or brands:', error);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+  // Fetch filtered products whenever filters change
+  useEffect(() => {
+    const fetchFilteredProducts = async () => {
+      setLoading(true);
+      try {
+        const queryParams = new URLSearchParams({
+          minPrice: priceRange[0].toString(),
+          maxPrice: priceRange[1].toString(),
+          sortBy,
+          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+          ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+          ...(searchQuery && { search: searchQuery }),
+        });
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching filtered products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFilteredProducts();
+  }, [priceRange, selectedCategories, selectedBrands, sortBy, searchQuery]);
+
+  const handlePriceChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
+  };
+
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>, categoryId: string) => {
+    setSelectedCategories(prev =>
+      event.target.checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId)
+    );
+  };
+
+  const handleBrandChange = (event: React.ChangeEvent<HTMLInputElement>, brandId: string) => {
+    setSelectedBrands(prev =>
+      event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId)
+    );
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div className="home-page">
-      {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1>{t('hero.title')}</h1>
-          <p>{t('hero.subtitle')}</p>
-          <div className="hero-actions">
-            <I18nLink href={ROUTES.REGISTER} className="btn btn-primary">
-              {t('hero.getStarted')}
-            </I18nLink>
-            <I18nLink href="/templates" className="btn btn-secondary">
-              {t('hero.viewTemplates')}
-            </I18nLink>
-          </div>
-        </div>
-      </section>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Grid container spacing={4}>
+        {/* Filters Sidebar */}
+        <Box sx={{ width: { xs: '100%', md: '25%' } }}>
+          <Box sx={{ position: 'sticky', top: 20 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Filters
+            </Typography>
 
-      {/* Features Section */}
-      <section className="features">
-        <h2>{t('features.title')}</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <h3>{t('features.templates.title')}</h3>
-            <p>{t('features.templates.description')}</p>
-          </div>
-          <div className="feature-card">
-            <h3>{t('features.easyUse.title')}</h3>
-            <p>{t('features.easyUse.description')}</p>
-          </div>
-          <div className="feature-card">
-            <h3>{t('features.export.title')}</h3>
-            <p>{t('features.export.description')}</p>
-          </div>
-        </div>
-      </section>
+            {/* Search */}
+            <TextField
+              fullWidth
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              sx={{ mb: 3 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-      {/* How It Works Section */}
-      <section className="how-it-works">
-        <h2>{t('howItWorks.title')}</h2>
-        <div className="steps">
-          <div className="step">
-            <div className="step-number">1</div>
-            <h3>{t('howItWorks.step1.title')}</h3>
-            <p>{t('howItWorks.step1.description')}</p>
-          </div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <h3>{t('howItWorks.step2.title')}</h3>
-            <p>{t('howItWorks.step2.description')}</p>
-          </div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <h3>{t('howItWorks.step3.title')}</h3>
-            <p>{t('howItWorks.step3.description')}</p>
-          </div>
-        </div>
-      </section>
+            {/* Price Range */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Price Range
+              </Typography>
+              <Slider
+                value={priceRange}
+                onChange={handlePriceChange}
+                valueLabelDisplay="auto"
+                min={0}
+                max={5000000}
+                step={100000}
+                valueLabelFormat={(value) => `${value.toLocaleString('vi-VN')}đ`}
+              />
+              <Stack direction="row" justifyContent="space-between">
+                <Typography variant="body2">{priceRange[0].toLocaleString('vi-VN')}đ</Typography>
+                <Typography variant="body2">{priceRange[1].toLocaleString('vi-VN')}đ</Typography>
+              </Stack>
+            </Box>
 
-      {/* CTA Section */}
-      <section className="cta">
-        <h2>{t('cta.title')}</h2>
-        <p>{t('cta.subtitle')}</p>
-        <I18nLink href={ROUTES.REGISTER} className="btn btn-primary">
-          {t('cta.button')}
-        </I18nLink>
-      </section>
-    </div>
+            <Divider sx={{ my: 2 }} />
+
+            {/* Categories */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Categories
+              </Typography>
+              <FormGroup>
+                {categories.map((category) => (
+                  <FormControlLabel
+                    key={category._id}
+                    control={
+                      <Checkbox
+                        checked={selectedCategories.includes(category._id)}
+                        onChange={(e) => handleCategoryChange(e, category._id)}
+                      />
+                    }
+                    label={category.name}
+                  />
+                ))}
+              </FormGroup>
+            </Box>
+
+            <Divider sx={{ my: 2 }} />
+
+            {/* Brands */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                Brands
+              </Typography>
+              <FormGroup>
+                {brands.map((brand) => (
+                  <FormControlLabel
+                    key={brand._id}
+                    control={
+                      <Checkbox
+                        checked={selectedBrands.includes(brand._id)}
+                        onChange={(e) => handleBrandChange(e, brand._id)}
+                      />
+                    }
+                    label={brand.name}
+                  />
+                ))}
+              </FormGroup>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Products Grid */}
+        <Box sx={{ width: { xs: '100%', md: '75%' } }}>
+          {/* Sort and Filter Bar */}
+          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6">{products.length} Products</Typography>
+            <FormControl sx={{ minWidth: 200 }}>
+              <InputLabel>Sort By</InputLabel>
+              <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+                <MenuItem value="newest">Newest</MenuItem>
+                <MenuItem value="price-low">Price: Low to High</MenuItem>
+                <MenuItem value="price-high">Price: High to Low</MenuItem>
+                <MenuItem value="popular">Most Popular</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          {/* Products Grid */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
+            {products.map((product) => (
+              <Box key={product._id}>
+                <ProductCard
+                  name={product.name}
+                  image={product.images[0]} // Lấy ảnh đầu tiên
+                  price={product.price}
+                  discountPrice={product.discountPrice}
+                  tags={product.tags}
+                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Grid>
+    </Container>
   );
 }

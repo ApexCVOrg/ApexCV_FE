@@ -42,15 +42,23 @@ export const THEME = {
 
 // Route Paths
 export const ROUTES = {
-  HOME: '/',
+  HOME: '/home',
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   SETTINGS: '/settings',
-  // Thêm các routes khác ở đây
+  MEN: '/men',
+  WOMEN: '/women',
+  KIDS: '/kids',
+  ACCESSORIES: '/accessories',
+  COLLECTION_ULTRABOOST: '/collections/ultraboost',
+  COLLECTION_ORIGINALS: '/collections/originals',
+  COLLECTION_SPORTSWEAR: '/collections/sportswear',
+  PROMO: '/promo',
+  SALE: '/sale',
+  CART: '/cart',
 };
-
 // Validation Constants
 export const VALIDATION = {
   PASSWORD_MIN_LENGTH: 8,
@@ -109,4 +117,4 @@ export const CACHE_KEYS = {
   USER_PROFILE: 'user-profile',
   SETTINGS: 'settings',
   // Thêm các cache keys khác ở đây
-}; 
+};

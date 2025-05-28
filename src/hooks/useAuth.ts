@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import authService from '@/services/AuthService';
+import authService from '@/services/auth';
 
 interface AuthError {
   message: string;
