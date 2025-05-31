@@ -45,20 +45,19 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
-  const getCurrentLanguage = (): Language => {
-    const pathParts = pathname?.split('/') || [];
-    if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
-      return pathParts[1] as Language;
-    }
-    return 'en'; // mặc định là English nếu không có prefix
-  };
-
   const [language, setLanguage] = useState<Language>('en');
 
   useEffect(() => {
+    const getCurrentLanguage = (): Language => {
+      const pathParts = pathname?.split('/') || [];
+      if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
+        return pathParts[1] as Language;
+      }
+      return 'en'; // mặc định là English nếu không có prefix
+    };
+
     setLanguage(getCurrentLanguage());
-  }, [getCurrentLanguage]);
+  }, [pathname]);
 
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
@@ -179,7 +178,12 @@ const Header = () => {
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton aria-label="profile" color="inherit" size="large" onClick={() => router.push(ROUTES.PROFILE)}>
+            <IconButton
+              aria-label="profile"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.PROFILE)}
+            >
               <AccountCircleIcon />
             </IconButton>
 
