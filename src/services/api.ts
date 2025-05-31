@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { API_BASE_URL } from '../lib/constants/constants';
 
 interface RefreshTokenResponse {
@@ -10,31 +11,30 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Cho phép gửi cookies
+  withCredentials: true,
 });
 
-// Request interceptor
 api.interceptors.request.use(
-  config => {
+  (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('auth_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  error => {
-    return Promise.reject(error);
-  }
+  error => Promise.reject(error)
 );
 
-// Response interceptor
 api.interceptors.response.use(
   response => response,
-  async error => {
-    const originalRequest = error.config as any;
+  async (
+    error: AxiosError & {
+      config?: InternalAxiosRequestConfig & { _retry?: boolean };
+    }
+  ) => {
+    const originalRequest = error.config;
 
-    // Nếu lỗi 401 và chưa thử refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -51,7 +51,6 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch (refreshError) {
-        // Nếu refresh token thất bại, logout user
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
         window.location.href = '/login';
