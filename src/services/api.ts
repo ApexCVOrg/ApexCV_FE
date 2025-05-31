@@ -1,9 +1,13 @@
 import axios from 'axios';
-import type { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { API_BASE_URL } from '../lib/constants/constants';
 
 interface RefreshTokenResponse {
   token: string;
+}
+
+interface RequestConfig {
+  headers?: Record<string, string>;
+  _retry?: boolean;
 }
 
 const api = axios.create({
@@ -15,7 +19,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  config => {
     const token = localStorage.getItem('auth_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -27,11 +31,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   response => response,
-  async (
-    error: AxiosError & {
-      config?: InternalAxiosRequestConfig & { _retry?: boolean };
-    }
-  ) => {
+  async (error: any) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
