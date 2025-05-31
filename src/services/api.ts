@@ -5,9 +5,16 @@ interface RefreshTokenResponse {
   token: string;
 }
 
-interface RequestConfig {
-  headers?: Record<string, string>;
-  _retry?: boolean;
+interface ApiError {
+  response?: {
+    status: number;
+  };
+  config?: {
+    headers?: Record<string, string>;
+    _retry?: boolean;
+    url?: string;
+    method?: string;
+  };
 }
 
 const api = axios.create({
@@ -31,7 +38,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   response => response,
-  async (error: any) => {
+  async (error: ApiError) => {
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
@@ -49,7 +56,7 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`;
         }
 
-        return api(originalRequest);
+        return api(originalRequest as any);
       } catch (refreshError) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
