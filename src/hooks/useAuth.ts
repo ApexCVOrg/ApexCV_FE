@@ -9,34 +9,43 @@ interface AuthError {
   status?: number;
 }
 
+interface AxiosErrorResponse {
+  response?: {
+    data?: {
+      message?: string;
+    };
+    status?: number;
+  };
+}
+
+const isAxiosErrorResponse = (error: unknown): error is AxiosErrorResponse => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error &&
+    typeof (error as any).response === 'object' &&
+    (error as any).response !== null
+  );
+};
+
 export const useAuth = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
-  // Thay err: any bằng unknown, check kiểu trước khi truy cập property
   const handleError = (err: unknown): AuthError => {
-    if (
-      typeof err === 'object' &&
-      err !== null &&
-      'response' in err &&
-      typeof (err as any).response === 'object' &&
-      (err as any).response !== null &&
-      'data' in (err as any).response &&
-      typeof (err as any).response.data === 'object' &&
-      (err as any).response.data !== null &&
-      'message' in (err as any).response.data &&
-      typeof (err as any).response.data.message === 'string'
-    ) {
+    if (isAxiosErrorResponse(err) && err.response?.data?.message) {
       return {
-        message: (err as any).response.data.message,
-        status: (err as any).response.status,
+        message: err.response.data.message,
+        status: err.response.status,
       };
     }
+
     if (err instanceof Error) {
       return { message: err.message };
     }
-    return { message: 'An error occurred' };
+
+    return { message: 'An unknown error occurred' };
   };
 
   const login = useCallback(
