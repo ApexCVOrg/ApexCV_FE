@@ -17,6 +17,14 @@ interface ApiError {
   };
 }
 
+interface AxiosRequest {
+  url: string;
+  method: string;
+  headers?: Record<string, string>;
+  data?: unknown;
+  _retry?: boolean;
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -56,7 +64,7 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${token}`;
         }
 
-        return api(originalRequest as any);
+        return api(originalRequest as AxiosRequest);
       } catch (refreshError) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
