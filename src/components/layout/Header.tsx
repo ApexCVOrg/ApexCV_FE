@@ -58,7 +58,7 @@ const Header = () => {
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
-  }, [pathname]);
+  }, [getCurrentLanguage]);
 
   const toggleDrawer = (open: boolean) => () => {
     setDrawerOpen(open);
