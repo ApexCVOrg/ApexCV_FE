@@ -9,23 +9,30 @@ interface AuthError {
   status?: number;
 }
 
-interface AxiosErrorResponse {
-  response?: {
-    data?: {
-      message?: string;
-    };
-    status?: number;
+interface AxiosResponseLike {
+  data?: {
+    message?: string;
   };
+  status?: number;
 }
 
-const isAxiosErrorResponse = (error: unknown): error is AxiosErrorResponse => {
-  return (
+interface AxiosErrorLike {
+  response?: AxiosResponseLike;
+}
+
+const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
+  if (
     typeof error === 'object' &&
     error !== null &&
-    'response' in error &&
-    typeof (error as any).response === 'object' &&
-    (error as any).response !== null
-  );
+    'response' in error
+  ) {
+    const maybeError = error as AxiosErrorLike;
+    return (
+      typeof maybeError.response === 'object' &&
+      maybeError.response !== null
+    );
+  }
+  return false;
 };
 
 export const useAuth = () => {
