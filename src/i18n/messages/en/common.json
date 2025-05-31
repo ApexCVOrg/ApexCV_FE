@@ -15,5 +15,46 @@
   },
   "collections": {
     "title": "Featured Collections"
+  },
+  "manager": {
+    "dashboard": {
+      "overview": "Overview",
+      "totalSales": "Total Sales",
+      "activeUsers": "Active Users",
+      "pendingOrders": "Pending Orders",
+      "newCustomers": "New Customers"
+    },
+    "layout": {
+      "managerDashboard": "Manager Dashboard",
+      "helloManager": "Hello, Manager",
+      "dashboard": "Dashboard",
+      "products": "Products",
+      "categories": "Categories",
+      "orders": "Orders",
+      "customers": "Customers",
+      "settings": "Settings",
+      "logout": "Logout"
+    },
+    "categories": {
+      "title": "Categories Management",
+      "addNew": "Add New Category",
+      "editCategory": "Edit Category",
+      "addCategory": "Add Category",
+      "name": "Name",
+      "description": "Description",
+      "statusLabel": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "loading": "Loading categories...",
+      "noCategories": "No categories found",
+      "cancel": "Cancel",
+      "create": "Create",
+      "update": "Update",
+      "deleteConfirm": "Are you sure you want to delete this category?",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      }
+    }
   }
 }

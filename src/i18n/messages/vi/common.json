@@ -15,5 +15,46 @@
   },
   "collections": {
     "title": "Bộ sưu tập nổi bật"
+  },
+  "manager": {
+    "dashboard": {
+      "overview": "Tổng Quan",
+      "totalSales": "Doanh Số",
+      "activeUsers": "Người Dùng",
+      "pendingOrders": "Đơn Hàng",
+      "newCustomers": "Khách Hàng Mới"
+    },
+    "layout": {
+      "managerDashboard": "Quản Lý",
+      "helloManager": "Xin Chào, Quản Lý",
+      "dashboard": "Tổng Quan",
+      "products": "Sản Phẩm",
+      "categories": "Danh Mục",
+      "orders": "Đơn Hàng",
+      "customers": "Khách Hàng",
+      "settings": "Cài Đặt",
+      "logout": "Đăng Xuất"
+    },
+    "categories": {
+      "title": "Quản Lý Danh Mục",
+      "addNew": "Thêm Danh Mục Mới",
+      "editCategory": "Chỉnh Sửa Danh Mục",
+      "addCategory": "Thêm Danh Mục",
+      "name": "Tên",
+      "description": "Mô Tả",
+      "statusLabel": "Trạng Thái",
+      "createdAt": "Ngày Tạo",
+      "actions": "Thao Tác",
+      "loading": "Đang tải danh mục...",
+      "noCategories": "Không tìm thấy danh mục nào",
+      "cancel": "Hủy",
+      "create": "Tạo Mới",
+      "update": "Cập Nhật",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa danh mục này?",
+      "status": {
+        "active": "Hoạt Động",
+        "inactive": "Không Hoạt Động"
+      }
+    }
   }
 }
