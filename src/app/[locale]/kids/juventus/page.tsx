@@ -33,57 +33,48 @@ const products: ProductInfo[] = [
 
 export default function JuventusPage() {
   return (
-    <Box sx={{ p: 2 }}>
-      <Box sx={{ 
+    <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{
         display: 'grid',
         gridTemplateColumns: {
           xs: '1fr',
           sm: 'repeat(2, 1fr)',
           md: 'repeat(4, 1fr)'
         },
-        gap: 3,
+        gap: 2,
+        maxWidth: 1200,
+        width: '100%',
         alignItems: 'stretch',
       }}>
         {products.map((item, idx) => (
-          <Card 
+          <Card
             key={idx}
-            sx={{ 
+            sx={{
               height: '100%',
               display: 'flex',
               flexDirection: 'column',
+              transition: 'transform 0.2s ease-in-out',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
+              }
             }}
           >
             <CardMedia
               component="img"
+              height={260}
               image={item.image}
               alt={item.name}
-              sx={{ 
-                objectFit: 'contain',
-                bgcolor: '#f5f5f5',
-                p: 2,
-                height: 250,
+              sx={{
+                objectFit: 'cover',
+                bgcolor: '#f5f5f5'
               }}
             />
-            <CardContent sx={{ 
-              flexGrow: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1
-            }}>
-              <Typography variant="h6" sx={{ 
-                fontWeight: 700,
-                color: 'primary.main'
-              }}>
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
                 {item.price}
               </Typography>
-              <Typography variant="subtitle1" sx={{ 
-                fontWeight: 500,
-                minHeight: '3em',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden'
-              }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 1 }}>
                 {item.name}
               </Typography>
               <Typography variant="body2" color="text.secondary">
