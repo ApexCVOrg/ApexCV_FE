@@ -3,6 +3,10 @@ import React from "react";
 import { Button, Stack, Avatar } from "@mui/material";
 import { useRouter } from "next/navigation";
 
+interface TeamButtonsMUIProps {
+  pageType?: 'men' | 'women' | 'kids';
+}
+
 const teams = [
   {
     name: "Arsenal",
@@ -31,7 +35,7 @@ const teams = [
   },
 ];
 
-const TeamButtonsMUI: React.FC = () => {
+const TeamButtonsMUI: React.FC<TeamButtonsMUIProps> = ({ pageType = 'men' }) => {
   const router = useRouter();
 
   return (
@@ -40,7 +44,7 @@ const TeamButtonsMUI: React.FC = () => {
         {teams.map((team) => (
           <Button
             key={team.name}
-            onClick={() => router.push(`/en/men/${team.route}`)}
+            onClick={() => router.push(`/en/${pageType}/${team.route}`)}
             sx={{
               display: "flex",
               flexDirection: "column",

@@ -22,6 +22,7 @@ import {
 } from '@mui/material';
 import ProductCard from '@/components/card';
 import SearchIcon from '@mui/icons-material/Search';
+import TeamButtonsMUI from "@/components/button/TeamButtonsMUI";
 
 interface Product {
   _id: string;
@@ -129,6 +130,13 @@ export default function Home() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h4" component="h1" align="center" gutterBottom>
+          PICK YOUR TEAM
+        </Typography>
+        <TeamButtonsMUI />
+      </Box>
+
       <Grid container spacing={4}>
         {/* Filters Sidebar */}
         <Box sx={{ width: { xs: '100%', md: '25%' } }}>
@@ -253,7 +261,7 @@ export default function Home() {
               <Box key={product._id}>
                 <ProductCard
                   name={product.name}
-                  image={product.images[0]} // Lấy ảnh đầu tiên
+                  image={product.images[0]}
                   price={product.price}
                   discountPrice={product.discountPrice}
                   tags={product.tags}

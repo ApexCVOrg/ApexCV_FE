@@ -1,52 +1,76 @@
-import { ProductInfo } from "../layout";
+import { ProductInfo } from '../../../../components/layout/TeamLayout';
+import { Grid, Card, CardMedia, CardContent, Typography, Box } from '@mui/material';
 
 const products: ProductInfo[] = [
   {
-    name: "Juventus 23/24 Home Jersey",
-    price: "2,500,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/1.jpg",
+    name: "Juventus 25/26 Home Authentic Jersey",
+    price: "3,000,000₫",
+    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/b4e7e2f40aa64a1f92a8132a6c81b574_9366/juventus-25-26-home-authentic-jersey.jpg",
     desc: "Men Football - New",
   },
   {
-    name: "Juventus 23/24 Away Jersey",
+    name: "Juventus 25/26 Home Jersey",
     price: "2,200,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/2.jpg",
+    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/e86b3148bca44d478e0bc4bd6fea586f_9366/juventus-25-26-home-jersey.jpg",
     desc: "Men Football - New",
   },
   {
-    name: "Juventus 23/24 Third Jersey",
-    price: "2,200,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/3.jpg",
-    desc: "Men Football - New",
+    name: "Juventus 25/26 Home Jersey Kids",
+    price: "1,500,000₫",
+    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/eb1ae7bf50814ba7a52d74c4ce4c47f3_9366/juventus-25-26-home-jersey-kids.jpg",
+    desc: "Kids Football - New",
   },
   {
-    name: "Juventus 23/24 Shorts",
-    price: "1,000,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/4.jpg",
+    name: "Juventus 25/26 Home Shorts",
+    price: "1,100,000₫",
+    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/2c14518390e74640881e110fdf13ce5e_9366/juventus-25-26-home-shorts.jpg",
     desc: "Men Football - New",
   },
 ];
 
 export default function JuventusPage() {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-      {products.map((item, idx) => (
-        <div key={idx} style={{ height: '100%' }}>
-          <div style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.10)', borderRadius: 12, height: '100%', display: 'flex', flexDirection: 'column', background: '#fff' }}>
-            <img
-              height={260}
-              src={item.image}
-              alt={item.name}
-              style={{ objectFit: 'cover', background: '#f5f5f5', width: '100%', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
-            />
-            <div style={{ flexGrow: 1, padding: 16 }}>
-              <div style={{ fontWeight: 700, fontSize: 18, marginBottom: 8 }}>{item.price}</div>
-              <div style={{ fontWeight: 500 }}>{item.name}</div>
-              <div style={{ fontSize: 14, color: '#888' }}>{item.desc}</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
+    <Box sx={{ p: 2 }}>
+      <Grid container spacing={2}>
+        {products.map((item, idx) => (
+          <Grid key={idx} sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
+            <Card 
+              sx={{ 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
+                }
+              }}
+            >
+              <CardMedia
+                component="img"
+                height={260}
+                image={item.image}
+                alt={item.name}
+                sx={{ 
+                  objectFit: 'cover',
+                  bgcolor: '#f5f5f5'
+                }}
+              />
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                  {item.price}
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 1 }}>
+                  {item.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {item.desc}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 } 
