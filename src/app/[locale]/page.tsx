@@ -182,16 +182,17 @@ export default function Home() {
               </Typography>
               <FormGroup>
                 {categories.map((category) => (
-                  <FormControlLabel
-                    key={category._id}
-                    control={
-                      <Checkbox
-                        checked={selectedCategories.includes(category._id)}
-                        onChange={(e) => handleCategoryChange(e, category._id)}
-                      />
-                    }
-                    label={category.name}
-                  />
+                  <Box key={category._id}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedCategories.includes(category._id)}
+                          onChange={(e) => handleCategoryChange(e, category._id)}
+                        />
+                      }
+                      label={category.name}
+                    />
+                  </Box>
                 ))}
               </FormGroup>
             </Box>

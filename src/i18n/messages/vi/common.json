@@ -1,33 +1,33 @@
 {
   "hero": {
-    "title": "Khám phá bộ sưu tập mới nhất",
+    "title": "Khám phá Bộ Sưu Tập Mới Nhất",
     "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
-    "getStarted": "Bắt đầu ngay",
-    "viewTemplates": "Xem mẫu CV"
+    "getStarted": "Bắt đầu",
+    "viewTemplates": "Xem Mẫu"
   },
   "categories": {
-    "title": "Danh mục sản phẩm"
+    "title": "Mua theo Danh Mục"
   },
   "promo": {
-    "title": "Ưu đãi đặc biệt",
+    "title": "Ưu Đãi Đặc Biệt",
     "description": "Giảm 20% cho tất cả sản phẩm mới",
-    "shopNow": "Mua ngay"
+    "shopNow": "Mua Ngay"
   },
   "collections": {
-    "title": "Bộ sưu tập nổi bật"
+    "title": "Bộ Sưu Tập Nổi Bật"
   },
   "manager": {
     "dashboard": {
       "overview": "Tổng Quan",
-      "totalSales": "Doanh Số",
-      "activeUsers": "Người Dùng",
-      "pendingOrders": "Đơn Hàng",
+      "totalSales": "Tổng Doanh Thu",
+      "activeUsers": "Người Dùng Hoạt Động",
+      "pendingOrders": "Đơn Hàng Đang Xử Lý",
       "newCustomers": "Khách Hàng Mới"
     },
     "layout": {
-      "managerDashboard": "Quản Lý",
-      "helloManager": "Xin Chào, Quản Lý",
-      "dashboard": "Tổng Quan",
+      "managerDashboard": "Bảng Điều Khiển Quản Lý",
+      "helloManager": "Xin chào, Quản lý",
+      "dashboard": "Bảng Điều Khiển",
       "products": "Sản Phẩm",
       "categories": "Danh Mục",
       "orders": "Đơn Hàng",
@@ -42,18 +42,24 @@
       "addCategory": "Thêm Danh Mục",
       "name": "Tên",
       "description": "Mô Tả",
+      "parentCategory": "Danh Mục Cha",
       "statusLabel": "Trạng Thái",
       "createdAt": "Ngày Tạo",
-      "actions": "Thao Tác",
+      "actions": "Hành Động",
       "loading": "Đang tải danh mục...",
-      "noCategories": "Không tìm thấy danh mục nào",
+      "noCategories": "Không có danh mục nào",
       "cancel": "Hủy",
-      "create": "Tạo Mới",
+      "create": "Tạo",
       "update": "Cập Nhật",
-      "deleteConfirm": "Bạn có chắc chắn muốn xóa danh mục này?",
+      "deleteConfirm": "Bạn có chắc muốn xóa danh mục này không?",
+      "none": "Không có",
+      "selectName": "Chọn tên",
       "status": {
         "active": "Hoạt Động",
         "inactive": "Không Hoạt Động"
+      },
+      "error": {
+        "cannotSelectSelfAsParent": "Không thể chọn chính danh mục làm danh mục cha"
       }
     }
   }

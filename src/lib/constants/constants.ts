@@ -26,6 +26,7 @@ export const API_ENDPOINTS = {
       ORDERS: '/manager/stats/orders',
       CUSTOMERS: '/manager/stats/customers',
     },
+    BRANDS: '/manager/brands',
   },
   // Thêm các endpoints khác ở đây
 };
