@@ -436,7 +436,12 @@ const Header = () => {
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton aria-label="profile" color="inherit" size="large" onClick={() => router.push(ROUTES.PROFILE)}>
+            <IconButton
+              aria-label="profile"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.PROFILE)}
+            >
               <AccountCircleIcon />
             </IconButton>
             {/* Mobile menu button */}

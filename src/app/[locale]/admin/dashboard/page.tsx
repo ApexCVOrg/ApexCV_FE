@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Card, Typography, Box, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
-import { Grid } from '@mui/material';
 import {
   Person as PersonIcon,
   Description as DescriptionIcon,
@@ -40,9 +39,9 @@ const recentActivities = [
 export default function DashboardPage() {
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
         {stats.map(({ title, value, icon, percent }) => (
-          <Grid item xs={12} sm={4} key={title}>
+          <Box key={title}>
             <Card
               sx={{
                 display: 'flex',
@@ -79,13 +78,13 @@ export default function DashboardPage() {
                 </Typography>
               </Box>
             </Card>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3 }}>
+        <Box>
+          <Card sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
               Recent Activities
             </Typography>
@@ -110,10 +109,10 @@ export default function DashboardPage() {
               </Table>
             </TableContainer>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={4}>
-          <Card sx={{ p: 3 }}>
+        <Box>
+          <Card sx={{ p: 3, height: '100%' }}>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
               System Status
             </Typography>
@@ -132,8 +131,8 @@ export default function DashboardPage() {
               </Box>
             </Box>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 }
