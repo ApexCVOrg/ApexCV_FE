@@ -42,7 +42,7 @@ export const THEME = {
 
 // Route Paths
 export const ROUTES = {
-  HOME: '/home',
+  HOME: '/vi',
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',
@@ -105,6 +105,21 @@ export const ROUTES = {
     FLASH_SALE: '/sale/flash-sale',
   },
   CART: '/cart',
+  OUTLET: {
+    ROOT: '/outlet',
+    MEN: '/outlet/men',
+    WOMEN: '/outlet/women',
+    KIDS: '/outlet/kids',
+    MEN_SHOES: '/outlet/men-shoes',
+    WOMEN_SHOES: '/outlet/women-shoes',
+    KIDS_SHOES: '/outlet/kids-shoes',
+    MEN_CLOTHING: '/outlet/men-clothing',
+    WOMEN_CLOTHING: '/outlet/women-clothing',
+    KIDS_CLOTHING: '/outlet/kids-clothing',
+    MEN_ACCESSORIES: '/outlet/men-accessories',
+    WOMEN_ACCESSORIES: '/outlet/women-accessories',
+    KIDS_ACCESSORIES: '/outlet/kids-accessories',
+  },
 };
 // Validation Constants
 export const VALIDATION = {

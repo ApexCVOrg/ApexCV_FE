@@ -20,6 +20,8 @@ import {
   ListItemText,
   Badge,
   useTheme,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -27,6 +29,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import SearchIcon from '@mui/icons-material/Search';
 
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
@@ -100,7 +103,47 @@ const NAV_LINKS = [
       { title: 'Flash Sale', href: ROUTES.SALE.FLASH_SALE },
     ],
   },
+  {
+    title: 'Outlet',
+    href: ROUTES.OUTLET.ROOT,
+    submenu: [
+      {
+        title: 'Men',
+        children: [
+          { title: 'Giày', href: ROUTES.OUTLET.MEN_SHOES },
+          { title: 'Clothing', href: ROUTES.OUTLET.MEN_CLOTHING },
+          { title: 'Phụ kiện', href: ROUTES.OUTLET.MEN_ACCESSORIES },
+          { title: 'Tất cả đồ Nam', href: ROUTES.OUTLET.MEN },
+        ],
+      },
+      {
+        title: 'Women',
+        children: [
+          { title: 'Giày', href: ROUTES.OUTLET.WOMEN_SHOES },
+          { title: 'Clothing', href: ROUTES.OUTLET.WOMEN_CLOTHING },
+          { title: 'Phụ kiện', href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
+          { title: 'Tất cả đồ Nữ', href: ROUTES.OUTLET.WOMEN },
+        ],
+      },
+      {
+        title: 'Kids',
+        children: [
+          { title: 'Giày', href: ROUTES.OUTLET.KIDS_SHOES },
+          { title: 'Clothing', href: ROUTES.OUTLET.KIDS_CLOTHING },
+          { title: 'Phụ kiện', href: ROUTES.OUTLET.KIDS_ACCESSORIES },
+          { title: 'Tất cả đồ Trẻ em', href: ROUTES.OUTLET.KIDS },
+        ],
+      },
+    ],
+  },
 ];
+
+type OutletSubmenuGroup = {
+  title: string;
+  children: { title: string; href: string }[];
+};
+type OutletSubmenuItem = { title: string; href: string };
+type OutletSubmenu = (OutletSubmenuGroup | OutletSubmenuItem)[];
 
 const Header = () => {
   const pathname = usePathname();
@@ -186,110 +229,188 @@ const Header = () => {
       >
         <Toolbar
           sx={{
-            maxWidth: 1200,
-            mx: 'auto',
+            position: 'relative',
+            minHeight: 64,
+            px: 2,
             width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            py: 1,
+            maxWidth: 1920,
+            mx: 'auto',
+            bgcolor: isDarkMode ? '#000' : '#fff',
           }}
         >
-          {/* Logo */}
-          <Typography
-            variant="h4"
-            component={Link}
-            href={ROUTES.HOME}
-            sx={{
-              textDecoration: 'none',
-              color: 'inherit',
-              fontWeight: 900,
-              letterSpacing: 6,
-              fontFamily: "'Anton', sans-serif",
-              cursor: 'pointer',
-            }}
-          >
-            NIDAS
-          </Typography>
+          {/* Logo - Left */}
+          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 120 }}>
+            <Typography
+              variant="h4"
+              component={Link}
+              href={ROUTES.HOME}
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                fontWeight: 900,
+                letterSpacing: 6,
+                fontFamily: "'Anton', sans-serif",
+                cursor: 'pointer',
+              }}
+            >
+              NIDAS
+            </Typography>
+          </Box>
 
-          {/* Desktop Navigation */}
+          {/* Menu - Center */}
           {!isMobile && (
-            <Stack direction="row" spacing={4} sx={{ flexGrow: 1, ml: 6 }}>
-              {NAV_LINKS.map(({ title, href, submenu }, i) => (
-                <Box 
-                  key={title} 
-                  sx={{ 
-                    position: 'relative',
-                  }}
-                  onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
-                  onMouseLeave={handleMenuClose}
-                >
-                  <Button
-                    color="inherit"
-                    onClick={() => handleMenuClick(i, href as string)}
-                    sx={{
-                      fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
-                      fontSize: '1rem',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        borderBottom: '3px solid',
-                        borderColor: 'black',
-                        fontWeight: 'bold',
-                      },
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                top: 0,
+                transform: 'translateX(-50%)',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                zIndex: 1,
+              }}
+            >
+              <Stack direction="row" spacing={4}>
+                {NAV_LINKS.map(({ title, href, submenu }, i) => (
+                  <Box 
+                    key={title} 
+                    sx={{ 
+                      position: 'relative',
                     }}
+                    onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                    onMouseLeave={handleMenuClose}
                   >
-                    {title}
-                  </Button>
-
-                  {submenu && (
-                    <Popover
-                      open={openMenuIndex === i}
-                      anchorEl={anchorEl}
-                      onClose={handleMenuClose}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                      }}
+                    <Button
+                      color="inherit"
+                      onClick={() => handleMenuClick(i, href as string)}
                       sx={{
-                        pointerEvents: 'none',
-                        '& .MuiPopover-paper': {
-                          pointerEvents: 'auto',
-                          mt: 1,
+                        fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                        fontSize: '1rem',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          borderBottom: '3px solid',
+                          borderColor: 'black',
+                          fontWeight: 'bold',
                         },
                       }}
                     >
-                      <Box sx={{ p: 1 }}>
-                        {submenu.map(({ title: subTitle, href: subHref }) => (
-                          <MenuItem
-                            key={subTitle}
-                            component={Link}
-                            href={subHref}
-                            onClick={handleMenuClose}
-                            sx={{ 
-                              textTransform: 'capitalize',
-                              minWidth: 200,
-                            }}
-                          >
-                            {subTitle}
-                          </MenuItem>
-                        ))}
-                      </Box>
-                    </Popover>
-                  )}
-                </Box>
-              ))}
-            </Stack>
+                      {title}
+                    </Button>
+
+                    {submenu && (
+                      <Popover
+                        open={openMenuIndex === i}
+                        anchorEl={anchorEl}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left',
+                        }}
+                        PaperProps={{
+                          sx: {
+                            left: 0,
+                            right: 0,
+                            width: '100vw',
+                            maxWidth: 'none',
+                            borderRadius: 0,
+                            boxShadow: 2,
+                            px: 0,
+                          }
+                        }}
+                        sx={{
+                          pointerEvents: 'none',
+                          '& .MuiPopover-paper': {
+                            pointerEvents: 'auto',
+                            mt: 1,
+                          },
+                        }}
+                      >
+                        {title === 'Outlet' ? (
+                          <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
+                            {(submenu as OutletSubmenu).map((group) =>
+                              'children' in group ? (
+                                <Box key={group.title}>
+                                  <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
+                                  {group.children.map((item) => (
+                                    <MenuItem
+                                      key={item.title}
+                                      component={Link}
+                                      href={item.href}
+                                      onClick={handleMenuClose}
+                                      sx={{ minWidth: 180 }}
+                                    >
+                                      {item.title}
+                                    </MenuItem>
+                                  ))}
+                                </Box>
+                              ) : (
+                                <Box key={group.title}>
+                                  <MenuItem
+                                    component={Link}
+                                    href={group.href}
+                                    onClick={handleMenuClose}
+                                    sx={{ minWidth: 180 }}
+                                  >
+                                    {group.title}
+                                  </MenuItem>
+                                </Box>
+                              )
+                            )}
+                          </Box>
+                        ) : (
+                          <Box sx={{ p: 1 }}>
+                            {submenu
+                              .filter((item): item is OutletSubmenuItem => 'href' in item)
+                              .map((item) => (
+                                <MenuItem
+                                  key={item.title}
+                                  component={Link}
+                                  href={item.href}
+                                  onClick={handleMenuClose}
+                                  sx={{
+                                    textTransform: 'capitalize',
+                                    minWidth: 200,
+                                  }}
+                                >
+                                  {item.title}
+                                </MenuItem>
+                              ))}
+                          </Box>
+                        )}
+                      </Popover>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
           )}
 
-          {/* Right Icons */}
-          <Stack direction="row" spacing={1} alignItems="center">
+          {/* Right - Search + Icon */}
+          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 320, ml: 'auto' }}>
+            {/* Search Bar */}
+            <Box sx={{ mx: 2, width: 200 }}>
+              <TextField
+                size="small"
+                placeholder="Tìm kiếm"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 5, bgcolor: isDarkMode ? '#222' : '#f5f5f5' }
+                }}
+                variant="outlined"
+              />
+            </Box>
             <ThemeToggle />
-
             {/* Nút đổi ngôn ngữ */}
             <Button
               variant="outlined"
@@ -310,7 +431,6 @@ const Header = () => {
             >
               {language.toUpperCase()}
             </Button>
-
             <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
@@ -319,14 +439,13 @@ const Header = () => {
             <IconButton aria-label="profile" color="inherit" size="large" onClick={() => router.push(ROUTES.PROFILE)}>
               <AccountCircleIcon />
             </IconButton>
-
             {/* Mobile menu button */}
             {isMobile && (
               <IconButton aria-label="menu" color="inherit" size="large" onClick={toggleDrawer(true)}>
                 <MenuIcon />
               </IconButton>
             )}
-          </Stack>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -350,17 +469,33 @@ const Header = () => {
                   </ListItemButton>
                 </ListItem>
                 {submenu &&
-                  submenu.map((sub) => (
-                    <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
-                      <ListItemButton
-                        component={Link}
-                        href={sub.href as string}
-                        onClick={() => setDrawerOpen(false)}
-                      >
-                        <ListItemText primary={sub.title} />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
+                  (submenu as OutletSubmenu).map((sub) =>
+                    'children' in sub
+                      ? sub.children.map((item) => (
+                          <ListItem key={item.title} sx={{ pl: 4 }} disablePadding>
+                            <ListItemButton
+                              component={Link}
+                              href={item.href}
+                              onClick={() => setDrawerOpen(false)}
+                            >
+                              <ListItemText primary={item.title} />
+                            </ListItemButton>
+                          </ListItem>
+                        ))
+                      : (
+                        'href' in sub && (
+                          <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
+                            <ListItemButton
+                              component={Link}
+                              href={sub.href}
+                              onClick={() => setDrawerOpen(false)}
+                            >
+                              <ListItemText primary={sub.title} />
+                            </ListItemButton>
+                          </ListItem>
+                        )
+                      )
+                  )}
               </React.Fragment>
             ))}
           </List>
