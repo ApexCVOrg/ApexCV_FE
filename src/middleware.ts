@@ -2,8 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import { handleAuthMiddleware } from './store/middleware/authMiddleware';
 import { handleI18nMiddleware } from './store/middleware/i18nMiddleware';
 import { getToken } from 'next-auth/jwt';
+import createIntlMiddleware from 'next-intl/middleware';
+
+// Create next-intl middleware
+const intlMiddleware = createIntlMiddleware({
+  locales: ['en', 'vi'],
+  defaultLocale: 'en'
+});
 
 export async function middleware(request: NextRequest) {
+  // Handle next-intl middleware first
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) {
+    return intlResponse;
+  }
+
   // Handle authentication middleware
   const authResponse = handleAuthMiddleware(request);
   if (authResponse) {
