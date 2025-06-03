@@ -1,19 +1,19 @@
 {
   "hero": {
-    "title": "Khám phá bộ sưu tập mới nhất",
-    "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
-    "getStarted": "Bắt đầu ngay",
-    "viewTemplates": "Xem mẫu CV"
+    "title": "Khám Phá Bộ Sưu Tập Mới Nhất",
+    "subtitle": "Phong cách thể thao đẳng cấp cho bạn",
+    "getStarted": "Bắt Đầu",
+    "viewTemplates": "Xem Mẫu"
   },
   "categories": {
-    "title": "Danh mục sản phẩm"
+    "title": "Mua Sắm Theo Danh Mục"
   },
   "promo": {
-    "title": "Ưu đãi đặc biệt",
+    "title": "Ưu Đãi Đặc Biệt",
     "description": "Giảm 20% cho tất cả sản phẩm mới",
-    "shopNow": "Mua ngay"
+    "shopNow": "Mua Ngay"
   },
   "collections": {
-    "title": "Bộ sưu tập nổi bật"
+    "title": "Bộ Sưu Tập Nổi Bật"
   }
 }
