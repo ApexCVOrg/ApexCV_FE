@@ -42,7 +42,7 @@ export const THEME = {
 
 // Route Paths
 export const ROUTES = {
-  HOME: '/home',
+  HOME: '/vi',
   LOGIN: '/login',
   REGISTER: '/register',
   DASHBOARD: '/dashboard',

@@ -125,7 +125,7 @@ const Header = () => {
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
-  }, [pathname]);
+  }, [pathname, getCurrentLanguage]);
 
   // Xử lý khi hover vào menu
   const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
