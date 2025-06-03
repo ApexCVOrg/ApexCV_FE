@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { Container, Typography, Box } from "@mui/material";
-import TeamButtonsMUI from "@/components/button/TeamButtonsMUI";
 
 export default function MenPage() {
   return (

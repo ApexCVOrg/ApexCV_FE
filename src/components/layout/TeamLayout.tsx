@@ -4,6 +4,7 @@ import React from 'react';
 import { Box, Container, Typography, Paper } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface TeamInfo {
   name: string;
@@ -104,12 +105,12 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
                   padding: '4px',
                 }}
               >
-                <img
+                <Image
                   src={team.logo}
                   alt={team.name}
+                  width={60}
+                  height={60}
                   style={{
-                    width: '100%',
-                    height: '100%',
                     objectFit: 'contain',
                   }}
                 />

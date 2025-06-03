@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Container, Typography, Box } from '@mui/material';
-import TeamButtonsMUI from '@/components/button/TeamButtonsMUI';
 
 export default function KidsPage() {
   return (
