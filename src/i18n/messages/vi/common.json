@@ -25,7 +25,7 @@
     "login": "Đăng nhập",
     "forgotPassword": "Quên mật khẩu?"
   },
-  
+
   "register": {
     "title": "Tạo tài khoản mới",
     "username": "Tên đăng nhập",
@@ -40,7 +40,7 @@
     "city": "Thành phố",
     "state": "Tỉnh/Thành phố",
     "country": "Quốc gia",
-    "addressPhone": "Số điện thoại địa chỉ",
+    "addressNumber": "Số nhà (Tùy chọn)",
     "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
     "subtitle": "Đã có tài khoản?",
     "loginLink": "Đăng nhập",

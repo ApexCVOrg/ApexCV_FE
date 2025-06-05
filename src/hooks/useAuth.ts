@@ -21,11 +21,13 @@ interface AxiosErrorLike {
 }
 
 interface Address {
+  recipientName: string;
   street: string;
   city: string;
   state: string;
   country: string;
-  zipCode: string;
+  addressNumber: string;
+  isDefault: boolean;
 }
 
 interface RegisterError {
@@ -86,31 +88,71 @@ export const useAuth = () => {
     addresses: Address[]
   ) => {
     try {
-      console.log('Registering with data:', { email, fullName, username, phone, addresses });
+      // Validate required fields
+      console.log('=== Registration Data Validation ===');
+      console.log('Email:', email, email ? '✓' : '✗ Required');
+      console.log('Password:', password ? '✓ (length: ' + password.length + ')' : '✗ Required');
+      console.log('Username:', username, username ? '✓' : '✗ Required');
+      console.log('Full Name:', fullName, fullName ? '✓' : '✗ Required');
+      console.log('Phone:', phone, phone ? '✓' : '✗ Required');
+      console.log('Addresses:', addresses.length > 0 ? '✓' : '✗ Required');
+
+      if (addresses.length > 0) {
+        console.log('Address Details:');
+        addresses.forEach((addr, index) => {
+          console.log(`Address ${index + 1}:`, {
+            street: addr.street || '✗ Required',
+            city: addr.city || '✗ Required',
+            state: addr.state || '✗ Required',
+            country: addr.country || '✗ Required',
+            addressNumber: addr.addressNumber || '✗ Required',
+          });
+        });
+      }
+
+      const requestData = {
+        email,
+        password,
+        username,
+        fullName,
+        phone,
+        address: addresses,
+        role: 'user',
+      };
+
+      console.log('=== Request Data ===');
       console.log('API URL:', `${process.env.NEXT_PUBLIC_API_URL}/auth/register`);
+      console.log('Request Body:', JSON.stringify(requestData, null, 2));
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName, username, phone, address: addresses }),
+        body: JSON.stringify(requestData),
       });
 
-      console.log('Response status:', res.status);
+      console.log('=== Response Details ===');
+      console.log('Status:', res.status);
+      console.log('Status Text:', res.statusText);
+
       const data = await res.json();
-      console.log('Response data:', data);
+      console.log('Response Data:', JSON.stringify(data, null, 2));
 
       if (!res.ok) {
+        console.log('=== Error Details ===');
+        console.log('Error Message:', data.message);
+        if (data.errors) {
+          console.log('Validation Errors:', data.errors);
+        }
         return data;
       }
 
       return data;
     } catch (error: unknown) {
       const registerError = error as RegisterError;
-      console.error('Register error details:', {
-        message: registerError.message,
-        stack: registerError.stack,
-        apiUrl: process.env.NEXT_PUBLIC_API_URL,
-      });
+      console.error('=== Registration Error ===');
+      console.error('Error Message:', registerError.message);
+      console.error('Stack Trace:', registerError.stack);
+      console.error('API URL:', process.env.NEXT_PUBLIC_API_URL);
       return {
         success: false,
         message: 'server_error',

@@ -36,7 +36,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
 
   // Registration form state
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     username: '',
     fullName: '',
     email: '',
@@ -49,10 +49,11 @@ export default function RegisterPage() {
       city: '',
       state: '',
       country: '',
-      phone: '',
+      addressNumber: '',
       isDefault: false,
     },
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
 
   // UI state
   const [showPassword, setShowPassword] = useState(false);
@@ -81,27 +82,95 @@ export default function RegisterPage() {
 
   const handleAddressChange =
     (field: keyof typeof formData.address) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value = field === 'isDefault' ? (e.target as HTMLInputElement).checked : e.target.value;
-      setFormData(prev => ({
-        ...prev,
-        address: {
-          ...prev.address,
-          [field]: value,
-        },
-      }));
-    };
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = field === 'isDefault' ? (e.target as HTMLInputElement).checked : e.target.value;
+        setFormData(prev => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            [field]: value,
+          },
+        }));
+      };
 
   const handleClickShowPassword = () => setShowPassword(show => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword(show => !show);
+
+  // Hàm validate FE cho các trường đăng ký
+  function validateRegister(formData: typeof initialFormData): Record<string, string> {
+    const errors: Record<string, string> = {};
+
+    // Username
+    if (!formData.username) {
+      errors.username = 'Vui lòng nhập tên đăng nhập';
+    } else if (formData.username.length < 3) {
+      errors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự';
+    } else if (formData.username.length > 20) {
+      errors.username = 'Tên đăng nhập tối đa 20 ký tự';
+    }
+
+    // Password
+    if (!formData.password) {
+      errors.password = 'Vui lòng nhập mật khẩu';
+    } else if (formData.password.length < 8) {
+      errors.password = 'Mật khẩu phải có ít nhất 8 ký tự';
+    }
+
+    // Confirm password
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    }
+
+    // Email
+    if (!formData.email) {
+      errors.email = 'Vui lòng nhập email';
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.email)) {
+      errors.email = 'Email không hợp lệ';
+    }
+
+    // Full name
+    if (!formData.fullName) {
+      errors.fullName = 'Vui lòng nhập họ tên';
+    } else if (formData.fullName.length < 2) {
+      errors.fullName = 'Họ tên phải có ít nhất 2 ký tự';
+    }
+
+    // Phone
+    if (!formData.phone) {
+      errors.phone = 'Vui lòng nhập số điện thoại';
+    } else if (!/^[0-9]{9,11}$/.test(formData.phone)) {
+      errors.phone = 'Số điện thoại không hợp lệ (chỉ chứa số, 9-11 ký tự)';
+    }
+
+    // Địa chỉ nhà (address)
+    if (!formData.address.recipientName) {
+      errors['address.recipientName'] = 'Vui lòng nhập tên người nhận';
+    }
+    if (!formData.address.street) {
+      errors['address.street'] = 'Vui lòng nhập đường';
+    }
+    if (!formData.address.city) {
+      errors['address.city'] = 'Vui lòng nhập thành phố';
+    }
+    if (!formData.address.state) {
+      errors['address.state'] = 'Vui lòng nhập tỉnh/thành phố';
+    }
+    if (!formData.address.country) {
+      errors['address.country'] = 'Vui lòng nhập quốc gia';
+    }
+
+    return errors;
+  }
 
   const handleRegistrationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setFieldErrors({});
 
-    if (formData.password !== formData.confirmPassword) {
-      setFieldErrors({ confirmPassword: errorMessages.passwords_do_not_match });
+    // FE validate
+    const errors = validateRegister(formData);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
@@ -117,19 +186,24 @@ export default function RegisterPage() {
       );
 
       if (!response?.success) {
+        // Nếu có errors dạng object
+        if (response?.errors) {
+          setFieldErrors(response.errors);
+        }
+        // Nếu có validationErrors dạng array
+        if (response?.validationErrors) {
+          const fieldErrs: Record<string, string> = {};
+          response.validationErrors.forEach((err: { field: string; message: string }) => {
+            fieldErrs[err.field] = errorMessages[err.message] || err.message;
+          });
+          setFieldErrors(fieldErrs);
+        }
+        // Nếu chỉ có message chung
         setError(
           response?.message
             ? errorMessages[response.message] || response.message
             : t('registrationFailed')
         );
-
-        if (response?.errors) {
-          const fieldErrs: Record<string, string> = {};
-          for (const key in response.errors) {
-            fieldErrs[key] = errorMessages[response.errors[key]] || response.errors[key];
-          }
-          setFieldErrors(fieldErrs);
-        }
         setLoading(false);
         return;
       }
@@ -143,6 +217,26 @@ export default function RegisterPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add error display component
+  const ErrorDisplay = ({ field }: { field: string }) => {
+    if (!fieldErrors[field]) return null;
+    return (
+      <Typography
+        color="error"
+        variant="caption"
+        sx={{
+          display: 'block',
+          mt: 0.5,
+          ml: 2,
+          fontSize: '0.75rem',
+          fontWeight: 500
+        }}
+      >
+        {fieldErrors[field]}
+      </Typography>
+    );
   };
 
   return (
@@ -213,6 +307,8 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="username" />
+
             <TextField
               label={t('fullName')}
               variant="outlined"
@@ -231,6 +327,8 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="fullName" />
+
             <TextField
               label={t('email')}
               variant="outlined"
@@ -250,6 +348,8 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="email" />
+
             <TextField
               label={t('password')}
               variant="outlined"
@@ -275,6 +375,8 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="password" />
+
             <TextField
               label={t('confirmPassword')}
               variant="outlined"
@@ -300,6 +402,8 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="confirmPassword" />
+
             <TextField
               label={t('phone')}
               variant="outlined"
@@ -319,6 +423,7 @@ export default function RegisterPage() {
               }}
               sx={inputStyle}
             />
+            <ErrorDisplay field="phone" />
 
             <Typography variant="h6" sx={{ mt: 3, mb: 1, fontWeight: 700, color: 'black' }}>
               {t('addressTitle')}
@@ -335,6 +440,19 @@ export default function RegisterPage() {
               helperText={fieldErrors['address.recipientName']}
               sx={inputStyle}
             />
+            <ErrorDisplay field="address.recipientName" />
+
+            <TextField
+              label={t('addressNumber')}
+              variant="outlined"
+              fullWidth
+              value={formData.address.addressNumber}
+              onChange={handleAddressChange('addressNumber')}
+              error={Boolean(fieldErrors['address.addressNumber'])}
+              helperText={fieldErrors['address.addressNumber']}
+              sx={inputStyle}
+            />
+
             <TextField
               label={t('street')}
               variant="outlined"
@@ -346,6 +464,8 @@ export default function RegisterPage() {
               helperText={fieldErrors['address.street']}
               sx={inputStyle}
             />
+            <ErrorDisplay field="address.street" />
+
             <TextField
               label={t('city')}
               variant="outlined"
@@ -357,6 +477,8 @@ export default function RegisterPage() {
               helperText={fieldErrors['address.city']}
               sx={inputStyle}
             />
+            <ErrorDisplay field="address.city" />
+
             <TextField
               label={t('state')}
               variant="outlined"
@@ -368,6 +490,8 @@ export default function RegisterPage() {
               helperText={fieldErrors['address.state']}
               sx={inputStyle}
             />
+            <ErrorDisplay field="address.state" />
+
             <TextField
               label={t('country')}
               variant="outlined"
@@ -379,17 +503,8 @@ export default function RegisterPage() {
               helperText={fieldErrors['address.country']}
               sx={inputStyle}
             />
-            <TextField
-              label={t('addressPhone')}
-              variant="outlined"
-              required
-              fullWidth
-              value={formData.address.phone}
-              onChange={handleAddressChange('phone')}
-              error={Boolean(fieldErrors['address.phone'])}
-              helperText={fieldErrors['address.phone']}
-              sx={inputStyle}
-            />
+            <ErrorDisplay field="address.country" />
+
             <FormControlLabel
               control={
                 <Checkbox
@@ -401,8 +516,19 @@ export default function RegisterPage() {
               label={t('setAsDefaultAddress')}
             />
 
+            {/* General error message */}
             {error && (
-              <Typography color="error" variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+              <Typography
+                color="error"
+                variant="body2"
+                sx={{
+                  textAlign: 'center',
+                  mt: 2,
+                  p: 1,
+                  backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                  borderRadius: 1
+                }}
+              >
                 {error}
               </Typography>
             )}

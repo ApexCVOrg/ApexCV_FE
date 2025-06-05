@@ -40,7 +40,7 @@
     "city": "City",
     "state": "State/Province",
     "country": "Country",
-    "addressPhone": "Address Phone Number",
+    "addressNumber": "Address Number (Optional)",
     "setAsDefaultAddress": "Set as default address",
     "subtitle": "Already have an account?",
     "loginLink": "Log in",
