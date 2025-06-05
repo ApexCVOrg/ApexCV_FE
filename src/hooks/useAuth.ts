@@ -20,17 +20,23 @@ interface AxiosErrorLike {
   response?: AxiosResponseLike;
 }
 
+interface Address {
+  street: string;
+  city: string;
+  state: string;
+  country: string;
+  zipCode: string;
+}
+
+interface RegisterError {
+  message: string;
+  stack?: string;
+}
+
 const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'response' in error
-  ) {
+  if (typeof error === 'object' && error !== null && 'response' in error) {
     const maybeError = error as AxiosErrorLike;
-    return (
-      typeof maybeError.response === 'object' &&
-      maybeError.response !== null
-    );
+    return typeof maybeError.response === 'object' && maybeError.response !== null;
   }
   return false;
 };
@@ -77,7 +83,7 @@ export const useAuth = () => {
     fullName: string,
     username: string,
     phone: string,
-    addresses: any[]
+    addresses: Address[]
   ) => {
     try {
       console.log('Registering with data:', { email, fullName, username, phone, addresses });
@@ -98,10 +104,11 @@ export const useAuth = () => {
       }
 
       return data;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const registerError = error as RegisterError;
       console.error('Register error details:', {
-        message: error.message,
-        stack: error.stack,
+        message: registerError.message,
+        stack: registerError.stack,
         apiUrl: process.env.NEXT_PUBLIC_API_URL,
       });
       return {
@@ -125,22 +132,19 @@ export const useAuth = () => {
     }
   }, [router]);
 
-  const forgotPassword = useCallback(
-    async (email: string) => {
-      try {
-        setLoading(true);
-        setError(null);
-        await authService.forgotPassword(email);
-      } catch (err) {
-        const error = handleError(err);
-        setError(error);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const forgotPassword = useCallback(async (email: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await authService.forgotPassword(email);
+    } catch (err) {
+      const error = handleError(err);
+      setError(error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const resetPassword = useCallback(
     async (token: string, newPassword: string) => {

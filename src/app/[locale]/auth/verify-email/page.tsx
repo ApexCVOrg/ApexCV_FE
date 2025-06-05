@@ -60,8 +60,9 @@ export default function VerifyEmailPage() {
       } else {
         setError(data.message || 'Verification failed');
       }
-    } catch (err) {
+    } catch (error) {
       setError('Server error');
+      console.error('Verification error:', error);
     } finally {
       setLoading(false);
     }
