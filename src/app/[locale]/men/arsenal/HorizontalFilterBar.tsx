@@ -10,28 +10,17 @@ const sortOptions = [
   { label: 'Top Seller', value: 'top-seller' }
 ];
 
-const genderOptions = [
-  { label: 'All', value: '' },
-  { label: 'Men', value: 'men' },
-  { label: 'Women', value: 'women' },
-  { label: 'Unisex', value: 'unisex' }
-];
-
 interface HorizontalFilterBarProps {
   sortBy: string;
   onSortChange: (value: string) => void;
-  gender: string;
-  onGenderChange: (value: string) => void;
   onFilterSort: () => void;
 }
 
 export default function HorizontalFilterBar({
   sortBy, onSortChange,
-  gender, onGenderChange,
   onFilterSort
 }: HorizontalFilterBarProps) {
   const [sortAnchor, setSortAnchor] = useState<HTMLElement | null>(null);
-  const [genderAnchor, setGenderAnchor] = useState<HTMLElement | null>(null);
 
   return (
     <Box sx={{
@@ -62,29 +51,6 @@ export default function HorizontalFilterBar({
               key={opt.value}
               selected={sortBy === opt.value}
               onClick={() => { onSortChange(opt.value); setSortAnchor(null); }}
-            >
-              {opt.label}
-            </MenuItem>
-          ))}
-        </Menu>
-        {/* Gender Dropdown */}
-        <Button
-          endIcon={<ArrowDropDownIcon />}
-          onClick={(e) => setGenderAnchor(e.currentTarget as HTMLElement)}
-          sx={{ fontWeight: 700, color: '#000', border: '1px solid #000', background: '#fff' }}
-        >
-          {genderOptions.find(opt => opt.value === gender)?.label || 'Gender'}
-        </Button>
-        <Menu
-          anchorEl={genderAnchor}
-          open={Boolean(genderAnchor)}
-          onClose={() => setGenderAnchor(null)}
-        >
-          {genderOptions.map(opt => (
-            <MenuItem
-              key={opt.value}
-              selected={gender === opt.value}
-              onClick={() => { onGenderChange(opt.value); setGenderAnchor(null); }}
             >
               {opt.label}
             </MenuItem>

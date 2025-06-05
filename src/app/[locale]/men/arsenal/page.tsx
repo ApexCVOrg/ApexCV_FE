@@ -115,8 +115,6 @@ export default function ArsenalPage() {
       <HorizontalFilterBar
         sortBy={sortBy}
         onSortChange={setSortBy}
-        gender={gender}
-        onGenderChange={setGender}
         onFilterSort={() => setFilterDialogOpen(true)}
       />
       {loading ? (
