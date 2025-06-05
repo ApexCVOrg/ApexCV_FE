@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import {
   Container,
   Box,
@@ -14,14 +13,13 @@ import {
 } from '@mui/material';
 import { VerifiedUser } from '@mui/icons-material';
 import { ROUTES } from '@/constants/routes';
-
+import { API_ENDPOINTS } from '@/lib/constants/constants';
 interface VerifyEmailResponse {
   success: boolean;
   message: string;
 }
 
 export default function VerifyEmailPage() {
-  const t = useTranslations('register');
   const router = useRouter();
   const [verificationCode, setVerificationCode] = useState('');
   const [registeredEmail, setRegisteredEmail] = useState('');
@@ -43,7 +41,7 @@ export default function VerifyEmailPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-email', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
