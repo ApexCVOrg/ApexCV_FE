@@ -326,6 +326,16 @@ const Header = () => {
               <AccountCircleIcon />
             </IconButton>
 
+            {/* Sign Up button */}
+            <Button
+              variant="outlined"
+              color="inherit"
+              onClick={() => router.push(ROUTES.REGISTER)}
+              sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+            >
+              Sign Up
+            </Button>
+
             {/* Mobile menu button */}
             {isMobile && (
               <IconButton aria-label="menu" color="inherit" size="large" onClick={toggleDrawer(true)}>

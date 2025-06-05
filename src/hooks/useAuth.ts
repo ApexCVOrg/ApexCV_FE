@@ -47,12 +47,9 @@ export const useAuth = () => {
         status: err.response.status,
       };
     }
-
-    if (err instanceof Error) {
-      return { message: err.message };
-    }
-
-    return { message: 'An unknown error occurred' };
+    return {
+      message: err instanceof Error ? err.message : 'An error occurred',
+    };
   };
 
   const login = useCallback(
@@ -74,24 +71,46 @@ export const useAuth = () => {
     [router]
   );
 
-  const register = useCallback(
-    async (email: string, password: string, fullName: string) => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await authService.register({ email, password, fullName });
-        router.push('/dashboard');
-        return response;
-      } catch (err) {
-        const error = handleError(err);
-        setError(error);
-        throw error;
-      } finally {
-        setLoading(false);
+  const register = async (
+    email: string,
+    password: string,
+    fullName: string,
+    username: string,
+    phone: string,
+    addresses: any[]
+  ) => {
+    try {
+      console.log('Registering with data:', { email, fullName, username, phone, addresses });
+      console.log('API URL:', `${process.env.NEXT_PUBLIC_API_URL}/auth/register`);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, fullName, username, phone, address: addresses }),
+      });
+
+      console.log('Response status:', res.status);
+      const data = await res.json();
+      console.log('Response data:', data);
+
+      if (!res.ok) {
+        return data;
       }
-    },
-    [router]
-  );
+
+      return data;
+    } catch (error: any) {
+      console.error('Register error details:', {
+        message: error.message,
+        stack: error.stack,
+        apiUrl: process.env.NEXT_PUBLIC_API_URL,
+      });
+      return {
+        success: false,
+        message: 'server_error',
+        errors: {},
+      };
+    }
+  };
 
   const logout = useCallback(async () => {
     try {
@@ -145,6 +164,45 @@ export const useAuth = () => {
     return authService.getCurrentUser();
   }, []);
 
+  const setAuthData = useCallback((data: { token: string; refreshToken: string }) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+  }, []);
+
+  const handleGoogleAuth = useCallback(
+    async (code: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/auth/google/callback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Google authentication failed');
+        }
+
+        const data = await response.json();
+        setAuthData(data);
+        router.push('/dashboard');
+      } catch (err) {
+        const error = handleError(err);
+        setError(error);
+        router.push('/auth/error?message=' + encodeURIComponent(error.message));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router, setAuthData]
+  );
+
   return {
     login,
     register,
@@ -152,6 +210,8 @@ export const useAuth = () => {
     forgotPassword,
     resetPassword,
     getCurrentUser,
+    handleGoogleAuth,
+    setAuthData,
     loading,
     error,
     isAuthenticated: authService.isAuthenticated(),

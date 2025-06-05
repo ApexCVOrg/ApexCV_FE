@@ -15,5 +15,57 @@
   },
   "collections": {
     "title": "Featured Collections"
+  },
+  
+  "login": {
+    "title": "Login to Your Account",
+    "subtitle": "Don't have an account?",
+    "registerLink": "Register",
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "forgotPassword": "Forgot Password?"
+  },
+  "register": {
+    "title": "Create New Account",
+    "username": "Username",
+    "fullName": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "phone": "Phone Number",
+    "addressTitle": "Address",
+    "recipientName": "Recipient Name",
+    "street": "Street",
+    "city": "City",
+    "state": "State/Province",
+    "country": "Country",
+    "addressPhone": "Address Phone Number",
+    "setAsDefaultAddress": "Set as default address",
+    "subtitle": "Already have an account?",
+    "loginLink": "Log in",
+    "register": "Register",
+    "alreadyHaveAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithFacebook": "Continue with Facebook",
+    "orRegisterWithEmail": "Or register with email",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "hideConfirmPassword": "Hide confirm password",
+    "showConfirmPassword": "Show confirm password",
+    "registrationFailed": "Registration failed. Please try again.",
+    "errors": {
+      "usernameRequired": "Please enter username",
+      "usernameTaken": "Username is already taken",
+      "emailRequired": "Please enter email",
+      "invalidEmail": "Invalid email address",
+      "emailAlreadyUsed": "Email is already in use",
+      "passwordRequired": "Please enter password",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordsDoNotMatch": "Confirm password does not match",
+      "serverError": "Server error. Please try again later"
+    }
   }
 }
+
