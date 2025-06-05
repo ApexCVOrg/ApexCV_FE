@@ -48,6 +48,9 @@ class AuthService {
 
   // Refresh Token
   async refreshToken(): Promise<AuthResponse> {
+    if (typeof window === 'undefined') {
+      throw new Error('Cannot refresh token during server-side rendering');
+    }
     const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
     const response = await apiService.post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH_TOKEN, {
       refreshToken,
@@ -71,17 +74,26 @@ class AuthService {
 
   // Get current user
   getCurrentUser(): AuthResponse['user'] | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     const userStr = localStorage.getItem(STORAGE_KEYS.USER);
     return userStr ? JSON.parse(userStr) : null;
   }
 
   // Check if user is authenticated
   isAuthenticated(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
     return !!localStorage.getItem(STORAGE_KEYS.TOKEN);
   }
 
   // Set auth data to localStorage
   private setAuthData(data: AuthResponse) {
+    if (typeof window === 'undefined') {
+      return;
+    }
     localStorage.setItem(STORAGE_KEYS.TOKEN, data.token);
     localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, data.refreshToken);
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(data.user));
@@ -89,6 +101,9 @@ class AuthService {
 
   // Clear auth data from localStorage
   private clearAuthData() {
+    if (typeof window === 'undefined') {
+      return;
+    }
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER);
