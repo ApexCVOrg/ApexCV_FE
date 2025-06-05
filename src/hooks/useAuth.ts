@@ -9,13 +9,39 @@ interface AuthError {
   status?: number;
 }
 
+interface AxiosResponseLike {
+  data?: {
+    message?: string;
+  };
+  status?: number;
+}
+
+interface AxiosErrorLike {
+  response?: AxiosResponseLike;
+}
+
+const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'response' in error
+  ) {
+    const maybeError = error as AxiosErrorLike;
+    return (
+      typeof maybeError.response === 'object' &&
+      maybeError.response !== null
+    );
+  }
+  return false;
+};
+
 export const useAuth = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
-  const handleError = (err: any): AuthError => {
-    if (err.response?.data?.message) {
+  const handleError = (err: unknown): AuthError => {
+    if (isAxiosErrorResponse(err) && err.response?.data?.message) {
       return {
         message: err.response.data.message,
         status: err.response.status,
@@ -99,19 +125,22 @@ export const useAuth = () => {
     }
   }, [router]);
 
-  const forgotPassword = useCallback(async (email: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-      await authService.forgotPassword(email);
-    } catch (err) {
-      const error = handleError(err);
-      setError(error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const forgotPassword = useCallback(
+    async (email: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+        await authService.forgotPassword(email);
+      } catch (err) {
+        const error = handleError(err);
+        setError(error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const resetPassword = useCallback(
     async (token: string, newPassword: string) => {
