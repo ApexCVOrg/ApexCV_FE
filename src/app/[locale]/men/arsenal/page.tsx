@@ -1,89 +1,202 @@
 'use client';
 
-import React from 'react';
-import { ProductInfo } from '../../../../components/layout/TeamLayout';
-import { Card, CardMedia, CardContent, Typography, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Slider,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  Stack,
+} from '@mui/material';
+import ProductCard from '@/components/card';
+import HorizontalFilterBar from './HorizontalFilterBar';
 
-const products: ProductInfo[] = [
-  {
-    name: "Arsenal 25/26 Home Authentic Jersey",
-    price: "3,000,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/6b8e2e2b7e2b4e1e8c8eafc800b6b6b2_9366/arsenal-25-26-home-authentic-jersey.jpg",
-    desc: "Men Football - New",
-  },
-  {
-    name: "Arsenal 25/26 Home Jersey",
-    price: "2,200,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/7c8e2e2b7e2b4e1e8c8eafc800b6b6b2_9366/arsenal-25-26-home-jersey.jpg",
-    desc: "Men Football - New",
-  },
-  {
-    name: "Arsenal 25/26 Home Jersey Kids",
-    price: "1,500,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/8d8e2e2b7e2b4e1e8c8eafc800b6b6b2_9366/arsenal-25-26-home-jersey-kids.jpg",
-    desc: "Kids Football - New",
-  },
-  {
-    name: "Arsenal 25/26 Home Shorts",
-    price: "1,100,000₫",
-    image: "https://assets.adidas.com/images/w_383,h_383,f_auto,q_auto,fl_lossy,c_fill,g_auto/2c14518390e74640881e110fdf13ce5e_9366/arsenal-25-26-home-shorts.jpg",
-    desc: "Men Football - New",
-  },
-];
+interface Product {
+  _id: string;
+  name: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  tags: string[];
+  categories: { _id: string; name: string }[];
+  brand: { _id: string; name: string };
+}
+
+interface Category {
+  _id: string;
+  name: string;
+}
+
+interface Brand {
+  _id: string;
+  name: string;
+}
 
 export default function ArsenalPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 5000000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState('newest');
+  const [gender, setGender] = useState('');
+  const [selectedType, setSelectedType] = useState('Arsenal');
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const [categoriesRes, brandsRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
+        ]);
+        const [categoriesData, brandsData] = await Promise.all([
+          categoriesRes.json(),
+          brandsRes.json(),
+        ]);
+        setCategories(categoriesData);
+        setBrands(brandsData);
+      } catch (error) {
+        console.error('Error fetching categories or brands:', error);
+      }
+    };
+    fetchInitialData();
+  }, []);
+
+  useEffect(() => {
+    const fetchFilteredProducts = async () => {
+      setLoading(true);
+      try {
+        const queryParams = new URLSearchParams({
+          minPrice: priceRange[0].toString(),
+          maxPrice: priceRange[1].toString(),
+          sortBy,
+          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+          ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+          ...(gender && { gender }),
+          ...(selectedType && { type: selectedType }),
+        });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Error fetching filtered products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFilteredProducts();
+  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, selectedType]);
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(categoryId) ? prev.filter(id => id !== categoryId) : [...prev, categoryId]
+    );
+  };
+  const handleBrandChange = (brandId: string) => {
+    setSelectedBrands(prev =>
+      prev.includes(brandId) ? prev.filter(id => id !== brandId) : [...prev, brandId]
+    );
+  };
+
   return (
-    <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: {
-          xs: '1fr',
-          sm: 'repeat(2, 1fr)',
-          md: 'repeat(4, 1fr)'
-        },
-        gap: 2,
-        maxWidth: 1200,
-        width: '100%',
-        alignItems: 'stretch',
-      }}>
-        {products.map((item, idx) => (
-          <Card
-            key={idx}
-            sx={{
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.2s ease-in-out',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
-              }
-            }}
-          >
-            <CardMedia
-              component="img"
-              height={260}
-              image={item.image}
-              alt={item.name}
-              sx={{
-                objectFit: 'cover',
-                bgcolor: '#f5f5f5'
-              }}
-            />
-            <CardContent sx={{ flexGrow: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-                {item.price}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ fontWeight: 500, mb: 1 }}>
-                {item.name}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {item.desc}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
-    </Box>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <HorizontalFilterBar
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        onFilterSort={() => setFilterDialogOpen(true)}
+      />
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+            },
+            gap: 3,
+          }}
+        >
+          {products.map((product) => (
+            <Box key={product._id}>
+              <ProductCard
+                name={product.name}
+                image={product.images[0]}
+                price={product.price}
+                discountPrice={product.discountPrice}
+                tags={product.tags}
+                brand={product.brand}
+                categories={product.categories}
+                onAddToCart={() => console.log('Add to cart:', product._id)}
+              />
+            </Box>
+          ))}
+        </Box>
+      )}
+      <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Filter & Sort</DialogTitle>
+        <DialogContent>
+          <Typography variant="subtitle2" sx={{ mt: 2 }}>Price Range</Typography>
+          <Slider
+            value={priceRange}
+            onChange={(_, value) => setPriceRange(value as number[])}
+            valueLabelDisplay="auto"
+            min={0}
+            max={5000000}
+            step={100000}
+            sx={{ mb: 2 }}
+          />
+          <Typography variant="subtitle2" sx={{ mt: 2 }}>Categories</Typography>
+          <FormGroup>
+            {categories.map((category) => (
+              <FormControlLabel
+                key={category._id}
+                control={
+                  <Checkbox
+                    checked={selectedCategories.includes(category._id)}
+                    onChange={() => handleCategoryChange(category._id)}
+                  />
+                }
+                label={category.name}
+              />
+            ))}
+          </FormGroup>
+          <Typography variant="subtitle2" sx={{ mt: 2 }}>Brands</Typography>
+          <FormGroup>
+            {brands.map((brand) => (
+              <FormControlLabel
+                key={brand._id}
+                control={
+                  <Checkbox
+                    checked={selectedBrands.includes(brand._id)}
+                    onChange={() => handleBrandChange(brand._id)}
+                  />
+                }
+                label={brand.name}
+              />
+            ))}
+          </FormGroup>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setFilterDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 } 
