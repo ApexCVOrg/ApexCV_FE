@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -28,12 +28,14 @@ import {
 } from '@mui/icons-material';
 
 import { useAuth } from '@/hooks/useAuth';
-import { ROUTES } from '@/constants/routes';
-
 export default function RegisterPage() {
   const t = useTranslations('register');
   const router = useRouter();
+  const pathname = usePathname();
   const { register } = useAuth();
+
+  // Lấy locale từ pathname nếu có dạng /vi/... hoặc /en/...
+  const locale = pathname?.split('/')[1] || 'vi';
 
   // Registration form state
   const initialFormData = {
@@ -210,7 +212,7 @@ export default function RegisterPage() {
 
       // Store email for verification and redirect to verify-email page
       localStorage.setItem('pendingEmail', formData.email);
-      router.push(ROUTES.VERIFY_EMAIL);
+      router.push(`/${locale}/auth/verify-email`);
     } catch (err) {
       setError(t('registrationFailed'));
       console.error('Registration error:', err);
@@ -278,7 +280,7 @@ export default function RegisterPage() {
               }}
             >
               {t('subtitle')}{' '}
-              <MuiLink component={Link} href={ROUTES.LOGIN} color="primary" underline="hover">
+              <MuiLink component={Link} href={`/${locale}/auth/login`} color="primary" underline="hover">
                 {t('loginLink')}
               </MuiLink>
             </Typography>
@@ -550,7 +552,7 @@ export default function RegisterPage() {
               {t('alreadyHaveAccount')}{' '}
               <MuiLink
                 component={Link}
-                href={ROUTES.LOGIN}
+                href={`/${locale}/auth/login`}
                 color="primary"
                 underline="hover"
                 sx={{ fontWeight: 'bold' }}
