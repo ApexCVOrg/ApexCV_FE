@@ -18,6 +18,8 @@ interface ProductCardProps {
   price: number;
   discountPrice?: number;
   tags?: string[];
+  brand?: { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
 }
 
@@ -27,6 +29,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   price,
   discountPrice,
   tags = [],
+  brand,
+  categories = [],
   onAddToCart,
 }) => {
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
@@ -119,6 +123,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </Typography>
           )}
         </Stack>
+
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          {brand?.name || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
+        </Typography>
 
         {tags.length > 0 && (
           <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
