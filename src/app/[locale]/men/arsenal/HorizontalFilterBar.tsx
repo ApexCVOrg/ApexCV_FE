@@ -2,15 +2,6 @@ import { Box, Button, Menu, MenuItem } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-
-const teams = [
-  { name: 'Manchester United', path: '/men/manchester-united' },
-  { name: 'Arsenal', path: '/men/arsenal' },
-  { name: 'Real Madrid', path: '/men/real-madrid' },
-  { name: 'Bayern Munich', path: '/men/bayern-munich' },
-  { name: 'Inter Miami', path: '/men/inter-miami' }
-];
 
 const sortOptions = [
   { label: 'Newest', value: 'newest' },
@@ -41,44 +32,17 @@ export default function HorizontalFilterBar({
 }: HorizontalFilterBarProps) {
   const [sortAnchor, setSortAnchor] = useState<HTMLElement | null>(null);
   const [genderAnchor, setGenderAnchor] = useState<HTMLElement | null>(null);
-  const router = useRouter();
-  const pathname = usePathname();
 
   return (
     <Box sx={{
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
       borderBottom: '1px solid #eee',
       mb: 2,
       px: 2,
       overflowX: 'auto'
     }}>
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'nowrap', overflowX: 'auto' }}>
-        {teams.map((team) => {
-          const isActive = pathname === team.path || pathname.endsWith(team.path);
-          return (
-            <Button
-              key={team.name}
-              onClick={() => router.push(team.path)}
-              sx={{
-                color: isActive ? '#000' : 'gray',
-                fontWeight: isActive ? 700 : 400,
-                borderRadius: 0,
-                borderBottom: isActive ? '3px solid #000' : '3px solid transparent',
-                minWidth: 0,
-                px: 2,
-                background: 'none',
-                boxShadow: 'none',
-                '&:hover': { background: 'none', color: '#000' }
-              }}
-              disableRipple
-            >
-              {team.name}
-            </Button>
-          );
-        })}
-      </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         {/* Sort Dropdown */}
         <Button
