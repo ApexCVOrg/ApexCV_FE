@@ -1,170 +1,80 @@
 'use client';
 
 import React from 'react';
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Box,
-  Button,
-  Stack,
-  Chip,
-} from '@mui/material';
+import '@/styles/components/_product-card.scss';
 
 interface ProductCardProps {
   name: string;
   image: string;
   price: number;
   discountPrice?: number;
-  tags?: string[];
-  brand?: { _id: string; name: string };
-  categories?: { _id: string; name: string }[];
-  onAddToCart?: () => void;
+  tags: string[];
+  brand: { _id: string; name: string };
+  categories: { _id: string; name: string }[];
+  onAddToCart: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({
+export default function ProductCard({
   name,
   image,
   price,
   discountPrice,
-  tags = [],
+  tags,
   brand,
-  categories = [],
+  categories,
   onAddToCart,
-}) => {
-  const isDiscounted = discountPrice !== undefined && discountPrice < price;
+}: ProductCardProps) {
+  const isDiscounted = discountPrice && discountPrice < price;
 
   return (
-    <Card
-      sx={{
-        maxWidth: 280,
-        borderRadius: 2,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-        cursor: 'pointer',
-        '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-        },
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Box sx={{ position: 'relative' }}>
-        <CardMedia
-          component="img"
-          height="280"
-          image={image}
-          alt={name}
-          sx={{ objectFit: 'cover' }}
-        />
-        {isDiscounted && (
-          <Chip
-            label="Sale"
-            color="error"
-            size="small"
-            sx={{
-              position: 'absolute',
-              top: 12,
-              left: 12,
-              fontWeight: 'bold',
-              fontSize: 12,
-              paddingX: 1,
-            }}
-          />
-        )}
-      </Box>
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Typography
-          variant="subtitle1"
-          component="h3"
-          sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2 }}
-          noWrap
-          title={name}
-        >
-          {name}
-        </Typography>
-
-        <Stack direction="row" alignItems="center" spacing={1}>
+    <div className="product-card">
+      <div className="card-image-container">
+        <img src={image} alt={name} className="card-image" />
+        {isDiscounted && <span className="sale-chip">Sale</span>}
+      </div>
+      <div className="card-content">
+        <h3 className="product-name" title={name}>{name}</h3>
+        <div className="price-container">
           {isDiscounted ? (
             <>
-              <Typography
-                variant="body1"
-                color="error"
-                sx={{ fontWeight: 'bold' }}
-              >
-                {discountPrice?.toLocaleString('vi-VN', {
+              <span className="discount-price">
+                {discountPrice.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ textDecoration: 'line-through' }}
-              >
-                {price?.toLocaleString('vi-VN', {
+              </span>
+              <span className="original-price">
+                {price.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
-              </Typography>
+              </span>
             </>
           ) : (
-            <Typography
-              variant="body1"
-              color="text.primary"
-              sx={{ fontWeight: 'bold' }}
-            >
-              {price?.toLocaleString('vi-VN', {
+            <span className="discount-price">
+              {price.toLocaleString('vi-VN', {
                 style: 'currency',
                 currency: 'VND',
               })}
-            </Typography>
+            </span>
           )}
-        </Stack>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        </div>
+        <div className="brand-category">
           {brand?.name || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
-        </Typography>
-
+        </div>
         {tags.length > 0 && (
-          <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
+          <div className="tags-container">
             {tags.map((tag) => (
-              <Chip
-                key={tag}
-                label={tag}
-                size="small"
-                sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  backgroundColor: '#f1f1f1',
-                  color: '#333',
-                }}
-              />
+              <span key={tag} className="tag">
+                {tag}
+              </span>
             ))}
-          </Stack>
+          </div>
         )}
-      </CardContent>
-
-      <Box sx={{ p: 2 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{
-            backgroundColor: '#000',
-            color: '#fff',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            '&:hover': { backgroundColor: '#333' },
-          }}
-          onClick={onAddToCart}
-        >
-          Thêm vào giỏ
-        </Button>
-      </Box>
-    </Card>
+      </div>
+      <button className="add-to-cart-button" onClick={onAddToCart}>
+        Thêm vào giỏ
+      </button>
+    </div>
   );
-};
-
-export default ProductCard;
+}

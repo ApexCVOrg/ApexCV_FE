@@ -17,7 +17,7 @@ import {
   Checkbox,
   Stack,
 } from '@mui/material';
-import ProductCard from '@/components/card';
+import ProductCard from '@/components/card/index';
 import HorizontalFilterBar from './HorizontalFilterBar';
 
 interface Product {
@@ -111,7 +111,7 @@ export default function ArsenalPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
       <HorizontalFilterBar
         sortBy={sortBy}
         onSortChange={setSortBy}
@@ -129,12 +129,15 @@ export default function ArsenalPage() {
               xs: '1fr',
               sm: 'repeat(2, 1fr)',
               md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
             },
-            gap: 3,
+            gap: { xs: 2, sm: 3 },
           }}
         >
           {products.map((product) => (
-            <Box key={product._id}>
+            <Box 
+              key={product._id}
+            >
               <ProductCard
                 name={product.name}
                 image={product.images[0]}
