@@ -29,7 +29,6 @@ export default function VerifyEmailPage() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [verified, setVerified] = useState(false);
   const t = useTranslations('auth');
 
   useEffect(() => {
@@ -61,11 +60,11 @@ export default function VerifyEmailPage() {
         const data: VerifyEmailResponse = await response.json();
 
         if (data.success) {
-          setVerified(true);
+          router.push(`/${locale}/auth/login`);
         } else {
           setError(data.message || t('error.verificationFailed'));
         }
-      } catch (err) {
+      } catch {
         setError(t('error.verificationFailed'));
       } finally {
         setLoading(false);
@@ -73,7 +72,7 @@ export default function VerifyEmailPage() {
     };
 
     verifyEmail();
-  }, [searchParams, t, locale]);
+  }, [searchParams, t, locale, router]);
 
   const handleVerificationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
