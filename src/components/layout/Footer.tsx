@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useTheme } from '@/hooks/useTheme';
 import { ROUTES } from '@/lib/constants/constants';
 import { Box, Container, Typography, Stack } from '@mui/material';
-import Grid from '@mui/material/Grid';
 
 const Footer = () => {
   const { theme } = useTheme();
@@ -30,9 +29,8 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4}>
-
-          <Grid item xs={12} sm={6} md={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 4 }}>
+          <Box>
             <Typography
               variant="h5"
               sx={{ fontWeight: '900', mb: 2, letterSpacing: 2, fontFamily: "'Anton', sans-serif" }}
@@ -42,22 +40,22 @@ const Footer = () => {
             <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
               The brand with the 3 stripes. Experience sport-inspired style and performance.
             </Typography>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Box>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
               SHOP
             </Typography>
             <Stack spacing={1}>
-              <Link href={ROUTES.MEN} style={linkStyle}>Men</Link>
-              <Link href={ROUTES.WOMEN} style={linkStyle}>Women</Link>
-              <Link href={ROUTES.KIDS} style={linkStyle}>Kids</Link>
-              <Link href={ROUTES.ACCESSORIES} style={linkStyle}>Accessories</Link>
-              <Link href={ROUTES.SALE} style={linkStyle}>Sale</Link>
+              <Link href={ROUTES.MEN.ROOT} style={linkStyle}>Men</Link>
+              <Link href={ROUTES.WOMEN.ROOT} style={linkStyle}>Women</Link>
+              <Link href={ROUTES.KIDS.ROOT} style={linkStyle}>Kids</Link>
+              <Link href={ROUTES.ACCESSORIES.ROOT} style={linkStyle}>Accessories</Link>
+              <Link href={ROUTES.SALE.ROOT} style={linkStyle}>Sale</Link>
             </Stack>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Box>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
               CUSTOMER SERVICE
             </Typography>
@@ -67,9 +65,9 @@ const Footer = () => {
               <Link href="/contact" style={linkStyle}>Contact Us</Link>
               <Link href="/privacy" style={linkStyle}>Privacy Policy</Link>
             </Stack>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} sm={6} md={3}>
+          <Box>
             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
               FOLLOW US
             </Typography>
@@ -79,9 +77,8 @@ const Footer = () => {
               <Typography variant="body2" sx={{ cursor: 'pointer' }}>Twitter</Typography>
               <Typography variant="body2" sx={{ cursor: 'pointer' }}>YouTube</Typography>
             </Stack>
-          </Grid>
-
-        </Grid>
+          </Box>
+        </Box>
 
         <Box sx={{ textAlign: 'center', mt: 6, fontSize: '0.875rem', color: theme === 'dark' ? '#666' : '#999' }}>
           &copy; {currentYear} NIDAS. All rights reserved.
