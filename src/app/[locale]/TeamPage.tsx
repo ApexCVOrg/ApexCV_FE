@@ -188,7 +188,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                   price={product.price}
                   discountPrice={product.discountPrice}
                   tags={product.tags}
-                  brand={product.brand}
+                  brand={product.brand.name}
                   categories={product.categories}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
                 />
@@ -210,7 +210,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               sx={{ mb: 2 }}
             />
             <Typography variant="subtitle2" sx={{ mt: 2 }}>Categories</Typography>
-            <FormGroup>
+            <FormGroup key="categories-group">
               {categories.map((category) => (
                 <FormControlLabel
                   key={category._id}
@@ -225,7 +225,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               ))}
             </FormGroup>
             <Typography variant="subtitle2" sx={{ mt: 2 }}>Brands</Typography>
-            <FormGroup>
+            <FormGroup key="brands-group">
               {brands.map((brand) => (
                 <FormControlLabel
                   key={brand._id}

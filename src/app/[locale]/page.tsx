@@ -265,7 +265,7 @@ export default function Home() {
                   price={product.price}
                   discountPrice={product.discountPrice}
                   tags={product.tags}
-                  brand={product.brand}
+                  brand={product.brand.name}
                   categories={product.categories}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
                 />

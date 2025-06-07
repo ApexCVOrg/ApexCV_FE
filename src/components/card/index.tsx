@@ -1,7 +1,17 @@
 'use client';
 
 import React from 'react';
-import '@/styles/components/_product-card.scss';
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Chip,
+  Stack,
+} from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 interface ProductCardProps {
   name: string;
@@ -9,7 +19,7 @@ interface ProductCardProps {
   price: number;
   discountPrice?: number;
   tags: string[];
-  brand: { _id: string; name: string };
+  brand: string;
   categories: { _id: string; name: string }[];
   onAddToCart: () => void;
 }
@@ -33,55 +43,119 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <div className="product-card">
-      <div className="card-image-container">
-        <img src={image} alt={name} className="card-image" />
-        {isDiscounted && <span className="sale-chip">Sale</span>}
-      </div>
-      <div className="card-content">
-        <h3 className="product-name" title={name}>{name}</h3>
-        <div className="price-container">
+    <Card sx={{ 
+      maxWidth: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      '&:hover': {
+        boxShadow: 6,
+      },
+    }}>
+      <Box sx={{ position: 'relative' }}>
+        <CardMedia
+          component="img"
+          height="300"
+          image={image}
+          alt={name}
+          sx={{ objectFit: 'cover' }}
+        />
+        {isDiscounted && (
+          <Chip
+            label="Sale"
+            color="error"
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+            }}
+          />
+        )}
+      </Box>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Typography
+          gutterBottom
+          variant="h6"
+          component="h3"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            height: '3.6em',
+            lineHeight: '1.2em',
+          }}
+        >
+          {name}
+        </Typography>
+        <Box sx={{ mb: 1 }}>
           {isDiscounted ? (
-            <>
-              <span className="discount-price">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography
+                variant="h6"
+                color="error"
+                sx={{ fontWeight: 'bold' }}
+              >
                 {discountPrice.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
-              </span>
-              <span className="original-price">
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textDecoration: 'line-through' }}
+              >
                 {price.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
-              </span>
-            </>
+              </Typography>
+            </Stack>
           ) : (
-            <span className="discount-price">
+            <Typography
+              variant="h6"
+              color="primary"
+              sx={{ fontWeight: 'bold' }}
+            >
               {price.toLocaleString('vi-VN', {
                 style: 'currency',
                 currency: 'VND',
               })}
-            </span>
+            </Typography>
           )}
-        </div>
-        <div className="brand-category">
-          {brand?.name || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
-        </div>
+        </Box>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 1 }}
+        >
+          {brand || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
+        </Typography>
         {tags.length > 0 && (
-          <div className="tags-container">
+          <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5 }}>
             {tags.map((tag) => (
-              <span key={tag} className="tag">
-                {tag}
-              </span>
+              <Chip
+                key={tag}
+                label={tag}
+                size="small"
+                sx={{ fontSize: '0.75rem' }}
+              />
             ))}
-          </div>
+          </Stack>
         )}
-      </div>
-      <button className="add-to-cart-button" onClick={handleAddToCart}>
-        Thêm vào giỏ
-      </button>
-    </div>
+        <Button
+          variant="contained"
+          startIcon={<ShoppingCartIcon />}
+          onClick={handleAddToCart}
+          sx={{ mt: 'auto' }}
+        >
+          Thêm vào giỏ
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 
