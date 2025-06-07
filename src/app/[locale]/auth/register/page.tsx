@@ -294,7 +294,7 @@ export default function RegisterPage() {
               fullWidth
               startIcon={
                 <Image
-                  src="/google-icon.png"
+                  src="/google-icon.svg"
                   alt="Google"
                   width={24}
                   height={24}
@@ -312,7 +312,7 @@ export default function RegisterPage() {
               fullWidth
               startIcon={
                 <Image
-                  src="/facebook-icon.png"
+                  src="/facebook-icon.svg"
                   alt="Facebook"
                   width={24}
                   height={24}
