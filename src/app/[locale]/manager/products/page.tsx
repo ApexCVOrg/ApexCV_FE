@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
     Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, Stack, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Snackbar, Alert, Chip, MenuItem
+    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -278,20 +278,27 @@ export default function ProductsPage() {
                             <TextField name="price" label="Price" type="number" value={formData.price} onChange={handleInputChange} required fullWidth />
                             <TextField name="discountPrice" label="Discount Price" type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
                             {/* Categories multi-select */}
-                            <TextField
-                                name="categories"
-                                label="Categories"
-                                value={formData.categories}
-                                onChange={e => setFormData(prev => ({ ...prev, categories: Array.from((e.target as HTMLSelectElement).selectedOptions, option => option.value) }))}
-                                select
-                                SelectProps={{ multiple: true, native: true }}
-                                required
-                                fullWidth
-                            >
-                                {categories.map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                ))}
-                            </TextField>
+                            <FormControl fullWidth required>
+                                <InputLabel>Categories</InputLabel>
+                                <Select
+                                    multiple
+                                    value={formData.categories}
+                                    onChange={(e) => {
+                                        const value = e.target.value as string[];
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            categories: value
+                                        }));
+                                    }}
+                                    label="Categories"
+                                >
+                                    {categories.map(cat => (
+                                        <MenuItem key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                             {/* Brand select */}
                             <TextField
                                 name="brand"

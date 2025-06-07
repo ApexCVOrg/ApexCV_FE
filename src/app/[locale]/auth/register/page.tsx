@@ -26,6 +26,7 @@ import {
   AccountCircle,
   Phone,
 } from '@mui/icons-material';
+import Image from 'next/image';
 
 import { useAuth } from '@/hooks/useAuth';
 export default function RegisterPage() {
@@ -291,20 +292,17 @@ export default function RegisterPage() {
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<img src="/google-icon.svg" alt="Google" style={{ width: 24, height: 24 }} />}
+              startIcon={
+                <Image
+                  src="/google-icon.png"
+                  alt="Google"
+                  width={24}
+                  height={24}
+                  style={{ marginRight: 8 }}
+                />
+              }
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
-              sx={{
-                borderRadius: 0,
-                borderColor: 'black',
-                borderWidth: 2,
-                color: 'black',
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: 'black',
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
+              sx={{ mb: 2 }}
             >
               {t('continueWithGoogle')}
             </Button>
@@ -312,20 +310,16 @@ export default function RegisterPage() {
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<img src="/facebook-icon.svg" alt="Facebook" style={{ width: 24, height: 24 }} />}
+              startIcon={
+                <Image
+                  src="/facebook-icon.png"
+                  alt="Facebook"
+                  width={24}
+                  height={24}
+                  style={{ marginRight: 8 }}
+                />
+              }
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
-              sx={{
-                borderRadius: 0,
-                borderColor: 'black',
-                borderWidth: 2,
-                color: 'black',
-                fontWeight: 600,
-                textTransform: 'none',
-                '&:hover': {
-                  borderColor: 'black',
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                },
-              }}
             >
               {t('continueWithFacebook')}
             </Button>

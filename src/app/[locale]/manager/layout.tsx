@@ -50,6 +50,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [language, setLanguage] = useState<Language>('en');
+    const [categories, setCategories] = useState([]);
 
     // Lấy ngôn ngữ hiện tại từ URL
     const getCurrentLanguage = (): Language => {
@@ -63,6 +64,24 @@ export default function RootLayout({ children }: RootLayoutProps) {
     useEffect(() => {
         setLanguage(getCurrentLanguage());
     }, [pathname]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const language = getCurrentLanguage();
+                const response = await fetch(`${API_ENDPOINTS.MANAGER.CATEGORIES}?language=${language}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch categories');
+                }
+                const data = await response.json();
+                setCategories(data);
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        fetchData();
+    }, [getCurrentLanguage]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
