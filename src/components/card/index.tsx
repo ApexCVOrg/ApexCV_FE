@@ -14,7 +14,7 @@ interface ProductCardProps {
   onAddToCart: () => void;
 }
 
-export default function ProductCard({
+const ProductCard: React.FC<ProductCardProps> = ({
   name,
   image,
   price,
@@ -23,8 +23,14 @@ export default function ProductCard({
   brand,
   categories,
   onAddToCart,
-}: ProductCardProps) {
+}) => {
   const isDiscounted = discountPrice && discountPrice < price;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onAddToCart();
+  };
 
   return (
     <div className="product-card">
@@ -72,9 +78,11 @@ export default function ProductCard({
           </div>
         )}
       </div>
-      <button className="add-to-cart-button" onClick={onAddToCart}>
+      <button className="add-to-cart-button" onClick={handleAddToCart}>
         Thêm vào giỏ
       </button>
     </div>
   );
-}
+};
+
+export default ProductCard;
