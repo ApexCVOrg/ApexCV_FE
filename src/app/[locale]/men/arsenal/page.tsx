@@ -16,6 +16,12 @@ import {
   FormControlLabel,
   Checkbox,
   Stack,
+  Grid,
+  Card,
+  CardContent,
+  CardMedia,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import ProductCard from '@/components/card';
 import HorizontalFilterBar from './HorizontalFilterBar';
@@ -41,7 +47,8 @@ interface Brand {
   name: string;
 }
 
-export default function ArsenalPage() {
+const ArsenalPage = () => {
+  const [selectedTab, setSelectedTab] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -50,9 +57,10 @@ export default function ArsenalPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
-  const [gender, setGender] = useState('');
-  const [selectedType, setSelectedType] = useState('Arsenal');
+  const gender = 'men';
+  const selectedType = 'arsenal';
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -199,4 +207,6 @@ export default function ArsenalPage() {
       </Dialog>
     </Container>
   );
-} 
+};
+
+export default ArsenalPage; 

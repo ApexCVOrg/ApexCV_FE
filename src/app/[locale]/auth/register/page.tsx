@@ -26,6 +26,7 @@ import {
   AccountCircle,
   Phone,
 } from '@mui/icons-material';
+import Image from 'next/image';
 
 import { useAuth } from '@/hooks/useAuth';
 export default function RegisterPage() {
@@ -284,6 +285,50 @@ export default function RegisterPage() {
                 {t('loginLink')}
               </MuiLink>
             </Typography>
+          </Box>
+
+          {/* Social Login Buttons */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={
+                <Image
+                  src="/google-icon.png"
+                  alt="Google"
+                  width={24}
+                  height={24}
+                  style={{ marginRight: 8 }}
+                />
+              }
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
+              sx={{ mb: 2 }}
+            >
+              {t('continueWithGoogle')}
+            </Button>
+
+            <Button
+              variant="outlined"
+              fullWidth
+              startIcon={
+                <Image
+                  src="/facebook-icon.png"
+                  alt="Facebook"
+                  width={24}
+                  height={24}
+                  style={{ marginRight: 8 }}
+                />
+              }
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
+            >
+              {t('continueWithFacebook')}
+            </Button>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ flex: 1, height: 1, backgroundColor: 'gray' }} />
+            <Typography sx={{ mx: 2, color: 'gray' }}>{t('orRegisterWithEmail')}</Typography>
+            <Box sx={{ flex: 1, height: 1, backgroundColor: 'gray' }} />
           </Box>
 
           <Box
