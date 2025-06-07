@@ -1,53 +1,67 @@
 'use client';
 
-import React from 'react';
-import { Box, Typography, Grid, Card, CardContent, CardMedia, Button } from '@mui/material';
-import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography } from '@mui/material';
+import ProductCard from '@/components/card/index';
 
 
-const mockProducts = [
-  {
-    name: 'Áo Thun Nam',
-    image: '',
-    price: '299.000đ',
-  },
-  {
-    name: 'Giày Thể Thao',
-    image: '/images/giay.jpg',
-    price: '799.000đ',
-  },
-  // ... thêm sản phẩm mẫu
-];
+interface Product {
+  name: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  tags?: string[];
+}
 
 const categories = [
   {
     name: 'NAM',
-    image: '/images/outlet-men.jpg',
+    image: '/assets/images/outlet-men.jpg',
     href: '/outlet/men',
   },
   {
     name: 'NỮ',
-    image: '/images/outlet-women.jpg',
+    image: '/assets/images/outlet-women.jpg',
     href: '/outlet/women',
   },
   {
     name: 'TRẺ EM',
-    image: '/images/outlet-kids.jpg',
+    image: '/assets/images/outlet-kids.jpg',
     href: '/outlet/kids',
   },
   {
     name: 'SHOP SHOES',
-    image: '/images/outlet-shoes.jpg',
+    image: '/assets/images/outlet-shoes.jpg',
     href: '/outlet/men-shoes', // hoặc route phù hợp
   },
   {
     name: 'SIZE CUỐI: GIẢM ĐẾN 40%',
-    image: '/images/outlet-sale.jpg',
+    image: '/assets/images/outlet-sale.jpg',
     href: '/outlet/last-size', // hoặc route phù hợp
   },
 ];
 
 export default function OutletPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+        const data = await res.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4 }}>
       <Typography variant="h3" fontWeight={700} mb={4}>
@@ -56,62 +70,69 @@ export default function OutletPage() {
       <Typography variant="subtitle1" mb={4}>
         Săn sale cực sốc các sản phẩm chính hãng với giá tốt nhất!
       </Typography>
-      <Grid container spacing={2} mb={4}>
-        {categories.map((cat) => (
-          <Grid item xs={12} sm={6} md={2.4} key={cat.name}>
-            <Card
-              component={Link}
-              href={cat.href}
+
+      {/* Categories Section */}
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 4 }}>
+        {categories.map((category, index) => (
+          <Box
+            key={index}
+            component="a"
+            href={category.href}
+            sx={{
+              display: 'block',
+              position: 'relative',
+              height: 200,
+              backgroundImage: `url(${category.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              '&:hover': {
+                opacity: 0.9,
+              },
+            }}
+          >
+            <Typography
+              variant="h6"
               sx={{
-                textAlign: 'center',
-                textDecoration: 'none',
-                boxShadow: 0,
-                border: '1px solid #eee',
-                transition: 'box-shadow 0.2s',
-                '&:hover': { boxShadow: 4 }
+                position: 'absolute',
+                bottom: 16,
+                left: 16,
+                color: 'white',
+                fontWeight: 'bold',
+                textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
               }}
             >
-              <CardMedia
-                component="img"
-                height="120"
-                image={cat.image}
-                alt={cat.name}
-              />
-              <CardContent sx={{ bgcolor: '#f5f8fa', minHeight: 70 }}>
-                <Typography
-                  fontWeight={700}
-                  sx={{ textDecoration: 'underline', fontSize: 18 }}
-                >
-                  {cat.name}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              {category.name}
+            </Typography>
+          </Box>
         ))}
-      </Grid>
-      <Grid container spacing={3}>
-        {mockProducts.map((product, idx) => (
-          <Grid item xs={12} sm={6} md={3} key={idx}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="180"
-                image={product.image}
-                alt={product.name}
+      </Box>
+
+      {loading ? (
+        <Typography>Đang tải sản phẩm...</Typography>
+      ) : (
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
+          {products.map((product, idx) => (
+            <Box
+              key={idx}
+              sx={{
+                width: { xs: '100%', sm: '50%', md: '25%' },
+                p: 1.5,
+              }}
+            >
+              <ProductCard
+                name={product.name}
+                image={product.images?.[0]}
+                price={product.price}
+                discountPrice={product.discountPrice}
+                tags={product.tags}
+                onAddToCart={() => {
+                  console.log(`Added ${product.name} to cart!`);
+                }}
               />
-              <CardContent>
-                <Typography variant="h6" fontWeight={600}>
-                  {product.name}
-                </Typography>
-                <Typography color="text.secondary">{product.price}</Typography>
-                <Button variant="contained" fullWidth sx={{ mt: 2 }}>
-                  Xem chi tiết
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+            </Box>
+          ))}
+        </Box>
+      )}
     </Box>
   );
 }
