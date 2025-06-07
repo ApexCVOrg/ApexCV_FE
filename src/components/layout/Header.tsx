@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   AppBar,
@@ -158,17 +158,18 @@ const Header = () => {
   const [language, setLanguage] = useState<Language>('en');
 
   // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
-  const getCurrentLanguage = (): Language => {
+  const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
     if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
       return pathParts[1] as Language;
     }
     return 'en'; // mặc định là English nếu không có prefix
-  };
+  }, [pathname]);
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
-  }, [pathname]);
+  }, [pathname, getCurrentLanguage]);
+
 
   // Xử lý khi hover vào menu
   const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {

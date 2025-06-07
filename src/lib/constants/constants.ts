@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: '/auth/refresh-token',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
+    VERIFY_EMAIL: '/auth/verify-email',
   },
   USER: {
     PROFILE: '/user/profile',
@@ -23,8 +24,6 @@ export const API_ENDPOINTS = {
   // Thêm các endpoints khác ở đây
 };
 
-// API Base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -44,7 +43,7 @@ export const THEME = {
 export const ROUTES = {
   HOME: '/vi',
   LOGIN: '/login',
-  REGISTER: '/register',
+  REGISTER: 'auth/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   SETTINGS: '/settings',

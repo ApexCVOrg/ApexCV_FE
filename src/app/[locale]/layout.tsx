@@ -30,12 +30,12 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ backgroundColor: '#fff', minHeight: '100vh', margin: 0 }}>
         <ThemeProvider>
           <NextIntlClientProvider locale={locale}>
-            <Box className="app-container">
+            <Box className="app-container" sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
               <Header />
-              <Container component="main" className="main-content">
+              <Container component="main" className="main-content" sx={{ bgcolor: '#fff' }}>
                 {children}
               </Container>
               <Footer />

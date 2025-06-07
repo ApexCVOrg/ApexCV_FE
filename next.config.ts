@@ -4,15 +4,16 @@ const createNextIntlPlugin = require('next-intl/plugin');
 const withNextIntl = createNextIntlPlugin();
  
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
- 
-module.exports = withNextIntl(nextConfig);
-const config: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['localhost'],
+    domains: [
+      'localhost',
+      'assets.adidas.com',
+      'static.vecteezy.com',
+      'upload.wikimedia.org',
+      'dothethao.net.vn'
+    ],
   },
-  // Bỏ swcMinify vì không còn được hỗ trợ trong Next.js 15.3.2
 };
-
-export default config;
+module.exports = withNextIntl(nextConfig);
