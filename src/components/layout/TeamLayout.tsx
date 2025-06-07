@@ -29,7 +29,7 @@ const teams: TeamInfo[] = [
   {
     name: "Arsenal",
     route: "arsenal",
-    logo: "https://static.vecteezy.com/system/resources/previews/015/863/617/non_2x/arsenal-logo-on-transparent-background-free-vector.jpg",
+    logo: "https://upload.wikimedia.org/wikipedia/vi/thumb/5/53/Arsenal_FC.svg/800px-Arsenal_FC.svg.png",
   },
   {
     name: "Real Madrid",
