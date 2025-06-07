@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import {
   Container,
   Box,
@@ -12,8 +12,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { VerifiedUser } from '@mui/icons-material';
-import { ROUTES } from '@/constants/routes';
 import { API_ENDPOINTS } from '@/lib/constants/constants';
+import { useTranslations } from 'next-intl';
+
 interface VerifyEmailResponse {
   success: boolean;
   message: string;
@@ -21,19 +22,58 @@ interface VerifyEmailResponse {
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = pathname?.split('/')[1] || 'vi';
   const [verificationCode, setVerificationCode] = useState('');
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [verified, setVerified] = useState(false);
+  const t = useTranslations('auth');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('pendingEmail');
     if (!storedEmail) {
-      router.push(ROUTES.REGISTER);
+      router.push(`/${locale}/auth/register`);
       return;
     }
     setRegisteredEmail(storedEmail);
-  }, [router]);
+  }, [router, locale]);
+
+  useEffect(() => {
+    const verifyEmail = async () => {
+      try {
+        setLoading(true);
+        const token = searchParams.get('token');
+        if (!token) {
+          setError(t('error.invalidToken'));
+          return;
+        }
+
+        const response = await fetch(`${API_ENDPOINTS.AUTH.VERIFY_EMAIL}?token=${token}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data: VerifyEmailResponse = await response.json();
+
+        if (data.success) {
+          setVerified(true);
+        } else {
+          setError(data.message || t('error.verificationFailed'));
+        }
+      } catch (err) {
+        setError(t('error.verificationFailed'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verifyEmail();
+  }, [searchParams, t, locale]);
 
   const handleVerificationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +94,7 @@ export default function VerifyEmailPage() {
 
       if (data.success) {
         localStorage.removeItem('pendingEmail');
-        router.push(ROUTES.LOGIN);
+        router.push(`/${locale}/auth/login`);
       } else {
         setError(data.message || 'Verification failed');
       }
@@ -68,7 +108,7 @@ export default function VerifyEmailPage() {
 
   const handleBackToRegistration = () => {
     localStorage.removeItem('pendingEmail');
-    router.push(ROUTES.REGISTER);
+    router.push(`/${locale}/auth/register`);
   };
 
   const inputStyle = {
