@@ -21,8 +21,8 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Category } from "@/types/category";
-import CategoryForm from "@/components/CategoryForm";
+import { Category } from "@/types/components/category";
+import CategoryForm from '@/components/forms/CategoryForm';
 import axios from "axios";
 
 export default function CategoriesPage() {
@@ -161,11 +161,11 @@ export default function CategoriesPage() {
         initialData={
           selected
             ? {
-                name: selected.name,
-                description: selected.description,
-                parentCategory: selected.parentCategory?._id || "",
-                status: selected.status,
-              }
+              name: selected.name,
+              description: selected.description,
+              parentCategory: selected.parentCategory?._id || "",
+              status: selected.status,
+            }
             : undefined
         }
       />
