@@ -249,6 +249,8 @@ export const useAuth = () => {
     [router, setAuthData]
   );
 
+
+
   return {
     login,
     register,
