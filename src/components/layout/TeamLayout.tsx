@@ -65,16 +65,24 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
   const pathname = usePathname();
   const currentTeam = pathname.split('/').pop() || '';
 
+  // Tính toán border cho từng team một cách nhất quán
+  const getBorder = (teamRoute: string) => {
+    if (currentTeam === teamRoute) {
+      return `2px solid ${tabColors[teamRoute]}`;
+    }
+    return 'none';
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ py: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
           {title}
         </Typography>
-        <Paper 
-          elevation={3} 
-          sx={{ 
-            p: 2, 
+        <Paper
+          elevation={3}
+          sx={{
+            p: 2,
             mb: 4,
             display: 'flex',
             justifyContent: 'center',
@@ -83,8 +91,8 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
           }}
         >
           {teams.map((team) => (
-            <Link 
-              key={team.route} 
+            <Link
+              key={team.route}
               href={`/${section}/${team.route}`}
               style={{ textDecoration: 'none' }}
             >
@@ -100,7 +108,7 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
                   '&:hover': {
                     transform: 'scale(1.1)',
                   },
-                  border: currentTeam === team.route ? `2px solid ${tabColors[team.route]}` : 'none',
+                  border: getBorder(team.route),
                   borderRadius: '50%',
                   padding: '4px',
                 }}

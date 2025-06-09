@@ -1,22 +1,69 @@
 {
   "hero": {
-    "title": "Khám phá bộ sưu tập mới nhất",
+    "title": "Khám phá Bộ Sưu Tập Mới Nhất",
     "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
-    "getStarted": "Bắt đầu ngay",
-    "viewTemplates": "Xem mẫu CV"
+    "getStarted": "Bắt đầu",
+    "viewTemplates": "Xem Mẫu"
   },
   "categories": {
-    "title": "Danh mục sản phẩm"
+    "title": "Mua theo Danh Mục"
   },
   "promo": {
-    "title": "Ưu đãi đặc biệt",
+    "title": "Ưu Đãi Đặc Biệt",
     "description": "Giảm 20% cho tất cả sản phẩm mới",
-    "shopNow": "Mua ngay"
+    "shopNow": "Mua Ngay"
   },
   "collections": {
-    "title": "Bộ sưu tập nổi bật"
+    "title": "Bộ Sưu Tập Nổi Bật"
   },
-  "login": {
+  "manager": {
+    "dashboard": {
+      "overview": "Tổng Quan",
+      "totalSales": "Tổng Doanh Thu",
+      "activeUsers": "Người Dùng Hoạt Động",
+      "pendingOrders": "Đơn Hàng Đang Xử Lý",
+      "newCustomers": "Khách Hàng Mới"
+    },
+    "layout": {
+      "managerDashboard": "Bảng Điều Khiển Quản Lý",
+      "helloManager": "Xin chào, Quản lý",
+      "dashboard": "Bảng Điều Khiển",
+      "products": "Sản Phẩm",
+      "categories": "Danh Mục",
+      "orders": "Đơn Hàng",
+      "customers": "Khách Hàng",
+      "settings": "Cài Đặt",
+      "logout": "Đăng Xuất"
+    },
+    "categories": {
+      "title": "Quản Lý Danh Mục",
+      "addNew": "Thêm Danh Mục Mới",
+      "editCategory": "Chỉnh Sửa Danh Mục",
+      "addCategory": "Thêm Danh Mục",
+      "name": "Tên",
+      "description": "Mô Tả",
+      "parentCategory": "Danh Mục Cha",
+      "statusLabel": "Trạng Thái",
+      "createdAt": "Ngày Tạo",
+      "actions": "Hành Động",
+      "loading": "Đang tải danh mục...",
+      "noCategories": "Không có danh mục nào",
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "update": "Cập Nhật",
+      "deleteConfirm": "Bạn có chắc muốn xóa danh mục này không?",
+      "none": "Không có",
+      "selectName": "Chọn tên",
+      "status": {
+        "active": "Hoạt Động",
+        "inactive": "Không Hoạt Động"
+      },
+      "error": {
+        "cannotSelectSelfAsParent": "Không thể chọn chính danh mục làm danh mục cha"
+      }
+    }
+  },
+    "login": {
     "title": "Đăng nhập",
     "noAccount": "Chưa có tài khoản?",
     "registerNow": "Đăng ký ngay",
@@ -31,45 +78,45 @@
     "usernameLabel": "Tên đăng nhập"
   },
 
-  "register": {
-    "title": "Tạo tài khoản mới",
-    "username": "Tên đăng nhập",
-    "fullName": "Họ và tên",
-    "email": "Email",
-    "password": "Mật khẩu",
-    "confirmPassword": "Xác nhận mật khẩu",
-    "phone": "Số điện thoại",
-    "addressTitle": "Địa chỉ",
-    "recipientName": "Tên người nhận",
-    "street": "Đường",
-    "city": "Thành phố",
-    "state": "Tỉnh/Thành phố",
-    "country": "Quốc gia",
-    "addressNumber": "Số nhà (Tùy chọn)",
-    "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
-    "subtitle": "Đã có tài khoản?",
-    "loginLink": "Đăng nhập",
-    "register": "Đăng ký",
-    "alreadyHaveAccount": "Đã có tài khoản?",
-    "signIn": "Đăng nhập",
-    "continueWithGoogle": "Tiếp tục với Google",
-    "continueWithFacebook": "Tiếp tục với Facebook",
-    "orRegisterWithEmail": "Hoặc đăng ký bằng email",
-    "hidePassword": "Ẩn mật khẩu",
-    "showPassword": "Hiện mật khẩu",
-    "hideConfirmPassword": "Ẩn mật khẩu xác nhận",
-    "showConfirmPassword": "Hiện mật khẩu xác nhận",
-    "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
-    "errors": {
-      "usernameRequired": "Vui lòng nhập tên đăng nhập",
-      "usernameTaken": "Tên đăng nhập đã tồn tại",
-      "emailRequired": "Vui lòng nhập email",
-      "invalidEmail": "Email không hợp lệ",
-      "emailAlreadyUsed": "Email đã được sử dụng",
-      "passwordRequired": "Vui lòng nhập mật khẩu",
-      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
-      "passwordsDoNotMatch": "Mật khẩu xác nhận không khớp",
-      "serverError": "Lỗi máy chủ. Vui lòng thử lại sau"
+    "register": {
+      "title": "Tạo tài khoản mới",
+      "username": "Tên đăng nhập",
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "confirmPassword": "Xác nhận mật khẩu",
+      "phone": "Số điện thoại",
+      "addressTitle": "Địa chỉ",
+      "recipientName": "Tên người nhận",
+      "street": "Đường",
+      "city": "Thành phố",
+      "state": "Tỉnh/Thành phố",
+      "country": "Quốc gia",
+      "addressNumber": "Số nhà (Tùy chọn)",
+      "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
+      "subtitle": "Đã có tài khoản?",
+      "loginLink": "Đăng nhập",
+      "register": "Đăng ký",
+      "alreadyHaveAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "continueWithGoogle": "Tiếp tục với Google",
+      "continueWithFacebook": "Tiếp tục với Facebook",
+      "orRegisterWithEmail": "Hoặc đăng ký bằng email",
+      "hidePassword": "Ẩn mật khẩu",
+      "showPassword": "Hiện mật khẩu",
+      "hideConfirmPassword": "Ẩn mật khẩu xác nhận",
+      "showConfirmPassword": "Hiện mật khẩu xác nhận",
+      "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
+      "errors": {
+        "usernameRequired": "Vui lòng nhập tên đăng nhập",
+        "usernameTaken": "Tên đăng nhập đã tồn tại",
+        "emailRequired": "Vui lòng nhập email",
+        "invalidEmail": "Email không hợp lệ",
+        "emailAlreadyUsed": "Email đã được sử dụng",
+        "passwordRequired": "Vui lòng nhập mật khẩu",
+        "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+        "passwordsDoNotMatch": "Mật khẩu xác nhận không khớp",
+        "serverError": "Lỗi máy chủ. Vui lòng thử lại sau"
+      }
     }
   }
-}
