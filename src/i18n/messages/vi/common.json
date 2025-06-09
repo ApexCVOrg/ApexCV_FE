@@ -17,13 +17,18 @@
     "title": "Bộ sưu tập nổi bật"
   },
   "login": {
-    "title": "Đăng nhập vào tài khoản của bạn",
-    "subtitle": "Bạn chưa có tài khoản?",
-    "registerLink": "Đăng ký",
-    "email": "Email",
-    "password": "Mật khẩu",
-    "login": "Đăng nhập",
-    "forgotPassword": "Quên mật khẩu?"
+    "title": "Đăng nhập",
+    "noAccount": "Chưa có tài khoản?",
+    "registerNow": "Đăng ký ngay",
+    "emailLabel": "Email",
+    "passwordLabel": "Mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "loggingIn": "Đang đăng nhập...",
+    "loginButton": "Đăng nhập",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "loginWithFacebook": "Đăng nhập với Facebook",
+    "usernameLabel": "Tên đăng nhập"
   },
 
   "register": {

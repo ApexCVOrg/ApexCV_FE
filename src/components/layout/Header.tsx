@@ -27,11 +27,13 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useAuth } from '@/hooks/useAuth';
 
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
-type Language = typeof LANGUAGES[number];
+type Language = (typeof LANGUAGES)[number];
 
+// NAV_LINKS chi tiết
 const NAV_LINKS = [
   {
     title: 'Men',
@@ -108,35 +110,36 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
+  const { isAuthenticated } = useAuth();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
-  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
     if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
       return pathParts[1] as Language;
     }
-    return 'en'; // mặc định là English nếu không có prefix
+    return 'en';
   }, [pathname]);
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
   }, [pathname, getCurrentLanguage]);
 
-
-  // Xử lý khi hover vào menu
-  const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
+  const handleMenuHover = (
+    event: React.MouseEvent<HTMLElement>,
+    index: number,
+    hasSubmenu: boolean
+  ) => {
     if (hasSubmenu) {
       setAnchorEl(event.currentTarget);
       setOpenMenuIndex(index);
     }
   };
 
-  // Xử lý khi click vào menu
   const handleMenuClick = (index: number, href: string) => {
     setAnchorEl(null);
     setOpenMenuIndex(null);
@@ -154,20 +157,13 @@ const Header = () => {
 
   const toggleLanguage = () => {
     const newLang: Language = language === 'en' ? 'vi' : 'en';
-
-    // Thay đổi URL
     const pathParts = pathname.split('/');
-
-    // Nếu URL hiện tại có prefix ngôn ngữ, thay prefix mới
     if (LANGUAGES.includes(pathParts[1] as Language)) {
       pathParts[1] = newLang;
     } else {
-      // Nếu không có prefix, thêm prefix mới vào đầu (bỏ phần đầu rỗng)
       pathParts.splice(1, 0, newLang);
     }
-
     const newPath = pathParts.join('/') || '/';
-
     setLanguage(newLang);
     router.push(newPath);
   };
@@ -219,10 +215,8 @@ const Header = () => {
               {NAV_LINKS.map(({ title, href, submenu }, i) => (
                 <Box
                   key={title}
-                  sx={{
-                    position: 'relative',
-                  }}
-                  onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                  sx={{ position: 'relative' }}
+                  onMouseEnter={e => handleMenuHover(e, i, !!submenu)}
                   onMouseLeave={handleMenuClose}
                 >
                   <Button
@@ -291,7 +285,7 @@ const Header = () => {
           <Stack direction="row" spacing={1} alignItems="center">
             <ThemeToggle />
 
-            {/* Nút đổi ngôn ngữ */}
+            {/* Language Toggle */}
             <Button
               variant="outlined"
               size="small"
@@ -312,33 +306,58 @@ const Header = () => {
               {language.toUpperCase()}
             </Button>
 
-            <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
+            <IconButton
+              aria-label="cart"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.CART)}
+            >
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            <IconButton
-              aria-label="profile"
-              color="inherit"
-              size="large"
-              onClick={() => router.push(ROUTES.PROFILE)}
-            >
-              <AccountCircleIcon />
-            </IconButton>
 
-            {/* Sign Up button */}
-            <Button
-              variant="outlined"
-              color="inherit"
-              onClick={() => router.push(ROUTES.REGISTER)}
-              sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
-            >
-              Sign Up
-            </Button>
+            {isAuthenticated ? (
+              <IconButton
+                aria-label="profile"
+                color="inherit"
+                size="large"
+                onClick={() => router.push(ROUTES.PROFILE)}
+              >
+                <AccountCircleIcon />
+              </IconButton>
+            ) : (
+              <>
+                {/* Sign In button */}
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  onClick={() => router.push(ROUTES.LOGIN)}
+                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+                >
+                  Sign In
+                </Button>
 
-            {/* Mobile menu button */}
+                {/* Sign Up button */}
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  onClick={() => router.push(ROUTES.REGISTER)}
+                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
+
+            {/* Mobile Menu Icon */}
             {isMobile && (
-              <IconButton aria-label="menu" color="inherit" size="large" onClick={toggleDrawer(true)}>
+              <IconButton
+                aria-label="menu"
+                color="inherit"
+                size="large"
+                onClick={toggleDrawer(true)}
+              >
                 <MenuIcon />
               </IconButton>
             )}
@@ -347,12 +366,13 @@ const Header = () => {
       </AppBar>
 
       {/* Mobile Drawer */}
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-      >
-        <Box sx={{ width: 240 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <Box
+          sx={{ width: 240 }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
+        >
           <List>
             {NAV_LINKS.map(({ title, href, submenu }) => (
               <React.Fragment key={title}>
@@ -362,11 +382,14 @@ const Header = () => {
                     href={href as string}
                     onClick={() => setDrawerOpen(false)}
                   >
-                    <ListItemText primary={title} primaryTypographyProps={{ textTransform: 'uppercase' }} />
+                    <ListItemText
+                      primary={title}
+                      primaryTypographyProps={{ textTransform: 'uppercase' }}
+                    />
                   </ListItemButton>
                 </ListItem>
                 {submenu &&
-                  submenu.map((sub) => (
+                  submenu.map(sub => (
                     <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
                       <ListItemButton
                         component={Link}

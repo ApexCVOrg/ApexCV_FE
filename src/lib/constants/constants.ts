@@ -24,7 +24,6 @@ export const API_ENDPOINTS = {
   // Thêm các endpoints khác ở đây
 };
 
-
 // Local Storage Keys
 export const STORAGE_KEYS = {
   TOKEN: 'auth_token',
@@ -42,7 +41,7 @@ export const THEME = {
 // Route Paths
 export const ROUTES = {
   HOME: '/vi',
-  LOGIN: '/login',
+  LOGIN: 'auth/login',
   REGISTER: 'auth/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',

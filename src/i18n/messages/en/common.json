@@ -18,13 +18,18 @@
   },
   
   "login": {
-    "title": "Login to Your Account",
-    "subtitle": "Don't have an account?",
-    "registerLink": "Register",
-    "email": "Email",
-    "password": "Password",
-    "login": "Login",
-    "forgotPassword": "Forgot Password?"
+    "title": "Login",
+    "noAccount": "Don't have an account?",
+    "registerNow": "Register now",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "loggingIn": "Logging in...",
+    "loginButton": "Login",
+    "loginWithGoogle": "Login with Google",
+    "loginWithFacebook": "Login with Facebook",
+    "usernameLabel": "Username"
   },
   "register": {
     "title": "Create New Account",
