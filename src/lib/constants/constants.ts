@@ -53,7 +53,7 @@ export const THEME = {
 // Route Paths
 export const ROUTES = {
   HOME: '/vi',
-  LOGIN: '/login',
+  LOGIN: 'auth/login',
   REGISTER: 'auth/register',
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
