@@ -1,65 +1,65 @@
 {
   "hero": {
-    "title": "Khám phá Bộ Sưu Tập Mới Nhất",
+    "title": "Khám phá Bộ sưu tập Mới nhất",
     "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
-    "getStarted": "Bắt đầu",
+    "getStarted": "Bắt đầu ngay",
     "viewTemplates": "Xem Mẫu"
   },
   "categories": {
-    "title": "Mua theo Danh Mục"
+    "title": "Mua sắm theo Danh mục"
   },
   "promo": {
-    "title": "Ưu Đãi Đặc Biệt",
+    "title": "Ưu đãi Đặc biệt",
     "description": "Giảm 20% cho tất cả sản phẩm mới",
-    "shopNow": "Mua Ngay"
+    "shopNow": "Mua ngay"
   },
   "collections": {
-    "title": "Bộ Sưu Tập Nổi Bật"
+    "title": "Bộ sưu tập Nổi bật"
   },
   "manager": {
     "dashboard": {
-      "overview": "Tổng Quan",
-      "totalSales": "Tổng Doanh Thu",
-      "activeUsers": "Người Dùng Hoạt Động",
-      "pendingOrders": "Đơn Hàng Đang Xử Lý",
-      "newCustomers": "Khách Hàng Mới"
+      "overview": "Tổng quan",
+      "totalSales": "Tổng doanh thu",
+      "activeUsers": "Người dùng hoạt động",
+      "pendingOrders": "Đơn hàng đang chờ",
+      "newCustomers": "Khách hàng mới"
     },
     "layout": {
-      "managerDashboard": "Bảng Điều Khiển Quản Lý",
+      "managerDashboard": "Bảng điều khiển Quản lý",
       "helloManager": "Xin chào, Quản lý",
-      "dashboard": "Bảng Điều Khiển",
-      "products": "Sản Phẩm",
-      "categories": "Danh Mục",
-      "orders": "Đơn Hàng",
-      "customers": "Khách Hàng",
-      "settings": "Cài Đặt",
-      "logout": "Đăng Xuất"
+      "dashboard": "Bảng điều khiển",
+      "products": "Sản phẩm",
+      "categories": "Danh mục",
+      "orders": "Đơn hàng",
+      "customers": "Khách hàng",
+      "settings": "Cài đặt",
+      "logout": "Đăng xuất"
     },
     "categories": {
-      "title": "Quản Lý Danh Mục",
-      "addNew": "Thêm Danh Mục Mới",
-      "editCategory": "Chỉnh Sửa Danh Mục",
-      "addCategory": "Thêm Danh Mục",
+      "title": "Quản lý Danh mục",
+      "addNew": "Thêm Danh mục mới",
+      "editCategory": "Chỉnh sửa Danh mục",
+      "addCategory": "Thêm Danh mục",
       "name": "Tên",
-      "description": "Mô Tả",
-      "parentCategory": "Danh Mục Cha",
-      "statusLabel": "Trạng Thái",
-      "createdAt": "Ngày Tạo",
-      "actions": "Hành Động",
+      "description": "Mô tả",
+      "parentCategory": "Danh mục cha",
+      "statusLabel": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác",
       "loading": "Đang tải danh mục...",
-      "noCategories": "Không có danh mục nào",
+      "noCategories": "Không tìm thấy danh mục nào",
       "cancel": "Hủy",
-      "create": "Tạo",
-      "update": "Cập Nhật",
-      "deleteConfirm": "Bạn có chắc muốn xóa danh mục này không?",
+      "create": "Tạo mới",
+      "update": "Cập nhật",
+      "deleteConfirm": "Bạn có chắc chắn muốn xóa danh mục này không?",
       "none": "Không có",
       "selectName": "Chọn tên",
       "status": {
-        "active": "Hoạt Động",
-        "inactive": "Không Hoạt Động"
+        "active": "Hoạt động",
+        "inactive": "Không hoạt động"
       },
       "error": {
-        "cannotSelectSelfAsParent": "Không thể chọn chính danh mục làm danh mục cha"
+        "cannotSelectSelfAsParent": "Không thể chọn chính nó làm danh mục cha"
       }
     }
   },
@@ -73,19 +73,19 @@
     "forgotPassword": "Quên mật khẩu?",
     "loggingIn": "Đang đăng nhập...",
     "loginButton": "Đăng nhập",
-    "loginWithGoogle": "Đăng nhập với Google",
-    "loginWithFacebook": "Đăng nhập với Facebook",
+    "loginWithGoogle": "Đăng nhập bằng Google",
+    "loginWithFacebook": "Đăng nhập bằng Facebook",
     "usernameLabel": "Tên đăng nhập",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất"
   },
   "register": {
-    "title": "Tạo tài khoản mới",
+    "title": "Tạo Tài khoản Mới",
     "username": "Tên đăng nhập",
-    "fullName": "Họ và tên",
+    "fullName": "Họ và Tên",
     "email": "Email",
     "password": "Mật khẩu",
-    "confirmPassword": "Xác nhận mật khẩu",
+    "confirmPassword": "Xác nhận Mật khẩu",
     "phone": "Số điện thoại",
     "addressTitle": "Địa chỉ",
     "recipientName": "Tên người nhận",
@@ -105,19 +105,91 @@
     "orRegisterWithEmail": "Hoặc đăng ký bằng email",
     "hidePassword": "Ẩn mật khẩu",
     "showPassword": "Hiện mật khẩu",
-    "hideConfirmPassword": "Ẩn mật khẩu xác nhận",
-    "showConfirmPassword": "Hiện mật khẩu xác nhận",
+    "hideConfirmPassword": "Ẩn xác nhận mật khẩu",
+    "showConfirmPassword": "Hiện xác nhận mật khẩu",
     "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
     "errors": {
       "usernameRequired": "Vui lòng nhập tên đăng nhập",
-      "usernameTaken": "Tên đăng nhập đã tồn tại",
+      "usernameTaken": "Tên đăng nhập đã được sử dụng",
       "emailRequired": "Vui lòng nhập email",
-      "invalidEmail": "Email không hợp lệ",
+      "invalidEmail": "Địa chỉ email không hợp lệ",
       "emailAlreadyUsed": "Email đã được sử dụng",
       "passwordRequired": "Vui lòng nhập mật khẩu",
       "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
       "passwordsDoNotMatch": "Mật khẩu xác nhận không khớp",
       "serverError": "Lỗi máy chủ. Vui lòng thử lại sau"
+    }
+  },
+  "forgotPassword": {
+    "title": "QUÊN MẬT KHẨU",
+    "description": "Nhập địa chỉ email và chúng tôi sẽ gửi cho bạn liên kết đặt lại mật khẩu.",
+    "emailSent": "✓ Email đã được gửi thành công!",
+    "checkEmail": "Vui lòng kiểm tra hộp thư và làm theo hướng dẫn để đặt lại mật khẩu.",
+    "emailLabel": "Địa chỉ Email",
+    "emailPlaceholder": "Nhập địa chỉ email",
+    "sendResetLink": "GỬI MÃ OTP",
+    "sendingEmail": "ĐANG GỬI EMAIL...",
+    "backToLogin": "Quay lại Đăng nhập",
+    "resendEmail": "Gửi lại Email",
+    "resendingEmail": "Đang gửi lại Email...",
+    "goToLogin": "Đi đến Đăng nhập",
+    "errors": {
+      "emailRequired": "Vui lòng nhập địa chỉ email",
+      "invalidEmail": "Địa chỉ email không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+      "resendFailed": "Không thể gửi lại email. Vui lòng thử lại."
+    }
+  },
+  "resetPassword": {
+    "title": "ĐẶT LẠI MẬT KHẨU",
+    "description": "Vui lòng nhập mật khẩu mới bên dưới.",
+    "successMessage": "✓ Mật khẩu của bạn đã được đặt lại thành công!",
+    "passwordLabel": "Mật khẩu mới",
+    "confirmPasswordLabel": "Xác nhận Mật khẩu mới",
+    "resetButton": "ĐẶT LẠI MẬT KHẨU",
+    "resetting": "ĐANG ĐẶT LẠI...",
+    "backToLogin": "Quay lại Đăng nhập",
+    "goToLogin": "Đi đến Đăng nhập",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "errors": {
+      "passwordRequired": "Vui lòng nhập mật khẩu mới",
+      "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu mới",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "invalidToken": "Mã đặt lại không hợp lệ hoặc đã hết hạn",
+      "resetFailed": "Không thể đặt lại mật khẩu",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyOTP": {
+    "title": "XÁC MINH OTP",
+    "description": "Vui lòng nhập mã 6 chữ số được gửi đến email của bạn.",
+    "verifyButton": "XÁC MINH MÃ",
+    "verifying": "ĐANG XÁC MINH...",
+    "resendOTP": "Gửi lại mã",
+    "resendIn": "Gửi lại mã trong {seconds} giây",
+    "backToLogin": "Quay lại Đăng nhập",
+    "goToLogin": "Đi đến Đăng nhập",
+    "resendEmail": "Gửi lại Email",
+    "resendingEmail": "Đang gửi lại Email...",
+    "errors": {
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác minh",
+      "verificationFailed": "Mã xác minh không hợp lệ",
+      "resendFailed": "Không thể gửi lại mã",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyMail": {
+    "title": "XÁC MINH EMAIL",
+    "description": "Vui lòng nhập mã xác minh gồm 6 chữ số được gửi đến email của bạn.",
+    "verificationCodeLabel": "Mã xác minh",
+    "verifyButton": "XÁC MINH MÃ",
+    "verifying": "ĐANG XÁC MINH...",
+    "backToRegistration": "Quay lại Đăng ký",
+    "errors": {
+      "verificationFailed": "Mã xác minh không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   }
 }

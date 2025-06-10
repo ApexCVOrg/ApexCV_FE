@@ -8,6 +8,8 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
     VERIFY_EMAIL: '/auth/verify-email',
+    VERIFY_OTP: '/auth/verify-otp',
+    RESEND_OTP: '/auth/resend-otp',
   },
   USER: {
     PROFILE: '/user/profile',

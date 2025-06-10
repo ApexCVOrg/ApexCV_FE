@@ -38,7 +38,6 @@ export default function LoginForm() {
     (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = field === 'rememberMe' ? e.target.checked : e.target.value;
       setFormData(prev => ({ ...prev, [field]: value }));
-
       if (fieldErrors[field]) {
         setFieldErrors(prev => ({ ...prev, [field]: '' }));
       }
@@ -46,19 +45,16 @@ export default function LoginForm() {
 
   const validateLogin = (data: typeof formData): Record<string, string> => {
     const errors: Record<string, string> = {};
-
     if (!data.username) {
       errors.username = t('errors.usernameRequired');
     } else if (data.username.length < 3) {
       errors.username = t('errors.usernameLength');
     }
-
     if (!data.password) {
       errors.password = t('errors.passwordRequired');
     } else if (data.password.length < 6) {
       errors.password = t('errors.passwordLength');
     }
-
     return errors;
   };
 
@@ -94,12 +90,12 @@ export default function LoginForm() {
         return;
       }
 
-      // Save token to localStorage
+      // Save token based on Remember Me
       if (data.data?.token) {
         localStorage.setItem('auth_token', data.data.token);
       }
 
-      // Get current locale from URL
+      // Redirect
       const pathParts = window.location.pathname.split('/');
       const currentLocale = pathParts[1] || 'en';
 
@@ -128,21 +124,11 @@ export default function LoginForm() {
 
   return (
     <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '10px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-          bgcolor: 'black',
-        }}
-      >
+      <Box sx={{ py: 4 }}>
         <Paper
           elevation={3}
           sx={{
             p: 4,
-            width: '100%',
             bgcolor: 'white',
             borderRadius: 0,
             border: '2px solid black',
@@ -170,7 +156,7 @@ export default function LoginForm() {
               }}
             >
               {t('noAccount')}{' '}
-              <MuiLink component={Link} href="/register" color="primary" underline="hover">
+              <MuiLink component={Link} href="/auth/register" color="primary" underline="hover">
                 {t('registerNow')}
               </MuiLink>
             </Typography>
@@ -181,6 +167,7 @@ export default function LoginForm() {
             onSubmit={handleSubmit}
             sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}
           >
+            {/* Username */}
             <TextField
               label={t('usernameLabel')}
               variant="outlined"
@@ -188,7 +175,7 @@ export default function LoginForm() {
               fullWidth
               value={formData.username}
               onChange={handleChange('username')}
-              error={Boolean(fieldErrors.username)}
+              error={!!fieldErrors.username}
               helperText={fieldErrors.username}
               InputProps={{
                 startAdornment: (
@@ -200,26 +187,18 @@ export default function LoginForm() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 0,
-                  '& fieldset': {
-                    borderColor: 'black',
-                    borderWidth: 2,
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'black',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'black',
-                  },
+                  '& fieldset': { borderColor: 'black', borderWidth: 2 },
+                  '&:hover fieldset': { borderColor: 'black' },
+                  '&.Mui-focused fieldset': { borderColor: 'black' },
                 },
                 '& .MuiInputLabel-root': {
                   color: 'black',
-                  '&.Mui-focused': {
-                    color: 'black',
-                  },
+                  '&.Mui-focused': { color: 'black' },
                 },
               }}
             />
 
+            {/* Password */}
             <TextField
               label={t('passwordLabel')}
               variant="outlined"
@@ -228,7 +207,7 @@ export default function LoginForm() {
               type={showPassword ? 'text' : 'password'}
               value={formData.password}
               onChange={handleChange('password')}
-              error={Boolean(fieldErrors.password)}
+              error={!!fieldErrors.password}
               helperText={fieldErrors.password}
               InputProps={{
                 startAdornment: (
@@ -247,26 +226,18 @@ export default function LoginForm() {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: 0,
-                  '& fieldset': {
-                    borderColor: 'black',
-                    borderWidth: 2,
-                  },
-                  '&:hover fieldset': {
-                    borderColor: 'black',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: 'black',
-                  },
+                  '& fieldset': { borderColor: 'black', borderWidth: 2 },
+                  '&:hover fieldset': { borderColor: 'black' },
+                  '&.Mui-focused fieldset': { borderColor: 'black' },
                 },
                 '& .MuiInputLabel-root': {
                   color: 'black',
-                  '&.Mui-focused': {
-                    color: 'black',
-                  },
+                  '&.Mui-focused': { color: 'black' },
                 },
               }}
             />
 
+            {/* Remember Me + Forgot Password */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <FormControlLabel
                 control={
@@ -275,9 +246,7 @@ export default function LoginForm() {
                     onChange={handleChange('rememberMe')}
                     sx={{
                       color: 'black',
-                      '&.Mui-checked': {
-                        color: 'black',
-                      },
+                      '&.Mui-checked': { color: 'black' },
                     }}
                   />
                 }
@@ -286,7 +255,7 @@ export default function LoginForm() {
               />
               <MuiLink
                 component={Link}
-                href="/forgot-password"
+                href="/auth/forgot-password"
                 sx={{
                   color: 'black',
                   textDecoration: 'none',
@@ -297,6 +266,7 @@ export default function LoginForm() {
               </MuiLink>
             </Box>
 
+            {/* Error */}
             {error && (
               <Box sx={{ bgcolor: 'error.light', p: 2, borderRadius: 1, textAlign: 'center' }}>
                 <Typography color="error" sx={{ fontWeight: 500 }}>
@@ -305,6 +275,7 @@ export default function LoginForm() {
               </Box>
             )}
 
+            {/* Submit */}
             <Button
               type="submit"
               variant="contained"
@@ -315,12 +286,8 @@ export default function LoginForm() {
                 color: 'white',
                 borderRadius: 0,
                 py: 1.5,
-                '&:hover': {
-                  bgcolor: 'gray.800',
-                },
-                '&.Mui-disabled': {
-                  bgcolor: 'gray.400',
-                },
+                '&:hover': { bgcolor: 'gray.800' },
+                '&.Mui-disabled': { bgcolor: 'gray.400' },
               }}
             >
               {loading ? (
@@ -346,6 +313,7 @@ export default function LoginForm() {
               )}
             </Button>
 
+            {/* Divider */}
             <Box sx={{ position: 'relative', my: 2 }}>
               <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
               <Box
@@ -364,7 +332,7 @@ export default function LoginForm() {
               </Box>
             </Box>
 
-            {/* Social Login Buttons */}
+            {/* Social Logins */}
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Button
                 variant="outlined"
@@ -375,14 +343,12 @@ export default function LoginForm() {
                   color: 'black',
                   borderRadius: 0,
                   py: 1.5,
-                  '&:hover': {
-                    borderColor: 'black',
-                    bgcolor: 'grey.50',
-                  },
+                  '&:hover': { borderColor: 'black', bgcolor: 'grey.50' },
                 }}
               >
                 <Box component="span" sx={{ mr: 1 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24">
+                    {/* Google Icon */}
                     <path
                       fill="#4285F4"
                       d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -414,14 +380,12 @@ export default function LoginForm() {
                   borderColor: '#1877F2',
                   borderRadius: 0,
                   py: 1.5,
-                  '&:hover': {
-                    bgcolor: '#166FE5',
-                    borderColor: '#166FE5',
-                  },
+                  '&:hover': { bgcolor: '#166FE5', borderColor: '#166FE5' },
                 }}
               >
                 <Box component="span" sx={{ mr: 1 }}>
                   <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    {/* Facebook Icon */}
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </Box>
@@ -440,6 +404,7 @@ export default function LoginForm() {
                 <MuiLink href="/privacy" color="inherit" underline="hover">
                   Chính sách bảo mật
                 </MuiLink>
+                .
               </Typography>
             </Box>
           </Box>
