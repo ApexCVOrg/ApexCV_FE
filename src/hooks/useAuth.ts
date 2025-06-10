@@ -165,7 +165,7 @@ export const useAuth = () => {
     try {
       setLoading(true);
       await authService.logout();
-      router.push('/login');
+      router.push('/auth/login');
     } catch (err) {
       const error = handleError(err);
       setError(error);
@@ -248,8 +248,6 @@ export const useAuth = () => {
     },
     [router, setAuthData]
   );
-
-
 
   return {
     login,

@@ -75,7 +75,9 @@
     "loginButton": "Login",
     "loginWithGoogle": "Login with Google",
     "loginWithFacebook": "Login with Facebook",
-    "usernameLabel": "Username"
+    "usernameLabel": "Username",
+    "profile": "Profile",
+    "logout": "Logout"
   },
   "register": {
     "title": "Create New Account",

@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
-import { Paper, Typography, Box, useTheme } from "@mui/material";
+import React, { useEffect } from "react";
+import { Paper, Typography, Box, useTheme, Button } from "@mui/material";
 import { useTranslations } from "next-intl";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleIcon from "@mui/icons-material/People";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { useRouter } from 'next/navigation';
 
 interface Stat {
     label: string;
@@ -18,6 +19,7 @@ interface Stat {
 export default function DashboardPage() {
     const t = useTranslations("manager.dashboard");
     const theme = useTheme();
+    const router = useRouter();
 
     const stats: Stat[] = [
         {
@@ -45,6 +47,26 @@ export default function DashboardPage() {
             color: theme.palette.info.main,
         },
     ];
+
+    useEffect(() => {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            // Giả sử JWT, decode payload để lấy role
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                console.log('User role:', payload.role);
+            } catch (e) {
+                console.log('Cannot decode token:', e);
+            }
+        } else {
+            console.log('No token found');
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        router.push('/auth/login');
+    };
 
     return (
         <Box>
@@ -118,6 +140,9 @@ export default function DashboardPage() {
                     </Box>
                 ))}
             </Box>
+            <Button variant="outlined" color="error" onClick={handleLogout} sx={{ position: 'absolute', top: 16, right: 16 }}>
+                Logout
+            </Button>
         </Box>
     );
 }

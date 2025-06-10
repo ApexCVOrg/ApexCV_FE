@@ -96,15 +96,24 @@ export default function LoginForm() {
 
       // Save token to localStorage
       if (data.data?.token) {
-        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('auth_token', data.data.token);
       }
 
       // Get current locale from URL
       const pathParts = window.location.pathname.split('/');
       const currentLocale = pathParts[1] || 'en';
 
-      // Redirect to home page with current locale
-      window.location.href = `/${currentLocale}`;
+      // Lấy role từ response (giả sử trả về data.data.user.role)
+      const role = data.data?.user?.role || 'user';
+
+      // Chuyển hướng theo role
+      if (role === 'admin') {
+        window.location.href = `/${currentLocale}/admin/dashboard`;
+      } else if (role === 'manager') {
+        window.location.href = `/${currentLocale}/manager/dashboard`;
+      } else {
+        window.location.href = `/${currentLocale}`;
+      }
     } catch (err) {
       setError(t('errors.invalidCredentials'));
       console.error('Login error:', err);

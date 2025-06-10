@@ -16,10 +16,11 @@ interface Product {
     name: string;
     description: string;
     price: number;
-    category: { id: string; name: string } | null;
+    categories: (string | { id: string; name: string })[];
     status: "active" | "inactive";
     createdAt: string;
     updatedAt: string;
+    brand?: string | Brand;
 }
 
 interface ProductFormData {
@@ -36,10 +37,15 @@ interface ProductFormData {
     status: "active" | "inactive";
 }
 
+interface Brand {
+    _id: string;
+    name: string;
+}
+
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-    const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
+    const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -83,7 +89,7 @@ export default function ProductsPage() {
     };
     const fetchBrands = async () => {
         try {
-            const res = await api.get<{ id: string; name: string }[]>(API_ENDPOINTS.MANAGER.BRANDS);
+            const res = await api.get<Brand[]>(API_ENDPOINTS.MANAGER.BRANDS);
             setBrands(res.data);
         } catch { }
     };
@@ -108,7 +114,7 @@ export default function ProductsPage() {
                 description: product.description,
                 price: product.price,
                 discountPrice: undefined,
-                categories: product.category ? [product.category.id] : [],
+                categories: product.categories ? product.categories.map(cat => typeof cat === 'string' ? cat : cat.id) : [],
                 brand: "",
                 images: [],
                 sizes: [],
@@ -160,7 +166,11 @@ export default function ProductsPage() {
                 ? `${API_ENDPOINTS.MANAGER.PRODUCTS}/${selectedProduct.id}`
                 : API_ENDPOINTS.MANAGER.PRODUCTS;
             const method = selectedProduct ? "put" : "post";
-            await api[method](url, formData);
+            const submitData = {
+                ...formData,
+                categories: formData.categories.map(cat => typeof cat === 'string' ? cat : cat.id),
+            };
+            await api[method](url, submitData);
             setSnackbar({
                 open: true,
                 message: selectedProduct ? SUCCESS_MESSAGES.MANAGER.PRODUCT_UPDATED : SUCCESS_MESSAGES.MANAGER.PRODUCT_CREATED,
@@ -212,6 +222,26 @@ export default function ProductsPage() {
         setFormData(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== idx) }));
     };
 
+    // Helper: Lấy tên brand từ objectId hoặc object
+    const getBrandName = (brand: string | Brand | undefined) => {
+        if (!brand) return '-';
+        if (typeof brand === 'string') {
+            const found = brands.find(b => b._id === brand);
+            return found ? found.name : brand;
+        } else if (typeof brand === 'object' && brand !== null) {
+            return brand.name;
+        }
+        return '-';
+    };
+
+    // Helper: Lấy tên hoặc objectId category
+    const getCategoryDisplay = (cat: string | { id: string; name: string }) => {
+        if (!cat) return '-';
+        if (typeof cat === 'string') return cat; // objectId
+        if (typeof cat === 'object' && cat !== null) return cat.name;
+        return '-';
+    };
+
     return (
         <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
@@ -228,6 +258,7 @@ export default function ProductsPage() {
                             <TableCell>Description</TableCell>
                             <TableCell>Price</TableCell>
                             <TableCell>Category</TableCell>
+                            <TableCell>Brand</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Created At</TableCell>
                             <TableCell align="right">Actions</TableCell>
@@ -235,11 +266,11 @@ export default function ProductsPage() {
                     </TableHead>
                     <TableBody>
                         {loading ? (
-                            <TableRow>
+                            <TableRow key="loading">
                                 <TableCell colSpan={7} align="center">Loading...</TableCell>
                             </TableRow>
                         ) : products.length === 0 ? (
-                            <TableRow>
+                            <TableRow key="empty">
                                 <TableCell colSpan={7} align="center">No products found</TableCell>
                             </TableRow>
                         ) : (
@@ -248,7 +279,8 @@ export default function ProductsPage() {
                                     <TableCell>{product.name}</TableCell>
                                     <TableCell>{product.description}</TableCell>
                                     <TableCell>{product.price}</TableCell>
-                                    <TableCell>{product.category?.name || "-"}</TableCell>
+                                    <TableCell>{product.categories && product.categories.length > 0 ? product.categories.map(getCategoryDisplay).join(', ') : '-'}</TableCell>
+                                    <TableCell>{getBrandName(product.brand)}</TableCell>
                                     <TableCell>
                                         <Chip label={product.status} color={product.status === "active" ? "success" : "default"} size="small" />
                                     </TableCell>
@@ -312,7 +344,7 @@ export default function ProductsPage() {
                             >
                                 <option value="">Select brand</option>
                                 {brands.map(brand => (
-                                    <option key={brand.id} value={brand.id}>{brand.name}</option>
+                                    <option key={brand._id} value={brand._id}>{brand.name}</option>
                                 ))}
                             </TextField>
                             {/* Images */}

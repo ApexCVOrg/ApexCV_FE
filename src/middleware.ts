@@ -8,7 +8,7 @@ import createIntlMiddleware from 'next-intl/middleware';
 const intlMiddleware = createIntlMiddleware({
   locales: ['en', 'vi'],
   defaultLocale: 'en'
-});
+}); 
 
 export async function middleware(request: NextRequest) {
   // Handle next-intl middleware first
@@ -31,6 +31,7 @@ export async function middleware(request: NextRequest) {
 
   const token = await getToken({ req: request });
   const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
+  const isManagerRoute = request.nextUrl.pathname.startsWith('/manager');
 
   if (isAdminRoute) {
     if (!token) {
@@ -39,6 +40,15 @@ export async function middleware(request: NextRequest) {
 
     // Check if user is admin
     if (token.role !== 'admin') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  if (isManagerRoute) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
+    if (token.role !== 'manager' && token.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

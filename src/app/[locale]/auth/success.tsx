@@ -12,7 +12,7 @@ const AuthSuccessPage = () => {
 
     if (token) {
       // Lưu token vào localStorage (hoặc context, Redux, cookie...)
-      localStorage.setItem('authToken', token);
+      localStorage.setItem('auth_token', token);
 
       // Có thể fetch user info từ BE nếu muốn đồng bộ trạng thái
 

@@ -20,14 +20,19 @@ import {
   ListItemText,
   Badge,
   useTheme,
+  Menu,
+  ListItemIcon,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Logout from '@mui/icons-material/Logout';
+import Person from '@mui/icons-material/Person';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
@@ -110,12 +115,16 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const t = useTranslations('login');
+  const tRegister = useTranslations('register');
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
+  const open = Boolean(anchorEl);
+  const [mounted, setMounted] = useState(false);
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -128,6 +137,10 @@ const Header = () => {
   useEffect(() => {
     setLanguage(getCurrentLanguage());
   }, [pathname, getCurrentLanguage]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleMenuHover = (
     event: React.MouseEvent<HTMLElement>,
@@ -167,6 +180,28 @@ const Header = () => {
     setLanguage(newLang);
     router.push(newPath);
   };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    logout();
+  };
+
+  const handleProfile = () => {
+    handleClose();
+    router.push(ROUTES.PROFILE);
+  };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
@@ -318,36 +353,57 @@ const Header = () => {
             </IconButton>
 
             {isAuthenticated ? (
-              <IconButton
-                aria-label="profile"
-                color="inherit"
-                size="large"
-                onClick={() => router.push(ROUTES.PROFILE)}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-            ) : (
               <>
-                {/* Sign In button */}
+                <IconButton
+                  onClick={handleClick}
+                  size="small"
+                  sx={{ ml: 2 }}
+                  aria-controls={open ? 'account-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? 'true' : undefined}
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  id="account-menu"
+                  open={open}
+                  onClose={handleClose}
+                  onClick={handleClose}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                  <MenuItem onClick={handleProfile}>
+                    <ListItemIcon>
+                      <Person fontSize="small" />
+                    </ListItemIcon>
+                    {t('profile')}
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    {t('logout')}
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
-                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
                 >
-                  Sign In
+                  {t('loginButton')}
                 </Button>
-
-                {/* Sign Up button */}
                 <Button
-                  variant="outlined"
-                  color="inherit"
+                  variant="contained"
+                  color="primary"
                   onClick={() => router.push(ROUTES.REGISTER)}
-                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
                 >
-                  Sign Up
+                  {tRegister('register')}
                 </Button>
-              </>
+              </Stack>
             )}
 
             {/* Mobile Menu Icon */}

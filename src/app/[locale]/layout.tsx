@@ -6,7 +6,7 @@ import Footer from '@/components/layout/Footer';
 import '@/styles/global.scss';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
-import { routing } from '@/i18n/routing';
+import { routing } from '@/lib/i18n/routing';
 import { Box, Container } from '@mui/material';
 import { AuthProvider } from '@/context/AuthContext';
 
