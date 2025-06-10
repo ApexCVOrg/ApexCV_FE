@@ -118,5 +118,69 @@
         "passwordsDoNotMatch": "Mật khẩu xác nhận không khớp",
         "serverError": "Lỗi máy chủ. Vui lòng thử lại sau"
       }
+    },
+    "forgotPassword": {
+      "title": "QUÊN MẬT KHẨU",
+      "description": "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+      "emailSent": "✓ Email đã được gửi thành công!",
+      "checkEmail": "Vui lòng kiểm tra hộp thư của bạn và làm theo hướng dẫn để đặt lại mật khẩu.",
+      "emailLabel": "Địa chỉ email",
+      "emailPlaceholder": "Nhập địa chỉ email của bạn",
+      "sendResetLink": "GỬI OTP ĐẶT LẠI MẬT KHẨU",
+      "sendingEmail": "ĐANG GỬI EMAIL...",
+      "backToLogin": "Quay lại đăng nhập",
+      "resendEmail": "Gửi lại email",
+      "resendingEmail": "Đang gửi email...",
+      "goToLogin": "Quay lại đăng nhập"
+    },
+    "resetPassword": {
+      "title": "ĐẶT LẠI MẬT KHẨU",
+      "description": "Vui lòng nhập mật khẩu mới của bạn dưới đây.",
+      "successMessage": "✓ Mật khẩu của bạn đã được đặt lại thành công!",
+      "passwordLabel": "Mật khẩu mới",
+      "confirmPasswordLabel": "Xác nhận mật khẩu mới",
+      "resetButton": "ĐẶT LẠI MẬT KHẨU",
+      "resetting": "ĐANG ĐẶT LẠI...",
+      "backToLogin": "Quay lại đăng nhập",
+      "goToLogin": "Quay lại đăng nhập",
+      "resendEmail": "Gửi lại email",
+      "resendingEmail": "Đang gửi email...",
+      "newPassword": "Mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu mới",
+      "errors": {
+        "passwordRequired": "Vui lòng nhập mật khẩu mới",
+        "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+        "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu mới"
+    }
+  },
+  "verifyOTP": {
+    "title": "XÁC THỰC OTP",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC THỰC MÃ",
+    "verifying": "ĐANG XÁC THỰC...",
+    "resendOTP": "Gửi lại mã",
+    "resendIn": "Gửi lại mã trong {seconds} giây",
+    "backToLogin": "Quay lại đăng nhập",
+    "goToLogin": "Quay lại đăng nhập",
+    "resendEmail": "Gửi lại email",
+    "resendingEmail": "Đang gửi email...",
+    "errors": {
+      "incompleteOTP": "Vui lòng nhập mã xác thực đầy đủ",
+      "verificationFailed": "Mã xác thực không hợp lệ",
+      "resendFailed": "Gửi lại mã thất bại",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyMail": {
+    "title": "XÁC THỰC EMAIL",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verificationCodeLabel": "Mã xác thực",
+    "verifyButton": "XÁC THỰC MÃ",
+    "verifying": "ĐANG XÁC THỰC...",
+    "backToRegistration": "Quay lại đăng ký",
+    "errors": {
+      "verificationFailed": "Mã xác thực không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
   }
+}

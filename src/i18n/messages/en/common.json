@@ -117,5 +117,77 @@
       "passwordsDoNotMatch": "Confirm password does not match",
       "serverError": "Server error. Please try again later"
     }
+  },
+  "forgotPassword": {
+    "title": "FORGOT PASSWORD",
+    "description": "Enter your email address and we'll send you a link to reset your password.",
+    "emailSent": "✓ Email sent successfully!",
+    "checkEmail": "Please check your inbox and follow the instructions to reset your password.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email address",
+    "sendResetLink": "SEND RESET OTP",
+    "sendingEmail": "SENDING EMAIL...",
+    "backToLogin": "Back to Login",
+    "resendEmail": "Resend Email",
+    "resendingEmail": "Resending Email...",
+    "goToLogin": "Go to Login",
+    "errors": {
+      "emailRequired": "Please enter your email address",
+      "invalidEmail": "Invalid email address",
+      "serverError": "An error occurred. Please try again later.",
+      "resendFailed": "Could not resend email. Please try again."
+    }
+  },
+  "resetPassword": {
+    "title": "RESET PASSWORD",
+    "description": "Please enter your new password below.",
+    "successMessage": "✓ Your password has been reset successfully!",
+    "passwordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm New Password",
+    "resetButton": "RESET PASSWORD",
+    "resetting": "RESETTING...",
+    "backToLogin": "Back to Login",
+    "goToLogin": "Go to Login",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "errors": {
+      "passwordRequired": "Please enter your new password",
+      "passwordLength": "Password must be at least 6 characters",
+      "confirmPasswordRequired": "Please confirm your new password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "invalidToken": "Invalid or expired reset code",
+      "resetFailed": "Could not reset password",
+      "unknownError": "An error occurred. Please try again."
+    }
+  },
+  "verifyOTP": {
+    "title": "VERIFY OTP",
+    "description": "Please enter the 6-digit code sent to your email.",
+    "verifyButton": "VERIFY CODE",
+    "verifying": "VERIFYING...",
+    "resendOTP": "Resend Code",
+    "resendIn": "Resend code in {seconds} seconds",
+    "backToLogin": "Back to Login",
+    "goToLogin": "Go to Login",
+    "resendEmail": "Resend Email",
+    "resendingEmail": "Resending Email...",
+    "errors": {
+      "incompleteOTP": "Please enter the complete verification code",
+      "verificationFailed": "Invalid verification code",
+      "resendFailed": "Failed to resend code",
+      "unknownError": "An error occurred. Please try again."
+    }
+  },
+  "verifyMail": {
+    "title": "VERIFY EMAIL",
+    "description": "Please enter the 6-digit verification code sent to your email.",
+    "verificationCodeLabel": "Verification Code",
+    "verifyButton": "VERIFY CODE",
+    "verifying": "VERIFYING...",
+    "backToRegistration": "Back to Registration",
+    "errors": {
+      "verificationFailed": "Invalid verification code",
+      "serverError": "An error occurred. Please try again."
+    }
   }
 }
