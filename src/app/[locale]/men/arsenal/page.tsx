@@ -49,7 +49,7 @@ const ArsenalPage = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['68446a93bc749d5ad8fb80f1']); // _id của category Arsenal
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
-  const [gender, setGender] = useState('');
+  const [gender] = useState('');
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   useEffect(() => {
