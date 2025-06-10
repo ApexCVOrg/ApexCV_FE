@@ -31,9 +31,10 @@ import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/hooks/useAuth';
 
 const LANGUAGES = ['en', 'vi'] as const;
-type Language = typeof LANGUAGES[number];
+type Language = (typeof LANGUAGES)[number];
 
 type OutletSubmenuGroup = {
   title: string;
@@ -49,6 +50,7 @@ const Header = () => {
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
   const t = useTranslations('header');
+  const { isAuthenticated } = useAuth();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
@@ -177,7 +179,6 @@ const Header = () => {
     }
   };
 
-  // Xử lý khi click vào menu
   const handleMenuClick = (index: number, href: string) => {
     setAnchorEl(null);
     setOpenMenuIndex(null);
@@ -195,20 +196,13 @@ const Header = () => {
 
   const toggleLanguage = () => {
     const newLang: Language = language === 'en' ? 'vi' : 'en';
-
-    // Thay đổi URL
     const pathParts = pathname.split('/');
-
-    // Nếu URL hiện tại có prefix ngôn ngữ, thay prefix mới
     if (LANGUAGES.includes(pathParts[1] as Language)) {
       pathParts[1] = newLang;
     } else {
-      // Nếu không có prefix, thêm prefix mới vào đầu (bỏ phần đầu rỗng)
       pathParts.splice(1, 0, newLang);
     }
-
     const newPath = pathParts.join('/') || '/';
-
     setLanguage(newLang);
     router.push(newPath);
   };
@@ -444,8 +438,48 @@ const Header = () => {
               <AccountCircleIcon />
             </IconButton>
             {/* Mobile menu button */}
+
+            {isAuthenticated ? (
+              <IconButton
+                aria-label="profile"
+                color="inherit"
+                size="large"
+                onClick={() => router.push(ROUTES.PROFILE)}
+              >
+                <AccountCircleIcon />
+              </IconButton>
+            ) : (
+              <>
+                {/* Sign In button */}
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  onClick={() => router.push(ROUTES.LOGIN)}
+                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+                >
+                  Sign In
+                </Button>
+
+                {/* Sign Up button */}
+                <Button
+                  variant="outlined"
+                  color="inherit"
+                  onClick={() => router.push(ROUTES.REGISTER)}
+                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
+
+            {/* Mobile Menu Icon */}
             {isMobile && (
-              <IconButton aria-label="menu" color="inherit" size="large" onClick={toggleDrawer(true)}>
+              <IconButton
+                aria-label="menu"
+                color="inherit"
+                size="large"
+                onClick={toggleDrawer(true)}
+              >
                 <MenuIcon />
               </IconButton>
             )}
@@ -454,12 +488,13 @@ const Header = () => {
       </AppBar>
 
       {/* Mobile Drawer */}
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-      >
-        <Box sx={{ width: 240 }} role="presentation" onClick={toggleDrawer(false)} onKeyDown={toggleDrawer(false)}>
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <Box
+          sx={{ width: 240 }}
+          role="presentation"
+          onClick={toggleDrawer(false)}
+          onKeyDown={toggleDrawer(false)}
+        >
           <List>
             {NAV_LINKS.map(({ title, href, submenu }) => (
               <React.Fragment key={title}>
@@ -469,7 +504,10 @@ const Header = () => {
                     href={href as string}
                     onClick={() => setDrawerOpen(false)}
                   >
-                    <ListItemText primary={title} primaryTypographyProps={{ textTransform: 'uppercase' }} />
+                    <ListItemText
+                      primary={title}
+                      primaryTypographyProps={{ textTransform: 'uppercase' }}
+                    />
                   </ListItemButton>
                 </ListItem>
                 {submenu &&

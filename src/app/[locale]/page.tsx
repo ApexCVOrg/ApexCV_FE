@@ -189,9 +189,9 @@ export default function Home() {
                 Categories
               </Typography>
               <FormGroup>
-                {categories.map((category) => (
+                {categories.map((category, idx) => (
                   <FormControlLabel
-                    key={category._id}
+                    key={category._id || idx}
                     control={
                       <Checkbox
                         checked={selectedCategories.includes(category._id)}

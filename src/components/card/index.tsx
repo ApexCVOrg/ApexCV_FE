@@ -2,9 +2,16 @@
 
 import React from 'react';
 import {
-  Card, CardMedia, CardContent, Typography, Box, Button, Stack, Chip
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Box,
+  Button,
+  Stack,
+  Chip,
 } from '@mui/material';
-import { useTranslations } from 'next-intl'; // ✅ import hook i18n
+import { useTranslations } from 'next-intl';
 
 interface ProductCardProps {
   name: string;
@@ -27,8 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   categories = [],
   onAddToCart,
 }) => {
-  const t = useTranslations('productCard'); // 👈 namespace i18n riêng
-
+  const t = useTranslations('productCard');
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
 
   return (
@@ -58,7 +64,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {isDiscounted && (
           <Chip
-            label={t('sale')} // 👈 dynamic label
+            label={t('sale')}
             color="error"
             size="small"
             sx={{
@@ -72,6 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           />
         )}
       </Box>
+
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography
           variant="subtitle1"

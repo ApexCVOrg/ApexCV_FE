@@ -40,7 +40,7 @@ interface Brand {
   name: string;
 }
 
-export default function ArsenalPage() {
+const ArsenalPage = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -196,4 +196,6 @@ export default function ArsenalPage() {
       </Dialog>
     </Container>
   );
-}
+};
+
+export default ArsenalPage; 
