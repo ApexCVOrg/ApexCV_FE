@@ -47,6 +47,7 @@ interface TeamPageProps {
 }
 
 export default function TeamPage({ teamName, gender }: TeamPageProps) {
+  console.log('TeamPage rendered with teamName:', teamName, 'and gender:', gender);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -55,7 +56,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
-  const [selectedType, setSelectedType] = useState(teamName);
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,15 +72,26 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         ]);
         setCategories(categoriesData);
         setBrands(brandsData);
+        console.log('Fetched categoriesData:', categoriesData);
+
+        // Find the category ID matching teamName and set it as selected
+        const teamCategory = categoriesData.find((cat: Category) => cat.name === teamName);
+        if (teamCategory) {
+          setSelectedCategories([teamCategory._id]);
+          console.log('Found teamCategory:', teamCategory);
+          console.log('Set selectedCategories to:', [teamCategory._id]);
+        }
+
       } catch (error) {
         console.error('Error fetching categories or brands:', error);
       }
     };
     fetchInitialData();
-  }, []);
+  }, [teamName]); // Add teamName to dependency array to re-fetch if teamName changes
 
   useEffect(() => {
     const fetchFilteredProducts = async () => {
+      console.log('fetchFilteredProducts called. teamName:', teamName, 'selectedCategories:', selectedCategories);
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
@@ -90,13 +101,14 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
           ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
           ...(gender && { gender }),
-          ...(selectedType && { type: selectedType }),
         });
+        console.log('Attempting to fetch products with queryParams:', queryParams.toString());
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
+        console.log('Fetched products data:', data); // Log the actual data
         
         // Sort products to maintain consistent order
         const sortedProducts = [...data].sort((a, b) => {
@@ -114,20 +126,20 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       }
     };
     fetchFilteredProducts();
-  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, selectedType]);
+  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName, categories]); // Giữ lại categories trong dependency array
 
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories(prev => 
+    setSelectedCategories((prev: string[]) => 
       prev.includes(categoryId) 
-        ? prev.filter(id => id !== categoryId)
+        ? prev.filter((id: string) => id !== categoryId)
         : [...prev, categoryId]
     );
   };
 
   const handleBrandChange = (brandId: string) => {
-    setSelectedBrands(prev => 
+    setSelectedBrands((prev: string[]) => 
       prev.includes(brandId) 
-        ? prev.filter(id => id !== brandId)
+        ? prev.filter((id: string) => id !== brandId)
         : [...prev, brandId]
     );
   };
@@ -199,18 +211,23 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         <Dialog open={filterDialogOpen} onClose={() => setFilterDialogOpen(false)} maxWidth="xs" fullWidth>
           <DialogTitle>Filter & Sort</DialogTitle>
           <DialogContent>
-            <Typography variant="subtitle2" sx={{ mt: 2 }}>Price Range</Typography>
+            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Price Range</Typography>
             <Slider
               value={priceRange}
-              onChange={(_, value) => setPriceRange(value as number[])}
+              onChange={(_, newValue) => setPriceRange(newValue as number[])}
               valueLabelDisplay="auto"
               min={0}
-              max={5000000}
+              max={10000000}
               step={100000}
-              sx={{ mb: 2 }}
+              marks={[
+                { value: 0, label: '0 VND' },
+                { value: 5000000, label: '5M VND' },
+                { value: 10000000, label: '10M VND' },
+              ]}
             />
-            <Typography variant="subtitle2" sx={{ mt: 2 }}>Categories</Typography>
-            <FormGroup key="categories-group">
+
+            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Categories</Typography>
+            <FormGroup>
               {categories.map((category) => (
                 <FormControlLabel
                   key={category._id}
@@ -224,8 +241,9 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                 />
               ))}
             </FormGroup>
-            <Typography variant="subtitle2" sx={{ mt: 2 }}>Brands</Typography>
-            <FormGroup key="brands-group">
+
+            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Brands</Typography>
+            <FormGroup>
               {brands.map((brand) => (
                 <FormControlLabel
                   key={brand._id}
@@ -242,6 +260,13 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setFilterDialogOpen(false)}>Close</Button>
+            <Button onClick={() => {
+              setSelectedCategories([]);
+              setSelectedBrands([]);
+              setPriceRange([0, 10000000]);
+              setSortBy('newest');
+              setFilterDialogOpen(false);
+            }}>Reset Filters</Button>
           </DialogActions>
         </Dialog>
       </Container>
