@@ -33,6 +33,8 @@ import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
@@ -109,15 +111,23 @@ const NAV_LINKS = [
   },
 ];
 
+interface User {
+  id: number;
+  email: string;
+  fullName: string;
+  role: 'admin' | 'manager' | 'user';
+}
+
 const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
+  const [userRole, setUserRole] = useState<User['role'] | null>(null);
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
@@ -141,6 +151,35 @@ const Header = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const user = getCurrentUser() as User | null;
+    if (user) {
+      setUserRole(user.role);
+    } else {
+      // If no user in context, try to get from token
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const payload = JSON.parse(jsonPayload);
+          setUserRole(payload.role);
+        } catch (e) {
+          console.error('Error decoding token:', e);
+          setUserRole(null);
+        }
+      } else {
+        setUserRole(null);
+      }
+    }
+  }, [pathname, getCurrentUser]);
 
   const handleMenuHover = (
     event: React.MouseEvent<HTMLElement>,
@@ -197,6 +236,16 @@ const Header = () => {
   const handleProfile = () => {
     handleClose();
     router.push(ROUTES.PROFILE);
+  };
+
+  const handleAdminDashboard = () => {
+    handleClose();
+    router.push(ROUTES.ADMIN_DASHBOARD);
+  };
+
+  const handleManagerDashboard = () => {
+    handleClose();
+    router.push(ROUTES.MANAGER_DASHBOARD);
   };
 
   if (!mounted) {
@@ -379,6 +428,22 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
+                  {userRole === 'admin' && (
+                    <MenuItem onClick={handleAdminDashboard}>
+                      <ListItemIcon>
+                        <AdminPanelSettingsIcon fontSize="small" />
+                      </ListItemIcon>
+                      Admin Dashboard
+                    </MenuItem>
+                  )}
+                  {userRole === 'manager' && (
+                    <MenuItem onClick={handleManagerDashboard}>
+                      <ListItemIcon>
+                        <DashboardIcon fontSize="small" />
+                      </ListItemIcon>
+                      Manager Dashboard
+                    </MenuItem>
+                  )}
                   <MenuItem onClick={handleLogout}>
                     <ListItemIcon>
                       <Logout fontSize="small" />

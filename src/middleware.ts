@@ -7,8 +7,8 @@ import createIntlMiddleware from 'next-intl/middleware';
 // Create next-intl middleware
 const intlMiddleware = createIntlMiddleware({
   locales: ['en', 'vi'],
-  defaultLocale: 'en'
-}); 
+  defaultLocale: 'en',
+});
 
 export async function middleware(request: NextRequest) {
   // Handle next-intl middleware first

@@ -21,6 +21,7 @@ interface ProductCardProps {
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
+  label?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -32,6 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories = [],
   onAddToCart,
+  label,
 }) => {
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
 
@@ -59,9 +61,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           alt={name}
           sx={{ objectFit: 'cover' }}
         />
-        {isDiscounted && (
+        {isDiscounted && label && (
           <Chip
-            label="Sale"
+            label={label}
             color="error"
             size="small"
             sx={{

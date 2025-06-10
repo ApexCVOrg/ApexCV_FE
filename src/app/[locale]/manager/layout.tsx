@@ -35,6 +35,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import HomeIcon from "@mui/icons-material/Home";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Các ngôn ngữ hỗ trợ
@@ -100,7 +101,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
         router.push('/auth/login');
     };
 
+    const handleHome = () => {
+        handleClose();
+        router.push(ROUTES.HOME);
+    };
+
     const menuItems = [
+        { icon: <HomeIcon />, text: t("home"), href: ROUTES.HOME },
         { icon: <DashboardIcon />, text: t("dashboard"), href: ROUTES.MANAGER.DASHBOARD },
         { icon: <InventoryIcon />, text: t("products"), href: ROUTES.MANAGER.PRODUCTS },
         { icon: <CategoryIcon />, text: t("categories"), href: ROUTES.MANAGER.CATEGORIES },
@@ -324,6 +331,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                     >
+                        <MenuItem onClick={handleHome}>
+                            <ListItemIcon>
+                                <HomeIcon fontSize="small" />
+                            </ListItemIcon>
+                            Home
+                        </MenuItem>
                         <MenuItem onClick={handleClose}>
                             <ListItemIcon>
                                 <PersonIcon fontSize="small" />

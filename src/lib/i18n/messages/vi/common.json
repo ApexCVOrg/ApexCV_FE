@@ -25,6 +25,7 @@
       "newCustomers": "Khách hàng mới"
     },
     "layout": {
+      "home": "Trang chủ",
       "managerDashboard": "Bảng điều khiển Quản lý",
       "helloManager": "Xin chào, Quản lý",
       "dashboard": "Bảng điều khiển",
