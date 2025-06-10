@@ -18,6 +18,8 @@ import {
     Divider,
     Button,
     Stack,
+    Menu,
+    MenuItem,
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -32,6 +34,7 @@ import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CategoryIcon from "@mui/icons-material/Category";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Các ngôn ngữ hỗ trợ
@@ -50,7 +53,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     const pathname = usePathname();
     const router = useRouter();
     const [language, setLanguage] = useState<Language>('en');
-    const [categories, setCategories] = useState([]);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
 
     // Lấy ngôn ngữ hiện tại từ URL
     const getCurrentLanguage = (): Language => {
@@ -64,24 +68,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     useEffect(() => {
         setLanguage(getCurrentLanguage());
     }, [pathname]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const language = getCurrentLanguage();
-                const response = await fetch(`${API_ENDPOINTS.MANAGER.CATEGORIES}?language=${language}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch categories');
-                }
-                const data = await response.json();
-                setCategories(data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-
-        fetchData();
-    }, [getCurrentLanguage]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -100,6 +86,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
         const newPath = pathParts.join('/') || '/';
         setLanguage(newLang);
         router.push(newPath);
+    };
+
+    const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleLogout = () => {
+        localStorage.removeItem('auth_token');
+        handleClose();
+        router.push('/auth/login');
     };
 
     const menuItems = [
@@ -260,34 +258,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             >
                                 <NotificationsIcon />
                             </IconButton>
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 1,
-                                    minWidth: 160,
-                                    justifyContent: 'flex-end',
-                                }}
-                            >
-                                <Typography
-                                    sx={{
-                                        fontWeight: 500,
-                                        fontSize: '0.95rem',
-                                        whiteSpace: 'nowrap',
-                                    }}
-                                >
-                                    {t("helloManager")}
-                                </Typography>
-                                <Avatar
-                                    alt="Manager"
-                                    src="/avatar.png"
-                                    sx={{
-                                        width: 35,
-                                        height: 35,
-                                        border: `2px solid ${theme.palette.primary.main}`,
-                                    }}
-                                />
-                            </Box>
+                            <IconButton onClick={handleAvatarClick} sx={{ ml: 2 }}>
+                                <Avatar />
+                            </IconButton>
                         </Stack>
                     </Toolbar>
                 </AppBar>
@@ -344,6 +317,26 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         color: currentTheme === 'dark' ? '#fff' : '#000',
                     }}
                 >
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleClose}
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    >
+                        <MenuItem onClick={handleClose}>
+                            <ListItemIcon>
+                                <PersonIcon fontSize="small" />
+                            </ListItemIcon>
+                            Account
+                        </MenuItem>
+                        <MenuItem onClick={handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon fontSize="small" />
+                            </ListItemIcon>
+                            Logout
+                        </MenuItem>
+                    </Menu>
                     {children}
                 </Box>
             </Box>

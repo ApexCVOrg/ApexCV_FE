@@ -25,6 +25,7 @@ import {
   Email,
   AccountCircle,
   Phone,
+  Facebook,
 } from '@mui/icons-material';
 import Image from 'next/image';
 
@@ -98,6 +99,11 @@ export default function RegisterPage() {
 
   const handleClickShowPassword = () => setShowPassword(show => !show);
   const handleClickShowConfirmPassword = () => setShowConfirmPassword(show => !show);
+
+  const handleFacebookLogin = () => {
+    const facebookAuthUrl = `https://www.facebook.com/v18.0/dialog/oauth?app_id=${process.env.NEXT_PUBLIC_FACEBOOK_APP_ID}&redirect_uri=${process.env.NEXT_PUBLIC_FACEBOOK_REDIRECT_URI}&scope=email,public_profile`;
+    window.location.href = facebookAuthUrl;
+  };
 
   // Hàm validate FE cho các trường đăng ký
   function validateRegister(formData: typeof initialFormData): Record<string, string> {
@@ -308,18 +314,11 @@ export default function RegisterPage() {
             </Button>
 
             <Button
-              variant="outlined"
               fullWidth
-              startIcon={
-                <Image
-                  src="/facebook-icon.svg"
-                  alt="Facebook"
-                  width={24}
-                  height={24}
-                  style={{ marginRight: 8 }}
-                />
-              }
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
+              variant="outlined"
+              startIcon={<Facebook />}
+              onClick={handleFacebookLogin}
+              sx={{ mb: 2 }}
             >
               {t('continueWithFacebook')}
             </Button>

@@ -22,16 +22,20 @@ import {
   useTheme,
   TextField,
   InputAdornment,
+  Menu,
+  ListItemIcon,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Logout from '@mui/icons-material/Logout';
+import Person from '@mui/icons-material/Person';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import SearchIcon from '@mui/icons-material/Search';
-import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -49,13 +53,16 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
-  const t = useTranslations('header');
-  const { isAuthenticated } = useAuth();
-
+  const tHeader = useTranslations('header');
+  const { isAuthenticated, logout } = useAuth();
+  const t = useTranslations('login');
+  const tRegister = useTranslations('register');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
+  const open = Boolean(anchorEl);
+  const [mounted, setMounted] = useState(false);
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -69,103 +76,107 @@ const Header = () => {
     setLanguage(getCurrentLanguage());
   }, [pathname, getCurrentLanguage]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const NAV_LINKS = [
     {
-      title: t('men.title'),
+      title: tHeader('men.title'),
       href: ROUTES.MEN.ROOT,
       submenu: [
-        { title: t('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
-        { title: t('men.jersey'), href: ROUTES.MEN.JERSEY },
-        { title: t('men.hoodie'), href: ROUTES.MEN.HOODIE },
-        { title: t('men.sportset'), href: ROUTES.MEN.SPORTSET },
-        { title: t('men.trousers'), href: ROUTES.MEN.TROUSERS },
-        { title: t('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
-        { title: t('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
-        { title: t('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
-        { title: t('men.jacket'), href: ROUTES.MEN.JACKET },
-        { title: t('men.basic'), href: ROUTES.MEN.BASIC },
-        { title: t('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
+        { title: tHeader('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
+        { title: tHeader('men.jersey'), href: ROUTES.MEN.JERSEY },
+        { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
+        { title: tHeader('men.sportset'), href: ROUTES.MEN.SPORTSET },
+        { title: tHeader('men.trousers'), href: ROUTES.MEN.TROUSERS },
+        { title: tHeader('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
+        { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
+        { title: tHeader('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
+        { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
+        { title: tHeader('men.basic'), href: ROUTES.MEN.BASIC },
+        { title: tHeader('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
       ]
     },
     {
-      title: t('women.title'),
+      title: tHeader('women.title'),
       href: ROUTES.WOMEN.ROOT,
       submenu: [
-        { title: t('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
-        { title: t('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
-        { title: t('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
-        { title: t('women.jersey'), href: ROUTES.WOMEN.JERSEY },
-        { title: t('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
-        { title: t('women.jacket'), href: ROUTES.WOMEN.JACKET },
-        { title: t('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
-        { title: t('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
-        { title: t('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
-        { title: t('women.dress'), href: ROUTES.WOMEN.DRESS },
-        { title: t('women.skirt'), href: ROUTES.WOMEN.SKIRT },
-        { title: t('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
-        { title: t('women.basic'), href: ROUTES.WOMEN.BASIC },
-        { title: t('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
+        { title: tHeader('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
+        { title: tHeader('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
+        { title: tHeader('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
+        { title: tHeader('women.jersey'), href: ROUTES.WOMEN.JERSEY },
+        { title: tHeader('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
+        { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
+        { title: tHeader('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
+        { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
+        { title: tHeader('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
+        { title: tHeader('women.dress'), href: ROUTES.WOMEN.DRESS },
+        { title: tHeader('women.skirt'), href: ROUTES.WOMEN.SKIRT },
+        { title: tHeader('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
+        { title: tHeader('women.basic'), href: ROUTES.WOMEN.BASIC },
+        { title: tHeader('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
       ]
     },
     {
-      title: t('kids.title'),
+      title: tHeader('kids.title'),
       href: ROUTES.KIDS.ROOT,
       submenu: [
-        { title: t('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
-        { title: t('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
+        { title: tHeader('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
+        { title: tHeader('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
       ]
     },
     {
-      title: t('accessories.title'),
+      title: tHeader('accessories.title'),
       href: ROUTES.ACCESSORIES.ROOT,
       submenu: [
-        { title: t('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
-        { title: t('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
-        { title: t('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
-        { title: t('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
-        { title: t('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
+        { title: tHeader('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
+        { title: tHeader('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
+        { title: tHeader('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
+        { title: tHeader('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
+        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
       ]
     },
     {
-      title: t('sale.title'),
+      title: tHeader('sale.title'),
       href: ROUTES.SALE.ROOT,
       submenu: [
-        { title: t('sale.men'), href: ROUTES.SALE.MEN_SALE },
-        { title: t('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
-        { title: t('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
-        { title: t('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
-        { title: t('sale.flash'), href: ROUTES.SALE.FLASH_SALE }
+        { title: tHeader('sale.men'), href: ROUTES.SALE.MEN_SALE },
+        { title: tHeader('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
+        { title: tHeader('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
+        { title: tHeader('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
+        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE }
       ]
     },
     {
-      title: t('outlet.title'),
+      title: tHeader('outlet.title'),
       href: ROUTES.OUTLET.ROOT,
       submenu: [
         {
-          title: t('outlet.men.title'),
+          title: tHeader('outlet.men.title'),
           children: [
-            { title: t('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
-            { title: t('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
-            { title: t('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
-            { title: t('outlet.men.all'), href: ROUTES.OUTLET.MEN }
+            { title: tHeader('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
+            { title: tHeader('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
+            { title: tHeader('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
+            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN }
           ]
         },
         {
-          title: t('outlet.women.title'),
+          title: tHeader('outlet.women.title'),
           children: [
-            { title: t('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
-            { title: t('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
-            { title: t('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
-            { title: t('outlet.women.all'), href: ROUTES.OUTLET.WOMEN }
+            { title: tHeader('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
+            { title: tHeader('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
+            { title: tHeader('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
+            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN }
           ]
         },
         {
-          title: t('outlet.kids.title'),
+          title: tHeader('outlet.kids.title'),
           children: [
-            { title: t('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
-            { title: t('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
-            { title: t('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
-            { title: t('outlet.kids.all'), href: ROUTES.OUTLET.KIDS }
+            { title: tHeader('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
+            { title: tHeader('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
+            { title: tHeader('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
+            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS }
           ]
         }
       ]
@@ -206,6 +217,28 @@ const Header = () => {
     setLanguage(newLang);
     router.push(newPath);
   };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    handleClose();
+    logout();
+  };
+
+  const handleProfile = () => {
+    handleClose();
+    router.push(ROUTES.PROFILE);
+  };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
@@ -440,36 +473,57 @@ const Header = () => {
             {/* Mobile menu button */}
 
             {isAuthenticated ? (
-              <IconButton
-                aria-label="profile"
-                color="inherit"
-                size="large"
-                onClick={() => router.push(ROUTES.PROFILE)}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-            ) : (
               <>
-                {/* Sign In button */}
+                <IconButton
+                  onClick={handleClick}
+                  size="small"
+                  sx={{ ml: 2 }}
+                  aria-controls={open ? 'account-menu' : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? 'true' : undefined}
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  id="account-menu"
+                  open={open}
+                  onClose={handleClose}
+                  onClick={handleClose}
+                  transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                  anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                  <MenuItem onClick={handleProfile}>
+                    <ListItemIcon>
+                      <Person fontSize="small" />
+                    </ListItemIcon>
+                    {t('profile')}
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    <ListItemIcon>
+                      <Logout fontSize="small" />
+                    </ListItemIcon>
+                    {t('logout')}
+                  </MenuItem>
+                </Menu>
+              </>
+            ) : (
+              <Stack direction="row" spacing={1}>
                 <Button
                   variant="outlined"
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
-                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
                 >
-                  Sign In
+                  {t('loginButton')}
                 </Button>
-
-                {/* Sign Up button */}
                 <Button
-                  variant="outlined"
-                  color="inherit"
+                  variant="contained"
+                  color="primary"
                   onClick={() => router.push(ROUTES.REGISTER)}
-                  sx={{ ml: 1, textTransform: 'none', fontWeight: 'bold' }}
                 >
-                  Sign Up
+                  {tRegister('register')}
                 </Button>
-              </>
+              </Stack>
             )}
 
             {/* Mobile Menu Icon */}

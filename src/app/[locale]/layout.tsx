@@ -6,8 +6,9 @@ import Footer from '@/components/layout/Footer';
 import '@/styles/global.scss';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { notFound } from 'next/navigation';
-import { routing } from '@/i18n/routing';
+import { routing } from '@/lib/i18n/routing';
 import { Box, Container } from '@mui/material';
+import { AuthProvider } from '@/context/AuthContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,7 +37,9 @@ export default async function LocaleLayout({
             <Box className="app-container" sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
               <Header />
               <Container component="main" className="main-content" sx={{ bgcolor: '#fff' }}>
-                {children}
+                <AuthProvider>
+                  {children}
+                </AuthProvider>
               </Container>
               <Footer />
             </Box>

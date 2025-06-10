@@ -33,16 +33,7 @@ import {
   ERROR_MESSAGES,
 } from "@/lib/constants/constants";
 import api from "@/services/api";
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-  status: "active" | "inactive";
-  parentCategory?: { id: string; name: string } | null;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Category } from "@/types/components/category";
 
 type CategoryStatus = "active" | "inactive";
 
@@ -119,7 +110,7 @@ export default function CategoriesPage() {
         name: category.name,
         description: category.description,
         status: category.status,
-        parentCategory: category.parentCategory ? category.parentCategory.id : "",
+        parentCategory: category.parentCategory ? (category.parentCategory as any)._id : "",
       });
     } else {
       setSelectedCategory(null);
@@ -150,7 +141,7 @@ export default function CategoriesPage() {
 
     if (
       selectedCategory &&
-      formData.parentCategory === selectedCategory.id
+      formData.parentCategory === selectedCategory._id
     ) {
       setSnackbar({
         open: true,
@@ -162,7 +153,7 @@ export default function CategoriesPage() {
 
     try {
       const url = selectedCategory
-        ? `${API_ENDPOINTS.MANAGER.CATEGORIES}/${selectedCategory.id}`
+        ? `${API_ENDPOINTS.MANAGER.CATEGORIES}/${selectedCategory._id}`
         : API_ENDPOINTS.MANAGER.CATEGORIES;
       const method = selectedCategory ? "put" : "post";
 
@@ -258,18 +249,24 @@ export default function CategoriesPage() {
               </TableRow>
             ) : (
               categories.map((category) => (
-                <TableRow key={category.id}>
+                <TableRow key={typeof category._id === 'string' ? category._id : ''}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.description}</TableCell>
-                  <TableCell>{category.parentCategory?.name || "-"}</TableCell>
+                  <TableCell>
+                    {typeof category.parentCategory === 'string'
+                      ? (categories.find(cat => cat._id === category.parentCategory)?.name || '-')
+                      : (typeof category.parentCategory === 'object' && category.parentCategory !== null
+                        ? (category.parentCategory as any).name
+                        : '-')}
+                  </TableCell>
                   <TableCell>
                     <Chip
                       label={t(`status.${category.status}`)}
-                      color={category.status === "active" ? "success" : "default"}
+                      color={category.status === 'active' ? 'success' : 'default'}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{category.createdAt ? new Date(category.createdAt).toLocaleDateString() : '-'}</TableCell>
                   <TableCell align="right">
                     <IconButton
                       size="small"
@@ -280,7 +277,7 @@ export default function CategoriesPage() {
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleDelete(category.id)}
+                      onClick={() => handleDelete(typeof category._id === 'string' ? category._id : '')}
                       color="error"
                     >
                       <DeleteIcon />
@@ -304,27 +301,9 @@ export default function CategoriesPage() {
                 label={t("name")}
                 value={formData.name}
                 onChange={handleInputChange}
-                select
-                SelectProps={{ native: true }}
                 required
                 fullWidth
-              >
-                <option value="">{t("selectName")}</option>
-                {categories
-                  .filter(cat => !cat.parentCategory) // Get parent categories
-                  .map(parentCat => (
-                    <optgroup key={parentCat.id} label={parentCat.name}>
-                      <option value={parentCat.name}>{parentCat.name}</option>
-                      {categories
-                        .filter(sub => sub.parentCategory && sub.parentCategory.id === parentCat.id)
-                        .map(subCat => (
-                          <option key={subCat.id} value={subCat.name}>
-                            {subCat.name}
-                          </option>
-                        ))}
-                    </optgroup>
-                  ))}
-              </TextField>
+              />
 
               <TextField
                 name="description"
@@ -335,7 +314,7 @@ export default function CategoriesPage() {
                 rows={3}
                 fullWidth
               />
-              {/* Updated parentCategory dropdown with optgroup */}
+
               <TextField
                 name="parentCategory"
                 label={t("parentCategory")}
@@ -347,21 +326,11 @@ export default function CategoriesPage() {
               >
                 <option value="">{t("none")}</option>
                 {categories
-                  .filter(cat => !selectedCategory || cat.id !== selectedCategory.id)
-                  .filter(cat => !cat.parentCategory) // only parent categories
+                  .filter(cat => !cat.parentCategory) // chỉ lấy các category là parent
                   .map(parentCat => (
-                    <optgroup key={parentCat.id} label={parentCat.name}>
-                      {/* Option cho chính parent */}
-                      <option value={parentCat.id}>{parentCat.name}</option>
-                      {/* Subcategories */}
-                      {categories
-                        .filter(sub => sub.parentCategory?.id === parentCat.id)
-                        .map(subCat => (
-                          <option key={subCat.id} value={subCat.id}>
-                            {subCat.name}
-                          </option>
-                        ))}
-                    </optgroup>
+                    <option key={(parentCat as any)._id} value={(parentCat as any)._id}>
+                      {parentCat.name}
+                    </option>
                   ))}
               </TextField>
 

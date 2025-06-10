@@ -29,7 +29,7 @@ export default function VerifyEmailPage() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const t = useTranslations('auth');
+  const t = useTranslations('verifyMail');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('pendingEmail');
@@ -95,10 +95,10 @@ export default function VerifyEmailPage() {
         localStorage.removeItem('pendingEmail');
         router.push(`/${locale}/auth/login`);
       } else {
-        setError(data.message || 'Verification failed');
+        setError(data.message || t('error.verificationFailed'));
       }
     } catch (error) {
-      setError('Server error');
+      setError(t('error.serverError'));
       console.error('Verification error:', error);
     } finally {
       setLoading(false);
@@ -185,7 +185,7 @@ export default function VerifyEmailPage() {
                 variant="h3"
                 sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: 'black', mb: 1 }}
               >
-                Verify Email
+                {t('title')}
               </Typography>
               <Typography
                 variant="body1"
@@ -197,7 +197,7 @@ export default function VerifyEmailPage() {
                   mb: 2,
                 }}
               >
-                Please enter the 6-digit verification code sent to:
+                {t('description')}
               </Typography>
               <Typography
                 variant="body1"
@@ -212,7 +212,7 @@ export default function VerifyEmailPage() {
             </Box>
 
             <TextField
-              label="Verification Code"
+              label={t('verificationCodeLabel')}
               variant="outlined"
               required
               fullWidth
@@ -239,7 +239,7 @@ export default function VerifyEmailPage() {
               disabled={loading}
               sx={buttonStyle}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'Verify Email'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : t('verifyButton')}
             </Button>
 
             <Button
@@ -256,7 +256,7 @@ export default function VerifyEmailPage() {
                 '&:hover': { borderColor: '#333', backgroundColor: '#f5f5f5' },
               }}
             >
-              Back to Registration
+              {t('backToRegistration')}
             </Button>
           </Box>
         </Paper>
