@@ -103,8 +103,9 @@ export default function LoginForm() {
       const pathParts = window.location.pathname.split('/');
       const currentLocale = pathParts[1] || 'en';
       window.location.href = `/${currentLocale}`;
-    } catch (err) {
-      setError(t('errors.invalidCredentials'));
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(t('error.unknownError'));
     } finally {
       setLoading(false);
     }
@@ -395,7 +396,8 @@ export default function LoginForm() {
                 và{' '}
                 <MuiLink href="/privacy" color="inherit" underline="hover">
                   Chính sách bảo mật
-                </MuiLink>.
+                </MuiLink>
+                .
               </Typography>
             </Box>
           </Box>

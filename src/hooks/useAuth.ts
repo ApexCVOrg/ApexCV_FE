@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/auth';
 
@@ -44,28 +44,25 @@ const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
 };
 
 export const useAuth = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
 
-  const handleError = (err: unknown): AuthError => {
-    if (isAxiosErrorResponse(err) && err.response?.data?.message) {
-      return {
-        message: err.response.data.message,
-        status: err.response.status,
-      };
-    }
-    return {
-      message: err instanceof Error ? err.message : 'An error occurred',
-    };
-  };
+  const checkAuth = useCallback(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+    setIsLoading(false);
+  }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
         const response = await authService.login({ email, password });
+        localStorage.setItem('token', response.token);
+        setIsAuthenticated(true);
         router.push('/dashboard');
         return response;
       } catch (err) {
@@ -73,7 +70,7 @@ export const useAuth = () => {
         setError(error);
         throw error;
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     },
     [router]
@@ -146,6 +143,8 @@ export const useAuth = () => {
         return data;
       }
 
+      localStorage.setItem('token', data.token);
+      setIsAuthenticated(true);
       return data;
     } catch (error: unknown) {
       const registerError = error as RegisterError;
@@ -161,22 +160,15 @@ export const useAuth = () => {
     }
   };
 
-  const logout = useCallback(async () => {
-    try {
-      setLoading(true);
-      await authService.logout();
-      router.push('/login');
-    } catch (err) {
-      const error = handleError(err);
-      setError(error);
-    } finally {
-      setLoading(false);
-    }
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    setIsAuthenticated(false);
+    router.push('/auth/login');
   }, [router]);
 
   const forgotPassword = useCallback(async (email: string) => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       await authService.forgotPassword(email);
     } catch (err) {
@@ -184,23 +176,25 @@ export const useAuth = () => {
       setError(error);
       throw error;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
   const resetPassword = useCallback(
     async (token: string, newPassword: string) => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
         await authService.resetPassword(token, newPassword);
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
         router.push('/login');
       } catch (err) {
         const error = handleError(err);
         setError(error);
         throw error;
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     },
     [router]
@@ -220,7 +214,7 @@ export const useAuth = () => {
   const handleGoogleAuth = useCallback(
     async (code: string) => {
       try {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
 
         const response = await fetch('/api/auth/google/callback', {
@@ -236,20 +230,36 @@ export const useAuth = () => {
         }
 
         const data = await response.json();
-        setAuthData(data);
+        localStorage.setItem('token', data.token);
+        setIsAuthenticated(true);
         router.push('/dashboard');
       } catch (err) {
         const error = handleError(err);
         setError(error);
         router.push('/auth/error?message=' + encodeURIComponent(error.message));
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     },
-    [router, setAuthData]
+    [router]
   );
 
+  const handleError = (err: unknown): AuthError => {
+    if (isAxiosErrorResponse(err) && err.response?.data?.message) {
+      return {
+        message: err.response.data.message,
+        status: err.response.status,
+      };
+    }
+    return {
+      message: err instanceof Error ? err.message : 'An error occurred',
+    };
+  };
+
   return {
+    isAuthenticated,
+    isLoading,
+    checkAuth,
     login,
     register,
     logout,
@@ -258,9 +268,7 @@ export const useAuth = () => {
     getCurrentUser,
     handleGoogleAuth,
     setAuthData,
-    loading,
     error,
-    isAuthenticated: authService.isAuthenticated(),
   };
 };
 
