@@ -1,9 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
-import ProductCard from '@/components/card/index';
+import { useRouter } from 'next/navigation';
+import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import ProductCard from '@/components/card';
+import { useTranslations } from 'next-intl';
 
+import '@/styles/components/_outlet.scss'; // import SCSS
 
 interface Product {
   name: string;
@@ -13,43 +16,48 @@ interface Product {
   tags?: string[];
 }
 
-const categories = [
-  {
-    name: 'NAM',
-    image: '/assets/images/outlet-men.jpg',
-    href: '/outlet/men',
-  },
-  {
-    name: 'NỮ',
-    image: '/assets/images/outlet-women.jpg',
-    href: '/outlet/women',
-  },
-  {
-    name: 'TRẺ EM',
-    image: '/assets/images/outlet-kids.jpg',
-    href: '/outlet/kids',
-  },
-  {
-    name: 'SHOP SHOES',
-    image: '/assets/images/outlet-shoes.jpg',
-    href: '/outlet/men-shoes', // hoặc route phù hợp
-  },
-  {
-    name: 'SIZE CUỐI: GIẢM ĐẾN 40%',
-    image: '/assets/images/outlet-sale.jpg',
-    href: '/outlet/last-size', // hoặc route phù hợp
-  },
-];
+const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2';
 
 export default function OutletPage() {
+  const t = useTranslations('outletPage');
+  const router = useRouter();
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState('newest');
+
+  const categories = [
+    {
+      name: t('categories.men'),
+      image: '/assets/images/aothun.jpg',
+      href: 'men',
+    },
+    {
+      name: t('categories.women'),
+      image: '/assets/images/outlet-women.jpg',
+      href: 'women',
+    },
+    {
+      name: t('categories.kids'),
+      image: '/assets/images/outlet-kids.jpg',
+      href: 'kids',
+    },
+    {
+      name: t('categories.lastSize'),
+      image: '/assets/images/outlet-sale.jpg',
+      href: 'last-size',
+    },
+  ];
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+        const queryParams = new URLSearchParams({
+          category: OUTLET_CATEGORY_ID,
+          sortBy: sortBy
+        });
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
         setProducts(data);
       } catch (error) {
@@ -60,79 +68,53 @@ export default function OutletPage() {
     };
 
     fetchProducts();
-  }, []);
+  }, [sortBy]);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4 }}>
-      <Typography variant="h3" fontWeight={700} mb={4}>
-        OUTLET
-      </Typography>
-      <Typography variant="subtitle1" mb={4}>
-        Săn sale cực sốc các sản phẩm chính hãng với giá tốt nhất!
-      </Typography>
+    <Box className="outlet-wrapper">
+      <Typography className="outlet-heading">{t('title')}</Typography>
+      <Typography className="outlet-subtitle">{t('subtitle')}</Typography>
 
-      {/* Categories Section */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 2, mb: 4 }}>
-        {categories.map((category, index) => (
-          <Box
-            key={index}
-            component="a"
-            href={category.href}
-            sx={{
-              display: 'block',
-              position: 'relative',
-              height: 200,
-              backgroundImage: `url(${category.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              '&:hover': {
-                opacity: 0.9,
-              },
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                position: 'absolute',
-                bottom: 16,
-                left: 16,
-                color: 'white',
-                fontWeight: 'bold',
-                textShadow: '1px 1px 2px rgba(0,0,0,0.5)',
-              }}
-            >
-              {category.name}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      {loading ? (
-        <Typography>Đang tải sản phẩm...</Typography>
-      ) : (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
-          {products.map((product, idx) => (
+      <Box className="outlet-categories-section">
+        <Box className="outlet-grid">
+          {categories.map((category, index) => (
             <Box
-              key={idx}
-              sx={{
-                width: { xs: '100%', sm: '50%', md: '25%' },
-                p: 1.5,
-              }}
+              key={index}
+              onClick={() => router.push(`/outlet/${category.href}`)}
+              className="outlet-category-card"
+              style={{ backgroundImage: `url(${category.image})` }}
             >
-              <ProductCard
-                name={product.name}
-                image={product.images?.[0]}
-                price={product.price}
-                discountPrice={product.discountPrice}
-                tags={product.tags}
-                onAddToCart={() => {
-                  console.log(`Added ${product.name} to cart!`);
-                }}
-              />
+              <Typography className="label">{category.name}</Typography>
             </Box>
           ))}
         </Box>
-      )}
+      </Box>
+
+      <Box className="outlet-products-section">
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Sort By</InputLabel>
+            <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+              <MenuItem value="newest">Newest</MenuItem>
+              <MenuItem value="priceAsc">Price: Low to High</MenuItem>
+              <MenuItem value="priceDesc">Price: High to Low</MenuItem>
+              <MenuItem value="popular">Most Popular</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        {loading ? (
+          <Typography>{t('loading')}</Typography>
+        ) : (
+          <Box className="product-grid">
+            {products.map((product, idx) => (
+              <Box key={idx} className="product-card">
+                <ProductCard {...product} image={product.images[0]} />
+              </Box>
+            ))}
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 }

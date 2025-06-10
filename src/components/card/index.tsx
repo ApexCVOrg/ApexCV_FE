@@ -2,15 +2,9 @@
 
 import React from 'react';
 import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Box,
-  Button,
-  Stack,
-  Chip,
+  Card, CardMedia, CardContent, Typography, Box, Button, Stack, Chip
 } from '@mui/material';
+import { useTranslations } from 'next-intl'; // ✅ import hook i18n
 
 interface ProductCardProps {
   name: string;
@@ -33,6 +27,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   categories = [],
   onAddToCart,
 }) => {
+  const t = useTranslations('productCard'); // 👈 namespace i18n riêng
+
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
 
   return (
@@ -47,6 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           transform: 'translateY(-5px)',
           boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
         },
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -61,7 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {isDiscounted && (
           <Chip
-            label="Sale"
+            label={t('sale')} // 👈 dynamic label
             color="error"
             size="small"
             sx={{
@@ -89,21 +86,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Stack direction="row" alignItems="center" spacing={1}>
           {isDiscounted ? (
             <>
-              <Typography
-                variant="body1"
-                color="error"
-                sx={{ fontWeight: 'bold' }}
-              >
+              <Typography variant="body1" color="error" sx={{ fontWeight: 'bold' }}>
                 {discountPrice?.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
               </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ textDecoration: 'line-through' }}
-              >
+              <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
                 {price?.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
@@ -111,11 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </Typography>
             </>
           ) : (
-            <Typography
-              variant="body1"
-              color="text.primary"
-              sx={{ fontWeight: 'bold' }}
-            >
+            <Typography variant="body1" color="text.primary" sx={{ fontWeight: 'bold' }}>
               {price?.toLocaleString('vi-VN', {
                 style: 'currency',
                 currency: 'VND',
@@ -125,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Stack>
 
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {brand?.name || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
+          {brand?.name || t('unknownBrand')} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
         </Typography>
 
         {tags.length > 0 && (
@@ -160,7 +145,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           }}
           onClick={onAddToCart}
         >
-          Thêm vào giỏ
+          {t('addToCart')}
         </Button>
       </Box>
     </Card>

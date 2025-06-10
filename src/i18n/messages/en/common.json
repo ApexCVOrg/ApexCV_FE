@@ -16,6 +16,17 @@
   "collections": {
     "title": "Featured Collections"
   },
+  "outletPage": {
+    "title": "OUTLET",
+    "subtitle": "Hunt shocking sales of authentic products at the best price!",
+    "loading": "Loading products...",
+    "categories": {
+      "men": "MEN",
+      "women": "WOMEN",
+      "kids": "KIDS",
+      "lastSize": "FINAL SIZE: UP TO 40% OFF"
+    }
+  },
   "manager": {
     "dashboard": {
       "overview": "Overview",
@@ -112,5 +123,89 @@
       "passwordsDoNotMatch": "Confirm password does not match",
       "serverError": "Server error. Please try again later"
     }
-  }
+  },
+  "header": {
+    "men": {
+      "title": "Men",
+      "thun_polo": "T-shirts & Polo",
+      "jersey": "Jersey",
+      "hoodie": "Hoodie",
+      "sportset": "Sports Set",
+      "trousers": "Trousers",
+      "tight_pants": "Tight Pants",
+      "short_trouser": "Shorts",
+      "sportswear": "Sportswear",
+      "jacket": "Jacket",
+      "basic": "Basic",
+      "tracksuits": "Tracksuits"
+    },
+    "women": {
+      "title": "Women",
+      "thun_croptop": "Tee & Croptop",
+      "sweatshirt": "Sweatshirt",
+      "sports_bra": "Sports Bra",
+      "jersey": "Jersey",
+      "hoodie": "Hoodie",
+      "jacket": "Jacket",
+      "trousers": "Trousers",
+      "short_trouser": "Shorts",
+      "leggings": "Leggings",
+      "dress": "Dress",
+      "skirt": "Skirt",
+      "sportswear": "Sportswear",
+      "basic": "Basic",
+      "tracksuits": "Tracksuits"
+    },
+    "kids": {
+      "title": "Kids",
+      "clothes_boys": "Boys' Clothes",
+      "clothes_girls": "Girls' Clothes"
+    },
+    "accessories": {
+      "title": "Accessories",
+      "bags": "Bags",
+      "hats": "Hats",
+      "socks": "Socks",
+      "sports_accessories": "Sports Accessories",
+      "backpacks": "Backpacks"
+    },
+    "sale": {
+      "title": "Sale",
+      "men": "Men Sale",
+      "women": "Women Sale",
+      "kids": "Kids Sale",
+      "accessories": "Accessories Sale",
+      "flash": "Flash Sale"
+    },
+    "outlet": {
+      "title": "OUTLET",
+      "men": {
+        "title": "Men",
+        "shoes": "Shoes",
+        "clothing": "Clothing",
+        "accessories": "Accessories",
+        "all": "All Men's Items"
+      },
+      "women": {
+        "title": "Women",
+        "shoes": "Shoes",
+        "clothing": "Clothing",
+        "accessories": "Accessories",
+        "all": "All Women's Items"
+      },
+      "kids": {
+        "title": "Kids",
+        "shoes": "Shoes",
+        "clothing": "Clothing",
+        "accessories": "Accessories",
+        "all": "All Kids' Items"
+      }
+    }
+  },
+    "productCard": {
+      "sale": "Sale",
+      "addToCart": "Add to Cart",
+      "unknownBrand": "Unknown Brand",
+      "uncategorized": "Uncategorized"
+    }
 }

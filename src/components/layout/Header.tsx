@@ -30,113 +30,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslations } from 'next-intl';
 
-// Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = typeof LANGUAGES[number];
-
-const NAV_LINKS = [
-  {
-    title: 'Men',
-    href: ROUTES.MEN.ROOT,
-    submenu: [
-      { title: 'Áo Thun & Polo', href: ROUTES.MEN.THUN_POLO },
-      { title: 'Áo Jersey', href: ROUTES.MEN.JERSEY },
-      { title: 'Áo hoodie', href: ROUTES.MEN.HOODIE },
-      { title: 'Bộ đồ thể thao', href: ROUTES.MEN.SPORTSET },
-      { title: 'Quần', href: ROUTES.MEN.TROUSERS },
-      { title: 'Quần bó', href: ROUTES.MEN.TIGHT_PANTS },
-      { title: 'Quần short', href: ROUTES.MEN.SHORT_TROUSER },
-      { title: 'Sportswear', href: ROUTES.MEN.SPORTSWEAR },
-      { title: 'Áo khoác', href: ROUTES.MEN.JACKET },
-      { title: 'Cơ bản', href: ROUTES.MEN.BASIC },
-      { title: 'Tracksuits', href: ROUTES.MEN.TRACKSUITS },
-    ],
-  },
-  {
-    title: 'Women',
-    href: ROUTES.WOMEN.ROOT,
-    submenu: [
-      { title: 'Thun & croptop', href: ROUTES.WOMEN.THUN_CROPTOP },
-      { title: 'Áo nỉ', href: ROUTES.WOMEN.SWEATSHIRT },
-      { title: 'Áo ngực thể thao', href: ROUTES.WOMEN.SPORTS_BRA },
-      { title: 'Áo Jersey', href: ROUTES.WOMEN.JERSEY },
-      { title: 'Áo hoodie', href: ROUTES.WOMEN.HOODIE },
-      { title: 'Áo khoác', href: ROUTES.WOMEN.JACKET },
-      { title: 'Quần', href: ROUTES.WOMEN.TROUSERS },
-      { title: 'Quần short', href: ROUTES.WOMEN.SHORT_TROUSER },
-      { title: 'Leggings', href: ROUTES.WOMEN.LEGGINGS },
-      { title: 'Đầm', href: ROUTES.WOMEN.DRESS },
-      { title: 'Chân váy', href: ROUTES.WOMEN.SKIRT },
-      { title: 'Sportswear', href: ROUTES.WOMEN.SPORTSWEAR },
-      { title: 'Cơ bản', href: ROUTES.WOMEN.BASIC },
-      { title: 'Tracksuits', href: ROUTES.WOMEN.TRACKSUITS },
-    ],
-  },
-  {
-    title: 'Kids',
-    href: ROUTES.KIDS.ROOT,
-    submenu: [
-      { title: 'Quần áo bé trai', href: ROUTES.KIDS.CLOTHES_BOYS },
-      { title: 'Quần áo bé gái', href: ROUTES.KIDS.CLOTHES_GIRLS },
-    ],
-  },
-  {
-    title: 'Accessories',
-    href: ROUTES.ACCESSORIES.ROOT,
-    submenu: [
-      { title: 'Túi xách', href: ROUTES.ACCESSORIES.BAGS },
-      { title: 'Mũ', href: ROUTES.ACCESSORIES.HATS },
-      { title: 'Vớ', href: ROUTES.ACCESSORIES.SOCKS },
-      { title: 'Phụ kiện thể thao', href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
-      { title: 'Balo', href: ROUTES.ACCESSORIES.BACKPACKS },
-    ],
-  },
-  {
-    title: 'Sale',
-    href: ROUTES.SALE.ROOT,
-    submenu: [
-      { title: 'Men Sale', href: ROUTES.SALE.MEN_SALE },
-      { title: 'Women Sale', href: ROUTES.SALE.WOMEN_SALE },
-      { title: 'Kids Sale', href: ROUTES.SALE.KIDS_SALE },
-      { title: 'Accessories Sale', href: ROUTES.SALE.ACCESSORIES_SALE },
-      { title: 'Flash Sale', href: ROUTES.SALE.FLASH_SALE },
-    ],
-  },
-  {
-    title: 'Outlet',
-    href: ROUTES.OUTLET.ROOT,
-    submenu: [
-      {
-        title: 'Men',
-        children: [
-          { title: 'Giày', href: ROUTES.OUTLET.MEN_SHOES },
-          { title: 'Clothing', href: ROUTES.OUTLET.MEN_CLOTHING },
-          { title: 'Phụ kiện', href: ROUTES.OUTLET.MEN_ACCESSORIES },
-          { title: 'Tất cả đồ Nam', href: ROUTES.OUTLET.MEN },
-        ],
-      },
-      {
-        title: 'Women',
-        children: [
-          { title: 'Giày', href: ROUTES.OUTLET.WOMEN_SHOES },
-          { title: 'Clothing', href: ROUTES.OUTLET.WOMEN_CLOTHING },
-          { title: 'Phụ kiện', href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
-          { title: 'Tất cả đồ Nữ', href: ROUTES.OUTLET.WOMEN },
-        ],
-      },
-      {
-        title: 'Kids',
-        children: [
-          { title: 'Giày', href: ROUTES.OUTLET.KIDS_SHOES },
-          { title: 'Clothing', href: ROUTES.OUTLET.KIDS_CLOTHING },
-          { title: 'Phụ kiện', href: ROUTES.OUTLET.KIDS_ACCESSORIES },
-          { title: 'Tất cả đồ Trẻ em', href: ROUTES.OUTLET.KIDS },
-        ],
-      },
-    ],
-  },
-];
 
 type OutletSubmenuGroup = {
   title: string;
@@ -151,26 +48,127 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
+  const t = useTranslations('header');
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
 
-  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
     if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
       return pathParts[1] as Language;
     }
-    return 'en'; // mặc định là English nếu không có prefix
+    return 'en';
   }, [pathname]);
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
   }, [pathname, getCurrentLanguage]);
 
-
+  const NAV_LINKS = [
+    {
+      title: t('men.title'),
+      href: ROUTES.MEN.ROOT,
+      submenu: [
+        { title: t('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
+        { title: t('men.jersey'), href: ROUTES.MEN.JERSEY },
+        { title: t('men.hoodie'), href: ROUTES.MEN.HOODIE },
+        { title: t('men.sportset'), href: ROUTES.MEN.SPORTSET },
+        { title: t('men.trousers'), href: ROUTES.MEN.TROUSERS },
+        { title: t('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
+        { title: t('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
+        { title: t('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
+        { title: t('men.jacket'), href: ROUTES.MEN.JACKET },
+        { title: t('men.basic'), href: ROUTES.MEN.BASIC },
+        { title: t('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
+      ]
+    },
+    {
+      title: t('women.title'),
+      href: ROUTES.WOMEN.ROOT,
+      submenu: [
+        { title: t('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
+        { title: t('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
+        { title: t('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
+        { title: t('women.jersey'), href: ROUTES.WOMEN.JERSEY },
+        { title: t('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
+        { title: t('women.jacket'), href: ROUTES.WOMEN.JACKET },
+        { title: t('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
+        { title: t('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
+        { title: t('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
+        { title: t('women.dress'), href: ROUTES.WOMEN.DRESS },
+        { title: t('women.skirt'), href: ROUTES.WOMEN.SKIRT },
+        { title: t('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
+        { title: t('women.basic'), href: ROUTES.WOMEN.BASIC },
+        { title: t('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
+      ]
+    },
+    {
+      title: t('kids.title'),
+      href: ROUTES.KIDS.ROOT,
+      submenu: [
+        { title: t('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
+        { title: t('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
+      ]
+    },
+    {
+      title: t('accessories.title'),
+      href: ROUTES.ACCESSORIES.ROOT,
+      submenu: [
+        { title: t('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
+        { title: t('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
+        { title: t('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
+        { title: t('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
+        { title: t('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
+      ]
+    },
+    {
+      title: t('sale.title'),
+      href: ROUTES.SALE.ROOT,
+      submenu: [
+        { title: t('sale.men'), href: ROUTES.SALE.MEN_SALE },
+        { title: t('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
+        { title: t('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
+        { title: t('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
+        { title: t('sale.flash'), href: ROUTES.SALE.FLASH_SALE }
+      ]
+    },
+    {
+      title: t('outlet.title'),
+      href: ROUTES.OUTLET.ROOT,
+      submenu: [
+        {
+          title: t('outlet.men.title'),
+          children: [
+            { title: t('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
+            { title: t('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
+            { title: t('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
+            { title: t('outlet.men.all'), href: ROUTES.OUTLET.MEN }
+          ]
+        },
+        {
+          title: t('outlet.women.title'),
+          children: [
+            { title: t('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
+            { title: t('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
+            { title: t('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
+            { title: t('outlet.women.all'), href: ROUTES.OUTLET.WOMEN }
+          ]
+        },
+        {
+          title: t('outlet.kids.title'),
+          children: [
+            { title: t('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
+            { title: t('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
+            { title: t('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
+            { title: t('outlet.kids.all'), href: ROUTES.OUTLET.KIDS }
+          ]
+        }
+      ]
+    }
+  ];
   // Xử lý khi hover vào menu
   const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
     if (hasSubmenu) {
@@ -332,7 +330,7 @@ const Header = () => {
                           },
                         }}
                       >
-                        {title === 'Outlet' ? (
+                        {href === ROUTES.OUTLET.ROOT ? (
                           <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
                             {(submenu as OutletSubmenu).map((group) =>
                               'children' in group ? (

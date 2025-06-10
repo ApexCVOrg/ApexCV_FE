@@ -15,7 +15,6 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  Stack,
 } from '@mui/material';
 import ProductCard from '@/components/card';
 import HorizontalFilterBar from './HorizontalFilterBar';
@@ -47,11 +46,10 @@ export default function ArsenalPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 5000000]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['68446a93bc749d5ad8fb80f1']); // _id của category Arsenal
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
   const [gender, setGender] = useState('');
-  const [selectedType, setSelectedType] = useState('Arsenal');
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -85,7 +83,6 @@ export default function ArsenalPage() {
           ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
           ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
           ...(gender && { gender }),
-          ...(selectedType && { type: selectedType }),
         });
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await response.json();
@@ -97,7 +94,7 @@ export default function ArsenalPage() {
       }
     };
     fetchFilteredProducts();
-  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, selectedType]);
+  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender]);
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategories(prev =>
@@ -199,4 +196,4 @@ export default function ArsenalPage() {
       </Dialog>
     </Container>
   );
-} 
+}
