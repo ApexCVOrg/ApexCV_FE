@@ -31,7 +31,6 @@ export const API_ENDPOINTS = {
     },
     BRANDS: '/manager/brands',
   },
-  // Thêm các endpoints khác ở đây
 };
 
 // API Base URL
@@ -119,7 +118,21 @@ export const ROUTES = {
     FLASH_SALE: '/sale/flash-sale',
   },
   CART: '/cart',
-  // Manager Routes
+  OUTLET: {
+    ROOT: '/outlet',
+    MEN: '/outlet/men',
+    WOMEN: '/outlet/women',
+    KIDS: '/outlet/kids',
+    MEN_SHOES: '/outlet/men-shoes',
+    WOMEN_SHOES: '/outlet/women-shoes',
+    KIDS_SHOES: '/outlet/kids-shoes',
+    MEN_CLOTHING: '/outlet/men-clothing',
+    WOMEN_CLOTHING: '/outlet/women-clothing',
+    KIDS_CLOTHING: '/outlet/kids-clothing',
+    MEN_ACCESSORIES: '/outlet/men-accessories',
+    WOMEN_ACCESSORIES: '/outlet/women-accessories',
+    KIDS_ACCESSORIES: '/outlet/kids-accessories',
+  },
   MANAGER: {
     DASHBOARD: '/manager/dashboard',
     PRODUCTS: '/manager/products',
@@ -179,7 +192,6 @@ export const ERROR_MESSAGES = {
   USERNAME_TOO_LONG: `Username must be at most ${VALIDATION.USERNAME_MAX_LENGTH} characters`,
   NETWORK_ERROR: 'Network error. Please try again later',
   UNAUTHORIZED: 'You are not authorized to perform this action',
-  // Manager specific errors
   MANAGER: {
     INVALID_PRODUCT_DATA: 'Invalid product data',
     INVALID_CATEGORY_DATA: 'Invalid category data',
@@ -196,7 +208,6 @@ export const SUCCESS_MESSAGES = {
   REGISTER_SUCCESS: 'Registration successful',
   PROFILE_UPDATE_SUCCESS: 'Profile updated successfully',
   PASSWORD_CHANGE_SUCCESS: 'Password changed successfully',
-  // Manager specific success messages
   MANAGER: {
     PRODUCT_CREATED: 'Product created successfully',
     PRODUCT_UPDATED: 'Product updated successfully',
@@ -247,5 +258,4 @@ export const CACHE_KEYS = {
     CUSTOMERS: 'manager-customers',
     SETTINGS: 'manager-settings',
   },
-  // Thêm các cache keys khác ở đây
 };

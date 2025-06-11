@@ -20,6 +20,8 @@ import {
   ListItemText,
   Badge,
   useTheme,
+  TextField,
+  InputAdornment,
   Menu,
   ListItemIcon,
 } from '@mui/material';
@@ -31,85 +33,21 @@ import Person from '@mui/icons-material/Person';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
-// Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
 
-// NAV_LINKS chi tiết
-const NAV_LINKS = [
-  {
-    title: 'Men',
-    href: ROUTES.MEN.ROOT,
-    submenu: [
-      { title: 'Áo Thun & Polo', href: ROUTES.MEN.THUN_POLO },
-      { title: 'Áo Jersey', href: ROUTES.MEN.JERSEY },
-      { title: 'Áo hoodie', href: ROUTES.MEN.HOODIE },
-      { title: 'Bộ đồ thể thao', href: ROUTES.MEN.SPORTSET },
-      { title: 'Quần', href: ROUTES.MEN.TROUSERS },
-      { title: 'Quần bó', href: ROUTES.MEN.TIGHT_PANTS },
-      { title: 'Quần short', href: ROUTES.MEN.SHORT_TROUSER },
-      { title: 'Sportswear', href: ROUTES.MEN.SPORTSWEAR },
-      { title: 'Áo khoác', href: ROUTES.MEN.JACKET },
-      { title: 'Cơ bản', href: ROUTES.MEN.BASIC },
-      { title: 'Tracksuits', href: ROUTES.MEN.TRACKSUITS },
-    ],
-  },
-  {
-    title: 'Women',
-    href: ROUTES.WOMEN.ROOT,
-    submenu: [
-      { title: 'Thun & croptop', href: ROUTES.WOMEN.THUN_CROPTOP },
-      { title: 'Áo nỉ', href: ROUTES.WOMEN.SWEATSHIRT },
-      { title: 'Áo ngực thể thao', href: ROUTES.WOMEN.SPORTS_BRA },
-      { title: 'Áo Jersey', href: ROUTES.WOMEN.JERSEY },
-      { title: 'Áo hoodie', href: ROUTES.WOMEN.HOODIE },
-      { title: 'Áo khoác', href: ROUTES.WOMEN.JACKET },
-      { title: 'Quần', href: ROUTES.WOMEN.TROUSERS },
-      { title: 'Quần short', href: ROUTES.WOMEN.SHORT_TROUSER },
-      { title: 'Leggings', href: ROUTES.WOMEN.LEGGINGS },
-      { title: 'Đầm', href: ROUTES.WOMEN.DRESS },
-      { title: 'Chân váy', href: ROUTES.WOMEN.SKIRT },
-      { title: 'Sportswear', href: ROUTES.WOMEN.SPORTSWEAR },
-      { title: 'Cơ bản', href: ROUTES.WOMEN.BASIC },
-      { title: 'Tracksuits', href: ROUTES.WOMEN.TRACKSUITS },
-    ],
-  },
-  {
-    title: 'Kids',
-    href: ROUTES.KIDS.ROOT,
-    submenu: [
-      { title: 'Quần áo bé trai', href: ROUTES.KIDS.CLOTHES_BOYS },
-      { title: 'Quần áo bé gái', href: ROUTES.KIDS.CLOTHES_GIRLS },
-    ],
-  },
-  {
-    title: 'Accessories',
-    href: ROUTES.ACCESSORIES.ROOT,
-    submenu: [
-      { title: 'Túi xách', href: ROUTES.ACCESSORIES.BAGS },
-      { title: 'Mũ', href: ROUTES.ACCESSORIES.HATS },
-      { title: 'Vớ', href: ROUTES.ACCESSORIES.SOCKS },
-      { title: 'Phụ kiện thể thao', href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
-      { title: 'Balo', href: ROUTES.ACCESSORIES.BACKPACKS },
-    ],
-  },
-  {
-    title: 'Sale',
-    href: ROUTES.SALE.ROOT,
-    submenu: [
-      { title: 'Men Sale', href: ROUTES.SALE.MEN_SALE },
-      { title: 'Women Sale', href: ROUTES.SALE.WOMEN_SALE },
-      { title: 'Kids Sale', href: ROUTES.SALE.KIDS_SALE },
-      { title: 'Accessories Sale', href: ROUTES.SALE.ACCESSORIES_SALE },
-      { title: 'Flash Sale', href: ROUTES.SALE.FLASH_SALE },
-    ],
-  },
-];
+type OutletSubmenuGroup = {
+  title: string;
+  children: { title: string; href: string }[];
+};
+type OutletSubmenuItem = { title: string; href: string };
+type OutletSubmenu = (OutletSubmenuGroup | OutletSubmenuItem)[];
 
 interface User {
   id: number;
@@ -124,11 +62,11 @@ const Header = () => {
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
   const isDarkMode = muiTheme.palette.mode === 'dark';
+  const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
   const [userRole, setUserRole] = useState<User['role'] | null>(null);
-
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -248,6 +186,109 @@ const Header = () => {
     router.push(ROUTES.MANAGER_DASHBOARD);
   };
 
+  const NAV_LINKS = [
+    {
+      title: tHeader('men.title'),
+      href: ROUTES.MEN.ROOT,
+      submenu: [
+        { title: tHeader('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
+        { title: tHeader('men.jersey'), href: ROUTES.MEN.JERSEY },
+        { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
+        { title: tHeader('men.sportset'), href: ROUTES.MEN.SPORTSET },
+        { title: tHeader('men.trousers'), href: ROUTES.MEN.TROUSERS },
+        { title: tHeader('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
+        { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
+        { title: tHeader('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
+        { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
+        { title: tHeader('men.basic'), href: ROUTES.MEN.BASIC },
+        { title: tHeader('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
+      ]
+    },
+    {
+      title: tHeader('women.title'),
+      href: ROUTES.WOMEN.ROOT,
+      submenu: [
+        { title: tHeader('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
+        { title: tHeader('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
+        { title: tHeader('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
+        { title: tHeader('women.jersey'), href: ROUTES.WOMEN.JERSEY },
+        { title: tHeader('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
+        { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
+        { title: tHeader('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
+        { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
+        { title: tHeader('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
+        { title: tHeader('women.dress'), href: ROUTES.WOMEN.DRESS },
+        { title: tHeader('women.skirt'), href: ROUTES.WOMEN.SKIRT },
+        { title: tHeader('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
+        { title: tHeader('women.basic'), href: ROUTES.WOMEN.BASIC },
+        { title: tHeader('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
+      ]
+    },
+    {
+      title: tHeader('kids.title'),
+      href: ROUTES.KIDS.ROOT,
+      submenu: [
+        { title: tHeader('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
+        { title: tHeader('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
+      ]
+    },
+    {
+      title: tHeader('accessories.title'),
+      href: ROUTES.ACCESSORIES.ROOT,
+      submenu: [
+        { title: tHeader('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
+        { title: tHeader('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
+        { title: tHeader('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
+        { title: tHeader('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
+        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
+      ]
+    },
+    {
+      title: tHeader('sale.title'),
+      href: ROUTES.SALE.ROOT,
+      submenu: [
+        { title: tHeader('sale.men'), href: ROUTES.SALE.MEN_SALE },
+        { title: tHeader('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
+        { title: tHeader('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
+        { title: tHeader('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
+        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE }
+      ]
+    },
+    {
+      title: tHeader('outlet.title'),
+      href: ROUTES.OUTLET.ROOT,
+      submenu: [
+        {
+          title: tHeader('outlet.men.title'),
+          children: [
+            { title: tHeader('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
+            { title: tHeader('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
+            { title: tHeader('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
+            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN }
+          ]
+        },
+        {
+          title: tHeader('outlet.women.title'),
+          children: [
+            { title: tHeader('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
+            { title: tHeader('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
+            { title: tHeader('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
+            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN }
+          ]
+        },
+        {
+          title: tHeader('outlet.kids.title'),
+          children: [
+            { title: tHeader('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
+            { title: tHeader('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
+            { title: tHeader('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
+            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS }
+          ]
+        }
+      ]
+    }
+  ];
+
   if (!mounted) {
     return null;
   }
@@ -267,109 +308,189 @@ const Header = () => {
       >
         <Toolbar
           sx={{
-            maxWidth: 1200,
-            mx: 'auto',
+            position: 'relative',
+            minHeight: 64,
+            px: 2,
             width: '100%',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            py: 1,
+            maxWidth: 1920,
+            mx: 'auto',
+            bgcolor: isDarkMode ? '#000' : '#fff',
           }}
         >
-          {/* Logo */}
-          <Typography
-            variant="h4"
-            component={Link}
-            href={ROUTES.HOME}
-            sx={{
-              textDecoration: 'none',
-              color: 'inherit',
-              fontWeight: 900,
-              letterSpacing: 6,
-              fontFamily: "'Anton', sans-serif",
-              cursor: 'pointer',
-            }}
-          >
-            NIDAS
-          </Typography>
+          {/* Logo - Left */}
+          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 120 }}>
+            <Typography
+              variant="h4"
+              component={Link}
+              href={ROUTES.HOME}
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                fontWeight: 900,
+                letterSpacing: 6,
+                fontFamily: "'Anton', sans-serif",
+                cursor: 'pointer',
+              }}
+            >
+              NIDAS
+            </Typography>
+          </Box>
 
-          {/* Desktop Navigation */}
+          {/* Menu - Center */}
           {!isMobile && (
-            <Stack direction="row" spacing={4} sx={{ flexGrow: 1, ml: 6 }}>
-              {NAV_LINKS.map(({ title, href, submenu }, i) => (
-                <Box
-                  key={title}
-                  sx={{ position: 'relative' }}
-                  onMouseEnter={e => handleMenuHover(e, i, !!submenu)}
-                  onMouseLeave={handleMenuClose}
-                >
-                  <Button
-                    color="inherit"
-                    onClick={() => handleMenuClick(i, href as string)}
-                    sx={{
-                      fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
-                      fontSize: '1rem',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      '&:hover': {
-                        borderBottom: '3px solid',
-                        borderColor: 'black',
-                        fontWeight: 'bold',
-                      },
+            <Box
+              sx={{
+                position: 'absolute',
+                left: '50%',
+                top: 0,
+                transform: 'translateX(-50%)',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                zIndex: 1,
+              }}
+            >
+              <Stack direction="row" spacing={4}>
+                {NAV_LINKS.map(({ title, href, submenu }, i) => (
+                  <Box 
+                    key={title} 
+                    sx={{ 
+                      position: 'relative',
                     }}
+                    onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                    onMouseLeave={handleMenuClose}
                   >
-                    {title}
-                  </Button>
-
-                  {submenu && (
-                    <Popover
-                      open={openMenuIndex === i}
-                      anchorEl={anchorEl}
-                      onClose={handleMenuClose}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                      }}
+                    <Button
+                      color="inherit"
+                      onClick={() => handleMenuClick(i, href as string)}
                       sx={{
-                        pointerEvents: 'none',
-                        '& .MuiPopover-paper': {
-                          pointerEvents: 'auto',
-                          mt: 1,
+                        fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                        fontSize: '1rem',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          borderBottom: '3px solid',
+                          borderColor: 'black',
+                          fontWeight: 'bold',
                         },
                       }}
                     >
-                      <Box sx={{ p: 1 }}>
-                        {submenu.map(({ title: subTitle, href: subHref }) => (
-                          <MenuItem
-                            key={subTitle}
-                            component={Link}
-                            href={subHref}
-                            onClick={handleMenuClose}
-                            sx={{
-                              textTransform: 'capitalize',
-                              minWidth: 200,
-                            }}
-                          >
-                            {subTitle}
-                          </MenuItem>
-                        ))}
-                      </Box>
-                    </Popover>
-                  )}
-                </Box>
-              ))}
-            </Stack>
+                      {title}
+                    </Button>
+
+                    {submenu && (
+                      <Popover
+                        open={openMenuIndex === i}
+                        anchorEl={anchorEl}
+                        onClose={handleMenuClose}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left',
+                        }}
+                        PaperProps={{
+                          sx: {
+                            left: 0,
+                            right: 0,
+                            width: '100vw',
+                            maxWidth: 'none',
+                            borderRadius: 0,
+                            boxShadow: 2,
+                            px: 0,
+                          }
+                        }}
+                        sx={{
+                          pointerEvents: 'none',
+                          '& .MuiPopover-paper': {
+                            pointerEvents: 'auto',
+                            mt: 1,
+                          },
+                        }}
+                      >
+                        {href === ROUTES.OUTLET.ROOT ? (
+                          <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
+                            {(submenu as OutletSubmenu).map((group) =>
+                              'children' in group ? (
+                                <Box key={group.title}>
+                                  <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
+                                  {group.children.map((item) => (
+                                    <MenuItem
+                                      key={item.title}
+                                      component={Link}
+                                      href={item.href}
+                                      onClick={handleMenuClose}
+                                      sx={{ minWidth: 180 }}
+                                    >
+                                      {item.title}
+                                    </MenuItem>
+                                  ))}
+                                </Box>
+                              ) : (
+                                <Box key={group.title}>
+                                  <MenuItem
+                                    component={Link}
+                                    href={group.href}
+                                    onClick={handleMenuClose}
+                                    sx={{ minWidth: 180 }}
+                                  >
+                                    {group.title}
+                                  </MenuItem>
+                                </Box>
+                              )
+                            )}
+                          </Box>
+                        ) : (
+                          <Box sx={{ p: 1 }}>
+                            {submenu
+                              .filter((item): item is OutletSubmenuItem => 'href' in item)
+                              .map((item) => (
+                                <MenuItem
+                                  key={item.title}
+                                  component={Link}
+                                  href={item.href}
+                                  onClick={handleMenuClose}
+                                  sx={{
+                                    textTransform: 'capitalize',
+                                    minWidth: 200,
+                                  }}
+                                >
+                                  {item.title}
+                                </MenuItem>
+                              ))}
+                          </Box>
+                        )}
+                      </Popover>
+                    )}
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
           )}
 
-          {/* Right Icons */}
-          <Stack direction="row" spacing={1} alignItems="center">
+          {/* Right - Search + Icon */}
+          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 320, ml: 'auto' }}>
+            {/* Search Bar */}
+            <Box sx={{ mx: 2, width: 200 }}>
+              <TextField
+                size="small"
+                placeholder="Tìm kiếm"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 5, bgcolor: isDarkMode ? '#222' : '#f5f5f5' }
+                }}
+                variant="outlined"
+              />
+            </Box>
             <ThemeToggle />
-
-            {/* Language Toggle */}
+            {/* Nút đổi ngôn ngữ */}
             <Button
               variant="outlined"
               size="small"
@@ -389,17 +510,12 @@ const Header = () => {
             >
               {language.toUpperCase()}
             </Button>
-
-            <IconButton
-              aria-label="cart"
-              color="inherit"
-              size="large"
-              onClick={() => router.push(ROUTES.CART)}
-            >
+            <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
+            {/* Mobile menu button */}
 
             {isAuthenticated ? (
               <>
@@ -482,7 +598,7 @@ const Header = () => {
                 <MenuIcon />
               </IconButton>
             )}
-          </Stack>
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -510,17 +626,33 @@ const Header = () => {
                   </ListItemButton>
                 </ListItem>
                 {submenu &&
-                  submenu.map(sub => (
-                    <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
-                      <ListItemButton
-                        component={Link}
-                        href={sub.href as string}
-                        onClick={() => setDrawerOpen(false)}
-                      >
-                        <ListItemText primary={sub.title} />
-                      </ListItemButton>
-                    </ListItem>
-                  ))}
+                  (submenu as OutletSubmenu).map((sub) =>
+                    'children' in sub
+                      ? sub.children.map((item) => (
+                          <ListItem key={item.title} sx={{ pl: 4 }} disablePadding>
+                            <ListItemButton
+                              component={Link}
+                              href={item.href}
+                              onClick={() => setDrawerOpen(false)}
+                            >
+                              <ListItemText primary={item.title} />
+                            </ListItemButton>
+                          </ListItem>
+                        ))
+                      : (
+                        'href' in sub && (
+                          <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
+                            <ListItemButton
+                              component={Link}
+                              href={sub.href}
+                              onClick={() => setDrawerOpen(false)}
+                            >
+                              <ListItemText primary={sub.title} />
+                            </ListItemButton>
+                          </ListItem>
+                        )
+                      )
+                  )}
               </React.Fragment>
             ))}
           </List>
