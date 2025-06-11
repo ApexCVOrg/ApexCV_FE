@@ -260,13 +260,13 @@ export default function Home() {
             {products.map((product) => (
               <Box key={product._id}>
                 <ProductCard
-                  name={product.name}
-                  image={product.images[0]}
-                  price={product.price}
+                  name={product.name || 'Unnamed Product'}
+                  image={product.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${product.images[0]}` : '/images/placeholder.jpg'}
+                  price={product.price || 0}
                   discountPrice={product.discountPrice}
-                  tags={product.tags}
-                  brand={product.brand.name}
-                  categories={product.categories}
+                  tags={product.tags || []}
+                  brand={product.brand?.name || 'Unknown Brand'}
+                  categories={product.categories || []}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
                 />
               </Box>

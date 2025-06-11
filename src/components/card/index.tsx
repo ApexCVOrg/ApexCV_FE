@@ -20,7 +20,18 @@ interface ProductCardProps {
   discountPrice?: number;
   tags: string[];
   brand: string;
-  categories: { _id: string; name: string }[];
+  categories: { 
+    _id: string; 
+    name: string;
+    parentCategory?: {
+      _id: string;
+      name: string;
+      parentCategory?: {
+        _id: string;
+        name: string;
+      };
+    };
+  }[];
   onAddToCart: () => void;
 }
 
@@ -62,7 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {isDiscounted && (
           <Chip
-            label="Sale"
+            label={t('sale')}
             color="error"
             size="small"
             sx={{
@@ -132,7 +143,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           color="text.secondary"
           sx={{ mb: 1 }}
         >
-          {brand || 'Unknown Brand'} - {categories?.map(cat => cat.name).join(', ') || 'Uncategorized'}
+          {brand || 'Unknown Brand'} - {categories?.map(cat => {
+            const categoryPath = [
+              cat.name,
+              cat.parentCategory?.name,
+              cat.parentCategory?.parentCategory?.name
+            ].filter(Boolean).reverse().join(' > ');
+            return categoryPath;
+          }).join(', ') || 'Uncategorized'}
         </Typography>
         {tags.length > 0 && (
           <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5 }}>
@@ -152,7 +170,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={handleAddToCart}
           sx={{ mt: 'auto' }}
         >
-          Thêm vào giỏ
+          {t('addToCart')}
         </Button>
       </CardContent>
     </Card>

@@ -27,13 +27,35 @@ interface Product {
   price: number;
   discountPrice?: number;
   tags: string[];
-  categories: { _id: string; name: string }[];
+  categories: { 
+    _id: string; 
+    name: string;
+    parentCategory?: {
+      _id: string;
+      name: string;
+      parentCategory?: {
+        _id: string;
+        name: string;
+      };
+    };
+  }[];
   brand: { _id: string; name: string };
+  sizes: { size: string; stock: number }[];
+  colors: string[];
 }
 
 interface Category {
   _id: string;
   name: string;
+  parentCategory?: { 
+    _id: string; 
+    name: string;
+    parentCategory?: {
+      _id: string;
+      name: string;
+    };
+  };
+  status: 'active' | 'inactive';
 }
 
 interface Brand {
@@ -72,61 +94,147 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         ]);
         setCategories(categoriesData);
         setBrands(brandsData);
-        console.log('Fetched categoriesData:', categoriesData);
+        console.log('[TeamPage] Categories loaded:', categoriesData);
 
-        // Find the category ID matching teamName and set it as selected
-        const teamCategory = categoriesData.find((cat: Category) => cat.name === teamName);
-        if (teamCategory) {
-          setSelectedCategories([teamCategory._id]);
-          console.log('Found teamCategory:', teamCategory);
-          console.log('Set selectedCategories to:', [teamCategory._id]);
+        // Find the gender category (Men/Women)
+        const genderCategory = categoriesData.find((cat: Category) => 
+          cat.name.toLowerCase() === gender.toLowerCase() && !cat.parentCategory
+        );
+
+        if (genderCategory) {
+          // Find the team category under the gender category
+          const teamCategory = categoriesData.find((cat: Category) => 
+            cat.name === teamName && 
+            cat.parentCategory?._id === genderCategory._id
+          );
+
+          if (teamCategory) {
+            console.log('[TeamPage] Found team category:', {
+              id: teamCategory._id,
+              name: teamCategory.name,
+              parent: teamCategory.parentCategory?.name
+            });
+
+            // Get all product type categories under the team
+            const productTypeCategories = categoriesData.filter((cat: Category) => 
+              cat.parentCategory?._id === teamCategory._id
+            );
+
+            console.log('[TeamPage] Product type categories:', productTypeCategories.map((cat: Category) => ({
+              id: cat._id,
+              name: cat.name
+            })));
+
+            // Set selected categories to include both team and its product types
+            setSelectedCategories([teamCategory._id, ...productTypeCategories.map((cat: Category) => cat._id)]);
+          } else {
+            console.log('[TeamPage] No team category found for:', {
+              teamName,
+              gender,
+              availableCategories: categoriesData.map((cat: Category) => ({
+                name: cat.name,
+                parent: cat.parentCategory?.name
+              }))
+            });
+            setSelectedCategories([]);
+          }
+        } else {
+          console.log('[TeamPage] No gender category found for:', gender);
+          setSelectedCategories([]);
         }
-
       } catch (error) {
-        console.error('Error fetching categories or brands:', error);
+        console.error('[TeamPage] Error fetching categories or brands:', error);
       }
     };
     fetchInitialData();
-  }, [teamName]); // Add teamName to dependency array to re-fetch if teamName changes
+  }, [teamName, gender]);
 
   useEffect(() => {
     const fetchFilteredProducts = async () => {
-      console.log('fetchFilteredProducts called. teamName:', teamName, 'selectedCategories:', selectedCategories);
+      console.log('[TeamPage] Fetching products with params:', {
+        teamName,
+        gender,
+        selectedCategories,
+        selectedBrands,
+        sortBy
+      });
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
           minPrice: priceRange[0].toString(),
           maxPrice: priceRange[1].toString(),
           sortBy,
-          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+          ...(selectedCategories.length > 0 && { categories: selectedCategories.join(',') }),
           ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
-          ...(gender && { gender }),
+          gender: gender.toLowerCase()
         });
-        console.log('Attempting to fetch products with queryParams:', queryParams.toString());
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+        console.log('[TeamPage] API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch products');
+          throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
         }
+
         const data = await response.json();
-        console.log('Fetched products data:', data); // Log the actual data
+        console.log('[TeamPage] Raw API response:', data);
         
-        // Sort products to maintain consistent order
-        const sortedProducts = [...data].sort((a, b) => {
-          // Keep the original order based on _id
-          return a._id.localeCompare(b._id);
+        // Filter products to ensure they match the team
+        const filteredProducts = data.filter((product: Product) => {
+          // Log the product's categories for debugging
+          console.log('[TeamPage] Checking product:', {
+            name: product.name,
+            categories: product.categories.map(cat => ({
+              name: cat.name,
+              parent: cat.parentCategory?.name,
+              grandParent: cat.parentCategory?.parentCategory?.name
+            }))
+          });
+
+          // Check if any category's parent is the team
+          const hasTeamCategory = product.categories.some(cat => {
+            // Check if the category itself is the team
+            if (cat.name === teamName) return true;
+            
+            // Check if the category's parent is the team
+            if (cat.parentCategory?.name === teamName) return true;
+            
+            // Check if the category's grandparent is the team
+            if (cat.parentCategory?.parentCategory?.name === teamName) return true;
+            
+            return false;
+          });
+
+          console.log('[TeamPage] Product match result:', {
+            productName: product.name,
+            hasTeamCategory
+          });
+
+          return hasTeamCategory;
+        });
+
+        console.log('[TeamPage] Final filtered products:', {
+          totalFiltered: filteredProducts.length,
+          products: filteredProducts.map((p: Product) => ({
+            id: p._id,
+            name: p.name,
+            categories: p.categories.map((c: { _id: string; name: string }) => c.name)
+          }))
         });
         
-        setProducts(sortedProducts);
+        setProducts(filteredProducts);
         setError(null);
       } catch (err) {
-        console.error('Error fetching filtered products:', err);
+        console.error('[TeamPage] Error fetching products:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
     };
     fetchFilteredProducts();
-  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName, categories]); // Giữ lại categories trong dependency array
+  }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName]);
 
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategories((prev: string[]) => 
@@ -195,13 +303,13 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                 }}
               >
                 <ProductCard
-                  name={product.name}
-                  image={product.images[0]}
-                  price={product.price}
+                  name={product.name || 'Unnamed Product'}
+                  image={product.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${product.images[0]}` : '/images/placeholder.jpg'}
+                  price={product.price || 0}
                   discountPrice={product.discountPrice}
-                  tags={product.tags}
-                  brand={product.brand.name}
-                  categories={product.categories}
+                  tags={product.tags || []}
+                  brand={product.brand?.name || 'Unknown Brand'}
+                  categories={product.categories || []}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
                 />
               </Box>
@@ -228,18 +336,53 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
 
             <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Categories</Typography>
             <FormGroup>
-              {categories.map((category) => (
-                <FormControlLabel
-                  key={category._id}
-                  control={
-                    <Checkbox
-                      checked={selectedCategories.includes(category._id)}
-                      onChange={() => handleCategoryChange(category._id)}
+              {categories
+                .filter(cat => !cat.parentCategory) // Only show top-level categories (Men/Women)
+                .map((genderCat) => (
+                  <Box key={genderCat._id} sx={{ ml: 0 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedCategories.includes(genderCat._id)}
+                          onChange={() => handleCategoryChange(genderCat._id)}
+                        />
+                      }
+                      label={genderCat.name}
                     />
-                  }
-                  label={category.name}
-                />
-              ))}
+                    {/* Show teams under this gender */}
+                    {categories
+                      .filter(cat => cat.parentCategory?._id === genderCat._id)
+                      .map((teamCat) => (
+                        <Box key={teamCat._id} sx={{ ml: 2 }}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={selectedCategories.includes(teamCat._id)}
+                                onChange={() => handleCategoryChange(teamCat._id)}
+                              />
+                            }
+                            label={teamCat.name}
+                          />
+                          {/* Show product types under this team */}
+                          {categories
+                            .filter(cat => cat.parentCategory?._id === teamCat._id)
+                            .map((productTypeCat) => (
+                              <Box key={productTypeCat._id} sx={{ ml: 4 }}>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={selectedCategories.includes(productTypeCat._id)}
+                                      onChange={() => handleCategoryChange(productTypeCat._id)}
+                                    />
+                                  }
+                                  label={productTypeCat.name}
+                                />
+                              </Box>
+                            ))}
+                        </Box>
+                      ))}
+                  </Box>
+                ))}
             </FormGroup>
 
             <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Brands</Typography>
