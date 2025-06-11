@@ -5,6 +5,12 @@
     "getStarted": "Bắt đầu",
     "viewTemplates": "Xem Mẫu"
   },
+  "productCard": {
+    "sale": "Giảm giá",
+    "addToCart": "Thêm vào giỏ",
+    "unknownBrand": "Thương hiệu không xác định",
+    "uncategorized": "Chưa phân loại"
+  },
   "categories": {
     "title": "Mua theo Danh Mục"
   },
@@ -81,6 +87,7 @@
     "email": "Email",
     "password": "Mật khẩu",
     "login": "Đăng nhập",
+    "loginButton": "Đăng nhập",
     "forgotPassword": "Quên mật khẩu?"
   },
   "register": {
@@ -202,10 +209,12 @@
       }
     }
   },
-  "productCard": {
-    "sale": "Giảm giá",
-    "addToCart": "Thêm vào giỏ",
-    "unknownBrand": "Thương hiệu không rõ",
-    "uncategorized": "Không phân loại"
+  "forgotPassword": {
+    "title": "Quên mật khẩu?",
+    "subtitle": "Nhập email để nhận liên kết đặt lại mật khẩu",
+    "email": "Email",
+    "reset": "Đặt lại mật khẩu",
+    "resetButton": "Đặt lại mật khẩu",
+    "backToLogin": "Quay lại đăng nhập"
   }
 }

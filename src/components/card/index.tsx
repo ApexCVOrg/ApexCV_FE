@@ -12,6 +12,7 @@ import {
   Stack,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useTranslations } from 'next-intl';
 
 interface ProductCardProps {
   name: string;
@@ -45,6 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   categories,
   onAddToCart,
 }) => {
+  const t = useTranslations();
   const isDiscounted = discountPrice && discountPrice < price;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -73,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {isDiscounted && (
           <Chip
-            label={t('sale')}
+            label={t('productCard.sale')}
             color="error"
             size="small"
             sx={{
@@ -143,14 +145,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           color="text.secondary"
           sx={{ mb: 1 }}
         >
-          {brand || 'Unknown Brand'} - {categories?.map(cat => {
+          {brand || t('productCard.unknownBrand')} - {categories?.map(cat => {
             const categoryPath = [
               cat.name,
               cat.parentCategory?.name,
               cat.parentCategory?.parentCategory?.name
             ].filter(Boolean).reverse().join(' > ');
             return categoryPath;
-          }).join(', ') || 'Uncategorized'}
+          }).join(', ') || t('productCard.uncategorized')}
         </Typography>
         {tags.length > 0 && (
           <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 0.5 }}>
@@ -170,7 +172,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={handleAddToCart}
           sx={{ mt: 'auto' }}
         >
-          {t('addToCart')}
+          {t('productCard.addToCart')}
         </Button>
       </CardContent>
     </Card>
