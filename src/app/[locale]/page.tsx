@@ -23,6 +23,7 @@ import {
 import ProductCard from '@/components/card';
 import SearchIcon from '@mui/icons-material/Search';
 import TeamButtonsMUI from "@/components/button/TeamButtonsMUI";
+import { ProductLabel } from '@/types/components/label';
 
 interface Product {
   _id: string;
@@ -33,6 +34,7 @@ interface Product {
   tags: string[];
   categories: { _id: string; name: string }[]; // theo model
   brand: { _id: string; name: string };
+  label?: string;
 }
 
 interface Category {
@@ -257,21 +259,30 @@ export default function Home() {
               gap: 3,
             }}
           >
-            {products.map((product) => (
-              <Box key={product._id}>
-                <ProductCard
-                  name={product.name}
-                  image={product.images[0]}
-                  price={product.price}
-                  discountPrice={product.discountPrice}
-                  tags={product.tags}
-                  brand={product.brand}
-                  categories={product.categories}
-                  label={product.tags && product.tags.length > 0 ? product.tags[0] : (product.categories && product.categories.length > 0 ? product.categories[0].name : undefined)}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
-                />
-              </Box>
-            ))}
+            {products.map((product) => {
+              const validLabels = Array.isArray(product.label)
+                ? product.label.filter(l => [
+                    'new', 'hot', 'sale', 'outlet', 'limited', 'preorder', 'exclusive', 'bestseller', 'trend', 'restock'
+                  ].includes(l)) as ProductLabel[]
+                : undefined;
+              return (
+                <Box key={product._id}>
+                  <ProductCard
+                    name={product.name}
+                    image={product.images[0]}
+                    price={product.price}
+                    discountPrice={product.discountPrice}
+                    tags={product.tags}
+                    brand={product.brand}
+                    categories={product.categories}
+                    labels={validLabels}
+                    allCategories={categories}
+                    allBrands={brands}
+                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                  />
+                </Box>
+              );
+            })}
           </Box>
         </Box>
       </Grid>

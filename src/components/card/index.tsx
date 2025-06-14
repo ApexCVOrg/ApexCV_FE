@@ -12,6 +12,7 @@ import {
   Chip,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
+import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 
 interface ProductCardProps {
   name: string;
@@ -19,10 +20,12 @@ interface ProductCardProps {
   price: number;
   discountPrice?: number;
   tags?: string[];
-  brand?: { _id: string; name: string };
+  brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
-  label?: string;
+  labels?: ProductLabel[];
+  allCategories?: { _id: string; name: string }[];
+  allBrands?: { _id: string; name: string }[];
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -34,10 +37,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories = [],
   onAddToCart,
-  label,
+  labels,
+  allCategories,
+  allBrands,
 }) => {
   const t = useTranslations('productCard');
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
+  const displayLabels = labels?.filter(l => l !== 'sale') || [];
+
+  // Debug logs
+  if (typeof window !== 'undefined') {
+    console.log('ProductCard tags:', tags);
+    console.log('ProductCard allCategories:', allCategories);
+  }
+
+  // Hiển thị brand đúng tên
+  let displayBrand = '';
+  if (brand) {
+    if (typeof brand === 'string' && allBrands) {
+      const found = allBrands.find(b => String(b._id) === String(brand));
+      displayBrand = found ? found.name : brand;
+    } else if (typeof brand === 'object' && brand.name) {
+      displayBrand = brand.name;
+    }
+  }
+  if (!displayBrand) displayBrand = t('unknownBrand');
 
   return (
     <Card
@@ -64,7 +88,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           alt={name}
           sx={{ objectFit: 'cover' }}
         />
-        {isDiscounted && label && (
+        {isDiscounted && (
           <Chip
             label={t('sale')}
             color="error"
@@ -76,9 +100,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
               fontWeight: 'bold',
               fontSize: 12,
               paddingX: 1,
+              zIndex: 2,
             }}
           />
         )}
+        {displayLabels.map((label, idx) => {
+          const labelDisplay = PRODUCT_LABELS.find(l => l.value === label)?.label || label;
+          return (
+            <Chip
+              key={label + idx}
+              label={labelDisplay}
+              color="warning"
+              size="small"
+              sx={{
+                position: 'absolute',
+                top: 12 + (isDiscounted ? (idx + 1) : idx) * 32,
+                left: 12,
+                fontWeight: 'bold',
+                fontSize: 12,
+                paddingX: 1,
+                zIndex: 2,
+              }}
+            />
+          );
+        })}
       </Box>
 
       <CardContent sx={{ flexGrow: 1 }}>
@@ -119,24 +164,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Stack>
 
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          {brand?.name || t('unknownBrand')} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
+          {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
         </Typography>
 
         {tags.length > 0 && (
           <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
-            {tags.map((tag) => (
-              <Chip
-                key={tag}
-                label={tag}
-                size="small"
-                sx={{
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  backgroundColor: '#f1f1f1',
-                  color: '#333',
-                }}
-              />
-            ))}
+            {tags.map((tag) => {
+              let displayTag = tag;
+              let found;
+              if (allCategories) {
+                found = allCategories.find(cat => String((cat as any).id ?? (cat as any)._id) === String(tag));
+                if (found) displayTag = found.name;
+              }
+              if (typeof window !== 'undefined') {
+                console.log('tag:', tag, 'found:', found, 'displayTag:', displayTag);
+              }
+              return (
+                <Chip
+                  key={tag}
+                  label={displayTag}
+                  size="small"
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    backgroundColor: '#f1f1f1',
+                    color: '#333',
+                  }}
+                />
+              );
+            })}
           </Stack>
         )}
       </CardContent>

@@ -67,12 +67,13 @@ const Header = () => {
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
   const [userRole, setUserRole] = useState<User['role'] | null>(null);
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorElMenu, setAnchorElMenu] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [language, setLanguage] = useState<Language>('en');
-  const open = Boolean(anchorEl);
   const [mounted, setMounted] = useState(false);
+  const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
+  const openProfile = Boolean(anchorElProfile);
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -118,73 +119,6 @@ const Header = () => {
       }
     }
   }, [pathname, getCurrentUser]);
-
-  const handleMenuHover = (
-    event: React.MouseEvent<HTMLElement>,
-    index: number,
-    hasSubmenu: boolean
-  ) => {
-    if (hasSubmenu) {
-      setAnchorEl(event.currentTarget);
-      setOpenMenuIndex(index);
-    }
-  };
-
-  const handleMenuClick = (index: number, href: string) => {
-    setAnchorEl(null);
-    setOpenMenuIndex(null);
-    router.push(href);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setOpenMenuIndex(null);
-  };
-
-  const toggleDrawer = (open: boolean) => () => {
-    setDrawerOpen(open);
-  };
-
-  const toggleLanguage = () => {
-    const newLang: Language = language === 'en' ? 'vi' : 'en';
-    const pathParts = pathname.split('/');
-    if (LANGUAGES.includes(pathParts[1] as Language)) {
-      pathParts[1] = newLang;
-    } else {
-      pathParts.splice(1, 0, newLang);
-    }
-    const newPath = pathParts.join('/') || '/';
-    setLanguage(newLang);
-    router.push(newPath);
-  };
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    handleClose();
-    logout();
-  };
-
-  const handleProfile = () => {
-    handleClose();
-    router.push(ROUTES.PROFILE);
-  };
-
-  const handleAdminDashboard = () => {
-    handleClose();
-    router.push(ROUTES.ADMIN_DASHBOARD);
-  };
-
-  const handleManagerDashboard = () => {
-    handleClose();
-    router.push(ROUTES.MANAGER_DASHBOARD);
-  };
 
   const NAV_LINKS = [
     {
@@ -289,6 +223,69 @@ const Header = () => {
     }
   ];
 
+  const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
+    if (hasSubmenu) {
+      setAnchorElMenu(event.currentTarget);
+      setOpenMenuIndex(index);
+    }
+  };
+
+  const handleMenuClick = (index: number, href: string) => {
+    setAnchorElMenu(null);
+    setOpenMenuIndex(null);
+    router.push(href);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorElMenu(null);
+    setOpenMenuIndex(null);
+  };
+
+  const toggleDrawer = (open: boolean) => () => {
+    setDrawerOpen(open);
+  };
+
+  const toggleLanguage = () => {
+    const newLang: Language = language === 'en' ? 'vi' : 'en';
+    const pathParts = pathname.split('/');
+    if (LANGUAGES.includes(pathParts[1] as Language)) {
+      pathParts[1] = newLang;
+    } else {
+      pathParts.splice(1, 0, newLang);
+    }
+    const newPath = pathParts.join('/') || '/';
+    setLanguage(newLang);
+    router.push(newPath);
+  };
+
+  const handleClickProfile = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElProfile(event.currentTarget);
+  };
+
+  const handleCloseProfile = () => {
+    setAnchorElProfile(null);
+  };
+
+  const handleLogout = () => {
+    handleCloseProfile();
+    logout();
+  };
+
+  const handleProfile = () => {
+    handleCloseProfile();
+    router.push(ROUTES.PROFILE);
+  };
+
+  const handleAdminDashboard = () => {
+    handleCloseProfile();
+    router.push(ROUTES.ADMIN_DASHBOARD);
+  };
+
+  const handleManagerDashboard = () => {
+    handleCloseProfile();
+    router.push(ROUTES.MANAGER_DASHBOARD);
+  };
+
   if (!mounted) {
     return null;
   }
@@ -356,9 +353,13 @@ const Header = () => {
                     key={title} 
                     sx={{ 
                       position: 'relative',
+                      '&:hover': {
+                        '& .MuiPopover-root': {
+                          pointerEvents: 'auto',
+                        }
+                      }
                     }}
                     onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
-                    onMouseLeave={handleMenuClose}
                   >
                     <Button
                       color="inherit"
@@ -368,10 +369,24 @@ const Header = () => {
                         fontSize: '1rem',
                         textTransform: 'uppercase',
                         cursor: 'pointer',
+                        position: 'relative',
+                        '&::after': {
+                          content: '""',
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '3px',
+                          backgroundColor: 'black',
+                          transform: 'scaleX(0)',
+                          transition: 'transform 0.3s ease',
+                          transformOrigin: 'bottom',
+                        },
                         '&:hover': {
-                          borderBottom: '3px solid',
-                          borderColor: 'black',
-                          fontWeight: 'bold',
+                          backgroundColor: 'transparent',
+                          '&::after': {
+                            transform: 'scaleX(1)',
+                          },
                         },
                       }}
                     >
@@ -381,7 +396,7 @@ const Header = () => {
                     {submenu && (
                       <Popover
                         open={openMenuIndex === i}
-                        anchorEl={anchorEl}
+                        anchorEl={anchorElMenu}
                         onClose={handleMenuClose}
                         anchorOrigin={{
                           vertical: 'bottom',
@@ -400,14 +415,20 @@ const Header = () => {
                             borderRadius: 0,
                             boxShadow: 2,
                             px: 0,
+                            mt: 0,
                           }
                         }}
                         sx={{
                           pointerEvents: 'none',
                           '& .MuiPopover-paper': {
                             pointerEvents: 'auto',
-                            mt: 1,
                           },
+                        }}
+                        slotProps={{
+                          paper: {
+                            onMouseEnter: () => setAnchorElMenu(anchorElMenu),
+                            onMouseLeave: handleMenuClose,
+                          }
                         }}
                       >
                         {href === ROUTES.OUTLET.ROOT ? (
@@ -471,7 +492,14 @@ const Header = () => {
           )}
 
           {/* Right - Search + Icon */}
-          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 320, ml: 'auto' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            minWidth: 320, 
+            ml: 'auto',
+            position: 'relative',
+            zIndex: 1200 // Đảm bảo menu profile luôn hiển thị trên cùng
+          }}>
             {/* Search Bar */}
             <Box sx={{ mx: 2, width: 200 }}>
               <TextField
@@ -515,28 +543,35 @@ const Header = () => {
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
-            {/* Mobile menu button */}
 
+            {/* Mobile menu button */}
             {isAuthenticated ? (
-              <>
+              <Box sx={{ position: 'relative' }}>
                 <IconButton
-                  onClick={handleClick}
+                  onClick={handleClickProfile}
                   size="small"
                   sx={{ ml: 2 }}
-                  aria-controls={open ? 'account-menu' : undefined}
+                  aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
-                  aria-expanded={open ? 'true' : undefined}
+                  aria-expanded={openProfile ? 'true' : undefined}
                 >
                   <AccountCircleIcon />
                 </IconButton>
                 <Menu
-                  anchorEl={anchorEl}
+                  anchorEl={anchorElProfile}
                   id="account-menu"
-                  open={open}
-                  onClose={handleClose}
-                  onClick={handleClose}
+                  open={openProfile}
+                  onClose={handleCloseProfile}
+                  onClick={handleCloseProfile}
                   transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                   anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  sx={{
+                    '& .MuiPaper-root': {
+                      mt: 1.5,
+                      minWidth: 180,
+                      boxShadow: 3,
+                    }
+                  }}
                 >
                   <MenuItem onClick={handleProfile}>
                     <ListItemIcon>
@@ -567,7 +602,7 @@ const Header = () => {
                     {t('logout')}
                   </MenuItem>
                 </Menu>
-              </>
+              </Box>
             ) : (
               <Stack direction="row" spacing={1}>
                 <Button
