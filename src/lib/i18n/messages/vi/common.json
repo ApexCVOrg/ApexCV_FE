@@ -75,13 +75,31 @@
     }
   },
   "login": {
-    "title": "Đăng nhập vào tài khoản của bạn",
-    "subtitle": "Bạn chưa có tài khoản?",
-    "registerLink": "Đăng ký",
-    "email": "Email",
+    "title": "Đăng nhập",
+    "username": "Tên đăng nhập",
     "password": "Mật khẩu",
+    "rememberMe": "Nhớ tôi",
+    "forgotPassword": "Quên mật khẩu?",
     "login": "Đăng nhập",
-    "forgotPassword": "Quên mật khẩu?"
+    "orLoginWith": "Hoặc đăng nhập với",
+    "noAccount": "Chưa có tài khoản?",
+    "registerNow": "Đăng ký ngay",
+    "emailLabel": "Email",
+    "passwordLabel": "Mật khẩu",
+    "loggingIn": "Đang đăng nhập...",
+    "loginButton": "Đăng nhập",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "loginWithFacebook": "Đăng nhập với Facebook",
+    "usernameLabel": "Tên đăng nhập",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất",
+    "errors": {
+      "usernameRequired": "Vui lòng nhập tên đăng nhập",
+      "usernameTaken": "Tên đăng nhập đã tồn tại",
+      "emailRequired": "Vui lòng nhập email",
+      "invalidEmail": "Email không hợp lệ",
+      "emailAlreadyUsed": "Email đã được sử dụng"
+    }
   },
   "register": {
     "title": "Tạo tài khoản mới",
@@ -207,5 +225,50 @@
     "addToCart": "Thêm vào giỏ",
     "unknownBrand": "Thương hiệu không rõ",
     "uncategorized": "Không phân loại"
+  },
+  "verifyMail": {
+    "title": "XÁC THỰC EMAIL",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC THỰC MÃ",
+    "verifying": "ĐANG XÁC THỰC...",
+    "resendEmail": "Gửi lại Email",
+    "resendingEmail": "Đang gửi lại Email...",
+    "backToRegistration": "Quay lại Đăng ký",
+    "verificationCodeLabel": "Mã xác thực",
+    "error": {
+      "invalidEmail": "Email không hợp lệ",
+      "emailRequired": "Vui lòng nhập email",
+      "emailAlreadyUsed": "Email đã được sử dụng",
+      "invalidCode": "Mã xác thực không hợp lệ",
+      "invalidToken": "Mã xác thực không hợp lệ",
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác thực",
+      "verificationFailed": "Mã xác thực không hợp lệ",
+      "resendFailed": "Gửi lại mã thất bại",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "profile": {
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "addresses": "Địa chỉ",
+    "noAddress": "Không có địa chỉ",
+    "addAddress": "Thêm địa chỉ",
+    "editProfile": "Chỉnh sửa",
+    "saveChanges": "Lưu thay đổi",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "recipientName": "Tên người nhận",
+    "street": "Đường",
+    "city": "Thành phố",
+    "state": "Tỉnh/Thành phố",
+    "country": "Quốc gia",
+    "addressNumber": "Số nhà (Tùy chọn)",
+    "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
+    "verified": "Đã xác thực",
+    "loading": "Đang tải...",
+    "errors": {
+      "loadFailed": "Lỗi tải dữ liệu"
+    }
   }
 }

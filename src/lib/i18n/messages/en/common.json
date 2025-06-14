@@ -76,19 +76,30 @@
   },
   "login": {
     "title": "Login",
+    "username": "Username",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "login": "Login",
+    "orLoginWith": "Or login with",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
     "emailLabel": "Email",
     "passwordLabel": "Password",
-    "rememberMe": "Remember me",
-    "forgotPassword": "Forgot password?",
     "loggingIn": "Logging in...",
     "loginButton": "Login",
     "loginWithGoogle": "Login with Google",
     "loginWithFacebook": "Login with Facebook",
     "usernameLabel": "Username",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "errors": {
+      "usernameRequired": "Please enter username",
+      "usernameTaken": "Username is already taken",
+      "emailRequired": "Please enter email",
+      "invalidEmail": "Invalid email address",
+      "emailAlreadyUsed": "Email is already in use"
+    }
   },
   "register": {
     "title": "Create New Account",
@@ -209,12 +220,12 @@
       }
     }
   },
-    "productCard": {
-      "sale": "Sale",
-      "addToCart": "Add to Cart",
-      "unknownBrand": "Unknown Brand",
-      "uncategorized": "Uncategorized"
-    },
+  "productCard": {
+    "sale": "Sale",
+    "addToCart": "Add to Cart",
+    "unknownBrand": "Unknown Brand",
+    "uncategorized": "Uncategorized"
+  },
   "forgotPassword": {
     "title": "FORGOT PASSWORD",
     "description": "Enter your email address and we'll send you a link to reset your password.",
@@ -277,14 +288,40 @@
   },
   "verifyMail": {
     "title": "VERIFY EMAIL",
-    "description": "Please enter the 6-digit verification code sent to your email.",
-    "verificationCodeLabel": "Verification Code",
+    "description": "Please enter the 6-digit code sent to your email.",
     "verifyButton": "VERIFY CODE",
     "verifying": "VERIFYING...",
-    "backToRegistration": "Back to Registration",
+    "resendEmail": "Resend Email",
+    "resendingEmail": "Resending Email...",
     "errors": {
+      "incompleteOTP": "Please enter the complete verification code",
       "verificationFailed": "Invalid verification code",
-      "serverError": "An error occurred. Please try again."
+      "resendFailed": "Failed to resend code",
+      "unknownError": "An error occurred. Please try again."
+    }
+  },
+  "profile": {
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "addresses": "Addresses",
+    "noAddress": "No address",
+    "addAddress": "Add Address",
+    "editProfile": "Edit Profile",
+    "saveChanges": "Save Changes",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "recipientName": "Recipient Name",
+    "street": "Street",
+    "city": "City",
+    "state": "State/Province",
+    "country": "Country",
+    "addressNumber": "Address Number (Optional)",
+    "setAsDefaultAddress": "Set as default address",
+    "verified": "Verified",
+    "loading": "Loading...",
+    "errors": {
+      "loadFailed": "Failed to load user data"
     }
   }
 }
