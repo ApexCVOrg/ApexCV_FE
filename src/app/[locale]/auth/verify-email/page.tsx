@@ -12,12 +12,15 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { VerifiedUser } from '@mui/icons-material';
-import { API_ENDPOINTS } from '@/lib/constants/constants';
+import { API_ENDPOINTS, API_BASE_URL } from '@/lib/constants/constants';
 import { useTranslations } from 'next-intl';
 
 interface VerifyEmailResponse {
   success: boolean;
   message: string;
+  data?: {
+    token?: string;
+  };
 }
 
 export default function VerifyEmailPage() {
@@ -29,15 +32,18 @@ export default function VerifyEmailPage() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isEmailChange, setIsEmailChange] = useState(false);
   const t = useTranslations('verifyMail');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('pendingEmail');
+    const token = localStorage.getItem('auth_token');
     if (!storedEmail) {
       router.push(`/${locale}/auth/register`);
       return;
     }
     setRegisteredEmail(storedEmail);
+    setIsEmailChange(!!token && !!storedEmail);
   }, [router, locale]);
 
   useEffect(() => {
@@ -50,7 +56,7 @@ export default function VerifyEmailPage() {
           return;
         }
 
-        const response = await fetch(`${API_ENDPOINTS.AUTH.VERIFY_EMAIL}?token=${token}`, {
+        const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}?token=${token}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -80,26 +86,42 @@ export default function VerifyEmailPage() {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`, {
+      const token = localStorage.getItem('auth_token');
+      const pendingEmail = localStorage.getItem('pendingEmail');
+      
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      if (isEmailChange && token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({ email: registeredEmail, code: verificationCode }),
+        headers,
+        body: JSON.stringify({
+          email: registeredEmail,
+          code: verificationCode
+        })
       });
 
-      const data: VerifyEmailResponse = await response.json();
-
-      if (data.success) {
-        localStorage.removeItem('pendingEmail');
-        router.push(`/${locale}/auth/login`);
-      } else {
-        setError(data.message || t('error.verificationFailed'));
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Verification failed');
       }
-    } catch (error) {
-      setError(t('error.serverError'));
-      console.error('Verification error:', error);
+
+      if (isEmailChange) {
+        if (pendingEmail) {
+          localStorage.removeItem('pendingEmail');
+          router.push('/profile');
+        }
+      } else {
+        router.push('/auth/login');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed');
     } finally {
       setLoading(false);
     }

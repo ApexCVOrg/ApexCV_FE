@@ -12,9 +12,9 @@ export const API_ENDPOINTS = {
     RESEND_OTP: '/auth/resend-otp',
   },
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/update-profile',
-    CHANGE_PASSWORD: '/user/change-password',
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
+    CHANGE_PASSWORD: '/users/change-password',
   },
   MANAGER: {
     DASHBOARD: '/manager/dashboard',
