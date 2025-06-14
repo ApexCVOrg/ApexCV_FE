@@ -10,17 +10,20 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "@/services/api";
 import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
+import { Checkbox, ListItemText } from "@mui/material";
+import { PRODUCT_LABELS } from '@/types/components/label';
 
 interface Product {
-    id: string;
+    _id: string;
     name: string;
     description: string;
     price: number;
-    categories: (string | { id: string; name: string })[];
+    categories: string[];
     status: "active" | "inactive";
     createdAt: string;
     updatedAt: string;
     brand?: string | Brand;
+    label?: string[];
 }
 
 interface ProductFormData {
@@ -35,6 +38,7 @@ interface ProductFormData {
     colors: string[];
     tags: string[];
     status: "active" | "inactive";
+    label?: string[];
 }
 
 interface Brand {
@@ -44,7 +48,7 @@ interface Brand {
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+    const [categories, setCategories] = useState<{ _id: string; name: string; parentCategory: string | null }[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
@@ -61,13 +65,17 @@ export default function ProductsPage() {
         colors: [],
         tags: [],
         status: "active",
+        label: [],
     });
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
         open: false, message: "", severity: "success"
     });
-    const [tagInput, setTagInput] = useState("");
     const [colorInput, setColorInput] = useState("");
     const [imageInput, setImageInput] = useState("");
+
+
+    // 1. Get subCategories (categories with parentCategory != null)
+    const subCategories = categories.filter(cat => cat.parentCategory);
 
     // Fetch products and categories
     const fetchProducts = async () => {
@@ -83,7 +91,7 @@ export default function ProductsPage() {
     };
     const fetchCategories = async () => {
         try {
-            const res = await api.get<{ id: string; name: string }[]>(API_ENDPOINTS.MANAGER.CATEGORIES);
+            const res = await api.get<{ _id: string; name: string; parentCategory: string | null }[]>(API_ENDPOINTS.MANAGER.CATEGORIES);
             setCategories(res.data);
         } catch { }
     };
@@ -114,13 +122,14 @@ export default function ProductsPage() {
                 description: product.description,
                 price: product.price,
                 discountPrice: undefined,
-                categories: product.categories ? product.categories.map(cat => typeof cat === 'string' ? cat : cat.id) : [],
+                categories: product.categories || [],
                 brand: "",
                 images: [],
                 sizes: [],
                 colors: [],
                 tags: [],
                 status: product.status,
+                label: Array.isArray(product.label) ? product.label : product.label ? [product.label] : [],
             });
         } else {
             setSelectedProduct(null);
@@ -136,6 +145,7 @@ export default function ProductsPage() {
                 colors: [],
                 tags: [],
                 status: "active",
+                label: [],
             });
         }
         setOpenDialog(true);
@@ -156,6 +166,7 @@ export default function ProductsPage() {
             colors: [],
             tags: [],
             status: "active",
+            label: [],
         });
     };
 
@@ -163,12 +174,13 @@ export default function ProductsPage() {
         e.preventDefault();
         try {
             const url = selectedProduct
-                ? `${API_ENDPOINTS.MANAGER.PRODUCTS}/${selectedProduct.id}`
+                ? `${API_ENDPOINTS.MANAGER.PRODUCTS}/${selectedProduct._id}`
                 : API_ENDPOINTS.MANAGER.PRODUCTS;
             const method = selectedProduct ? "put" : "post";
             const submitData = {
                 ...formData,
-                categories: formData.categories.map(cat => typeof cat === 'string' ? cat : cat.id),
+                categories: formData.categories.map(cat => typeof cat === 'string' ? cat : cat),
+                label: formData.label,
             };
             await api[method](url, submitData);
             setSnackbar({
@@ -234,12 +246,16 @@ export default function ProductsPage() {
         return '-';
     };
 
-    // Helper: Lấy tên hoặc objectId category
-    const getCategoryDisplay = (cat: string | { id: string; name: string }) => {
-        if (!cat) return '-';
-        if (typeof cat === 'string') return cat; // objectId
-        if (typeof cat === 'object' && cat !== null) return cat.name;
-        return '-';
+    // Helper: Lấy tên category từ string hoặc object
+    const getCategoryDisplay = (cat: string | { _id: string; name: string }) => {
+        if (typeof cat === 'string') {
+            const found = categories.find(c => c._id === cat);
+            return found ? found.name : cat;
+        }
+        if (typeof cat === 'object' && cat !== null) {
+            return cat.name || (cat._id && (categories.find(c => c._id === cat._id)?.name)) || '[object Object]';
+        }
+        return '';
     };
 
     return (
@@ -261,6 +277,7 @@ export default function ProductsPage() {
                             <TableCell>Brand</TableCell>
                             <TableCell>Status</TableCell>
                             <TableCell>Created At</TableCell>
+                            <TableCell>Label</TableCell>
                             <TableCell align="right">Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -275,21 +292,31 @@ export default function ProductsPage() {
                             </TableRow>
                         ) : (
                             products.map(product => (
-                                <TableRow key={product.id}>
+                                <TableRow key={product._id}>
                                     <TableCell>{product.name}</TableCell>
                                     <TableCell>{product.description}</TableCell>
                                     <TableCell>{product.price}</TableCell>
-                                    <TableCell>{product.categories && product.categories.length > 0 ? product.categories.map(getCategoryDisplay).join(', ') : '-'}</TableCell>
+                                    <TableCell>
+                                        {product.categories && product.categories.length > 0
+                                            ? product.categories.map(getCategoryDisplay).join(', ')
+                                            : '-'}
+                                    </TableCell>
                                     <TableCell>{getBrandName(product.brand)}</TableCell>
                                     <TableCell>
                                         <Chip label={product.status} color={product.status === "active" ? "success" : "default"} size="small" />
                                     </TableCell>
                                     <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                                    <TableCell>
+                                        {product.label && product.label.length > 0 ? product.label.map(l => {
+                                            const labelObj = PRODUCT_LABELS.find(opt => opt.value === l);
+                                            return labelObj ? labelObj.label : l;
+                                        }).join(', ') : '-'}
+                                    </TableCell>
                                     <TableCell align="right">
                                         <IconButton size="small" onClick={() => handleOpenDialog(product)} sx={{ mr: 1 }}>
                                             <EditIcon />
                                         </IconButton>
-                                        <IconButton size="small" onClick={() => handleDelete(product.id)} color="error">
+                                        <IconButton size="small" onClick={() => handleDelete(product._id)} color="error">
                                             <DeleteIcon />
                                         </IconButton>
                                     </TableCell>
@@ -311,26 +338,37 @@ export default function ProductsPage() {
                             <TextField name="discountPrice" label="Discount Price" type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
                             {/* Categories multi-select */}
                             <FormControl fullWidth required>
-                                <InputLabel>Categories</InputLabel>
+                                <InputLabel id="categories-label">Categories</InputLabel>
                                 <Select
+                                    labelId="categories-label"
                                     multiple
                                     value={formData.categories}
                                     onChange={(e) => {
-                                        const value = e.target.value as string[];
+                                        const { value } = e.target;
                                         setFormData(prev => ({
                                             ...prev,
-                                            categories: value
+                                            categories: typeof value === "string" ? value.split(",") : value,
                                         }));
                                     }}
                                     label="Categories"
+                                    renderValue={(selected) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {selected.map((value, idx) => {
+                                                const category = categories.find(cat => cat._id === value);
+                                                return <Chip key={value + '-' + idx} label={category?.name || value} />;
+                                            })}
+                                        </Box>
+                                    )}
                                 >
-                                    {categories.map(cat => (
-                                        <MenuItem key={cat.id} value={cat.id}>
-                                            {cat.name}
+                                    {categories.map((cat) => (
+                                        <MenuItem key={cat._id} value={cat._id}>
+                                            <Checkbox checked={formData.categories.indexOf(cat._id) > -1} />
+                                            <ListItemText primary={cat.name} />
                                         </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
+
                             {/* Brand select */}
                             <TextField
                                 name="brand"
@@ -414,27 +452,70 @@ export default function ProductsPage() {
                                     ))}
                                 </Stack>
                             </Box>
-                            {/* Tags */}
-                            <Box>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <TextField
-                                        label="Add Tag"
-                                        value={tagInput}
-                                        onChange={e => setTagInput(e.target.value)}
-                                        size="small"
-                                    />
-                                    <Button onClick={() => { handleAddTag("tags", tagInput); setTagInput(""); }} variant="outlined" size="small">Add</Button>
-                                </Stack>
-                                <Stack direction="row" spacing={1} mt={1}>
-                                    {formData.tags.map((tag, idx) => (
-                                        <Chip
-                                            key={idx}
-                                            label={tag}
-                                            onDelete={() => handleDeleteTag("tags", idx)}
-                                        />
+                            {/* Label (multi-select) */}
+                            <FormControl fullWidth required>
+                                <InputLabel id="label-label">Label</InputLabel>
+                                <Select
+                                    labelId="label-label"
+                                    multiple
+                                    value={formData.label}
+                                    onChange={e => {
+                                        const { value } = e.target;
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            label: typeof value === 'string' ? value.split(',') : value,
+                                        }));
+                                    }}
+                                    label="Label"
+                                    renderValue={(selected) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {selected.map((value, idx) => {
+                                                const labelObj = PRODUCT_LABELS.find(l => l.value === value);
+                                                return <Chip key={value + '-' + idx} label={labelObj ? labelObj.label : value} />;
+                                            })}
+                                        </Box>
+                                    )}
+                                >
+                                    {PRODUCT_LABELS.map(option => (
+                                        <MenuItem key={option.value} value={option.value}>
+                                            <Checkbox checked={(formData.label || []).indexOf(option.value) > -1} />
+                                            <ListItemText primary={option.label} />
+                                        </MenuItem>
                                     ))}
-                                </Stack>
-                            </Box>
+                                </Select>
+                            </FormControl>
+                            {/* Tags (multi-select, like categories) */}
+                            <FormControl fullWidth>
+                                <InputLabel id="tags-label">Tags (SubCategories)</InputLabel>
+                                <Select
+                                    labelId="tags-label"
+                                    multiple
+                                    value={formData.tags}
+                                    onChange={e => {
+                                        const { value } = e.target;
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            tags: typeof value === 'string' ? value.split(',') : value,
+                                        }));
+                                    }}
+                                    label="Tags (SubCategories)"
+                                    renderValue={(selected) => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {selected.map((value, idx) => {
+                                                const sub = subCategories.find(s => s._id === value);
+                                                return <Chip key={value + '-' + idx} label={sub?.name || value} />;
+                                            })}
+                                        </Box>
+                                    )}
+                                >
+                                    {subCategories.map(sub => (
+                                        <MenuItem key={sub._id} value={sub._id}>
+                                            <Checkbox checked={formData.tags.indexOf(sub._id) > -1} />
+                                            <ListItemText primary={sub.name} />
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Stack>
                     </DialogContent>
                     <DialogActions>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ReactNode, useEffect } from "react";
+import React, { useState, ReactNode, useEffect, useCallback } from "react";
 import {
     CssBaseline,
     Box,
@@ -24,7 +24,7 @@ import {
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme as useCustomTheme } from "@/hooks/useTheme";
-import { ROUTES, MANAGER, API_ENDPOINTS } from "@/lib/constants/constants";
+import { ROUTES, MANAGER } from "@/lib/constants/constants";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -35,6 +35,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
+import HomeIcon from "@mui/icons-material/Home";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Các ngôn ngữ hỗ trợ
@@ -57,17 +58,17 @@ export default function RootLayout({ children }: RootLayoutProps) {
     const open = Boolean(anchorEl);
 
     // Lấy ngôn ngữ hiện tại từ URL
-    const getCurrentLanguage = (): Language => {
+    const getCurrentLanguage = useCallback((): Language => {
         const pathParts = pathname?.split('/') || [];
         if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
             return pathParts[1] as Language;
         }
         return 'en';
-    };
+    }, [pathname]);
 
     useEffect(() => {
         setLanguage(getCurrentLanguage());
-    }, [pathname]);
+    }, [pathname, getCurrentLanguage]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
@@ -100,7 +101,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
         router.push('/auth/login');
     };
 
+    const handleHome = () => {
+        handleClose();
+        router.push(ROUTES.HOME);
+    };
+
     const menuItems = [
+        { icon: <HomeIcon />, text: t("home"), href: ROUTES.HOME },
         { icon: <DashboardIcon />, text: t("dashboard"), href: ROUTES.MANAGER.DASHBOARD },
         { icon: <InventoryIcon />, text: t("products"), href: ROUTES.MANAGER.PRODUCTS },
         { icon: <CategoryIcon />, text: t("categories"), href: ROUTES.MANAGER.CATEGORIES },
@@ -324,6 +331,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
                     >
+                        <MenuItem onClick={handleHome}>
+                            <ListItemIcon>
+                                <HomeIcon fontSize="small" />
+                            </ListItemIcon>
+                            Home
+                        </MenuItem>
                         <MenuItem onClick={handleClose}>
                             <ListItemIcon>
                                 <PersonIcon fontSize="small" />

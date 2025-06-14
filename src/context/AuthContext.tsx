@@ -4,9 +4,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Định nghĩa type cho user
+interface User {
+  id: string;
+  email: string;
+  fullName?: string;
+  role?: string;
+  // Thêm các trường khác nếu cần
+}
+
 interface AuthState {
   token: string | null;
-  user: any | null;
+  user: User | null;
 }
 
 interface AuthContextProps extends AuthState {
@@ -18,7 +27,7 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {

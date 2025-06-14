@@ -1,8 +1,8 @@
 {
   "hero": {
-    "title": "Khám phá Bộ Sưu Tập Mới Nhất",
+    "title": "Khám Phá Bộ Sưu Tập Mới Nhất",
     "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
-    "getStarted": "Bắt đầu",
+    "getStarted": "Bắt Đầu",
     "viewTemplates": "Xem Mẫu"
   },
   "productCard": {
@@ -12,7 +12,7 @@
     "uncategorized": "Chưa phân loại"
   },
   "categories": {
-    "title": "Mua theo Danh Mục"
+    "title": "Mua Theo Danh Mục"
   },
   "promo": {
     "title": "Ưu Đãi Đặc Biệt",
@@ -42,8 +42,9 @@
       "newCustomers": "Khách Hàng Mới"
     },
     "layout": {
+      "home": "Trang Chủ",
       "managerDashboard": "Bảng Điều Khiển Quản Lý",
-      "helloManager": "Xin chào, Quản lý",
+      "helloManager": "Xin Chào, Quản Lý",
       "dashboard": "Bảng Điều Khiển",
       "products": "Sản Phẩm",
       "categories": "Danh Mục",
@@ -64,7 +65,7 @@
       "createdAt": "Ngày Tạo",
       "actions": "Hành Động",
       "loading": "Đang tải danh mục...",
-      "noCategories": "Không có danh mục nào",
+      "noCategories": "Không tìm thấy danh mục nào",
       "cancel": "Hủy",
       "create": "Tạo",
       "update": "Cập Nhật",
@@ -81,17 +82,23 @@
     }
   },
   "login": {
-    "title": "Đăng nhập vào tài khoản của bạn",
-    "subtitle": "Bạn chưa có tài khoản?",
-    "registerLink": "Đăng ký",
-    "email": "Email",
-    "password": "Mật khẩu",
-    "login": "Đăng nhập",
-    "loginButton": "Đăng nhập",
-    "forgotPassword": "Quên mật khẩu?"
+    "title": "Đăng Nhập",
+    "noAccount": "Chưa có tài khoản?",
+    "registerNow": "Đăng ký ngay",
+    "emailLabel": "Email",
+    "passwordLabel": "Mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "loggingIn": "Đang đăng nhập...",
+    "loginButton": "Đăng Nhập",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "loginWithFacebook": "Đăng nhập với Facebook",
+    "usernameLabel": "Tên đăng nhập",
+    "profile": "Hồ Sơ",
+    "logout": "Đăng Xuất"
   },
   "register": {
-    "title": "Tạo tài khoản mới",
+    "title": "Tạo Tài Khoản Mới",
     "username": "Tên đăng nhập",
     "fullName": "Họ và tên",
     "email": "Email",
@@ -108,7 +115,7 @@
     "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
     "subtitle": "Đã có tài khoản?",
     "loginLink": "Đăng nhập",
-    "register": "Đăng ký",
+    "register": "Đăng Ký",
     "alreadyHaveAccount": "Đã có tài khoản?",
     "signIn": "Đăng nhập",
     "continueWithGoogle": "Tiếp tục với Google",
@@ -210,11 +217,75 @@
     }
   },
   "forgotPassword": {
-    "title": "Quên mật khẩu?",
-    "subtitle": "Nhập email để nhận liên kết đặt lại mật khẩu",
-    "email": "Email",
-    "reset": "Đặt lại mật khẩu",
-    "resetButton": "Đặt lại mật khẩu",
-    "backToLogin": "Quay lại đăng nhập"
+    "title": "QUÊN MẬT KHẨU",
+    "description": "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+    "emailSent": "✓ Email đã được gửi thành công!",
+    "checkEmail": "Vui lòng kiểm tra hộp thư và làm theo hướng dẫn để đặt lại mật khẩu.",
+    "emailLabel": "Địa Chỉ Email",
+    "emailPlaceholder": "Nhập địa chỉ email của bạn",
+    "sendResetLink": "GỬI MÃ OTP",
+    "sendingEmail": "ĐANG GỬI EMAIL...",
+    "backToLogin": "Quay lại đăng nhập",
+    "resendEmail": "Gửi lại email",
+    "resendingEmail": "Đang gửi lại email...",
+    "goToLogin": "Đi đến đăng nhập",
+    "errors": {
+      "emailRequired": "Vui lòng nhập địa chỉ email của bạn",
+      "invalidEmail": "Địa chỉ email không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+      "resendFailed": "Không thể gửi lại email. Vui lòng thử lại."
+    }
+  },
+  "resetPassword": {
+    "title": "ĐẶT LẠI MẬT KHẨU",
+    "description": "Vui lòng nhập mật khẩu mới của bạn bên dưới.",
+    "successMessage": "✓ Mật khẩu của bạn đã được đặt lại thành công!",
+    "passwordLabel": "Mật Khẩu Mới",
+    "confirmPasswordLabel": "Xác Nhận Mật Khẩu Mới",
+    "resetButton": "ĐẶT LẠI MẬT KHẨU",
+    "resetting": "ĐANG ĐẶT LẠI...",
+    "backToLogin": "Quay lại đăng nhập",
+    "goToLogin": "Đi đến đăng nhập",
+    "newPassword": "Mật Khẩu Mới",
+    "confirmPassword": "Xác Nhận Mật Khẩu Mới",
+    "errors": {
+      "passwordRequired": "Vui lòng nhập mật khẩu mới của bạn",
+      "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu mới của bạn",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "invalidToken": "Mã đặt lại không hợp lệ hoặc đã hết hạn",
+      "resetFailed": "Không thể đặt lại mật khẩu",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyOTP": {
+    "title": "XÁC MINH OTP",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC MINH MÃ",
+    "verifying": "ĐANG XÁC MINH...",
+    "resendOTP": "Gửi lại mã",
+    "resendIn": "Gửi lại mã sau {seconds} giây",
+    "backToLogin": "Quay lại đăng nhập",
+    "goToLogin": "Đi đến đăng nhập",
+    "resendEmail": "Gửi lại email",
+    "resendingEmail": "Đang gửi lại email...",
+    "errors": {
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác minh",
+      "verificationFailed": "Mã xác minh không hợp lệ",
+      "resendFailed": "Không thể gửi lại mã",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyMail": {
+    "title": "XÁC MINH EMAIL",
+    "description": "Vui lòng nhập mã xác minh 6 chữ số đã được gửi đến email của bạn.",
+    "verificationCodeLabel": "Mã Xác Minh",
+    "verifyButton": "XÁC MINH MÃ",
+    "verifying": "ĐANG XÁC MINH...",
+    "backToRegistration": "Quay lại đăng ký",
+    "errors": {
+      "verificationFailed": "Mã xác minh không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
   }
 }
