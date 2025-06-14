@@ -25,6 +25,7 @@ import Phone from '@mui/icons-material/Phone';
 import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import LockIcon from '@mui/icons-material/Lock';
 import { profileService, UserProfile, Address } from '@/services/profile';
 import { styled } from '@mui/material/styles';
 
@@ -284,15 +285,52 @@ export default function ProfilePage() {
             {isEditing && <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}><ModernButton variant="contained" startIcon={<AddIcon />} onClick={handleAddAddress}>{t('addAddress')}</ModernButton></Box>}
           </Box>
 
-          <Box sx={{ mt: 6, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            {!isEditing ? (
-              <ModernButton variant="contained" startIcon={<EditIcon />} onClick={handleEdit}>{t('editProfile')}</ModernButton>
-            ) : (
-              <>
-                <ModernButton variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} sx={{ background: 'white', color: '#222', borderColor: '#222' }}>{t('cancel')}</ModernButton>
-                <ModernButton variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{t('saveChanges')}</ModernButton>
-              </>
-            )}
+          <Box sx={{ mt: 6, display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+            <ModernButton
+              variant="outlined"
+              startIcon={<LockIcon />}
+              onClick={() => router.push('/auth/change-password')}
+              sx={{ 
+                borderColor: '#666', 
+                color: '#666',
+                '&:hover': {
+                  borderColor: '#000',
+                  color: '#000',
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)'
+                }
+              }}
+            >
+              {t('changePassword')}
+            </ModernButton>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              {!isEditing ? (
+                <ModernButton
+                  variant="contained"
+                  startIcon={<EditIcon />}
+                  onClick={handleEdit}
+                >
+                  {t('editProfile')}
+                </ModernButton>
+              ) : (
+                <>
+                  <ModernButton
+                    variant="outlined"
+                    startIcon={<CancelIcon />}
+                    onClick={handleCancel}
+                    sx={{ background: 'white', color: '#222', borderColor: '#222' }}
+                  >
+                    {t('cancel')}
+                  </ModernButton>
+                  <ModernButton
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    onClick={handleSave}
+                  >
+                    {t('saveChanges')}
+                  </ModernButton>
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
       </ProfileCard>

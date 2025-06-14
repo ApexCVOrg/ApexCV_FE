@@ -317,8 +317,22 @@
     "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
     "verified": "Đã xác thực",
     "loading": "Đang tải...",
+    "changePassword": "Đổi Mật Khẩu",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và chọn mật khẩu mới",
     "errors": {
       "loadFailed": "Lỗi tải dữ liệu"
     }
+  },
+  "changePassword": {
+    "changePassword": "Đổi Mật Khẩu",
+    "title": "Đổi Mật Khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "submit": "Đổi mật khẩu",
+    "success": "Đổi mật khẩu thành công",
+    "error": "Đổi mật khẩu thất bại",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn",
+    "cancel": "Hủy"
   }
 }

@@ -310,7 +310,6 @@
     "addAddress": "Add Address",
     "editProfile": "Edit Profile",
     "saveChanges": "Save Changes",
-    "cancel": "Cancel",
     "delete": "Delete",
     "recipientName": "Recipient Name",
     "street": "Street",
@@ -321,8 +320,29 @@
     "setAsDefaultAddress": "Set as default address",
     "verified": "Verified",
     "loading": "Loading...",
+    "changePasswordDescription": "Please enter your current password and choose a new password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordsDoNotMatch": "New passwords do not match",
+    "changePasswordError": "Failed to change password",
+    "changePasswordSuccess": "Password changed successfully",
+    "cancel": "Cancel",
+    "changePassword": "Change Password",
     "errors": {
       "loadFailed": "Failed to load user data"
     }
+  },
+  "changePassword": {
+    "changePassword": "Change Password",
+    "title": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Change Password",
+    "success": "Password changed successfully",
+    "error": "Failed to change password",
+    "changePasswordDescription": "Please enter your current password and new password",
+    "cancel": "Cancel"
   }
 }
