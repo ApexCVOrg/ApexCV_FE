@@ -277,15 +277,62 @@
     }
   },
   "verifyMail": {
-    "title": "XÁC MINH EMAIL",
-    "description": "Vui lòng nhập mã xác minh 6 chữ số đã được gửi đến email của bạn.",
-    "verificationCodeLabel": "Mã Xác Minh",
-    "verifyButton": "XÁC MINH MÃ",
-    "verifying": "ĐANG XÁC MINH...",
-    "backToRegistration": "Quay lại đăng ký",
-    "errors": {
-      "verificationFailed": "Mã xác minh không hợp lệ",
-      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    "title": "XÁC THỰC EMAIL",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC THỰC MÃ",
+    "verifying": "ĐANG XÁC THỰC...",
+    "resendEmail": "Gửi lại Email",
+    "resendingEmail": "Đang gửi lại Email...",
+    "backToRegistration": "Quay lại Đăng ký",
+    "verificationCodeLabel": "Mã xác thực",
+    "error": {
+      "invalidEmail": "Email không hợp lệ",
+      "emailRequired": "Vui lòng nhập email",
+      "emailAlreadyUsed": "Email đã được sử dụng",
+      "invalidCode": "Mã xác thực không hợp lệ",
+      "invalidToken": "Mã xác thực không hợp lệ",
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác thực",
+      "verificationFailed": "Mã xác thực không hợp lệ",
+      "resendFailed": "Gửi lại mã thất bại",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
     }
+  },
+  "profile": {
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "addresses": "Địa chỉ",
+    "noAddress": "Không có địa chỉ",
+    "addAddress": "Thêm địa chỉ",
+    "editProfile": "Chỉnh sửa",
+    "saveChanges": "Lưu thay đổi",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "recipientName": "Tên người nhận",
+    "street": "Đường",
+    "city": "Thành phố",
+    "state": "Tỉnh/Thành phố",
+    "country": "Quốc gia",
+    "addressNumber": "Số nhà (Tùy chọn)",
+    "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
+    "verified": "Đã xác thực",
+    "loading": "Đang tải...",
+    "changePassword": "Đổi Mật Khẩu",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và chọn mật khẩu mới",
+    "errors": {
+      "loadFailed": "Lỗi tải dữ liệu"
+    }
+  },
+  "changePassword": {
+    "changePassword": "Đổi Mật Khẩu",
+    "title": "Đổi Mật Khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "submit": "Đổi mật khẩu",
+    "success": "Đổi mật khẩu thành công",
+    "error": "Đổi mật khẩu thất bại",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn",
+    "cancel": "Hủy"
   }
 }
