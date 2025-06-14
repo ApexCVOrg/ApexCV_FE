@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Container,
   Typography,
   TextField,
   Button,
@@ -12,7 +11,6 @@ import {
   CircularProgress,
   Alert,
   InputAdornment,
-  Grid,
   Chip,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -24,30 +22,20 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import Person from '@mui/icons-material/Person';
 import Email from '@mui/icons-material/Email';
 import Phone from '@mui/icons-material/Phone';
-import LocationOn from '@mui/icons-material/LocationOn';
-import AccountCircle from '@mui/icons-material/AccountCircle';
 import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { profileService, UserProfile, Address } from '@/services/profile';
 import { styled } from '@mui/material/styles';
 
-interface User {
-  id: number;
-  email: string;
-  fullName: string;
-  phone?: string;
-  address?: string;
-}
-
-const ProfileHeader = styled(Box)(({ theme }) => ({
+const ProfileHeader = styled(Box)({
   background: '#fff',
   borderBottom: '1px solid #e0e0e0',
   padding: '48px 0 32px 0',
   textAlign: 'center',
   color: '#222',
   position: 'relative',
-}));
+});
 
 const ProfileCard = styled(Paper)(({ theme }) => ({
   borderRadius: 28,
@@ -84,7 +72,7 @@ const ModernInput = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const ModernButton = styled(Button)(({ theme }) => ({
+const ModernButton = styled(Button)({
   borderRadius: 24,
   fontWeight: 700,
   fontSize: '1rem',
@@ -101,7 +89,7 @@ const ModernButton = styled(Button)(({ theme }) => ({
     background: '#e0e0e0',
     color: '#888',
   },
-}));
+});
 
 const AddressCard = styled(Box)(({ theme }) => ({
   background: '#fafafa',
@@ -117,54 +105,9 @@ const AddressCard = styled(Box)(({ theme }) => ({
   },
 }));
 
-const inputStyle = {
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 0,
-    '& fieldset': {
-      borderColor: 'black',
-      borderWidth: 2,
-    },
-    '&:hover fieldset': {
-      borderColor: 'black',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: 'black',
-    },
-    '&.Mui-error fieldset': {
-      borderColor: 'red',
-    },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'black',
-    fontWeight: 600,
-    '&.Mui-focused': {
-      color: 'black',
-    },
-    '&.Mui-error': {
-      color: 'red',
-    },
-  },
-  '& .MuiFormHelperText-root': {
-    color: 'red',
-    fontWeight: 500,
-  },
-};
-
-const buttonStyle = {
-  borderRadius: 0,
-  backgroundColor: 'black',
-  color: 'white',
-  fontWeight: 900,
-  fontSize: '1.1rem',
-  letterSpacing: '0.1em',
-  padding: '16px',
-  '&:hover': { backgroundColor: '#333' },
-  '&:active': { backgroundColor: '#000' },
-};
-
 export default function ProfilePage() {
   const t = useTranslations('profile');
-  const { getCurrentUser, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -194,7 +137,7 @@ export default function ProfilePage() {
           phone: userData.phone || '',
           addresses: userData.addresses || [],
         });
-      } catch (err) {
+      } catch {
         setError('Failed to load user data');
       } finally {
         setLoading(false);
@@ -204,10 +147,7 @@ export default function ProfilePage() {
     fetchUserData();
   }, [router, isAuthenticated]);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
+  const handleEdit = () => setIsEditing(true);
   const handleCancel = () => {
     setIsEditing(false);
     setFormData({
@@ -225,19 +165,17 @@ export default function ProfilePage() {
         const token = localStorage.getItem('auth_token');
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/send-email-change-verification`, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
           body: JSON.stringify({ email: formData.email }),
         });
-
         const data = await response.json();
         if (!response.ok) {
           setError(data.message || 'Failed to send verification code');
           return;
         }
-
         localStorage.setItem('pendingEmail', formData.email);
         router.push('/auth/verify-email');
         return;
@@ -245,7 +183,7 @@ export default function ProfilePage() {
       const updatedUser = await profileService.updateProfile(formData);
       setUser(updatedUser);
       setIsEditing(false);
-    } catch (err) {
+    } catch {
       setError('Failed to update profile');
     } finally {
       setLoading(false);
@@ -254,16 +192,13 @@ export default function ProfilePage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleAddressChange = (index: number, field: keyof Address, value: string) => {
     setFormData(prev => ({
       ...prev,
-      addresses: prev.addresses.map((addr, i) => 
+      addresses: prev.addresses.map((addr, i) =>
         i === index ? { ...addr, [field]: value } : addr
       ),
     }));
@@ -296,12 +231,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="80vh"
-      >
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
         <CircularProgress />
       </Box>
     );
@@ -312,206 +242,55 @@ export default function ProfilePage() {
       <ProfileHeader>
         <Avatar
           src={user?.avatar}
-          sx={{
-            width: 128,
-            height: 128,
-            margin: '0 auto',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-            border: '4px solid #fff',
-            marginBottom: 2,
-          }}
+          sx={{ width: 128, height: 128, margin: '0 auto', boxShadow: '0 4px 24px rgba(0,0,0,0.12)', border: '4px solid #fff', marginBottom: 2 }}
         />
-        <Typography variant="h3" sx={{ fontWeight: 900, mt: 2, letterSpacing: '-0.02em' }}>
-          {user?.fullName}
-        </Typography>
+        <Typography variant="h3" sx={{ fontWeight: 900, mt: 2, letterSpacing: '-0.02em' }}>{user?.fullName}</Typography>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center', gap: 1 }}>
           {user?.role && (
-            <Chip
-              icon={<VerifiedUser />}
-              label={(user.role || '').toUpperCase()}
-              color="default"
-              variant="filled"
-              sx={{ fontWeight: 700, fontSize: 14, bgcolor: '#222', color: '#fff' }}
-            />
+            <Chip icon={<VerifiedUser />} label={user.role.toUpperCase()} color="default" variant="filled" sx={{ fontWeight: 700, fontSize: 14, bgcolor: '#222', color: '#fff' }} />
           )}
           {user?.isVerified && (
-            <Chip
-              icon={<VerifiedUser />}
-              label="Verified"
-              color="success"
-              variant="filled"
-              sx={{ fontWeight: 700, fontSize: 14 }}
-            />
+            <Chip icon={<VerifiedUser />} label="Verified" color="success" variant="filled" sx={{ fontWeight: 700, fontSize: 14 }} />
           )}
         </Box>
       </ProfileHeader>
       <ProfileCard>
         <Box sx={{ p: { xs: 2, md: 4 } }}>
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
-            <ModernInput
-              fullWidth
-              label={t('fullName')}
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Person />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <ModernInput
-              fullWidth
-              label={t('email')}
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Email />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <ModernInput
-              fullWidth
-              label={t('phone')}
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              disabled={!isEditing}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Phone />
-                  </InputAdornment>
-                ),
-              }}
-            />
+            <ModernInput fullWidth label={t('fullName')} name="fullName" value={formData.fullName} onChange={handleInputChange} disabled={!isEditing} InputProps={{ startAdornment: (<InputAdornment position="start"><Person /></InputAdornment>) }} />
+            <ModernInput fullWidth label={t('email')} name="email" value={formData.email} onChange={handleInputChange} disabled={!isEditing} InputProps={{ startAdornment: (<InputAdornment position="start"><Email /></InputAdornment>) }} />
+            <ModernInput fullWidth label={t('phone')} name="phone" value={formData.phone} onChange={handleInputChange} disabled={!isEditing} InputProps={{ startAdornment: (<InputAdornment position="start"><Phone /></InputAdornment>) }} />
           </Box>
 
-          {/* Address Section */}
           <Box sx={{ mt: 5 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#222' }}>
-              {t('addresses')}
-            </Typography>
-            {formData.addresses.length === 0 && (
-              <Typography color="text.secondary" sx={{ mb: 2 }}>
-                {t('noAddress')}
-              </Typography>
-            )}
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#222' }}>{t('addresses')}</Typography>
+            {formData.addresses.length === 0 && <Typography color="text.secondary" sx={{ mb: 2 }}>{t('noAddress')}</Typography>}
             {formData.addresses.map((address, index) => (
               <AddressCard key={index}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                  {isEditing && (
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleDeleteAddress(index)}
-                      size="small"
-                      sx={{ borderRadius: 12, fontWeight: 700 }}
-                    >
-                      {t('delete')}
-                    </Button>
-                  )}
+                  {isEditing && <Button variant="outlined" color="error" startIcon={<DeleteIcon />} onClick={() => handleDeleteAddress(index)} size="small" sx={{ borderRadius: 12, fontWeight: 700 }}>{t('delete')}</Button>}
                 </Box>
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-                  <ModernInput
-                    fullWidth
-                    label={t('recipientName')}
-                    value={address.recipientName}
-                    onChange={(e) => handleAddressChange(index, 'recipientName', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <ModernInput
-                    fullWidth
-                    label={t('street')}
-                    value={address.street}
-                    onChange={(e) => handleAddressChange(index, 'street', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <ModernInput
-                    fullWidth
-                    label={t('city')}
-                    value={address.city}
-                    onChange={(e) => handleAddressChange(index, 'city', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <ModernInput
-                    fullWidth
-                    label={t('state')}
-                    value={address.state}
-                    onChange={(e) => handleAddressChange(index, 'state', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <ModernInput
-                    fullWidth
-                    label={t('country')}
-                    value={address.country}
-                    onChange={(e) => handleAddressChange(index, 'country', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                  <ModernInput
-                    fullWidth
-                    label={t('addressNumber')}
-                    value={address.addressNumber}
-                    onChange={(e) => handleAddressChange(index, 'addressNumber', e.target.value)}
-                    disabled={!isEditing}
-                  />
+                  <ModernInput fullWidth label={t('recipientName')} value={address.recipientName} onChange={(e) => handleAddressChange(index, 'recipientName', e.target.value)} disabled={!isEditing} />
+                  <ModernInput fullWidth label={t('street')} value={address.street} onChange={(e) => handleAddressChange(index, 'street', e.target.value)} disabled={!isEditing} />
+                  <ModernInput fullWidth label={t('city')} value={address.city} onChange={(e) => handleAddressChange(index, 'city', e.target.value)} disabled={!isEditing} />
+                  <ModernInput fullWidth label={t('state')} value={address.state} onChange={(e) => handleAddressChange(index, 'state', e.target.value)} disabled={!isEditing} />
+                  <ModernInput fullWidth label={t('country')} value={address.country} onChange={(e) => handleAddressChange(index, 'country', e.target.value)} disabled={!isEditing} />
+                  <ModernInput fullWidth label={t('addressNumber')} value={address.addressNumber} onChange={(e) => handleAddressChange(index, 'addressNumber', e.target.value)} disabled={!isEditing} />
                 </Box>
               </AddressCard>
             ))}
-            {isEditing && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                <ModernButton
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={handleAddAddress}
-                >
-                  {t('addAddress')}
-                </ModernButton>
-              </Box>
-            )}
+            {isEditing && <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}><ModernButton variant="contained" startIcon={<AddIcon />} onClick={handleAddAddress}>{t('addAddress')}</ModernButton></Box>}
           </Box>
 
           <Box sx={{ mt: 6, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             {!isEditing ? (
-              <ModernButton
-                variant="contained"
-                startIcon={<EditIcon />}
-                onClick={handleEdit}
-              >
-                {t('editProfile')}
-              </ModernButton>
+              <ModernButton variant="contained" startIcon={<EditIcon />} onClick={handleEdit}>{t('editProfile')}</ModernButton>
             ) : (
               <>
-                <ModernButton
-                  variant="outlined"
-                  startIcon={<CancelIcon />}
-                  onClick={handleCancel}
-                  sx={{ background: 'white', color: '#222', borderColor: '#222' }}
-                >
-                  {t('cancel')}
-                </ModernButton>
-                <ModernButton
-                  variant="contained"
-                  startIcon={<SaveIcon />}
-                  onClick={handleSave}
-                >
-                  {t('saveChanges')}
-                </ModernButton>
+                <ModernButton variant="outlined" startIcon={<CancelIcon />} onClick={handleCancel} sx={{ background: 'white', color: '#222', borderColor: '#222' }}>{t('cancel')}</ModernButton>
+                <ModernButton variant="contained" startIcon={<SaveIcon />} onClick={handleSave}>{t('saveChanges')}</ModernButton>
               </>
             )}
           </Box>
@@ -519,4 +298,4 @@ export default function ProfilePage() {
       </ProfileCard>
     </Box>
   );
-} 
+}
