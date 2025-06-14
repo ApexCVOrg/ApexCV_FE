@@ -92,8 +92,15 @@ export default function Home() {
         });
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
-        const data = await response.json();
-        setProducts(data);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success) {
+          setProducts(result.data);
+        } else {
+          throw new Error(result.message);
+        }
       } catch (error) {
         console.error('Error fetching filtered products:', error);
       } finally {
