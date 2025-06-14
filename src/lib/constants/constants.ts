@@ -59,6 +59,8 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   PROFILE: '/profile',
   SETTINGS: '/settings',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  MANAGER_DASHBOARD: '/manager/dashboard',
   MEN: {
     ROOT: '/men',
     THUN_POLO: '/men/thunpolo',

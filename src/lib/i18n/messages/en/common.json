@@ -36,6 +36,7 @@
       "newCustomers": "New Customers"
     },
     "layout": {
+      "home": "Home",
       "managerDashboard": "Manager Dashboard",
       "helloManager": "Hello, Manager",
       "dashboard": "Dashboard",

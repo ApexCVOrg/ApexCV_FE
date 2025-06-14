@@ -133,11 +133,17 @@ export default function CategoriesPage() {
                 <TableRow key={cat._id}>
                   <TableCell>{cat.name}</TableCell>
                   <TableCell>{cat.description || "-"}</TableCell>
-                  <TableCell>{cat.parentCategory?.name || "-"}</TableCell>
+                  <TableCell>{
+                    typeof cat.parentCategory === 'object' && cat.parentCategory !== null
+                      ? cat.parentCategory.name
+                      : '-'
+                  }</TableCell>
                   <TableCell>
                     <Chip color={cat.status === "active" ? "success" : "default"} label={cat.status} size="small" />
                   </TableCell>
-                  <TableCell>{new Date(cat.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{
+                    cat.createdAt ? new Date(cat.createdAt).toLocaleDateString() : '-'
+                  }</TableCell>
                   <TableCell align="right">
                     <IconButton onClick={() => handleOpenForm(cat)} size="small" sx={{ mr: 1 }}>
                       <EditIcon />
@@ -156,16 +162,17 @@ export default function CategoriesPage() {
       <CategoryForm
         open={openForm}
         onClose={handleCloseForm}
-        onSubmit={handleSubmit}
+        onSubmit={(data) => handleSubmit({ ...data, parentCategory: data.parentCategory ?? undefined })}
         categories={categories}
+        title={selected ? 'Edit Category' : 'Add Category'}
         initialData={
-          selected
+          selected && typeof selected === 'object'
             ? {
-              name: selected.name,
-              description: selected.description,
-              parentCategory: selected.parentCategory?._id || "",
-              status: selected.status,
-            }
+                name: selected.name,
+                description: selected.description,
+                parentCategory: selected.parentCategory && typeof selected.parentCategory === 'object' ? selected.parentCategory._id : '',
+                status: selected.status,
+              }
             : undefined
         }
       />
