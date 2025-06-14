@@ -44,6 +44,8 @@ interface CategoryFormData {
   parentCategory?: string;
 }
 
+type ParentCategory = { _id: string; name: string };
+
 export default function CategoriesPage() {
   const router = useRouter();
   const t = useTranslations("manager.categories");
@@ -110,7 +112,9 @@ export default function CategoriesPage() {
         name: category.name,
         description: category.description,
         status: category.status,
-        parentCategory: category.parentCategory ? (category.parentCategory as any)._id : "",
+        parentCategory: typeof category.parentCategory === 'object' && category.parentCategory !== null
+          ? (category.parentCategory as ParentCategory)._id
+          : "",
       });
     } else {
       setSelectedCategory(null);
@@ -256,7 +260,7 @@ export default function CategoriesPage() {
                     {typeof category.parentCategory === 'string'
                       ? (categories.find(cat => cat._id === category.parentCategory)?.name || '-')
                       : (typeof category.parentCategory === 'object' && category.parentCategory !== null
-                        ? (category.parentCategory as any).name
+                        ? (category.parentCategory as { name: string }).name
                         : '-')}
                   </TableCell>
                   <TableCell>
@@ -328,7 +332,7 @@ export default function CategoriesPage() {
                 {categories
                   .filter(cat => !cat.parentCategory) // chỉ lấy các category là parent
                   .map(parentCat => (
-                    <option key={(parentCat as any)._id} value={(parentCat as any)._id}>
+                    <option key={parentCat._id} value={parentCat._id}>
                       {parentCat.name}
                     </option>
                   ))}

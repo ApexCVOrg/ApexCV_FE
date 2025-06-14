@@ -68,7 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
     useEffect(() => {
         setLanguage(getCurrentLanguage());
-    }, [pathname]);
+    }, [pathname, getCurrentLanguage]);
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
