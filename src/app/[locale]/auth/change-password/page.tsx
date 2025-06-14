@@ -129,13 +129,13 @@ export default function ChangePasswordPage() {
       } else {
         setError(response.data.message || t('error'));
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('error'));
+    } catch (err) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t('error'));
     } finally {
       setLoading(false);
     }
   };
-
   return (
     <Box sx={{ minHeight: '100vh', py: 4, px: 2 }}>
       <StyledPaper>
