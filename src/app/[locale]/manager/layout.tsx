@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, ReactNode, useEffect } from "react";
+import React, { useState, ReactNode, useEffect, useCallback } from "react";
 import {
     CssBaseline,
     Box,
@@ -58,13 +58,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
     const open = Boolean(anchorEl);
 
     // Lấy ngôn ngữ hiện tại từ URL
-    const getCurrentLanguage = (): Language => {
+    const getCurrentLanguage = useCallback((): Language => {
         const pathParts = pathname?.split('/') || [];
         if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
             return pathParts[1] as Language;
         }
         return 'en';
-    };
+    }, [pathname]);
 
     useEffect(() => {
         setLanguage(getCurrentLanguage());
