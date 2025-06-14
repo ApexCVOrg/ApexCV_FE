@@ -277,21 +277,6 @@
     }
   },
   "verifyMail": {
-    "title": "XÁC MINH EMAIL",
-    "description": "Vui lòng nhập mã xác minh 6 chữ số đã được gửi đến email của bạn.",
-    "verificationCodeLabel": "Mã Xác Minh",
-    "verifyButton": "XÁC MINH MÃ",
-    "verifying": "ĐANG XÁC MINH...",
-    "backToRegistration": "Quay lại đăng ký",
-    "errors": {
-      "verificationFailed": "Mã xác minh không hợp lệ",
-      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại."
-    }
-  }
-}
-
-  },
-  "verifyMail": {
     "title": "XÁC THỰC EMAIL",
     "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
     "verifyButton": "XÁC THỰC MÃ",
