@@ -50,7 +50,7 @@ const ProfileCard = styled(Paper)(({ theme }) => ({
   border: '1px solid #e0e0e0',
 }));
 
-const ModernInput = styled(TextField)(({ theme }) => ({
+const ModernInput = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     borderRadius: 12,
     background: '#fafafa',
@@ -70,7 +70,7 @@ const ModernInput = styled(TextField)(({ theme }) => ({
     fontWeight: 600,
     fontSize: 15,
   },
-}));
+});
 
 const ModernButton = styled(Button)({
   borderRadius: 24,
