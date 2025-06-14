@@ -14,6 +14,9 @@ import {
 import { useTranslations } from 'next-intl';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 
+// Thêm type cho category hỗ trợ cả id và _id
+export type CategoryLike = { id?: string; _id?: string; name: string };
+
 interface ProductCardProps {
   name: string;
   image: string;
@@ -24,7 +27,7 @@ interface ProductCardProps {
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
   labels?: ProductLabel[];
-  allCategories?: { _id: string; name: string }[];
+  allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
 }
 
@@ -171,9 +174,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
             {tags.map((tag) => {
               let displayTag = tag;
-              let found;
+              let found: CategoryLike | undefined;
               if (allCategories) {
-                found = allCategories.find(cat => String((cat as any).id ?? (cat as any)._id) === String(tag));
+                found = allCategories.find(cat => String(cat.id ?? cat._id) === String(tag));
                 if (found) displayTag = found.name;
               }
               if (typeof window !== 'undefined') {

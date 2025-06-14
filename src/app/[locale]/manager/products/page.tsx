@@ -11,7 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import api from "@/services/api";
 import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
 import { Checkbox, ListItemText } from "@mui/material";
-import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+import { PRODUCT_LABELS } from '@/types/components/label';
 
 interface Product {
     _id: string;
@@ -70,7 +70,6 @@ export default function ProductsPage() {
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
         open: false, message: "", severity: "success"
     });
-    const [tagInput, setTagInput] = useState("");
     const [colorInput, setColorInput] = useState("");
     const [imageInput, setImageInput] = useState("");
 

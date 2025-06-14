@@ -24,7 +24,7 @@ import {
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme as useCustomTheme } from "@/hooks/useTheme";
-import { ROUTES, MANAGER, API_ENDPOINTS } from "@/lib/constants/constants";
+import { ROUTES, MANAGER } from "@/lib/constants/constants";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import SettingsIcon from "@mui/icons-material/Settings";
