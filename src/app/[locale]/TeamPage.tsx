@@ -69,7 +69,6 @@ interface TeamPageProps {
 }
 
 export default function TeamPage({ teamName, gender }: TeamPageProps) {
-  console.log('TeamPage rendered with teamName:', teamName, 'and gender:', gender);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -94,7 +93,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         ]);
         setCategories(categoriesData);
         setBrands(brandsData);
-        console.log('[TeamPage] Categories loaded:', categoriesData);
 
         // Find the gender category (Men/Women)
         const genderCategory = categoriesData.find((cat: Category) => 
@@ -109,37 +107,17 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           );
 
           if (teamCategory) {
-            console.log('[TeamPage] Found team category:', {
-              id: teamCategory._id,
-              name: teamCategory.name,
-              parent: teamCategory.parentCategory?.name
-            });
-
             // Get all product type categories under the team
             const productTypeCategories = categoriesData.filter((cat: Category) => 
               cat.parentCategory?._id === teamCategory._id
             );
 
-            console.log('[TeamPage] Product type categories:', productTypeCategories.map((cat: Category) => ({
-              id: cat._id,
-              name: cat.name
-            })));
-
             // Set selected categories to include both team and its product types
             setSelectedCategories([teamCategory._id, ...productTypeCategories.map((cat: Category) => cat._id)]);
           } else {
-            console.log('[TeamPage] No team category found for:', {
-              teamName,
-              gender,
-              availableCategories: categoriesData.map((cat: Category) => ({
-                name: cat.name,
-                parent: cat.parentCategory?.name
-              }))
-            });
             setSelectedCategories([]);
           }
         } else {
-          console.log('[TeamPage] No gender category found for:', gender);
           setSelectedCategories([]);
         }
       } catch (error) {
@@ -151,13 +129,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
 
   useEffect(() => {
     const fetchFilteredProducts = async () => {
-      console.log('[TeamPage] Fetching products with params:', {
-        teamName,
-        gender,
-        selectedCategories,
-        selectedBrands,
-        sortBy
-      });
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
@@ -170,69 +141,43 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
-        console.log('[TeamPage] API URL:', apiUrl);
-        
         const response = await fetch(apiUrl);
         
         if (!response.ok) {
-          throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to fetch products: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log('[TeamPage] Raw API response:', data);
-        
-        // Filter products to ensure they match the team
-        const filteredProducts = data.filter((product: Product) => {
-          // Log the product's categories for debugging
-          console.log('[TeamPage] Checking product:', {
-            name: product.name,
-            categories: product.categories.map(cat => ({
-              name: cat.name,
-              parent: cat.parentCategory?.name,
-              grandParent: cat.parentCategory?.parentCategory?.name
-            }))
+        const result = await response.json();
+        if (result.success) {
+          // Filter products to ensure they match the team
+          const filteredProducts = result.data.filter((product: Product) => {
+            // Check if any category's parent is the team
+            return product.categories.some(cat => {
+              // Check if the category itself is the team
+              if (cat.name === teamName) return true;
+              
+              // Check if the category's parent is the team
+              if (cat.parentCategory?.name === teamName) return true;
+              
+              // Check if the category's grandparent is the team
+              if (cat.parentCategory?.parentCategory?.name === teamName) return true;
+              
+              return false;
+            });
           });
-
-          // Check if any category's parent is the team
-          const hasTeamCategory = product.categories.some(cat => {
-            // Check if the category itself is the team
-            if (cat.name === teamName) return true;
-            
-            // Check if the category's parent is the team
-            if (cat.parentCategory?.name === teamName) return true;
-            
-            // Check if the category's grandparent is the team
-            if (cat.parentCategory?.parentCategory?.name === teamName) return true;
-            
-            return false;
-          });
-
-          console.log('[TeamPage] Product match result:', {
-            productName: product.name,
-            hasTeamCategory
-          });
-
-          return hasTeamCategory;
-        });
-
-        console.log('[TeamPage] Final filtered products:', {
-          totalFiltered: filteredProducts.length,
-          products: filteredProducts.map((p: Product) => ({
-            id: p._id,
-            name: p.name,
-            categories: p.categories.map((c: { _id: string; name: string }) => c.name)
-          }))
-        });
-        
-        setProducts(filteredProducts);
-        setError(null);
+          
+          setProducts(filteredProducts);
+        } else {
+          throw new Error(result.message);
+        }
       } catch (err) {
-        console.error('[TeamPage] Error fetching products:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('[TeamPage] Error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
       }
     };
+
     fetchFilteredProducts();
   }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName]);
 
@@ -308,7 +253,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                   price={product.price || 0}
                   discountPrice={product.discountPrice}
                   tags={product.tags || []}
-                  brand={product.brand?.name || 'Unknown Brand'}
+                  brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                   categories={product.categories || []}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
                 />

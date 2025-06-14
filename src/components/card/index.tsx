@@ -20,7 +20,10 @@ interface ProductCardProps {
   price: number;
   discountPrice?: number;
   tags: string[];
-  brand: string;
+  brand: {
+    _id: string;
+    name: string;
+  };
   categories: { 
     _id: string; 
     name: string;
@@ -145,13 +148,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
           color="text.secondary"
           sx={{ mb: 1 }}
         >
-          {brand || t('productCard.unknownBrand')} - {categories?.map(cat => {
-            const categoryPath = [
-              cat.name,
-              cat.parentCategory?.name,
-              cat.parentCategory?.parentCategory?.name
-            ].filter(Boolean).reverse().join(' > ');
-            return categoryPath;
+          {brand?.name || t('productCard.unknownBrand')} - {categories?.map(cat => {
+            const pathParts = [];
+            if (cat.parentCategory?.parentCategory?.name) {
+              pathParts.push(cat.parentCategory.parentCategory.name);
+            }
+            if (cat.parentCategory?.name) {
+              pathParts.push(cat.parentCategory.name);
+            }
+            if (cat.name) {
+              pathParts.push(cat.name);
+            }
+            return pathParts.join(' > ');
           }).join(', ') || t('productCard.uncategorized')}
         </Typography>
         {tags.length > 0 && (

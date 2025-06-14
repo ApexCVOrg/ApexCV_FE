@@ -11,7 +11,7 @@ interface Product {
   price: number;
   discountPrice?: number;
   tags: string[];
-  brand: string;
+  brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
 }
 
@@ -24,12 +24,16 @@ export default function MenPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        setProducts(data);
+        const result = await response.json();
+        if (result.success) {
+          setProducts(result.data);
+        } else {
+          throw new Error(result.message);
+        }
       } catch (err: any) {
         setError(err.message);
         console.error('Error fetching products:', err);
@@ -68,7 +72,7 @@ export default function MenPage() {
           }}
         >
           <Typography variant="h2" component="h1" gutterBottom>
-           
+           MEN'S COLLECTION
           </Typography>
           <Button 
             variant="contained" 
@@ -97,17 +101,21 @@ export default function MenPage() {
               minWidth: '300px'
             }
           }}>
-            {['Shoes', 'Clothing', 'Accessories'].map((category) => (
-              <Card key={category} sx={{ height: '100%' }}>
+            {[
+              { name: 'Shoes', image: '/assets/images/giaynu.jpg' },
+              { name: 'Clothing', image: '/assets/images/aothun.jpg' },
+              { name: 'Accessories', image: '/assets/images/gangtay.jpg' }
+            ].map((category) => (
+              <Card key={category.name} sx={{ height: '100%' }}>
                 <CardMedia
                   component="img"
                   height="300"
-                  image={`/images/${category.toLowerCase()}.jpg`}
-                  alt={category}
+                  image={category.image}
+                  alt={category.name}
                 />
                 <CardContent>
                   <Typography variant="h6" align="center">
-                    {category}
+                    {category.name}
                   </Typography>
                 </CardContent>
               </Card>
@@ -155,7 +163,7 @@ export default function MenPage() {
                 price={product.price}
                 discountPrice={product.discountPrice}
                 tags={product.tags}
-                brand={product.brand}
+                brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                 categories={product.categories}
                 onAddToCart={() => handleAddToCart(product.name)}
               />
