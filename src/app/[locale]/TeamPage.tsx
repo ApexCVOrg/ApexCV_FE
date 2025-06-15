@@ -249,7 +249,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               >
                 <ProductCard
                   name={product.name || 'Unnamed Product'}
-                  image={product.images?.[0] ? `${process.env.NEXT_PUBLIC_API_URL}/uploads/${product.images[0]}` : '/images/placeholder.jpg'}
+                  image={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
                   price={product.price || 0}
                   discountPrice={product.discountPrice}
                   tags={product.tags || []}

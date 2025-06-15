@@ -1,8 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress } from "@mui/material";
+import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, IconButton } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 interface Product {
   _id: string;
@@ -16,9 +17,21 @@ interface Product {
 }
 
 export default function MenPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Function to get 6 random products
+  const getRandomProducts = (products: Product[]) => {
+    const shuffled = [...products].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 6);
+  };
+
+  // Function to refresh displayed products
+  const refreshProducts = () => {
+    setDisplayedProducts(getRandomProducts(allProducts));
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -30,7 +43,8 @@ export default function MenPage() {
         }
         const result = await response.json();
         if (result.success) {
-          setProducts(result.data);
+          setAllProducts(result.data);
+          setDisplayedProducts(getRandomProducts(result.data));
         } else {
           throw new Error(result.message);
         }
@@ -127,9 +141,21 @@ export default function MenPage() {
       {/* Featured Products */}
       <Box sx={{ py: 6, bgcolor: 'grey.100' }}>
         <Container maxWidth="lg">
-          <Typography variant="h4" component="h2" align="center" gutterBottom>
-            FEATURED PRODUCTS
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Typography variant="h4" component="h2">
+              FEATURED PRODUCTS
+            </Typography>
+            <IconButton 
+              onClick={refreshProducts}
+              sx={{ 
+                bgcolor: 'primary.main', 
+                color: 'white',
+                '&:hover': { bgcolor: 'primary.dark' }
+              }}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Box>
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
               <CircularProgress />
@@ -140,7 +166,7 @@ export default function MenPage() {
               Error: {error}
             </Typography>
           )}
-          {!loading && !error && products.length === 0 && (
+          {!loading && !error && displayedProducts.length === 0 && (
             <Typography variant="h6" align="center" sx={{ my: 4 }}>
               No products found.
             </Typography>
@@ -155,7 +181,7 @@ export default function MenPage() {
               minWidth: '250px'
             }
           }}>
-            {products.map((product) => (
+            {displayedProducts.map((product) => (
               <ProductCard
                 key={product._id}
                 name={product.name}
