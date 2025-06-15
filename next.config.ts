@@ -10,6 +10,7 @@ const nextConfig = {
     domains: [
       'localhost',
       'assets.adidas.com',
+      'brand.assets.adidas.com',
       'static.vecteezy.com',
       'upload.wikimedia.org',
       'dothethao.net.vn'

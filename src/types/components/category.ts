@@ -2,7 +2,7 @@ export interface Category {
   _id: string;
   name: string;
   description: string;
-  parentCategory?: string | Category | null;
+  parentCategory?: { _id: string; name: string } | null;
   status: 'active' | 'inactive';
   createdAt?: string;
   updatedAt?: string;

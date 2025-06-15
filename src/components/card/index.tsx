@@ -6,11 +6,12 @@ import {
   CardMedia,
   CardContent,
   Typography,
-  Box,
   Button,
-  Stack,
+  Box,
   Chip,
+  Stack,
 } from '@mui/material';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useTranslations } from 'next-intl';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 
@@ -36,9 +37,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   image,
   price,
   discountPrice,
-  tags = [],
+  tags,
   brand,
-  categories = [],
+  categories,
   onAddToCart,
   labels,
   allCategories,
@@ -67,26 +68,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
   if (!displayBrand) displayBrand = t('unknownBrand');
 
   return (
-    <Card
-      sx={{
-        maxWidth: 280,
-        borderRadius: 2,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-        cursor: 'pointer',
-        '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-        },
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <Card sx={{ 
+      maxWidth: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      '&:hover': {
+        boxShadow: 6,
+      },
+    }}>
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
-          height="280"
+          height="300"
           image={image}
           alt={name}
           sx={{ objectFit: 'cover' }}
@@ -128,51 +122,67 @@ const ProductCard: React.FC<ProductCardProps> = ({
           );
         })}
       </Box>
-
-      <CardContent sx={{ flexGrow: 1 }}>
+      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Typography
-          variant="subtitle1"
+          gutterBottom
+          variant="h6"
           component="h3"
-          sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2 }}
-          noWrap
-          title={name}
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            height: '3.6em',
+            lineHeight: '1.2em',
+          }}
         >
           {name}
         </Typography>
-
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Box sx={{ mb: 1 }}>
           {isDiscounted ? (
-            <>
-              <Typography variant="body1" color="error" sx={{ fontWeight: 'bold' }}>
-                {discountPrice?.toLocaleString('vi-VN', {
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography
+                variant="h6"
+                color="error"
+                sx={{ fontWeight: 'bold' }}
+              >
+                {discountPrice.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ textDecoration: 'line-through' }}>
-                {price?.toLocaleString('vi-VN', {
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textDecoration: 'line-through' }}
+              >
+                {price.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
                 })}
               </Typography>
-            </>
+            </Stack>
           ) : (
-            <Typography variant="body1" color="text.primary" sx={{ fontWeight: 'bold' }}>
-              {price?.toLocaleString('vi-VN', {
+            <Typography
+              variant="h6"
+              color="primary"
+              sx={{ fontWeight: 'bold' }}
+            >
+              {price.toLocaleString('vi-VN', {
                 style: 'currency',
                 currency: 'VND',
               })}
             </Typography>
           )}
-        </Stack>
+        </Box>
 
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
         </Typography>
-
-        {tags.length > 0 && (
+        {(tags || []).length > 0 && (
           <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
-            {tags.map((tag) => {
+            {(tags || []).map((tag) => {
               let displayTag = tag;
               let found: CategoryLike | undefined;
               if (allCategories) {
@@ -198,24 +208,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
             })}
           </Stack>
         )}
-      </CardContent>
-
-      <Box sx={{ p: 2 }}>
         <Button
           variant="contained"
-          fullWidth
-          sx={{
-            backgroundColor: '#000',
-            color: '#fff',
-            fontWeight: 'bold',
-            textTransform: 'uppercase',
-            '&:hover': { backgroundColor: '#333' },
-          }}
+          startIcon={<ShoppingCartIcon />}
           onClick={onAddToCart}
+          sx={{ mt: 'auto' }}
         >
           {t('addToCart')}
         </Button>
-      </Box>
+      </CardContent>
     </Card>
   );
 };
