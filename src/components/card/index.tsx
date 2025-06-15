@@ -87,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         {isDiscounted && (
           <Chip
-            label={t('productCard.sale')}
+            label={t('sale')}
             color="error"
             size="small"
             sx={{
@@ -214,7 +214,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={onAddToCart}
           sx={{ mt: 'auto' }}
         >
-          {t('productCard.addToCart')}
+          {t('addToCart')}
         </Button>
       </CardContent>
     </Card>
