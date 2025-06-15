@@ -107,7 +107,7 @@ export default function MenPage() {
           }}
         >
           <Typography variant="h2" component="h1" gutterBottom>
-           MEN'S COLLECTION
+           MEN&apos;S COLLECTION
           </Typography>
           <Button 
             variant="contained" 

@@ -25,20 +25,9 @@ export default function HorizontalFilterBar({
   sortBy, 
   onSortChange, 
   onFilterSort,
-  categories = []
 }: HorizontalFilterBarProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  // Lọc bỏ các category trùng tên, giữ lại category đầu tiên
-  const uniqueCategories = categories.reduce((acc, current) => {
-    const x = acc.find(item => item.name === current.name);
-    if (!x) {
-      return acc.concat([current]);
-    } else {
-      return acc;
-    }
-  }, [] as typeof categories);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);

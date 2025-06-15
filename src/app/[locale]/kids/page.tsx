@@ -49,8 +49,8 @@ export default function KidsPage() {
         } else {
           throw new Error(result.message);
         }
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
         console.error('Error fetching products:', err);
       } finally {
         setLoading(false);
@@ -86,7 +86,7 @@ export default function KidsPage() {
           }}
         >
           <Typography variant="h2" component="h1" gutterBottom>
-            KIDS' COLLECTION
+            KIDS&apos; COLLECTION
           </Typography>
           <Button 
             variant="contained" 

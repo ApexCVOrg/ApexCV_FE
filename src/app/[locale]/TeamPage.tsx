@@ -15,7 +15,6 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  Stack,
 } from '@mui/material';
 import ProductCard from '@/components/card';
 import HorizontalFilterBar from './HorizontalFilterBar';
