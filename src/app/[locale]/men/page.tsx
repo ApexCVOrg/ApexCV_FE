@@ -8,7 +8,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 interface Product {
   _id: string;
   name: string;
-  image: string;
+  images: string[];
   price: number;
   discountPrice?: number;
   tags: string[];
@@ -17,52 +17,73 @@ interface Product {
 }
 
 export default function MenPage() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Function to get 6 random products
-  const getRandomProducts = (products: Product[]) => {
-    const shuffled = [...products].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 6);
-  };
-
-  // Function to refresh displayed products
-  const refreshProducts = () => {
-    setDisplayedProducts(getRandomProducts(allProducts));
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 4;
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
         const result = await response.json();
         if (result.success) {
-          setAllProducts(result.data);
-          setDisplayedProducts(getRandomProducts(result.data));
+          setProducts(result.data);
+          setDisplayedProducts(result.data.slice(0, productsPerPage));
         } else {
           throw new Error(result.message);
         }
-      } catch (err: any) {
-        setError(err.message);
-        console.error('Error fetching products:', err);
+      } catch (err) {
+        console.error('[MenPage] Error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (productName: string) => {
-    console.log(`Added ${productName} to cart!`);
-    // Implement your add to cart logic here (e.g., Redux, Context API, etc.)
+  const refreshProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
+      const result = await response.json();
+      if (result.success) {
+        setProducts(result.data);
+        setCurrentPage(1);
+        setDisplayedProducts(result.data.slice(0, productsPerPage));
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (err) {
+      console.error('[MenPage] Error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handlePageChange = (newPage: number) => {
+    const startIndex = (newPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+    setDisplayedProducts(products.slice(startIndex, endIndex));
+    setCurrentPage(newPage);
+  };
+
+  const handleAddToCart = (productName: string) => {
+    console.log('Add to cart:', productName);
+  };
+
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="xl" disableGutters>
@@ -145,16 +166,34 @@ export default function MenPage() {
             <Typography variant="h4" component="h2">
               FEATURED PRODUCTS
             </Typography>
-            <IconButton 
-              onClick={refreshProducts}
-              sx={{ 
-                bgcolor: 'primary.main', 
-                color: 'white',
-                '&:hover': { bgcolor: 'primary.dark' }
-              }}
-            >
-              <RefreshIcon />
-            </IconButton>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <IconButton 
+                onClick={refreshProducts}
+                sx={{ 
+                  bgcolor: 'primary.main', 
+                  color: 'white',
+                  '&:hover': { bgcolor: 'primary.dark' }
+                }}
+              >
+                <RefreshIcon />
+              </IconButton>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage * productsPerPage >= products.length}
+                >
+                  Next
+                </Button>
+              </Box>
+            </Box>
           </Box>
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -171,30 +210,44 @@ export default function MenPage() {
               No products found.
             </Typography>
           )}
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: 3, 
-            mt: 2,
-            '& > *': {
-              flex: '1 1 250px',
-              minWidth: '250px'
-            }
-          }}>
-            {displayedProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                name={product.name}
-                image={product.image}
-                price={product.price}
-                discountPrice={product.discountPrice}
-                tags={product.tags}
-                brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-                categories={product.categories}
-                onAddToCart={() => handleAddToCart(product.name)}
-              />
-            ))}
-          </Box>
+          {!loading && !error && displayedProducts.length > 0 && (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                },
+                gap: { xs: 2, sm: 3 },
+                width: '100%',
+                justifyContent: 'center'
+              }}
+            >
+              {displayedProducts.map((product) => (
+                <Box 
+                  key={product._id}
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <ProductCard
+                    name={product.name}
+                    image={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
+                    price={product.price}
+                    discountPrice={product.discountPrice}
+                    tags={product.tags}
+                    brand={product.brand || { _id: '', name: 'Unknown Brand' }}
+                    categories={product.categories}
+                    onAddToCart={() => handleAddToCart(product.name)}
+                  />
+                </Box>
+              ))}
+            </Box>
+          )}
         </Container>
       </Box>
     </Container>
