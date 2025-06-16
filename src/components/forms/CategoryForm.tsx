@@ -29,7 +29,12 @@ interface CategoryFormProps {
         parentCategory?: string | null;
         status: 'active' | 'inactive';
     }) => void;
-    initialData?: Partial<Category>;
+    initialData?: {
+        name?: string;
+        description?: string;
+        parentCategory?: string | null;
+        status?: 'active' | 'inactive';
+    };
     title: string;
     categories?: Category[];
 }

@@ -5,6 +5,12 @@
     "getStarted": "Bắt Đầu",
     "viewTemplates": "Xem Mẫu"
   },
+  "productCard": {
+    "sale": "Giảm giá",
+    "addToCart": "Thêm vào giỏ",
+    "unknownBrand": "Thương hiệu không xác định",
+    "uncategorized": "Chưa phân loại"
+  },
   "categories": {
     "title": "Mua Theo Danh Mục"
   },
@@ -209,12 +215,6 @@
         "all": "Tất cả đồ Trẻ em"
       }
     }
-  },
-  "productCard": {
-    "sale": "Giảm giá",
-    "addToCart": "Thêm vào giỏ",
-    "unknownBrand": "Thương hiệu không rõ",
-    "uncategorized": "Không phân loại"
   },
   "forgotPassword": {
     "title": "QUÊN MẬT KHẨU",
