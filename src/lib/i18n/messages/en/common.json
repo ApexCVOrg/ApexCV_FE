@@ -321,6 +321,14 @@
     "setAsDefaultAddress": "Set as default address",
     "verified": "Verified",
     "loading": "Loading...",
+    "changePassword": "Change Password",
+    "changePasswordDescription": "Please enter your current password and choose a new password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "passwordsDoNotMatch": "New passwords do not match",
+    "changePasswordError": "Failed to change password",
+    "changePasswordSuccess": "Password changed successfully",
     "errors": {
       "loadFailed": "Failed to load user data"
     }

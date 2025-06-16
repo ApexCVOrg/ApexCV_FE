@@ -317,6 +317,13 @@
     "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
     "verified": "Đã xác thực",
     "loading": "Đang tải...",
+    "changePassword": "Đổi mật khẩu",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "passwordsDoNotMatch": "Mật khẩu không khớp",
+    "changePasswordError": "Đổi mật khẩu thất bại",
     "errors": {
       "loadFailed": "Lỗi tải dữ liệu"
     }
