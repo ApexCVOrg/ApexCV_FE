@@ -60,6 +60,14 @@ export const useAuth = () => {
     };
   };
 
+  const getCurrentUser = useCallback(() => {
+    if (!authService.isAuthenticated()) {
+      router.push('/auth/login');
+      return null;
+    }
+    return authService.getCurrentUser();
+  }, [router]);
+
   const login = useCallback(
     async (email: string, password: string) => {
       try {
@@ -205,10 +213,6 @@ export const useAuth = () => {
     },
     [router]
   );
-
-  const getCurrentUser = useCallback(() => {
-    return authService.getCurrentUser();
-  }, []);
 
   const setAuthData = useCallback((data: { token: string; refreshToken: string }) => {
     if (typeof window !== 'undefined') {
