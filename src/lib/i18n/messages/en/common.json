@@ -5,6 +5,12 @@
     "getStarted": "Get Started",
     "viewTemplates": "View Templates"
   },
+  "productCard": {
+    "sale": "Sale",
+    "addToCart": "Add to Cart",
+    "unknownBrand": "Unknown Brand",
+    "uncategorized": "Uncategorized"
+  },
   "categories": {
     "title": "Shop by Category"
   },
@@ -220,12 +226,6 @@
         "all": "All Kids' Items"
       }
     }
-  },
-  "productCard": {
-    "sale": "Sale",
-    "addToCart": "Add to Cart",
-    "unknownBrand": "Unknown Brand",
-    "uncategorized": "Uncategorized"
   },
   "forgotPassword": {
     "title": "FORGOT PASSWORD",

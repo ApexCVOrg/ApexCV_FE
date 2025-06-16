@@ -1,0 +1,108 @@
+.product-card {
+  max-width: 280px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  }
+
+  .card-image-container {
+    position: relative;
+    
+    .card-image {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+    }
+
+    .sale-chip {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      font-weight: bold;
+      font-size: 12px;
+      padding: 0 8px;
+      background-color: #d32f2f;
+      color: white;
+      border-radius: 16px;
+    }
+  }
+
+  .card-content {
+    padding: 16px;
+    flex-grow: 1;
+
+    .product-name {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .price-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .discount-price {
+        color: #d32f2f;
+        font-weight: bold;
+      }
+
+      .original-price {
+        color: #666;
+        text-decoration: line-through;
+        font-size: 0.875rem;
+      }
+    }
+
+    .brand-category {
+      margin-top: 8px;
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .tags-container {
+      display: flex;
+      gap: 4px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+
+      .tag {
+        background-color: #f1f1f1;
+        color: #333;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 16px;
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  .add-to-cart-button {
+    margin: 16px;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: calc(100% - 32px);
+
+    &:hover {
+      background-color: #333;
+    }
+  }
+} 

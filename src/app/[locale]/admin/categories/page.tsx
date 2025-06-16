@@ -65,7 +65,12 @@ export default function CategoriesPage() {
     setOpenForm(false);
   };
 
-  const handleSubmit = async (data: Omit<Category, "_id" | "createdAt" | "updatedAt"> & { parentCategory?: string }) => {
+  const handleSubmit = async (data: {
+    name: string;
+    description: string;
+    parentCategory?: string | null;
+    status: "active" | "inactive";
+  }) => {
     try {
       if (selected) {
         await axios.put(`/api/categories/${selected._id}`, data);
