@@ -11,6 +11,7 @@ import TopProducts from '@/components/dashboard/TopProducts';
 import OrderStats from '@/components/dashboard/OrderStats';
 import { ShoppingCart, Cancel, LocalShipping, CheckCircle } from '@mui/icons-material';
 
+// Interface cho FE components
 interface DashboardData {
   summary: {
     lowStockProducts: number;
@@ -29,8 +30,8 @@ interface DashboardData {
     _id: string;
     name: string;
     image: string;
-    totalQuantity: number;
-    totalRevenue: number;
+    totalQuantity: number | null | undefined;
+    totalRevenue: number | null | undefined;
     category: string;
   }>;
   orderStats: Array<{
@@ -48,138 +49,139 @@ export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data for demonstration
-  const mockData: DashboardData = {
-    summary: {
-      lowStockProducts: 12,
-      todaySales: 25000000,
-      deliveredOrders: 156,
-      conversionRate: 3.2,
-      orderCompletionRate: 87.5,
-      cancelledOrders: 8,
-    },
-    salesChart: [
-      { month: 'Jan', revenue: 45000000, orders: 120 },
-      { month: 'Feb', revenue: 52000000, orders: 135 },
-      { month: 'Mar', revenue: 48000000, orders: 110 },
-      { month: 'Apr', revenue: 61000000, orders: 145 },
-      { month: 'May', revenue: 55000000, orders: 130 },
-      { month: 'Jun', revenue: 68000000, orders: 160 },
-      { month: 'Jul', revenue: 72000000, orders: 175 },
-      { month: 'Aug', revenue: 65000000, orders: 155 },
-      { month: 'Sep', revenue: 58000000, orders: 140 },
-      { month: 'Oct', revenue: 63000000, orders: 150 },
-      { month: 'Nov', revenue: 70000000, orders: 165 },
-      { month: 'Dec', revenue: 75000000, orders: 180 },
-    ],
-    topProducts: [
-      {
-        _id: '1',
-        name: 'Arsenal Home Jersey 2024/25',
-        image: '/assets/images/Arsenal_24-25_Home_Jersey_Red.avif',
-        totalQuantity: 45,
-        totalRevenue: 6750000,
-        category: 'Jerseys',
+  // Helper function để map status thành icon
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return <ShoppingCart />;
+      case 'paid':
+      case 'processing':
+        return <LocalShipping />;
+      case 'delivered':
+      case 'shipped':
+        return <CheckCircle />;
+      case 'cancelled':
+        return <Cancel />;
+      default:
+        return <ShoppingCart />;
+    }
+  };
+
+  // Helper function để map status thành tên hiển thị
+  const getStatusName = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'Pending';
+      case 'paid':
+        return 'Paid';
+      case 'processing':
+        return 'Processing';
+      case 'shipped':
+        return 'Shipped';
+      case 'delivered':
+        return 'Delivered';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  // Transform backend data to frontend format
+  const transformBackendData = (backendData: any): DashboardData => {
+    // Danh sách 12 tháng
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    // Map dữ liệu backend trả về
+    const salesChartMap = new Map((backendData.salesChart || []).map((item: any) => [item.month, item]));
+    // Fill đủ 12 tháng
+    const fullSalesChart = months.map(month => {
+      const item = salesChartMap.get(month) as { month: string; revenue: number; orders: number } | undefined;
+      return item && typeof item.revenue === 'number' && typeof item.orders === 'number'
+        ? { month, revenue: item.revenue, orders: item.orders }
+        : { month, revenue: 0, orders: 0 };
+    });
+
+    return {
+      summary: {
+        lowStockProducts: backendData.lowStockCount,
+        todaySales: backendData.todaySales,
+        deliveredOrders: backendData.deliveredOrders,
+        conversionRate: backendData.conversionRate,
+        orderCompletionRate: backendData.completionRate,
+        cancelledOrders: backendData.cancelledOrders,
       },
-      {
-        _id: '2',
-        name: 'Manchester United Training Jacket',
-        image: '/assets/images/MU_Training_Jacket.avif',
-        totalQuantity: 38,
-        totalRevenue: 4560000,
-        category: 'Jackets',
-      },
-      {
-        _id: '3',
-        name: 'Real Madrid Home Shorts',
-        image: '/assets/images/Real_Madrid_25-26_Home_Shorts.avif',
-        totalQuantity: 32,
-        totalRevenue: 1920000,
-        category: 'Shorts',
-      },
-      {
-        _id: '4',
-        name: 'Bayern Munich Shoes',
-        image: '/assets/images/FC_Bayern_Shoes.avif',
-        totalQuantity: 28,
-        totalRevenue: 4200000,
-        category: 'Shoes',
-      },
-      {
-        _id: '5',
-        name: 'Juventus Hoodie',
-        image: '/assets/images/Juventus_Hoodie.png',
-        totalQuantity: 25,
-        totalRevenue: 2500000,
-        category: 'Hoodies',
-      },
-    ],
-    orderStats: [
-      {
-        name: 'Pending',
-        value: 23,
-        color: '#ff9800',
-        icon: <ShoppingCart />,
-      },
-      {
-        name: 'Processing',
-        value: 45,
-        color: '#2196f3',
-        icon: <LocalShipping />,
-      },
-      {
-        name: 'Delivered',
-        value: 156,
-        color: '#4caf50',
-        icon: <CheckCircle />,
-      },
-      {
-        name: 'Cancelled',
-        value: 8,
-        color: '#f44336',
-        icon: <Cancel />,
-      },
-    ],
-    totalOrders: 232,
+      salesChart: fullSalesChart,
+      topProducts: backendData.topProducts.map((product: any) => ({
+        _id: product._id,
+        name: product.name,
+        image: product.image,
+        totalQuantity: product.totalSold,
+        totalRevenue: product.revenue,
+        category: product.category,
+      })),
+      orderStats: backendData.orderStats.map((stat: any) => ({
+        name: getStatusName(stat.status),
+        value: stat.count,
+        color: stat.color,
+        icon: getStatusIcon(stat.status),
+      })),
+      totalOrders: backendData.orderStats.reduce((sum: number, stat: any) => sum + stat.count, 0),
+    };
   };
 
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
-    if (token) {
-      // Giả sử JWT, decode payload để lấy role
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('User role:', payload.role);
-      } catch (e) {
-        console.log('Cannot decode token:', e);
-      }
-    } else {
-      console.log('No token found');
+    if (!token) {
+      router.push('/auth/login');
+      return;
     }
 
-    // Simulate API call
+    // Fetch dashboard data from API
     const fetchDashboardData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        // In real implementation, fetch from API
-        // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/dashboard/summary`);
-        // const data = await response.json();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/dashboard/summary`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('auth_token');
+            router.push('/auth/login');
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
         
-        // For now, use mock data
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
-        setDashboardData(mockData);
+        if (result.success && result.data) {
+          const transformedData = transformBackendData(result.data);
+          setDashboardData(transformedData);
+        } else {
+          throw new Error(result.message || 'Failed to fetch dashboard data');
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
-        // Fallback to mock data
-        setDashboardData(mockData);
+        setError(error instanceof Error ? error.message : 'Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -201,12 +203,19 @@ export default function DashboardPage() {
     );
   }
 
-  if (!dashboardData) {
+  if (error || !dashboardData) {
     return (
       <Box sx={{ textAlign: 'center', py: 4 }}>
         <Typography variant="h6" color="error">
-          Failed to load dashboard data
+          {error || 'Failed to load dashboard data'}
         </Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => window.location.reload()} 
+          sx={{ mt: 2 }}
+        >
+          Retry
+        </Button>
       </Box>
     );
   }

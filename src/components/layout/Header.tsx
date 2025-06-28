@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import {
   AppBar,
@@ -20,6 +20,8 @@ import {
   ListItemText,
   Badge,
   useTheme,
+  TextField,
+  InputAdornment,
   Menu,
   ListItemIcon,
 } from '@mui/material';
@@ -31,6 +33,7 @@ import Person from '@mui/icons-material/Person';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -67,20 +70,18 @@ const Header = () => {
   const [anchorElMenu, setAnchorElMenu] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>('en');
   const [mounted, setMounted] = useState(false);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
 
-  // Lấy ngôn ngữ hiện tại từ URL (prefix đầu tiên)
-  const getCurrentLanguage = (): Language => {
+  const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
     if (pathParts[1] && LANGUAGES.includes(pathParts[1] as Language)) {
       return pathParts[1] as Language;
     }
-    return 'en'; // mặc định là English nếu không có prefix
-  };
-
-  const [language, setLanguage] = useState<Language>('en');
+    return 'en';
+  }, [pathname]);
 
   useEffect(() => {
     setLanguage(getCurrentLanguage());
@@ -494,11 +495,28 @@ const Header = () => {
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
-            minWidth: 120, 
+            minWidth: 320, 
             ml: 'auto',
             position: 'relative',
             zIndex: 1200 // Đảm bảo menu profile luôn hiển thị trên cùng
           }}>
+            {/* Search Bar */}
+            <Box sx={{ mx: 2, width: 200 }}>
+              <TextField
+                size="small"
+                placeholder="Tìm kiếm"
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  sx: { borderRadius: 5, bgcolor: isDarkMode ? '#222' : '#f5f5f5' }
+                }}
+                variant="outlined"
+              />
+            </Box>
             <ThemeToggle />
             {/* Nút đổi ngôn ngữ */}
             <Button
@@ -524,9 +542,6 @@ const Header = () => {
               <Badge badgeContent={0} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
-            </IconButton>
-            <IconButton aria-label="profile" color="inherit" size="large" onClick={() => router.push(ROUTES.PROFILE)}>
-              <AccountCircleIcon />
             </IconButton>
 
             {/* Mobile menu button */}

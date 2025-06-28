@@ -181,22 +181,19 @@ export const useAuth = () => {
     }
   }, [router]);
 
-  const forgotPassword = useCallback(
-    async (email: string) => {
-      try {
-        setLoading(true);
-        setError(null);
-        await authService.forgotPassword(email);
-      } catch (err) {
-        const error = handleError(err);
-        setError(error);
-        throw error;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const forgotPassword = useCallback(async (email: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      await authService.forgotPassword(email);
+    } catch (err) {
+      const error = handleError(err);
+      setError(error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const resetPassword = useCallback(
     async (token: string, newPassword: string) => {

@@ -14,6 +14,7 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
+import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 
 // Thêm type cho category hỗ trợ cả id và _id
 export type CategoryLike = { id?: string; _id?: string; name: string };
@@ -27,6 +28,7 @@ interface ProductCardProps {
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
+  labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
 }
@@ -40,11 +42,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   onAddToCart,
+  labels,
   allCategories,
   allBrands,
 }) => {
   const t = useTranslations('productCard');
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
+  const displayLabels = labels?.filter(l => l !== 'sale') || [];
 
   // Debug logs
   if (typeof window !== 'undefined') {
@@ -63,6 +67,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  // Debug logs
+  if (typeof window !== 'undefined') {
+    console.log('ProductCard tags:', tags);
+    console.log('ProductCard allCategories:', allCategories);
+  }
 
   return (
     <Card sx={{
@@ -116,6 +126,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {`${Math.round(100 - (discountPrice! / price) * 100)}% OFF`}
           </Box>
         )}
+        {displayLabels.map((label, idx) => {
+          const labelDisplay = PRODUCT_LABELS.find(l => l.value === label)?.label || label;
+          return (
+            <Chip
+              key={label + idx}
+              label={labelDisplay}
+              color="warning"
+              size="small"
+              sx={{
+                position: 'absolute',
+                top: 12 + (isDiscounted ? (idx + 1) : idx) * 32,
+                left: 12,
+                fontWeight: 'bold',
+                fontSize: 12,
+                paddingX: 1,
+                zIndex: 2,
+              }}
+            />
+          );
+        })}
       </Box>
       <CardContent sx={{ width: '100%', p: 0, flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Typography
