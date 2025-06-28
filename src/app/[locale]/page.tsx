@@ -23,7 +23,10 @@ import {
 import ProductCard from '@/components/card';
 import SearchIcon from '@mui/icons-material/Search';
 import TeamButtonsMUI from "@/components/button/TeamButtonsMUI";
+import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { ProductLabel } from '@/types/components/label';
+import { Category, CategoryTree } from '@/types/components/category';
+import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 
 interface Product {
   _id: string;
@@ -37,11 +40,6 @@ interface Product {
   label?: string;
 }
 
-interface Category {
-  _id: string;
-  name: string;
-}
-
 interface Brand {
   _id: string;
   name: string;
@@ -50,6 +48,7 @@ interface Brand {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryTree, setCategoryTree] = useState<CategoryTree[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 5000000]);
@@ -63,17 +62,55 @@ export default function Home() {
     const fetchInitialData = async () => {
       try {
         const [categoriesRes, brandsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/tree`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
         ]);
         const [categoriesData, brandsData] = await Promise.all([
           categoriesRes.json(),
           brandsRes.json(),
         ]);
-        setCategories(categoriesData);
+        
+        // If tree endpoint returns tree structure directly
+        if (categoriesData && Array.isArray(categoriesData) && categoriesData.length > 0 && categoriesData[0].children !== undefined) {
+          setCategoryTree(categoriesData);
+          // Flatten the tree for backward compatibility
+          const flattenCategories = (cats: CategoryTree[]): Category[] => {
+            const result: Category[] = [];
+            cats.forEach(cat => {
+              result.push({
+                _id: cat._id,
+                name: cat.name,
+                description: cat.description,
+                parentCategory: cat.parentCategory,
+                status: cat.status,
+                createdAt: cat.createdAt,
+                updatedAt: cat.updatedAt,
+              });
+              if (cat.children) {
+                result.push(...flattenCategories(cat.children));
+              }
+            });
+            return result;
+          };
+          setCategories(flattenCategories(categoriesData));
+        } else {
+          // If tree endpoint returns flat structure, build tree
+          setCategories(categoriesData);
+          setCategoryTree(buildCategoryTree(categoriesData));
+        }
+        
         setBrands(brandsData);
       } catch (error) {
         console.error('Error fetching categories or brands:', error);
+        // Fallback to regular categories endpoint
+        try {
+          const categoriesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
+          const categoriesData = await categoriesRes.json();
+          setCategories(categoriesData);
+          setCategoryTree(buildCategoryTree(categoriesData));
+        } catch (fallbackError) {
+          console.error('Error fetching fallback categories:', fallbackError);
+        }
       }
     };
     fetchInitialData();
@@ -117,9 +154,9 @@ export default function Home() {
     setPriceRange(newValue as number[]);
   };
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>, categoryId: string) => {
+  const handleCategoryChange = (categoryId: string, checked: boolean) => {
     setSelectedCategories(prev =>
-      event.target.checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId)
+      checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId)
     );
   };
 
@@ -192,25 +229,16 @@ export default function Home() {
 
             <Divider sx={{ my: 2 }} />
 
-            {/* Categories */}
+            {/* Categories Tree */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="subtitle1" sx={{ mb: 1 }}>
                 Categories
               </Typography>
-              <FormGroup>
-                {categories.map((category, idx) => (
-                  <FormControlLabel
-                    key={category._id || idx}
-                    control={
-                      <Checkbox
-                        checked={selectedCategories.includes(category._id)}
-                        onChange={(e) => handleCategoryChange(e, category._id)}
-                      />
-                    }
-                    label={category.name}
-                  />
-                ))}
-              </FormGroup>
+              <CategoryTreeFilter
+                categories={categoryTree}
+                selectedCategories={selectedCategories}
+                onCategoryChange={handleCategoryChange}
+              />
             </Box>
 
             <Divider sx={{ my: 2 }} />

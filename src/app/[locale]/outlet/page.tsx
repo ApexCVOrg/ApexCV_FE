@@ -9,11 +9,14 @@ import { useTranslations } from 'next-intl';
 import '@/styles/components/_outlet.scss'; // import SCSS
 
 interface Product {
+  _id: string;
   name: string;
   images: string[];
   price: number;
   discountPrice?: number;
   tags?: string[];
+  brand?: { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
 }
 
 const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2';
@@ -59,9 +62,18 @@ export default function OutletPage() {
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        setProducts(data);
+        
+        // Handle different API response structures
+        if (data.success && data.data) {
+          setProducts(Array.isArray(data.data) ? data.data : []);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
       } catch (error) {
         console.error('Failed to fetch products:', error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -107,9 +119,18 @@ export default function OutletPage() {
           <Typography>{t('loading')}</Typography>
         ) : (
           <Box className="product-grid">
-            {products.map((product, idx) => (
-              <Box key={idx} className="product-card">
-                <ProductCard {...product} image={product.images[0]} />
+            {Array.isArray(products) && products.map((product) => (
+              <Box key={product._id} className="product-card">
+                <ProductCard
+                  name={product.name}
+                  image={product.images[0]}
+                  price={product.price}
+                  discountPrice={product.discountPrice}
+                  tags={product.tags}
+                  brand={product.brand}
+                  categories={product.categories}
+                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                />
               </Box>
             ))}
           </Box>
