@@ -11,13 +11,12 @@ export const API_ENDPOINTS = {
     VERIFY_OTP: '/auth/verify-otp',
     RESEND_OTP: '/auth/resend-otp',
     SEND_OTP: '/auth/send-otp',
-    
   },
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/update-profile',
-    CHANGE_PASSWORD: '/user/change-password',
-    UPDATE_ADDRESS: '/user/update-address',
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
+    CHANGE_PASSWORD: '/users/change-password',
+    UPDATE_ADDRESS: '/users/update-address',
   },
   MANAGER: {
     DASHBOARD: '/manager/dashboard',

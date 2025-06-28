@@ -6,11 +6,14 @@ import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui
 import ProductCard from '@/components/card/index';
 
 interface Product {
+  _id: string;
   name: string;
   images: string[];
   price: number;
   discountPrice?: number;
   tags?: string[];
+  brand?: { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
 }
 
 const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2'; // OUTLET
@@ -40,9 +43,18 @@ export default function OutletSubCategoryPage() {
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        setProducts(data);
+        
+        // Handle different API response structures
+        if (data.success && data.data) {
+          setProducts(Array.isArray(data.data) ? data.data : []);
+        } else if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
       } catch (error) {
         console.error('Failed to fetch products:', error);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -73,9 +85,18 @@ export default function OutletSubCategoryPage() {
         <Typography>Đang tải sản phẩm...</Typography>
       ) : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
-          {products.map((product, idx) => (
-            <Box key={idx} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
-              <ProductCard {...product} image={product.images[0]} />
+          {Array.isArray(products) && products.map((product) => (
+            <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
+              <ProductCard
+                name={product.name}
+                image={product.images[0]}
+                price={product.price}
+                discountPrice={product.discountPrice}
+                tags={product.tags}
+                brand={product.brand}
+                categories={product.categories}
+                onAddToCart={() => console.log('Add to cart:', product._id)}
+              />
             </Box>
           ))}
         </Box>

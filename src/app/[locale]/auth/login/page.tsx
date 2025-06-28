@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Eye, EyeOff, User, Lock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -20,6 +20,15 @@ import {
 } from '@mui/material';
 import { API_ENDPOINTS } from '@/lib/constants/constants';
 
+// Local storage keys for Remember Me functionality
+const REMEMBER_ME_KEY = 'remember_me_credentials';
+const REMEMBER_ME_ENABLED_KEY = 'remember_me_enabled';
+
+interface SavedCredentials {
+  username: string;
+  password: string;
+}
+
 export default function LoginForm() {
   const t = useTranslations('login');
 
@@ -34,6 +43,34 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const loadSavedCredentials = () => {
+      try {
+        const rememberMeEnabled = localStorage.getItem(REMEMBER_ME_ENABLED_KEY) === 'true';
+        if (rememberMeEnabled) {
+          const savedCredentials = localStorage.getItem(REMEMBER_ME_KEY);
+          if (savedCredentials) {
+            const credentials: SavedCredentials = JSON.parse(savedCredentials);
+            setFormData(prev => ({
+              ...prev,
+              username: credentials.username,
+              password: credentials.password,
+              rememberMe: true,
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved credentials:', error);
+        // Clear corrupted data
+        localStorage.removeItem(REMEMBER_ME_KEY);
+        localStorage.removeItem(REMEMBER_ME_ENABLED_KEY);
+      }
+    };
+
+    loadSavedCredentials();
+  }, []);
+
   const handleChange =
     (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = field === 'rememberMe' ? e.target.checked : e.target.value;
@@ -42,6 +79,25 @@ export default function LoginForm() {
         setFieldErrors(prev => ({ ...prev, [field]: '' }));
       }
     };
+
+  const saveCredentials = (username: string, password: string) => {
+    try {
+      const credentials: SavedCredentials = { username, password };
+      localStorage.setItem(REMEMBER_ME_KEY, JSON.stringify(credentials));
+      localStorage.setItem(REMEMBER_ME_ENABLED_KEY, 'true');
+    } catch (error) {
+      console.error('Error saving credentials:', error);
+    }
+  };
+
+  const clearSavedCredentials = () => {
+    try {
+      localStorage.removeItem(REMEMBER_ME_KEY);
+      localStorage.removeItem(REMEMBER_ME_ENABLED_KEY);
+    } catch (error) {
+      console.error('Error clearing saved credentials:', error);
+    }
+  };
 
   const validateLogin = (data: typeof formData): Record<string, string> => {
     const errors: Record<string, string> = {};
@@ -88,6 +144,13 @@ export default function LoginForm() {
       if (!response.ok) {
         setError(data.message || 'Login failed');
         return;
+      }
+
+      // Handle Remember Me functionality
+      if (formData.rememberMe) {
+        saveCredentials(formData.username, formData.password);
+      } else {
+        clearSavedCredentials();
       }
 
       // Save token based on Remember Me
