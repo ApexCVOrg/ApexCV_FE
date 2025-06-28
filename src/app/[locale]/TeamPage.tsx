@@ -19,6 +19,7 @@ import {
 import ProductCard from '@/components/card';
 import HorizontalFilterBar from './HorizontalFilterBar';
 
+
 interface Product {
   _id: string;
   name: string;
@@ -152,12 +153,15 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           minPrice: priceRange[0].toString(),
           maxPrice: priceRange[1].toString(),
           sortBy,
-          ...(selectedCategories.length > 0 && { categories: selectedCategories.join(',') }),
+          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
           ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
           gender: gender.toLowerCase()
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+        console.log('[TeamPage] API URL:', apiUrl);
+        console.log('[TeamPage] Sort By:', sortBy);
+        console.log('[TeamPage] Selected Categories:', selectedCategories);
         const response = await fetch(apiUrl);
         
         if (!response.ok) {
@@ -166,8 +170,10 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
 
         const result = await response.json();
         if (result.success) {
-          // Filter products to ensure they match the team
-          const filteredProducts = result.data.filter((product: Product) => {
+          console.log('[TeamPage] Raw API Response:', result.data?.slice(0, 3)); // Log first 3 products
+          
+          // Filter products to ensure they match the team (client-side filter as backup)
+          let filteredProducts = result.data.filter((product: Product) => {
             // Check if any category's parent is the team
             return product.categories.some(cat => {
               // Check if the category itself is the team
@@ -182,7 +188,21 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               return false;
             });
           });
+
+          // Client-side sorting as fallback (in case backend doesn't sort correctly)
+          if (sortBy === 'price-high') {
+            filteredProducts = filteredProducts.sort((a: Product, b: Product) => b.price - a.price);
+            console.log('[TeamPage] Applied client-side sort: price-high');
+          } else if (sortBy === 'price-low') {
+            filteredProducts = filteredProducts.sort((a: Product, b: Product) => a.price - b.price);
+            console.log('[TeamPage] Applied client-side sort: price-low');
+          } else if (sortBy === 'newest') {
+            // Assuming newer products have higher _id or createdAt
+            filteredProducts = filteredProducts.reverse();
+            console.log('[TeamPage] Applied client-side sort: newest');
+          }
           
+          console.log('[TeamPage] Final sorted products:', filteredProducts?.slice(0, 3));
           setProducts(filteredProducts);
         } else {
           throw new Error(result.message);
@@ -198,19 +218,19 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
     fetchFilteredProducts();
   }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName]);
 
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev: string[]) => 
-      prev.includes(categoryId) 
-        ? prev.filter((id: string) => id !== categoryId)
-        : [...prev, categoryId]
+  const handlePriceChange = (event: Event, newValue: number | number[]) => {
+    setPriceRange(newValue as number[]);
+  };
+
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>, categoryId: string) => {
+    setSelectedCategories(prev =>
+      event.target.checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId)
     );
   };
 
-  const handleBrandChange = (brandId: string) => {
-    setSelectedBrands((prev: string[]) => 
-      prev.includes(brandId) 
-        ? prev.filter((id: string) => id !== brandId)
-        : [...prev, brandId]
+  const handleBrandChange = (event: React.ChangeEvent<HTMLInputElement>, brandId: string) => {
+    setSelectedBrands(prev =>
+      event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId)
     );
   };
 
@@ -227,7 +247,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       <Container maxWidth={false} sx={{ 
         py: 4, 
         px: { xs: 2, sm: 3, md: 4 },
-        maxWidth: '1600px',
+                maxWidth: '1600px',
         width: '100%'
       }}>
         <HorizontalFilterBar
@@ -266,7 +286,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               >
                 <ProductCard
                   name={product.name || 'Unnamed Product'}
-                  image={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
+                  image={product.images?.[0] ? `/assets/images/${gender}/${teamName.toLowerCase()}/${product.images[0]}` : '/assets/images/placeholder.jpg'}
                   price={product.price || 0}
                   discountPrice={product.discountPrice}
                   tags={product.tags || []}
@@ -278,6 +298,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
             ))}
           </Box>
         )}
+
         <Dialog
           open={filterDialogOpen}
           onClose={() => setFilterDialogOpen(false)}
@@ -290,7 +311,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               <Typography variant="h6" gutterBottom>Price Range</Typography>
               <Slider
                 value={priceRange}
-                onChange={(_, newValue) => setPriceRange(newValue as number[])}
+                onChange={handlePriceChange}
                 valueLabelDisplay="auto"
                 min={0}
                 max={10000000}
@@ -318,7 +339,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                         control={
                           <Checkbox
                             checked={selectedCategories.includes(genderCat._id)}
-                            onChange={() => handleCategoryChange(genderCat._id)}
+                            onChange={(e) => handleCategoryChange(e, genderCat._id)}
                           />
                         }
                         label={genderCat.name}
@@ -332,7 +353,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                               control={
                                 <Checkbox
                                   checked={selectedCategories.includes(teamCat._id)}
-                                  onChange={() => handleCategoryChange(teamCat._id)}
+                                  onChange={(e) => handleCategoryChange(e, teamCat._id)}
                                 />
                               }
                               label={teamCat.name}
@@ -346,7 +367,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                                     control={
                                       <Checkbox
                                         checked={selectedCategories.includes(productTypeCat._id)}
-                                        onChange={() => handleCategoryChange(productTypeCat._id)}
+                                        onChange={(e) => handleCategoryChange(e, productTypeCat._id)}
                                       />
                                     }
                                     label={productTypeCat.name}
@@ -369,7 +390,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                     control={
                       <Checkbox
                         checked={selectedBrands.includes(brand._id)}
-                        onChange={() => handleBrandChange(brand._id)}
+                        onChange={(e) => handleBrandChange(e, brand._id)}
                       />
                     }
                     label={brand.name}
@@ -389,6 +410,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
             }}>Reset Filters</Button>
           </DialogActions>
         </Dialog>
+
       </Container>
     </Box>
   );
