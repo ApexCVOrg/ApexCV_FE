@@ -1,0 +1,338 @@
+{
+  "hero": {
+    "title": "Khám Phá Bộ Sưu Tập Mới Nhất",
+    "subtitle": "Phong cách thể thao đỉnh cao dành cho bạn",
+    "getStarted": "Bắt Đầu",
+    "viewTemplates": "Xem Mẫu"
+  },
+  "productCard": {
+    "sale": "Giảm giá",
+    "addToCart": "Thêm vào giỏ",
+    "unknownBrand": "Thương hiệu không xác định",
+    "uncategorized": "Chưa phân loại"
+  },
+  "categories": {
+    "title": "Mua Theo Danh Mục"
+  },
+  "promo": {
+    "title": "Ưu Đãi Đặc Biệt",
+    "description": "Giảm 20% cho tất cả sản phẩm mới",
+    "shopNow": "Mua Ngay"
+  },
+  "collections": {
+    "title": "Bộ Sưu Tập Nổi Bật"
+  },
+  "outletPage": {
+    "title": "OUTLET",
+    "subtitle": "Săn sale cực sốc các sản phẩm chính hãng với giá tốt nhất!",
+    "loading": "Đang tải sản phẩm...",
+    "categories": {
+      "men": "NAM",
+      "women": "NỮ",
+      "kids": "TRẺ EM",
+      "lastSize": "SIZE CUỐI: GIẢM ĐẾN 40%"
+    }
+  },
+  "manager": {
+    "dashboard": {
+      "overview": "Tổng Quan",
+      "totalSales": "Tổng Doanh Thu",
+      "activeUsers": "Người Dùng Hoạt Động",
+      "pendingOrders": "Đơn Hàng Đang Xử Lý",
+      "newCustomers": "Khách Hàng Mới"
+    },
+    "layout": {
+      "home": "Trang Chủ",
+      "managerDashboard": "Bảng Điều Khiển Quản Lý",
+      "helloManager": "Xin Chào, Quản Lý",
+      "dashboard": "Bảng Điều Khiển",
+      "products": "Sản Phẩm",
+      "categories": "Danh Mục",
+      "orders": "Đơn Hàng",
+      "customers": "Khách Hàng",
+      "settings": "Cài Đặt",
+      "logout": "Đăng Xuất"
+    },
+    "categories": {
+      "title": "Quản Lý Danh Mục",
+      "addNew": "Thêm Danh Mục Mới",
+      "editCategory": "Chỉnh Sửa Danh Mục",
+      "addCategory": "Thêm Danh Mục",
+      "name": "Tên",
+      "description": "Mô Tả",
+      "parentCategory": "Danh Mục Cha",
+      "statusLabel": "Trạng Thái",
+      "createdAt": "Ngày Tạo",
+      "actions": "Hành Động",
+      "loading": "Đang tải danh mục...",
+      "noCategories": "Không tìm thấy danh mục nào",
+      "cancel": "Hủy",
+      "create": "Tạo",
+      "update": "Cập Nhật",
+      "deleteConfirm": "Bạn có chắc muốn xóa danh mục này không?",
+      "none": "Không có",
+      "selectName": "Chọn tên",
+      "status": {
+        "active": "Hoạt Động",
+        "inactive": "Không Hoạt Động"
+      },
+      "error": {
+        "cannotSelectSelfAsParent": "Không thể chọn chính danh mục làm danh mục cha"
+      }
+    }
+  },
+  "login": {
+    "title": "Đăng Nhập",
+    "noAccount": "Chưa có tài khoản?",
+    "registerNow": "Đăng ký ngay",
+    "emailLabel": "Email",
+    "passwordLabel": "Mật khẩu",
+    "rememberMe": "Ghi nhớ đăng nhập",
+    "forgotPassword": "Quên mật khẩu?",
+    "loggingIn": "Đang đăng nhập...",
+    "loginButton": "Đăng Nhập",
+    "loginWithGoogle": "Đăng nhập với Google",
+    "loginWithFacebook": "Đăng nhập với Facebook",
+    "usernameLabel": "Tên đăng nhập",
+    "profile": "Hồ Sơ",
+    "logout": "Đăng Xuất"
+  },
+  "register": {
+    "title": "Tạo Tài Khoản Mới",
+    "username": "Tên đăng nhập",
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "password": "Mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "phone": "Số điện thoại",
+    "addressTitle": "Địa chỉ",
+    "recipientName": "Tên người nhận",
+    "street": "Đường",
+    "city": "Thành phố",
+    "state": "Tỉnh/Thành phố",
+    "country": "Quốc gia",
+    "addressNumber": "Số nhà (Tùy chọn)",
+    "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
+    "subtitle": "Đã có tài khoản?",
+    "loginLink": "Đăng nhập",
+    "register": "Đăng Ký",
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "signIn": "Đăng nhập",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "continueWithFacebook": "Tiếp tục với Facebook",
+    "orRegisterWithEmail": "Hoặc đăng ký bằng email",
+    "hidePassword": "Ẩn mật khẩu",
+    "showPassword": "Hiện mật khẩu",
+    "hideConfirmPassword": "Ẩn mật khẩu xác nhận",
+    "showConfirmPassword": "Hiện mật khẩu xác nhận",
+    "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
+    "errors": {
+      "usernameRequired": "Vui lòng nhập tên đăng nhập",
+      "usernameTaken": "Tên đăng nhập đã tồn tại",
+      "emailRequired": "Vui lòng nhập email",
+      "invalidEmail": "Email không hợp lệ",
+      "emailAlreadyUsed": "Email đã được sử dụng",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 6 ký tự",
+      "passwordsDoNotMatch": "Mật khẩu xác nhận không khớp",
+      "serverError": "Lỗi máy chủ. Vui lòng thử lại sau"
+    }
+  },
+  "header": {
+    "men": {
+      "title": "Nam",
+      "thun_polo": "Áo Thun & Polo",
+      "jersey": "Áo Jersey",
+      "hoodie": "Áo Hoodie",
+      "sportset": "Bộ đồ thể thao",
+      "trousers": "Quần",
+      "tight_pants": "Quần bó",
+      "short_trouser": "Quần short",
+      "sportswear": "Đồ thể thao",
+      "jacket": "Áo khoác",
+      "basic": "Cơ bản",
+      "tracksuits": "Bộ thể thao"
+    },
+    "women": {
+      "title": "Nữ",
+      "thun_croptop": "Thun & Croptop",
+      "sweatshirt": "Áo nỉ",
+      "sports_bra": "Áo ngực thể thao",
+      "jersey": "Áo Jersey",
+      "hoodie": "Áo Hoodie",
+      "jacket": "Áo khoác",
+      "trousers": "Quần",
+      "short_trouser": "Quần short",
+      "leggings": "Leggings",
+      "dress": "Đầm",
+      "skirt": "Chân váy",
+      "sportswear": "Đồ thể thao",
+      "basic": "Cơ bản",
+      "tracksuits": "Bộ thể thao"
+    },
+    "kids": {
+      "title": "Trẻ em",
+      "clothes_boys": "Quần áo bé trai",
+      "clothes_girls": "Quần áo bé gái"
+    },
+    "accessories": {
+      "title": "Phụ kiện",
+      "bags": "Túi xách",
+      "hats": "Mũ",
+      "socks": "Vớ",
+      "sports_accessories": "Phụ kiện thể thao",
+      "backpacks": "Balo"
+    },
+    "sale": {
+      "title": "Khuyến mãi",
+      "men": "Nam giảm giá",
+      "women": "Nữ giảm giá",
+      "kids": "Trẻ em giảm giá",
+      "accessories": "Phụ kiện giảm giá",
+      "flash": "Giảm giá nhanh"
+    },
+    "outlet": {
+      "title": "OUTLET",
+      "men": {
+        "title": "Nam",
+        "shoes": "Giày",
+        "clothing": "Quần áo",
+        "accessories": "Phụ kiện",
+        "all": "Tất cả đồ Nam"
+      },
+      "women": {
+        "title": "Nữ",
+        "shoes": "Giày",
+        "clothing": "Quần áo",
+        "accessories": "Phụ kiện",
+        "all": "Tất cả đồ Nữ"
+      },
+      "kids": {
+        "title": "Trẻ em",
+        "shoes": "Giày",
+        "clothing": "Quần áo",
+        "accessories": "Phụ kiện",
+        "all": "Tất cả đồ Trẻ em"
+      }
+    }
+  },
+  "forgotPassword": {
+    "title": "QUÊN MẬT KHẨU",
+    "description": "Nhập địa chỉ email của bạn và chúng tôi sẽ gửi cho bạn liên kết để đặt lại mật khẩu.",
+    "emailSent": "✓ Email đã được gửi thành công!",
+    "checkEmail": "Vui lòng kiểm tra hộp thư và làm theo hướng dẫn để đặt lại mật khẩu.",
+    "emailLabel": "Địa Chỉ Email",
+    "emailPlaceholder": "Nhập địa chỉ email của bạn",
+    "sendResetLink": "GỬI MÃ OTP",
+    "sendingEmail": "ĐANG GỬI EMAIL...",
+    "backToLogin": "Quay lại đăng nhập",
+    "resendEmail": "Gửi lại email",
+    "resendingEmail": "Đang gửi lại email...",
+    "goToLogin": "Đi đến đăng nhập",
+    "errors": {
+      "emailRequired": "Vui lòng nhập địa chỉ email của bạn",
+      "invalidEmail": "Địa chỉ email không hợp lệ",
+      "serverError": "Đã xảy ra lỗi. Vui lòng thử lại sau.",
+      "resendFailed": "Không thể gửi lại email. Vui lòng thử lại."
+    }
+  },
+  "resetPassword": {
+    "title": "ĐẶT LẠI MẬT KHẨU",
+    "description": "Vui lòng nhập mật khẩu mới của bạn bên dưới.",
+    "successMessage": "✓ Mật khẩu của bạn đã được đặt lại thành công!",
+    "passwordLabel": "Mật Khẩu Mới",
+    "confirmPasswordLabel": "Xác Nhận Mật Khẩu Mới",
+    "resetButton": "ĐẶT LẠI MẬT KHẨU",
+    "resetting": "ĐANG ĐẶT LẠI...",
+    "backToLogin": "Quay lại đăng nhập",
+    "goToLogin": "Đi đến đăng nhập",
+    "newPassword": "Mật Khẩu Mới",
+    "confirmPassword": "Xác Nhận Mật Khẩu Mới",
+    "errors": {
+      "passwordRequired": "Vui lòng nhập mật khẩu mới của bạn",
+      "passwordLength": "Mật khẩu phải có ít nhất 6 ký tự",
+      "confirmPasswordRequired": "Vui lòng xác nhận mật khẩu mới của bạn",
+      "passwordsDoNotMatch": "Mật khẩu không khớp",
+      "invalidToken": "Mã đặt lại không hợp lệ hoặc đã hết hạn",
+      "resetFailed": "Không thể đặt lại mật khẩu",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyOTP": {
+    "title": "XÁC MINH OTP",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC MINH MÃ",
+    "verifying": "ĐANG XÁC MINH...",
+    "resendOTP": "Gửi lại mã",
+    "resendIn": "Gửi lại mã sau {seconds} giây",
+    "backToLogin": "Quay lại đăng nhập",
+    "goToLogin": "Đi đến đăng nhập",
+    "resendEmail": "Gửi lại email",
+    "resendingEmail": "Đang gửi lại email...",
+    "errors": {
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác minh",
+      "verificationFailed": "Mã xác minh không hợp lệ",
+      "resendFailed": "Không thể gửi lại mã",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "verifyMail": {
+    "title": "XÁC THỰC EMAIL",
+    "description": "Vui lòng nhập mã 6 chữ số đã được gửi đến email của bạn.",
+    "verifyButton": "XÁC THỰC MÃ",
+    "verifying": "ĐANG XÁC THỰC...",
+    "resendEmail": "Gửi lại Email",
+    "resendingEmail": "Đang gửi lại Email...",
+    "backToRegistration": "Quay lại Đăng ký",
+    "verificationCodeLabel": "Mã xác thực",
+    "error": {
+      "invalidEmail": "Email không hợp lệ",
+      "emailRequired": "Vui lòng nhập email",
+      "emailAlreadyUsed": "Email đã được sử dụng",
+      "invalidCode": "Mã xác thực không hợp lệ",
+      "invalidToken": "Mã xác thực không hợp lệ",
+      "incompleteOTP": "Vui lòng nhập đầy đủ mã xác thực",
+      "verificationFailed": "Mã xác thực không hợp lệ",
+      "resendFailed": "Gửi lại mã thất bại",
+      "unknownError": "Đã xảy ra lỗi. Vui lòng thử lại."
+    }
+  },
+  "profile": {
+    "fullName": "Họ và tên",
+    "email": "Email",
+    "phone": "Số điện thoại",
+    "addresses": "Địa chỉ",
+    "noAddress": "Không có địa chỉ",
+    "addAddress": "Thêm địa chỉ",
+    "editProfile": "Chỉnh sửa",
+    "saveChanges": "Lưu thay đổi",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "recipientName": "Tên người nhận",
+    "street": "Đường",
+    "city": "Thành phố",
+    "state": "Tỉnh/Thành phố",
+    "country": "Quốc gia",
+    "addressNumber": "Số nhà (Tùy chọn)",
+    "setAsDefaultAddress": "Đặt làm địa chỉ mặc định",
+    "verified": "Đã xác thực",
+    "loading": "Đang tải...",
+    "changePassword": "Đổi Mật Khẩu",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và chọn mật khẩu mới",
+    "errors": {
+      "loadFailed": "Lỗi tải dữ liệu"
+    }
+  },
+  "changePassword": {
+    "changePassword": "Đổi Mật Khẩu",
+    "title": "Đổi Mật Khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "submit": "Đổi mật khẩu",
+    "success": "Đổi mật khẩu thành công",
+    "error": "Đổi mật khẩu thất bại",
+    "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn",
+    "cancel": "Hủy"
+  }
+}
