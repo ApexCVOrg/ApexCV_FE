@@ -327,7 +327,7 @@ export default function LoginForm() {
                 }}
               >
                 <Typography sx={{ color: 'black', fontWeight: 700, letterSpacing: '0.1em' }}>
-                  HOẶC
+                  OR
                 </Typography>
               </Box>
             </Box>
@@ -396,13 +396,13 @@ export default function LoginForm() {
             {/* Terms */}
             <Box sx={{ textAlign: 'center', mt: 4 }}>
               <Typography variant="body2" color="text.secondary">
-                Bằng cách đăng nhập, bạn đồng ý với{' '}
+                By logging in, you agree to our{' '}
                 <MuiLink href="/terms" color="inherit" underline="hover">
-                  Điều khoản dịch vụ
+                  Terms of Service
                 </MuiLink>{' '}
                 và{' '}
                 <MuiLink href="/privacy" color="inherit" underline="hover">
-                  Chính sách bảo mật
+                  Privacy Policy
                 </MuiLink>
                 .
               </Typography>
