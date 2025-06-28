@@ -316,12 +316,21 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     component="main"
                     sx={{
                         flexGrow: 1,
-                        p: 3,
                         width: { sm: `calc(100% - ${MANAGER.DRAWER_WIDTH}px)` },
                         mt: 8,
                         backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5',
                         minHeight: "100vh",
                         color: currentTheme === 'dark' ? '#fff' : '#000',
+                        p: 0,
+                        px: 0,
+                        py: 0,
+                        pt: 0,
+                        pb: 0,
+                        m: 0,
+                        mx: 0,
+                        my: 0,
+                        mt: 8,
+                        mb: 0,
                     }}
                 >
                     <Menu

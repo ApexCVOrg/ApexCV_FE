@@ -10,11 +10,13 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL: '/auth/verify-email',
     VERIFY_OTP: '/auth/verify-otp',
     RESEND_OTP: '/auth/resend-otp',
+    SEND_OTP: '/auth/send-otp',
   },
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/update-profile',
-    CHANGE_PASSWORD: '/user/change-password',
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
+    CHANGE_PASSWORD: '/users/change-password',
+    UPDATE_ADDRESS: '/users/update-address',
   },
   MANAGER: {
     DASHBOARD: '/manager/dashboard',
@@ -145,7 +147,7 @@ export const ROUTES = {
 
 // Manager Dashboard Constants
 export const MANAGER = {
-  DRAWER_WIDTH: 280,
+  DRAWER_WIDTH: 220,
   STATS: {
     REFRESH_INTERVAL: 300000, // 5 minutes
     CHART_COLORS: {

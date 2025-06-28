@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
     Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, Stack, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select
+    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select, Tooltip
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -24,6 +24,7 @@ interface Product {
     updatedAt: string;
     brand?: string | Brand;
     label?: string[];
+    images?: string[];
 }
 
 interface ProductFormData {
@@ -258,61 +259,128 @@ export default function ProductsPage() {
         return '';
     };
 
+    // Helper: Format ngày tháng
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
     return (
-        <Box>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h4">Products</Typography>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+        <Box sx={{ width: '100%', px: 0, pt: 2, pb: 0 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1} sx={{ px: 2, mb: 0 }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2rem' }}>Products</Typography>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()} sx={{ fontSize: '1rem', py: 1.5, px: 3 }}>
                     Add Product
                 </Button>
             </Stack>
-            <TableContainer component={Paper}>
-                <Table>
+            <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto', boxShadow: 3, mt: 0 }}>
+                <Table sx={{ width: '100%' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Description</TableCell>
-                            <TableCell>Price</TableCell>
-                            <TableCell>Category</TableCell>
-                            <TableCell>Brand</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Created At</TableCell>
-                            <TableCell>Label</TableCell>
-                            <TableCell align="right">Actions</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Image</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Name</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 260 }}>Description</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Price</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Category</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>Brand</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Status</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Created At</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>Label</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading ? (
                             <TableRow key="loading">
-                                <TableCell colSpan={7} align="center">Loading...</TableCell>
+                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>Loading...</TableCell>
                             </TableRow>
                         ) : products.length === 0 ? (
                             <TableRow key="empty">
-                                <TableCell colSpan={7} align="center">No products found</TableCell>
+                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>No products found</TableCell>
                             </TableRow>
                         ) : (
                             products.map(product => (
-                                <TableRow key={product._id}>
-                                    <TableCell>{product.name}</TableCell>
-                                    <TableCell>{product.description}</TableCell>
-                                    <TableCell>{product.price}</TableCell>
-                                    <TableCell>
+                                <TableRow key={product._id} sx={{ fontSize: '1rem', height: 64 }}>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                        <img
+                                            src={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
+                                            alt={product.name}
+                                            style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }}
+                                        />
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>{product.name}</TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                        <Typography variant="body2">
+                                            {product.description}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
+                                        <Typography variant="body2" fontWeight="bold">
+                                            ${product.price.toLocaleString()}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
                                         {product.categories && product.categories.length > 0
                                             ? product.categories.map(getCategoryDisplay).join(', ')
                                             : '-'}
                                     </TableCell>
-                                    <TableCell>{getBrandName(product.brand)}</TableCell>
-                                    <TableCell>
-                                        <Chip label={product.status} color={product.status === "active" ? "success" : "default"} size="small" />
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>{getBrandName(product.brand)}</TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
+                                        <Chip 
+                                            label={product.status} 
+                                            color={product.status === "active" ? "success" : "default"} 
+                                            size="small"
+                                            variant="outlined"
+                                            sx={{
+                                                fontWeight: 'bold',
+                                                textTransform: 'uppercase',
+                                                fontSize: '0.85rem',
+                                                '&.MuiChip-colorSuccess': {
+                                                    backgroundColor: '#e8f5e8',
+                                                    color: '#2e7d32',
+                                                    borderColor: '#4caf50'
+                                                },
+                                                '&.MuiChip-colorDefault': {
+                                                    backgroundColor: '#f5f5f5',
+                                                    color: '#666',
+                                                    borderColor: '#ddd'
+                                                }
+                                            }}
+                                        />
                                     </TableCell>
-                                    <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
-                                    <TableCell>
-                                        {product.label && product.label.length > 0 ? product.label.map(l => {
-                                            const labelObj = PRODUCT_LABELS.find(opt => opt.value === l);
-                                            return labelObj ? labelObj.label : l;
-                                        }).join(', ') : '-'}
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>{formatDate(product.createdAt)}</TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
+                                        {product.label && product.label.length > 0 ? (
+                                            <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                                                {product.label.map((l, idx) => {
+                                                    const labelObj = PRODUCT_LABELS.find(opt => opt.value === l);
+                                                    return (
+                                                        <Chip
+                                                            key={l + '-' + idx}
+                                                            label={labelObj ? labelObj.label : l}
+                                                            size="small"
+                                                            variant="outlined"
+                                                            sx={{
+                                                                fontSize: '0.8rem',
+                                                                height: '22px',
+                                                                backgroundColor: '#f0f8ff',
+                                                                borderColor: '#1976d2',
+                                                                color: '#1976d2',
+                                                                m: 0.2
+                                                            }}
+                                                        />
+                                                    );
+                                                })}
+                                            </Stack>
+                                        ) : '-'}
                                     </TableCell>
-                                    <TableCell align="right">
+                                    <TableCell align="right" sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
                                         <IconButton size="small" onClick={() => handleOpenDialog(product)} sx={{ mr: 1 }}>
                                             <EditIcon />
                                         </IconButton>
@@ -336,6 +404,21 @@ export default function ProductsPage() {
                             <TextField name="description" label="Description" value={formData.description} onChange={handleInputChange} multiline rows={3} fullWidth />
                             <TextField name="price" label="Price" type="number" value={formData.price} onChange={handleInputChange} required fullWidth />
                             <TextField name="discountPrice" label="Discount Price" type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
+                            
+                            {/* Status select - đưa lên trên */}
+                            <FormControl fullWidth required>
+                                <InputLabel id="status-label">Status</InputLabel>
+                                <Select
+                                    labelId="status-label"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as "active" | "inactive" }))}
+                                    label="Status"
+                                >
+                                    <MenuItem value="active">Active</MenuItem>
+                                    <MenuItem value="inactive">Inactive</MenuItem>
+                                </Select>
+                            </FormControl>
+
                             {/* Categories multi-select */}
                             <FormControl fullWidth required>
                                 <InputLabel id="categories-label">Categories</InputLabel>
