@@ -247,16 +247,13 @@ export default function ProductsPage() {
         return '-';
     };
 
-    // Helper: Lấy tên category từ string hoặc object
-    const getCategoryDisplay = (cat: string | { _id: string; name: string }) => {
-        if (typeof cat === 'string') {
-            const found = categories.find(c => c._id === cat);
-            return found ? found.name : cat;
+    // Helper: Lấy tên category dạng parent-sub
+    const getCategoryDisplay = (cat: any) => {
+        if (!cat) return '';
+        if (cat.parentCategory && cat.parentCategory.name) {
+            return `${cat.parentCategory.name} - ${cat.name}`;
         }
-        if (typeof cat === 'object' && cat !== null) {
-            return cat.name || (cat._id && (categories.find(c => c._id === cat._id)?.name)) || '[object Object]';
-        }
-        return '';
+        return cat.name;
     };
 
     // Helper: Format ngày tháng
