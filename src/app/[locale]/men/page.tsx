@@ -186,66 +186,93 @@ export default function MenPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'flex-start',
             padding: { xs: 4, md: 8, lg: 12 },
+            pb: { xs: 6, md: 10, lg: 12 },
           }}
         >
-          <Typography 
-            variant="h1" 
-            component="h1" 
+          {/* Main Title Block */}
+          <Box
             sx={{
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: { xs: '3rem', md: '5rem', lg: '6.5rem' },
-              lineHeight: 0.9,
-              textShadow: '3px 3px 6px rgba(0,0,0,0.7)',
-              mb: 3,
-              maxWidth: '800px',
-              letterSpacing: '-0.02em'
+              bgcolor: 'white',
+              color: 'black',
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.5, md: 0.8 },
+              mb: 0.5,
+              maxWidth: 'fit-content',
+              display: 'inline-block'
             }}
           >
-            MEN'S FOOTBALL
-          </Typography>
-          <Typography 
-            variant="h3" 
-            component="h2" 
+            <Typography 
+              variant="h1" 
+              component="h1" 
+              sx={{
+                fontWeight: 'bold',
+                fontSize: { xs: '1.2rem', md: '1.6rem', lg: '2rem' },
+                lineHeight: 1,
+                letterSpacing: '-0.01em',
+                textTransform: 'uppercase',
+                margin: 0
+              }}
+            >
+              REAL MADRID 24/25 HOME KIT
+            </Typography>
+          </Box>
+
+          {/* Subtitle Block */}
+          <Box
             sx={{
-              color: 'white',
-              fontWeight: 300,
-              fontSize: { xs: '1.4rem', md: '2rem', lg: '2.5rem' },
-              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
-              mb: 5,
-              maxWidth: '600px',
-              opacity: 0.95
+              bgcolor: 'white',
+              color: 'black',
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.4, md: 0.6 },
+              mb: 2,
+              maxWidth: 'fit-content',
+              display: 'inline-block'
             }}
           >
-            Chính thức và đẳng cấp
-          </Typography>
+            <Typography 
+              variant="h6" 
+              component="h2" 
+              sx={{
+                fontWeight: 400,
+                fontSize: { xs: '0.75rem', md: '0.85rem', lg: '0.95rem' },
+                margin: 0,
+                letterSpacing: '0.01em'
+              }}
+            >
+              Bộ sưu tập chính thức của Los Blancos
+            </Typography>
+          </Box>
+
+          {/* CTA Button */}
           <Button 
             variant="contained" 
-            size="large"
+            size="small"
             sx={{ 
               bgcolor: 'white',
               color: 'black',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
+              px: { xs: 2, md: 2.5 },
+              py: { xs: 0.5, md: 0.7 },
+              fontSize: { xs: '0.7rem', md: '0.8rem' },
               fontWeight: 'bold',
-              textTransform: 'uppercase',
+              textTransform: 'none',
               borderRadius: 0,
+              border: '2px solid black',
+              minWidth: '100px',
               '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.9)',
+                bgcolor: 'black',
+                color: 'white',
                 transform: 'translateY(-2px)',
                 boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
               },
               transition: 'all 0.3s ease'
             }}
           >
-            Khám phá ngay
+            Mua ngay
           </Button>
         </Box>
       </Box>

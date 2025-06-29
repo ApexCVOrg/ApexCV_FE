@@ -321,7 +321,7 @@ export default function WomenPage() {
                           filter: 'brightness(1)'
                         }
                       }}
-                    />
+                />
                     <Box
                       sx={{
                         position: 'absolute',
@@ -396,8 +396,8 @@ export default function WomenPage() {
                   Những sản phẩm được yêu thích nhất
                 </Typography>
           </Box>
-            </Box>
-            {loading && (
+          </Box>
+          {loading && (
               <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'center', 

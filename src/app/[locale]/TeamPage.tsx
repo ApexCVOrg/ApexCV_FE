@@ -15,9 +15,12 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import ProductCard from '@/components/card';
-import HorizontalFilterBar from './HorizontalFilterBar';
 
 interface Product {
   _id: string;
@@ -41,6 +44,7 @@ interface Product {
   brand: { _id: string; name: string };
   sizes: { size: string; stock: number }[];
   colors: string[];
+  createdAt: string;
 }
 
 interface Category {
@@ -214,6 +218,27 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
     );
   };
 
+  // Thêm hàm sort helper
+  const sortProducts = (products: Product[], sortType: string) => {
+    console.log('[FILTER] Sorting products by:', sortType);
+    const sortedProducts = [...products];
+    
+    switch (sortType) {
+      case 'price-low':
+        return sortedProducts.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+      case 'price-high':
+        return sortedProducts.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+      case 'newest':
+        // Tạm thời sắp xếp theo giá mới nhất vì chưa có createdAt
+        return sortedProducts.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+      case 'popular':
+        // Tạm thời trả về thứ tự mặc định vì chưa có trường đánh giá popularity
+        return sortedProducts;
+      default:
+        return sortedProducts;
+    }
+  };
+
   if (error) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -230,12 +255,83 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         maxWidth: '1600px',
         width: '100%'
       }}>
-        <HorizontalFilterBar
-          teamName={teamName}
-          sortBy={sortBy}
-          onSortChange={setSortBy}
-          onFilterSort={() => setFilterDialogOpen(true)}
-        />
+        {/* Sort and Filter Bar */}
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6">{products.length} Products</Typography>
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Sort By</InputLabel>
+            <Select 
+              value={sortBy} 
+              label="Sort By" 
+              onChange={async (e) => {
+                const value = e.target.value;
+                setSortBy(value);
+                setLoading(true);
+                try {
+                  const queryParams = new URLSearchParams({
+                    minPrice: priceRange[0].toString(),
+                    maxPrice: priceRange[1].toString(),
+                    sortBy: value === 'price-low' ? 'asc' : value === 'price-high' ? 'desc' : value,
+                    ...(selectedCategories.length > 0 && { categories: selectedCategories.filter(Boolean).join(',') }),
+                    ...(selectedBrands.length > 0 && { brand: selectedBrands.filter(Boolean).join(',') }),
+                    gender: gender.toLowerCase()
+                  });
+
+                  console.log('[FILTER] Selected categories before filter:', selectedCategories);
+                  console.log('[FILTER] Selected categories after filter:', selectedCategories.filter(Boolean));
+                  
+                  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+                  console.log('[FILTER] Sorting products with URL:', apiUrl);
+                  console.log('[FILTER] Sort value:', value);
+                  console.log('[FILTER] Sort value sent to API:', value === 'price-low' ? 'asc' : value === 'price-high' ? 'desc' : value);
+                  console.log('[FILTER] Query params:', Object.fromEntries(queryParams.entries()));
+                  
+                  const response = await fetch(apiUrl);
+                  
+                  if (!response.ok) {
+                    throw new Error(`Failed to fetch products: ${response.status}`);
+                  }
+
+                  const result = await response.json();
+                  console.log('[FILTER] API Response:', result);
+                  
+                  if (result.success) {
+                    // Filter products to ensure they match the team
+                    let filteredProducts = result.data.filter((product: Product) => {
+                      return product.categories.some(cat => {
+                        if (cat.name === teamName) return true;
+                        if (cat.parentCategory?.name === teamName) return true;
+                        if (cat.parentCategory?.parentCategory?.name === teamName) return true;
+                        return false;
+                      });
+                    });
+
+                    // Sort products client-side để đảm bảo đúng thứ tự
+                    filteredProducts = sortProducts(filteredProducts, value);
+                    
+                    console.log('[FILTER] Filtered products count:', filteredProducts.length);
+                    console.log('[FILTER] First few products:', filteredProducts.slice(0, 3).map((p: Product) => ({
+                      name: p.name,
+                      price: p.price
+                    })));
+                    setProducts(filteredProducts);
+                  }
+                } catch (err) {
+                  console.error('[FILTER] Error:', err);
+                  setError(err instanceof Error ? err.message : 'Failed to fetch products');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              <MenuItem value="newest">Newest</MenuItem>
+              <MenuItem value="price-low">Price: Low to High</MenuItem>
+              <MenuItem value="price-high">Price: High to Low</MenuItem>
+              <MenuItem value="popular">Most Popular</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress />

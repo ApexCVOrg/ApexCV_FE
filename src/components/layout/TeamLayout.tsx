@@ -5,6 +5,7 @@ import { Box, Container, Typography, Paper } from '@mui/material';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import styles from '@/styles/pages/TeamLayout.module.scss';
 
 interface TeamInfo {
   name: string;
@@ -65,30 +66,15 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
   const pathname = usePathname();
   const currentTeam = pathname.split('/').pop() || '';
 
-  // Tính toán border cho từng team một cách nhất quán
-  const getBorder = (teamRoute: string) => {
-    if (currentTeam === teamRoute) {
-      return `2px solid ${tabColors[teamRoute]}`;
-    }
-    return 'none';
-  };
-
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
+    <Container maxWidth="lg" className={styles.container}>
+      <Box>
+        <Typography variant="h4" component="h1" className={styles.title} gutterBottom>
           {title}
         </Typography>
         <Paper
           elevation={3}
-          sx={{
-            p: 2,
-            mb: 4,
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 2,
-            flexWrap: 'wrap'
-          }}
+          className={styles.tabsWrapper}
         >
           {teams.map((team) => (
             <Link
@@ -97,30 +83,23 @@ export default function TeamLayout({ children, section, title }: TeamLayoutProps
               style={{ textDecoration: 'none' }}
             >
               <Box
-                sx={{
-                  width: 60,
-                  height: 60,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s',
-                  '&:hover': {
-                    transform: 'scale(1.1)',
-                  },
-                  border: getBorder(team.route),
-                  borderRadius: '50%',
-                  padding: '4px',
-                }}
+                className={
+                  currentTeam === team.route
+                    ? `${styles.teamIcon} ${styles.active}`
+                    : styles.teamIcon
+                }
+                style={
+                  currentTeam === team.route
+                    ? { borderColor: tabColors[team.route] }
+                    : undefined
+                }
               >
                 <Image
                   src={team.logo}
                   alt={team.name}
                   width={60}
                   height={60}
-                  style={{
-                    objectFit: 'contain',
-                  }}
+                  style={{ objectFit: 'contain' }}
                 />
               </Box>
             </Link>

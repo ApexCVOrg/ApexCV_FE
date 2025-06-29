@@ -173,7 +173,7 @@ export default function KidsPage() {
         }}
       >
         <Image
-          src="/assets/images/kids/arsenal/Arsenal_Shirt.avif"
+          src="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
           alt="Kids' Football Collection"
           fill
           style={{ objectFit: 'cover' }}
@@ -208,7 +208,7 @@ export default function KidsPage() {
               letterSpacing: '-0.02em'
             }}
           >
-            KIDS' FOOTBALL
+            NIDAS KIDS
           </Typography>
           <Typography 
             variant="h3" 
