@@ -334,5 +334,18 @@
     "error": "Đổi mật khẩu thất bại",
     "changePasswordDescription": "Vui lòng nhập mật khẩu hiện tại và mật khẩu mới của bạn",
     "cancel": "Hủy"
+  },
+  "favorites": {
+    "title": "Sản phẩm yêu thích",
+    "items": "sản phẩm",
+    "clearAll": "Xóa tất cả",
+    "clearAllTooltip": "Xóa tất cả sản phẩm khỏi danh sách yêu thích",
+    "clearAllConfirmTitle": "Xóa tất cả sản phẩm yêu thích",
+    "clearAllConfirmMessage": "Bạn có chắc chắn muốn xóa tất cả {count} sản phẩm khỏi danh sách yêu thích? Hành động này không thể hoàn tác.",
+    "cancel": "Hủy",
+    "clearing": "Đang xóa...",
+    "emptyTitle": "Chưa có sản phẩm yêu thích",
+    "emptyDescription": "Bắt đầu thêm sản phẩm vào danh sách yêu thích để xem chúng ở đây. Bạn có thể thêm sản phẩm bằng cách nhấp vào biểu tượng trái tim trên bất kỳ thẻ sản phẩm nào.",
+    "startShopping": "Bắt đầu mua sắm"
   }
 }

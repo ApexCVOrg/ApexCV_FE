@@ -38,6 +38,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useFavorites } from '@/hooks/useFavorites';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -66,6 +68,7 @@ const Header = () => {
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
+  const { favoritesCount } = useFavorites();
   const [userRole, setUserRole] = useState<User['role'] | null>(null);
   const [anchorElMenu, setAnchorElMenu] = useState<null | HTMLElement>(null);
   const [openMenuIndex, setOpenMenuIndex] = useState<number | null>(null);
@@ -578,6 +581,31 @@ const Header = () => {
                       <Person fontSize="small" />
                     </ListItemIcon>
                     {t('profile')}
+                  </MenuItem>
+                  <MenuItem onClick={() => router.push('/favorites')}>
+                    <ListItemIcon>
+                      <FavoriteIcon fontSize="small" />
+                    </ListItemIcon>
+                    Favorites
+                    {favoritesCount > 0 && (
+                      <Box
+                        sx={{
+                          ml: 'auto',
+                          bgcolor: 'error.main',
+                          color: 'white',
+                          borderRadius: '50%',
+                          width: 20,
+                          height: 20,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.75rem',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        {favoritesCount > 99 ? '99+' : favoritesCount}
+                      </Box>
+                    )}
                   </MenuItem>
                   {userRole === 'admin' && (
                     <MenuItem onClick={handleAdminDashboard}>

@@ -14,6 +14,7 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 
 // Thêm type cho category hỗ trợ cả id và _id
@@ -31,6 +32,7 @@ interface ProductCardProps {
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
+  productId: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -45,6 +47,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   labels,
   allCategories,
   allBrands,
+  productId,
 }) => {
   const t = useTranslations('productCard');
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
@@ -107,6 +110,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
             sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </Box>
+        {/* Favorite Button */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 3,
+          }}
+        >
+          <FavoriteButton
+            productId={productId}
+            size="small"
+            color="error"
+            showTooltip={true}
+          />
+        </Box>
         {isDiscounted && (
           <Box
             sx={{
@@ -152,7 +171,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           gutterBottom
           variant="subtitle1"
           component="h3"
-          sx={{ fontWeight: 550, mb: 1, color: '#222', minHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+          sx={{ fontWeight: 600, mb: 1, color: '#222', minHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
         >
           {name}
         </Typography>

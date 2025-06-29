@@ -313,6 +313,7 @@ export default function Home() {
                     labels={validLabels}
                     allCategories={categories}
                     allBrands={brands}
+                    productId={product._id}
                     onAddToCart={() => console.log('Add to cart:', product._id)}
                   />
                 </Box>
