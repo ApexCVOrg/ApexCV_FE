@@ -62,11 +62,10 @@ export const useAuth = () => {
 
   const getCurrentUser = useCallback(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/auth/login');
       return null;
     }
     return authService.getCurrentUser();
-  }, [router]);
+  }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {

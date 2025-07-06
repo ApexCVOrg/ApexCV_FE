@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('authToken');
-    router.push('/auth/login');
+    // Không tự động redirect, để component tự xử lý
   };
 
   return (
