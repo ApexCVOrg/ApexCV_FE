@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/lib/i18n/routing';
 import { Box, Container } from '@mui/material';
 import { AuthProvider } from '@/context/AuthContext';
+import { FavoritesProvider } from '@/context/FavoritesContext';
 import { messages } from '@/lib/i18n/messages';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -35,15 +36,17 @@ export default async function LocaleLayout({
       <body className={inter.className} style={{ backgroundColor: '#fff', minHeight: '100vh', margin: 0 }}>
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages[locale as keyof typeof messages]}>
-            <Box className="app-container" sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
-              <Header />
-              <Container component="main" className="main-content" sx={{ bgcolor: '#fff' }}>
-                <AuthProvider>
-                  {children}
-                </AuthProvider>
-              </Container>
-              <Footer />
-            </Box>
+            <AuthProvider>
+              <FavoritesProvider>
+                <Box className="app-container" sx={{ bgcolor: '#fff', minHeight: '100vh' }}>
+                  <Header />
+                  <Container component="main" className="main-content" sx={{ bgcolor: '#fff' }}>
+                    {children}
+                  </Container>
+                  <Footer />
+                </Box>
+              </FavoritesProvider>
+            </AuthProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
