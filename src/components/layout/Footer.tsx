@@ -29,15 +29,7 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(4, 1fr)'
-          },
-          gap: 4
-        }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 4 }}>
           <Box>
             <Typography
               variant="h5"
@@ -55,11 +47,11 @@ const Footer = () => {
               SHOP
             </Typography>
             <Stack spacing={1}>
-              <Link href={ROUTES.MEN} style={linkStyle}>Men</Link>
-              <Link href={ROUTES.WOMEN} style={linkStyle}>Women</Link>
-              <Link href={ROUTES.KIDS} style={linkStyle}>Kids</Link>
-              <Link href={ROUTES.ACCESSORIES} style={linkStyle}>Accessories</Link>
-              <Link href={ROUTES.SALE} style={linkStyle}>Sale</Link>
+              <Link href={ROUTES.MEN.ROOT} style={linkStyle}>Men</Link>
+              <Link href={ROUTES.WOMEN.ROOT} style={linkStyle}>Women</Link>
+              <Link href={ROUTES.KIDS.ROOT} style={linkStyle}>Kids</Link>
+              <Link href={ROUTES.ACCESSORIES.ROOT} style={linkStyle}>Accessories</Link>
+              <Link href={ROUTES.SALE.ROOT} style={linkStyle}>Sale</Link>
             </Stack>
           </Box>
 

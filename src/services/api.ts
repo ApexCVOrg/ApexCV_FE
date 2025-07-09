@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../lib/constants/constants';
 
 interface RefreshTokenResponse {
   token: string;
@@ -26,7 +25,7 @@ interface AxiosRequest {
 }
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -68,7 +67,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
         return Promise.reject(refreshError);
       }
     }
