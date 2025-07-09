@@ -27,8 +27,7 @@ import {
   InputAdornment,
   useMediaQuery,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
-import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
+import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,6 +45,7 @@ interface Product {
   label?: string;
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  orderCount?: number; // Added for top-selling
 }
 interface Brand {
   _id: string;
@@ -59,6 +59,66 @@ const TABS = [
   { key: 'featured', label: 'Featured Collections' },
   { key: 'trending', label: 'Trending' },
 ];
+
+// Hàm xác định đường dẫn ảnh
+function getImageSrc(filename: string, gender?: string, team?: string): string {
+  if (!filename) return '/assets/images/placeholder.jpg';
+  if (filename.startsWith('/') || filename.startsWith('http')) return filename;
+  // Lib
+  const libFiles = [
+    'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
+    'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+  ];
+  if (libFiles.includes(filename)) return `/assets/images/lib/${filename}`;
+  // Products đặc biệt
+  const productFiles = [
+    'arsenal-kids-home-jersey-2024.jpg', 'arsenal-kids-tracksuit.jpg'
+  ];
+  if (productFiles.includes(filename)) return `/assets/images/products/${filename}`;
+  // Women/Men/Kids theo gender/team
+  if (gender && team && gender !== 'uncategorized' && team !== 'uncategorized') {
+    const genderFolder = gender.toLowerCase();
+    const teamFolder = team.toLowerCase().replace(/ /g, '-');
+    return `/assets/images/${genderFolder}/${teamFolder}/${filename}`;
+  }
+  // Fallback về products
+  return `/assets/images/products/${filename}`;
+}
+
+// Hàm đoán gender và team từ category, tags, name
+function guessGenderAndTeam(product: any): { gender?: string, team?: string } {
+  let gender = undefined;
+  let team = undefined;
+  // Ưu tiên lấy từ category nếu có
+  if (product.categories && product.categories.length > 0) {
+    const cat = product.categories[0];
+    if ('gender' in cat) gender = (cat as any).gender;
+    team = cat.name;
+  }
+  // Nếu không có, thử lấy từ tags
+  if (!gender && product.tags) {
+    if (product.tags.some((t: string) => t.toLowerCase().includes('women'))) gender = 'women';
+    else if (product.tags.some((t: string) => t.toLowerCase().includes('men'))) gender = 'men';
+    else if (product.tags.some((t: string) => t.toLowerCase().includes('kids'))) gender = 'kids';
+  }
+  // Nếu không có, thử lấy từ name
+  if (!gender && product.name) {
+    if (product.name.toLowerCase().includes('women')) gender = 'women';
+    else if (product.name.toLowerCase().includes('men')) gender = 'men';
+    else if (product.name.toLowerCase().includes('kid')) gender = 'kids';
+  }
+  // Team từ tags nếu có
+  if (!team && product.tags) {
+    const teams = ['arsenal', 'bayern munich', 'real madrid', 'manchester united', 'juventus'];
+    for (const t of teams) {
+      if (product.tags.some((tag: string) => tag.toLowerCase().includes(t))) {
+        team = t;
+        break;
+      }
+    }
+  }
+  return { gender, team };
+}
 
 export default function HomePage() {
   const [tab, setTab] = useState(0);
@@ -74,6 +134,10 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const isLargeScreen = useMediaQuery('(width: 1440px) and (height: 1920px)');
   const [scrollY, setScrollY] = useState(0);
+  // State for pagination (load more)
+  const [visibleCount, setVisibleCount] = useState(10);
+  // State for pagination (load more) cho từng tab
+  const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const handleScroll = () => {
@@ -134,18 +198,82 @@ export default function HomePage() {
   const fetchProducts = useCallback(async (tabKey: string) => {
     setLoading(true);
     try {
-      const queryParams = new URLSearchParams({
-        minPrice: priceRange[0].toString(),
-        maxPrice: priceRange[1].toString(),
-        ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
-        ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
-        ...(searchQuery && { search: searchQuery }),
-        tab: tabKey, // Pass tabKey to backend to filter by section
-      });
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
-      if (!response.ok) throw new Error('Failed to fetch products');
-      const result = await response.json();
-      setProducts(prev => ({ ...prev, [tabKey]: result.data || [] }));
+      let filtered: Product[] = [];
+      if (tabKey === 'topSelling') {
+        // Top Selling: gọi API public, không cần token
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`);
+        const result = await response.json();
+        console.log('Top Selling API response:', response, result);
+        // Map lại dữ liệu cho đúng shape ProductCard
+        filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
+          _id: item._id,
+          name: item.name,
+          images: [item.image],
+          price: item.totalRevenue || 0,
+          discountPrice: undefined,
+          tags: [],
+          label: '',
+          brand: { _id: '', name: '' },
+          categories: [{ _id: '', name: item.category || 'Uncategorized' }],
+        }));
+      } else {
+        // Các tab còn lại lấy từ API products (có thể filter theo category, price, brand)
+        const queryParams = new URLSearchParams({
+          minPrice: priceRange[0].toString(),
+          maxPrice: priceRange[1].toString(),
+          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+          ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+          ...(tabKey === 'filtered' && searchQuery ? { search: searchQuery } : {}),
+        });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const result = await response.json();
+        filtered = result.data || [];
+        if (tabKey === 'newArrivals') {
+          filtered = filtered.filter((product: Product) => {
+            const labels = Array.isArray(product.label) ? product.label : [product.label];
+            return labels?.some((l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new');
+          });
+        } else if (tabKey === 'deals') {
+          filtered = filtered.filter((product: Product) => product.discountPrice != null);
+        } else if (tabKey === 'featured') {
+          filtered = filtered.filter((product: Product) => {
+            const labels = Array.isArray(product.label) ? product.label : [product.label];
+            return labels?.some((l: string) => ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase()));
+          });
+        } else if (tabKey === 'trending') {
+          // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
+          // Ở đây giả sử không có API trending
+          filtered = filtered
+            .filter((product: Product) => {
+              const labels = Array.isArray(product.label) ? product.label : [product.label];
+              return labels?.some((l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new');
+            })
+            .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
+        } else if (tabKey === 'filtered') {
+          // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            filtered = filtered.filter((product: Product) => {
+              const nameMatch = product.name?.toLowerCase().includes(q);
+              const catMatch = (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
+                cat.name?.toLowerCase().includes(q) ||
+                cat.parentCategory?.name?.toLowerCase().includes(q)
+              );
+              return nameMatch || catMatch;
+            });
+          }
+        }
+      }
+      // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
+      filtered = (Array.isArray(filtered) ? filtered : []).filter((product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+      // Lọc theo category (nếu có chọn)
+      if (selectedCategories.length > 0) {
+        filtered = filtered.filter((product: Product) =>
+          (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
+        );
+      }
+      setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
       console.error('Error fetching products:', error);
@@ -154,11 +282,27 @@ export default function HomePage() {
     }
   }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
 
+  // Reset visibleCount khi filter/search thay đổi
+  useEffect(() => {
+    setVisibleCount(10);
+  }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
+
+  // Reset visible count khi đổi tab hoặc filter
+  useEffect(() => {
+    setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: 5 }));
+  }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery]);
+
   // Fetch products when tab or filters change
+  useEffect(() => {
+    // Luôn fetch sản phẩm filter riêng
+    fetchProducts('filtered');
+  }, [priceRange, selectedCategories, selectedBrands, searchQuery, fetchProducts]);
+
+  // Fetch tabbed products khi đổi tab
   useEffect(() => {
     const tabKey = TABS[tab].key;
     fetchProducts(tabKey);
-  }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery, fetchProducts]);
+  }, [tab, fetchProducts]);
 
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
@@ -423,8 +567,82 @@ export default function HomePage() {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.3 }}
               style={{ flex: 1, width: '100%' }}
             >
-              {/* Tabs */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+              {/* Products Grid (filtered) */}
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress size={60} />
+                </Box>
+              ) : (
+                <Box 
+                  className="product-grid"
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: {
+                      xs: 'repeat(2, 1fr)',
+                      md: 'repeat(2, 1fr)',
+                    },
+                    gap: isLargeScreen ? 3 : 2,
+                    padding: isLargeScreen ? '2rem 0' : '1rem 0',
+                    '@media screen and (width: 1440px) and (height: 1920px)': {
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '2rem',
+                      padding: '2rem 0',
+                    }
+                  }}
+                >
+                  {products['filtered']?.slice(0, visibleCount).length > 0 ? products['filtered'].slice(0, visibleCount).map((product) => {
+                    const { gender, team } = guessGenderAndTeam(product);
+                    let imgSrc = '/assets/images/placeholder.jpg';
+                    if (product.images && product.images[0]) {
+                      imgSrc = getImageSrc(product.images[0], gender, team);
+                    }
+                    // console.log('Image src:', imgSrc, product);
+                    return (
+                      <ProductCard
+                        key={product._id}
+                        name={product.name}
+                        image={imgSrc}
+                        price={product.price}
+                        discountPrice={product.discountPrice}
+                        tags={product.tags}
+                        brand={product.brand}
+                        categories={product.categories}
+                        labels={product.label ? [product.label as any] : []}
+                        allCategories={categories}
+                        allBrands={brands}
+                        onAddToCart={() => console.log('Add to cart:', product._id)}
+                        backgroundColor="#f8f9fa"
+                        colors={3}
+                      />
+                    );
+                  }) : (
+                    <Box sx={{ textAlign: 'center', py: 4, gridColumn: '1/-1' }}>
+                      <Typography 
+                        variant="h6" 
+                        color="text.secondary"
+                        sx={{
+                          '@media screen and (width: 1440px) and (height: 1920px)': {
+                            fontSize: '1.5rem',
+                          }
+                        }}
+                      >
+                        No products found. Try adjusting your filters.
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              )}
+              {/* Load more button */}
+              {products['filtered'] && products['filtered'].length > visibleCount && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Button variant="outlined" onClick={() => setVisibleCount(c => c + 10)}>
+                    Load more
+                  </Button>
+                </Box>
+              )}
+
+              {/* Tabs section moved below the product grid */}
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6 }}>
                 <Tabs 
                   value={tab} 
                   onChange={(e: React.SyntheticEvent, newValue: number) => setTab(newValue)}
@@ -452,65 +670,82 @@ export default function HomePage() {
                   ))}
                 </Tabs>
               </Box>
-
-              {/* Products Grid */}
-              {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                  <CircularProgress size={60} />
-                </Box>
-              ) : (
-                <Box 
-                  className="product-grid"
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: {
-                      xs: 'repeat(2, 1fr)',
-                      md: 'repeat(2, 1fr)',
-                    },
-                    gap: isLargeScreen ? 3 : 2,
-                    padding: isLargeScreen ? '2rem 0' : '1rem 0',
-                    '@media screen and (width: 1440px) and (height: 1920px)': {
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      gap: '2rem',
-                      padding: '2rem 0',
+              {/* Tabbed Products Row (each tab = 1 row, horizontal scroll) */}
+              <Box
+                className="tabbed-product-row"
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  overflowX: 'auto',
+                  overflowY: 'hidden',
+                  maxHeight: 420,
+                  minHeight: 340,
+                  alignItems: 'stretch',
+                  gap: 3,
+                  py: 2,
+                  mb: 4,
+                  scrollBehavior: 'smooth',
+                  px: 1,
+                  '@media screen and (width: 1440px) and (height: 1920px)': {
+                    gap: '2rem',
+                    padding: '2rem 0',
+                  }
+                }}
+                onWheel={e => {
+                  const target = e.currentTarget;
+                  if (e.deltaY !== 0) {
+                    e.preventDefault();
+                    target.scrollLeft += e.deltaY;
+                  }
+                }}
+              >
+                {products[TABS[tab].key]?.slice(0, tabVisibleCount[TABS[tab].key] || 5).length > 0 ? products[TABS[tab].key].slice(0, tabVisibleCount[TABS[tab].key] || 5).map((product) => {
+                    const { gender, team } = guessGenderAndTeam(product);
+                    let imgSrc = '/assets/images/placeholder.jpg';
+                    if (product.images && product.images[0]) {
+                      imgSrc = getImageSrc(product.images[0], gender, team);
                     }
-                  }}
-                >
-                  {products[TABS[tab].key]?.slice(0, 6).map((product) => (
-                    <ProductCard
-                      key={product._id}
-                      name={product.name}
-                      image={product.images && product.images[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
-                      price={product.price}
-                      discountPrice={product.discountPrice}
-                      tags={product.tags}
-                      brand={product.brand}
-                      categories={product.categories}
-                      labels={product.label ? [product.label as any] : []}
-                      allCategories={categories}
-                      allBrands={brands}
-                      onAddToCart={() => console.log('Add to cart:', product._id)}
-                      backgroundColor="#f8f9fa"
-                      colors={3}
-                    />
-                  ))}
-                </Box>
-              )}
-
-              {/* No Products Message */}
-              {!loading && (!products[TABS[tab].key] || products[TABS[tab].key].length === 0) && (
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography 
-                    variant="h6" 
-                    color="text.secondary"
-                    sx={{
-                      '@media screen and (width: 1440px) and (height: 1920px)': {
-                        fontSize: '1.5rem',
-                      }
-                    }}
-                  >
-                    No products found. Try adjusting your filters.
-                  </Typography>
+                    return (
+                      <Box key={product._id} sx={{ minWidth: 320, flex: '0 0 auto' }}>
+                        <ProductCard
+                          name={product.name}
+                          image={imgSrc}
+                          price={product.price}
+                          discountPrice={product.discountPrice}
+                          tags={product.tags}
+                          brand={product.brand}
+                          categories={product.categories}
+                          labels={product.label ? [product.label as any] : []}
+                          allCategories={categories}
+                          allBrands={brands}
+                          onAddToCart={() => console.log('Add to cart:', product._id)}
+                          backgroundColor="#f8f9fa"
+                          colors={3}
+                        />
+                      </Box>
+                    );
+                  }) : (
+                  <Box sx={{ textAlign: 'center', py: 4, minWidth: 320 }}>
+                    <Typography 
+                      variant="h6" 
+                      color="text.secondary"
+                      sx={{
+                        '@media screen and (width: 1440px) and (height: 1920px)': {
+                          fontSize: '1.5rem',
+                        }
+                      }}
+                    >
+                      No products found in this tab.
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+              {/* Load more button for tab */}
+              {products[TABS[tab].key] && (tabVisibleCount[TABS[tab].key] || 5) < products[TABS[tab].key].length && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Button variant="outlined" onClick={() => setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: (prev[TABS[tab].key] || 5) + 5 }))}>
+                    Load more
+                  </Button>
                 </Box>
               )}
             </motion.div>

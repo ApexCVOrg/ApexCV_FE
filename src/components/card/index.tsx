@@ -57,6 +57,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
   const displayLabels = labels?.filter(l => l !== 'sale') || [];
 
+  // Hiệu ứng ảnh nghiêng chỉ cho ảnh trong lib
+  const isLibImage = image.includes('/assets/images/lib/');
+
   // GSAP Animation cho entrance effect
   useEffect(() => {
     if (cardRef.current) {
@@ -132,19 +135,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
               pointerEvents: 'auto',
             },
             '.product-image': {
-              transform: 'translateX(-50%) rotate(-15deg) scale(1.08)',
+              transform: 'translateX(-50%) rotate(-15deg) scale(1.65)',
               filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.18))',
             },
           },
-        }}
+        }} 
       >
         {/* Ảnh sản phẩm nổi ra ngoài card, hiệu ứng đồng bộ hover */}
         <Box
           sx={{
-            position: 'absolute',
-            top: -80,
-            left: '50%',
-            transform: 'translateX(-50%) rotate(-15deg)',
+            position: isLibImage ? 'absolute' : 'relative',
+            top: isLibImage ? -80 : 0,
+            left: isLibImage ? '50%' : '0',
+            transform: isLibImage ? 'translateX(-50%) rotate(-15deg)' : 'none',
             zIndex: 2,
             width: 260,
             height: 180,
@@ -155,19 +158,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
             pointerEvents: 'none',
             transition: 'transform 0.4s cubic-bezier(.4,2,.6,1), filter 0.4s cubic-bezier(.4,2,.6,1)',
           }}
-          className="product-image"
+          className={isLibImage ? 'product-image' : undefined}
         >
           <img
             src={image}
             alt={name}
             style={{
-              width: '100%',
-              height: '100%',
+              width: isLibImage ? '100%' : '90%',
+              height: isLibImage ? '100%' : '140px',
               objectFit: 'contain',
               filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.12))',
               display: 'block',
               background: 'none',
               transition: 'filter 0.4s cubic-bezier(.4,2,.6,1)',
+              borderRadius: isLibImage ? 0 : 12,
+              boxShadow: isLibImage ? undefined : '0 2px 12px rgba(0,0,0,0.08)',
             }}
           />
         </Box>
