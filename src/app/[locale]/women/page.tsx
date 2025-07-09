@@ -9,7 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 interface Product {
   _id: string;
   name: string;
-  image: string;
+  images: string[];
   price: number;
   discountPrice?: number;
   tags: string[];
@@ -185,7 +185,7 @@ export default function WomenPage() {
               <ProductCard
                 key={product._id}
                 name={product.name}
-                image={product.image}
+                image={`/assets/images/${product.images?.[0] || 'default.jpg'}`}
                 price={product.price}
                 discountPrice={product.discountPrice}
                 tags={product.tags}

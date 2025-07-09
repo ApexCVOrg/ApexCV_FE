@@ -67,7 +67,7 @@ export default function SalesChart({ data }: SalesChartProps) {
   };
 
   return (
-    <Card sx={{ height: '100%', minHeight: 400 }}>
+    <Card sx={{ height: '100%', minHeight: 400, borderRadius: 4, boxShadow: 4, maxWidth: 1235, width: '100%' }}>
       <CardContent sx={{ p: 3 }}>
         <Typography
           variant="h6"

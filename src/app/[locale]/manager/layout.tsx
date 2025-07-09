@@ -20,6 +20,7 @@ import {
     Stack,
     Menu,
     MenuItem,
+    Tooltip,
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -184,7 +185,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <>
             <CssBaseline />
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", minHeight: '100vh', flexDirection: 'column', width: '87vw', overflowX: 'hidden', backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5' }}>
                 <AppBar
                     position="fixed"
                     sx={{
@@ -232,42 +233,48 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             }}
                         >
                             <ThemeToggle />
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={toggleLanguage}
-                                sx={{
-                                    color: 'inherit',
-                                    borderColor: 'inherit',
-                                    textTransform: 'uppercase',
-                                    minWidth: 48,
-                                    height: 36,
-                                    fontWeight: 'bold',
-                                    fontSize: '0.875rem',
-                                    px: 2,
-                                    '&:hover': {
-                                        borderColor: currentTheme === 'dark' ? 'white' : 'black',
-                                        backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    },
-                                }}
-                            >
-                                {language.toUpperCase()}
-                            </Button>
-                            <IconButton
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    color: 'inherit',
-                                    '&:hover': {
-                                        backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    },
-                                }}
-                            >
-                                <NotificationsIcon />
-                            </IconButton>
-                            <IconButton onClick={handleAvatarClick} sx={{ ml: 2 }}>
-                                <Avatar />
-                            </IconButton>
+                            <Tooltip title="Change Language">
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={toggleLanguage}
+                                    sx={{
+                                        color: 'inherit',
+                                        borderColor: 'inherit',
+                                        textTransform: 'uppercase',
+                                        minWidth: 48,
+                                        height: 36,
+                                        fontWeight: 'bold',
+                                        fontSize: '0.875rem',
+                                        px: 2,
+                                        '&:hover': {
+                                            borderColor: currentTheme === 'dark' ? 'white' : 'black',
+                                            backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        },
+                                    }}
+                                >
+                                    {language.toUpperCase()}
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title="Notifications">
+                                <IconButton
+                                    sx={{
+                                        width: 40,
+                                        height: 40,
+                                        color: 'inherit',
+                                        '&:hover': {
+                                            backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        },
+                                    }}
+                                >
+                                    <NotificationsIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Account">
+                                <IconButton onClick={handleAvatarClick} sx={{ ml: 2 }}>
+                                    <Avatar />
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Toolbar>
                 </AppBar>
@@ -286,6 +293,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                                 borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                                 backgroundColor: currentTheme === 'dark' ? '#111' : '#fff',
                                 color: currentTheme === 'dark' ? '#fff' : '#000',
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                             },
                         }}
                         open
@@ -316,21 +324,16 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     component="main"
                     sx={{
                         flexGrow: 1,
-                        width: { sm: `calc(100% - ${MANAGER.DRAWER_WIDTH}px)` },
-                        mt: 8,
-                        backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5',
-                        minHeight: "100vh",
+                        width: { xs: '100vw', sm: `calc(100vw - ${MANAGER.DRAWER_WIDTH}px)` },
+                        pt: '64px',
                         color: currentTheme === 'dark' ? '#fff' : '#000',
-                        p: 0,
-                        px: 0,
-                        py: 0,
-                        pt: 0,
-                        pb: 0,
-                        m: 0,
-                        mx: 0,
-                        my: 0,
-                        mt: 8,
-                        mb: 0,
+                        minHeight: 'calc(100vh - 0px)',
+                        boxSizing: 'border-box',
+                        overflowX: 'auto',
+                        p: { xs: 1, md: 2 },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-start',
                     }}
                 >
                     <Menu
