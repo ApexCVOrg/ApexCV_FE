@@ -151,6 +151,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
           },
         }} 
       >
+        {/* Favorite Button (top right of card) */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 3,
+            pointerEvents: 'auto',
+          }}
+        >
+          <FavoriteButton
+            productId={productId}
+            size="small"
+            color="error"
+            showTooltip={true}
+          />
+        </Box>
         {/* Ảnh sản phẩm nổi ra ngoài card, hiệu ứng đồng bộ hover */}
         <Box
           sx={{
@@ -185,23 +202,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               boxShadow: isLibImage ? undefined : '0 2px 12px rgba(0,0,0,0.08)',
             }}
           />
-          {/* Favorite Button (top right) */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: 12,
-              right: 12,
-              zIndex: 3,
-              pointerEvents: 'auto',
-            }}
-          >
-            <FavoriteButton
-              productId={productId}
-              size="small"
-              color="error"
-              showTooltip={true}
-            />
-          </Box>
         </Box>
 
         {/* Product Description Overlay */}

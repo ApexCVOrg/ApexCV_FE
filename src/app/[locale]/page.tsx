@@ -600,6 +600,7 @@ export default function HomePage() {
                     return (
                       <ProductCard
                         key={product._id}
+                        productId={product._id}
                         name={product.name}
                         image={imgSrc}
                         price={product.price}
@@ -707,6 +708,7 @@ export default function HomePage() {
                     return (
                       <Box key={product._id} sx={{ minWidth: 320, flex: '0 0 auto' }}>
                         <ProductCard
+                          productId={product._id}
                           name={product.name}
                           image={imgSrc}
                           price={product.price}
