@@ -502,5 +502,18 @@
     "error": "Failed to change password",
     "changePasswordDescription": "Please enter your current password and new password",
     "cancel": "Cancel"
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "items": "items",
+    "clearAll": "Clear All",
+    "clearAllTooltip": "Remove all items from favorites",
+    "clearAllConfirmTitle": "Clear All Favorites",
+    "clearAllConfirmMessage": "Are you sure you want to remove all {count} items from your favorites? This action cannot be undone.",
+    "cancel": "Cancel",
+    "clearing": "Clearing...",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Start adding products to your favorites to see them here. You can add products by clicking the heart icon on any product card.",
+    "startShopping": "Start Shopping"
   }
 }

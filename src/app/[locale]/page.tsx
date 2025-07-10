@@ -640,7 +640,6 @@ export default function HomePage() {
                   </Button>
                 </Box>
               )}
-
               {/* Tabs section moved below the product grid */}
               <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6 }}>
                 <Tabs 
