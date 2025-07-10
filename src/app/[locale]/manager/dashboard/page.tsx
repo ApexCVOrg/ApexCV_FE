@@ -198,71 +198,51 @@ export default function DashboardPage() {
           minHeight: '60vh',
         }}
       >
-        <CircularProgress size={60} />
+        <CircularProgress />
       </Box>
     );
   }
 
-  if (error || !dashboardData) {
+  if (error) {
     return (
-      <Box sx={{ textAlign: 'center', py: 4 }}>
-        <Typography variant="h6" color="error">
-          {error || 'Failed to load dashboard data'}
-        </Typography>
-        <Button 
-          variant="contained" 
-          onClick={() => window.location.reload()} 
-          sx={{ mt: 2 }}
-        >
-          Retry
-        </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Typography color="error">{error}</Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 900,
-            letterSpacing: 2,
-            fontFamily: "'Anton', sans-serif",
-          }}
-        >
-          {t("overview")}
-        </Typography>
-        <Button variant="outlined" color="error" onClick={handleLogout}>
-          Logout
-        </Button>
-      </Box>
-
-      {/* Summary Cards */}
-      <Box sx={{ mb: 4 }}>
-        <SummaryCards data={dashboardData.summary} />
-      </Box>
-
-      {/* Charts and Analytics */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        {/* Sales Chart and Top Products Row */}
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-          <Box sx={{ flex: '1 1 800px', minWidth: 0 }}>
-            <SalesChart data={dashboardData.salesChart} />
-          </Box>
-          <Box sx={{ flex: '0 1 400px', minWidth: 0 }}>
-            <TopProducts products={dashboardData.topProducts} />
+    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 } }}>
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 900,
+          letterSpacing: 2,
+          textTransform: 'uppercase',
+          mb: 3,
+          fontFamily: "'Anton', sans-serif",
+        }}
+      >
+        {t('overview')}
+      </Typography>
+      <Grid container spacing={3} alignItems="stretch">
+        <Box sx={{ width: '100%', mb: 3 }}>
+          <SummaryCards data={dashboardData!.summary} />
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3, width: '100%', overflowX: 'hidden' }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <SalesChart data={dashboardData!.salesChart} />
           </Box>
         </Box>
-
-        {/* Order Statistics */}
-        <Box>
-          <OrderStats 
-            orderStatusData={dashboardData.orderStats}
-            totalOrders={dashboardData.totalOrders}
-          />
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, width: '100%', mb: 3 }}>
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
+            <OrderStats orderStatusData={dashboardData!.orderStats} totalOrders={dashboardData!.totalOrders} />
+          </Box>
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
+            <TopProducts products={dashboardData!.topProducts} />
+          </Box>
         </Box>
-      </Box>
+      </Grid>
     </Box>
   );
 }

@@ -6,17 +6,15 @@ import {
   CardContent,
   Typography,
   Box,
-  Grid,
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend,
 } from 'recharts';
-import { ShoppingCart, Cancel, LocalShipping, CheckCircle } from '@mui/icons-material';
 
 interface OrderStatusData {
   name: string;
@@ -96,10 +94,9 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
   );
 
   return (
-    <Grid container spacing={3}>
-      {/* Order Status Pie Chart */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: '100%', minHeight: 400 }}>
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, width: '100%' }}>
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
+        <Card sx={{ height: '100%', minHeight: 400, flex: 1, maxWidth: 600, width: '100%' }}>
           <CardContent sx={{ p: 3 }}>
             <Typography
               variant="h6"
@@ -112,7 +109,6 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             >
               Order Status Distribution
             </Typography>
-            
             {safeOrderStatusData.length > 0 ? (
               <>
                 <ResponsiveContainer width="100%" height={250}>
@@ -133,7 +129,6 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
-                
                 <CustomLegend payload={safeOrderStatusData.map((item, index) => ({
                   value: item.name,
                   color: item.color,
@@ -161,11 +156,9 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             )}
           </CardContent>
         </Card>
-      </Grid>
-
-      {/* Order Status Summary */}
-      <Grid item xs={12} md={6}>
-        <Card sx={{ height: '100%', minHeight: 400 }}>
+      </Box>
+      <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
+        <Card sx={{ height: '100%', minHeight: 400, flex: 1, maxWidth: 600, width: '100%' }}>
           <CardContent sx={{ p: 3 }}>
             <Typography
               variant="h6"
@@ -178,7 +171,6 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             >
               Order Summary
             </Typography>
-            
             {safeOrderStatusData.length > 0 ? (
               <>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -225,7 +217,6 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     </Box>
                   ))}
                 </Box>
-                
                 <Box
                   sx={{
                     mt: 3,
@@ -265,7 +256,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             )}
           </CardContent>
         </Card>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 } 

@@ -33,7 +33,6 @@ import Person from '@mui/icons-material/Person';
 import { usePathname, useRouter } from 'next/navigation';
 import { ROUTES } from '@/lib/constants/constants';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import SearchIcon from '@mui/icons-material/Search';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -58,7 +57,7 @@ interface User {
   role: 'admin' | 'manager' | 'user';
 }
 
-const Header = () => {
+const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
@@ -77,6 +76,14 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
+
+  // Tính background header dựa vào scrollY
+  const bannerHeight = 400; // hoặc 60vh, tuỳ ý
+  const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
+  const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
+
+  // Header luôn trong suốt, có thể thêm shadow nhẹ khi cuộn xuống
+  const showShadow = scrollY > 32;
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -296,25 +303,31 @@ const Header = () => {
   return (
     <>
       <AppBar
-        position="sticky"
+        position="fixed"
         sx={{
-          bgcolor: isDarkMode ? '#000' : '#fff',
+          bgcolor: 'transparent',
           color: isDarkMode ? '#fff' : '#000',
-          borderBottom: '1px solid',
-          borderColor: isDarkMode ? 'grey.800' : 'grey.300',
-          px: 2,
+          borderBottom: 'none',
+          boxShadow: showShadow ? '0 2px 16px 0 rgba(0,0,0,0.06)' : 'none',
+          px: { xs: 1, md: 2 },
+          width: '100%',
+          left: 0,
+          top: 0,
+          zIndex: 100,
+          transition: 'background 0.4s, box-shadow 0.4s',
         }}
         elevation={0}
       >
         <Toolbar
           sx={{
-            position: 'relative',
             minHeight: 64,
-            px: 2,
+            px: { xs: 1, md: 2 },
             width: '100%',
             maxWidth: 1920,
             mx: 'auto',
-            bgcolor: isDarkMode ? '#000' : '#fff',
+            bgcolor: 'transparent',
+            display: 'flex',
+            flexWrap: 'wrap',
           }}
         >
           {/* Logo - Left */}
@@ -348,9 +361,11 @@ const Header = () => {
                 display: 'flex',
                 alignItems: 'center',
                 zIndex: 1,
+                minWidth: 0,
+                flexWrap: 'wrap',
               }}
             >
-              <Stack direction="row" spacing={4}>
+              <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', minWidth: 0 }}>
                 {NAV_LINKS.map(({ title, href, submenu }, i) => (
                   <Box 
                     key={title} 
@@ -498,28 +513,15 @@ const Header = () => {
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center', 
-            minWidth: 320, 
+            minWidth: 0, 
             ml: 'auto',
             position: 'relative',
-            zIndex: 1200 // Đảm bảo menu profile luôn hiển thị trên cùng
+            zIndex: 1200,
+            flexWrap: 'wrap',
+            gap: { xs: 1, md: 2 },
+            width: { xs: '100%', sm: 'auto' },
+            maxWidth: '100vw',
           }}>
-            {/* Search Bar */}
-            <Box sx={{ mx: 2, width: 200 }}>
-              <TextField
-                size="small"
-                placeholder="Tìm kiếm"
-                fullWidth
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                  sx: { borderRadius: 5, bgcolor: isDarkMode ? '#222' : '#f5f5f5' }
-                }}
-                variant="outlined"
-              />
-            </Box>
             <ThemeToggle />
             {/* Nút đổi ngôn ngữ */}
             <Button
@@ -668,7 +670,7 @@ const Header = () => {
       {/* Mobile Drawer */}
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box
-          sx={{ width: 240 }}
+          sx={{ width: '70vw', maxWidth: 320 }}
           role="presentation"
           onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
