@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Container } from '@mui/material';
+import { Box } from '@mui/material';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ChatBox from '@/components/ChatBox';
