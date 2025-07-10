@@ -600,6 +600,7 @@ export default function HomePage() {
                     return (
                       <ProductCard
                         key={product._id}
+                        productId={product._id}
                         name={product.name}
                         image={imgSrc}
                         price={product.price}
@@ -640,7 +641,6 @@ export default function HomePage() {
                   </Button>
                 </Box>
               )}
-
               {/* Tabs section moved below the product grid */}
               <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6 }}>
                 <Tabs 
@@ -708,6 +708,7 @@ export default function HomePage() {
                     return (
                       <Box key={product._id} sx={{ minWidth: 320, flex: '0 0 auto' }}>
                         <ProductCard
+                          productId={product._id}
                           name={product.name}
                           image={imgSrc}
                           price={product.price}
