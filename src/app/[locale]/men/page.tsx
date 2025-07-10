@@ -6,6 +6,7 @@ import ProductCard from "@/components/card";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Link from 'next/link';
 
 interface Product {
   _id: string;
@@ -77,27 +78,29 @@ export default function MenPage() {
       setLoading(true);
       setError(null);
       try {
-        console.log('[MenPage] Fetching from:', `${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
-        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
         const result = await response.json();
-        console.log('[MenPage] API Response:', result);
-        
         if (result.success) {
-          console.log('[MenPage] Total products:', result.data?.length);
-          console.log('[MenPage] Sample product data:', result.data?.[0]);
-          console.log('[MenPage] Sample image path:', result.data?.[0]?.images?.[0]);
-          setProducts(result.data || []);
-          setDisplayedProducts((result.data || []).slice(0, productsPerPage));
+          const teamNames = [
+            "arsenal",
+            "real madrid",
+            "manchester united",
+            "bayern munich",
+            "juventus"
+          ];
+          // Lọc sản phẩm thuộc 5 team lớn
+          const teamProducts = (result.data || []).filter((p: any) =>
+            p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+          );
+          setProducts(teamProducts);
+          setDisplayedProducts(teamProducts.slice(0, productsPerPage));
         } else {
           throw new Error(result.message || 'API returned unsuccessful response');
         }
       } catch (err) {
-        console.error('[MenPage] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
@@ -312,79 +315,80 @@ export default function MenPage() {
               mx: 'auto'
             }}>
               {[
-                { name: 'Giày thể thao', image: '/assets/images/men/arsenal/Arsenal_Men\'s_Training_Shoes.avif', description: 'Phong cách và thoải mái' },
-                { name: 'Áo đấu', image: '/assets/images/men/arsenal/Arsenal_Home_2425.avif', description: 'Chính thức và đẳng cấp' },
-                { name: 'Quần short', image: '/assets/images/men/arsenal/Arsenal_24-25_Home_Shorts.avif', description: 'Thoải mái vận động' }
+                { name: 'Giày sneaker', image: '/assets/images/men/arsenal/Arsenal_Men\'s_Training_Shoes.avif', description: 'Phong cách và thoải mái', href: '/men/sneaker' },
+                { name: 'Áo đấu', image: '/assets/images/men/arsenal/Arsenal_Home_2425.avif', description: 'Chính thức và đẳng cấp', href: '/men/jersey' },
+                { name: 'Quần short', image: '/assets/images/men/arsenal/Arsenal_24-25_Home_Shorts.avif', description: 'Thoải mái vận động', href: '/men/shorts' }
               ].map((category) => (
-                <Card 
-                  key={category.name} 
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    maxWidth: '360px',
-                    mx: 'auto',
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
-                    }
-                  }}
-                >
-                  <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
-                                      <CardMedia
-                    component="img"
-                    image={category.image}
-                    alt={category.name}
-                    sx={{
-                      height: { xs: 240, sm: 280, md: 320 },
-                      objectFit: 'cover',
-                      width: '100%',
-                      transition: 'transform 0.4s ease',
-                      filter: 'brightness(0.95)',
+                <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      maxWidth: '360px',
+                      mx: 'auto',
                       '&:hover': {
-                        transform: 'scale(1.05)',
-                        filter: 'brightness(1)'
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
                       }
                     }}
-                  />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-                        color: 'white',
-                        p: { xs: 2, md: 3 },
-                        textAlign: 'center'
-                      }}
-                    >
-                      <Typography 
-                        variant="h5" 
-                        sx={{ 
-                          fontWeight: 'bold', 
-                          mb: 1,
-                          fontSize: { xs: '1.5rem', md: '1.75rem' },
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                  >
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+                      <CardMedia
+                        component="img"
+                        image={category.image}
+                        alt={category.name}
+                        sx={{
+                          height: { xs: 240, sm: 280, md: 320 },
+                          objectFit: 'cover',
+                          width: '100%',
+                          transition: 'transform 0.4s ease',
+                          filter: 'brightness(0.95)',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            filter: 'brightness(1)'
+                          }
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                          color: 'white',
+                          p: { xs: 2, md: 3 },
+                          textAlign: 'center'
                         }}
                       >
-                        {category.name}
-                      </Typography>
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
-                          opacity: 0.95,
-                          fontSize: { xs: '0.9rem', md: '1rem' },
-                          textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                        }}
-                      >
-                        {category.description}
-                      </Typography>
+                        <Typography 
+                          variant="h5" 
+                          sx={{ 
+                            fontWeight: 'bold', 
+                            mb: 1,
+                            fontSize: { xs: '1.5rem', md: '1.75rem' },
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                          }}
+                        >
+                          {category.name}
+                        </Typography>
+                        <Typography 
+                          variant="body1" 
+                          sx={{ 
+                            opacity: 0.95,
+                            fontSize: { xs: '0.9rem', md: '1rem' },
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                          }}
+                        >
+                          {category.description}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </Box>
           </Container>
@@ -537,36 +541,32 @@ export default function MenPage() {
                     display: 'flex',
                     gap: { xs: 2, sm: 3, md: 4 },
                     transition: 'transform 0.5s ease-in-out',
-                    transform: `translateX(-${carouselIndex * (100 / 4)}%)`,
-                    width: `${Math.max(products.length, 4) * 25}%`
+                    transform: `translateX(-${carouselIndex * 280 * 4}px)`,
+                    width: `${Math.max(products.length, 4) * 280}px`,
                   }}
                 >
                   {products.map((product) => (
-                    <Box 
-                                          key={product._id}
-                    sx={{
-                      minWidth: { xs: '240px', sm: '260px', md: '280px' },
-                      maxWidth: { xs: '260px', sm: '280px', md: '300px' },
-                      flex: '0 0 auto',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        transition: 'all 0.3s ease',
-                        zIndex: 1
-                      }
-                    }}
+                    <Box
+                      key={product._id}
+                      sx={{
+                        minWidth: 280,
+                        maxWidth: 280,
+                        flex: '0 0 auto',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        '&:hover': {
+                          transform: 'translateY(-8px)',
+                          transition: 'all 0.3s ease',
+                          zIndex: 1,
+                        },
+                      }}
                     >
-                                          <Box sx={{ 
-                      width: '100%',
-                      maxWidth: 280,
-                      margin: '0 auto'
-                    }}>
                       <ProductCard
+                        productId={product._id}
                         name={product.name || 'Unnamed Product'}
                         image={
-                          product.images?.[0] 
-                            ? `/assets/images/men/${getTeamNameFromProduct(product)}/${product.images[0]}` 
+                          product.images?.[0]
+                            ? `/assets/images/men/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
                             : '/assets/images/placeholder.jpg'
                         }
                         price={product.price || 0}
@@ -577,10 +577,8 @@ export default function MenPage() {
                         onAddToCart={() => handleAddToCart(product.name)}
                       />
                     </Box>
-                    </Box>
                   ))}
                 </Box>
-                
                 {/* Carousel Indicators */}
                 <Box sx={{ 
                   display: 'flex', 
@@ -588,19 +586,19 @@ export default function MenPage() {
                   gap: 2, 
                   mt: 4 
                 }}>
-                  {Array.from({ length: 5 }).map((_, index) => (
+                  {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
                     <Box
                       key={index}
-                      onClick={() => setCarouselIndex(Math.min(index * Math.floor((products.length - 4) / 4), products.length - 4))}
+                      onClick={() => setCarouselIndex(index)}
                       sx={{
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
                           transform: 'scale(1.2)'
                         }
                       }}

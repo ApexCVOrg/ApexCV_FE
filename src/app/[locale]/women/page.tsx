@@ -6,6 +6,7 @@ import ProductCard from "@/components/card";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Link from "next/link";
 
 interface Product {
   _id: string;
@@ -285,27 +286,27 @@ export default function WomenPage() {
               mx: 'auto'
           }}>
             {[
-                { name: 'Giày thể thao', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái' },
-                { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_24-25_Home_Jersey_Red.avif', description: 'Chính thức và đẳng cấp' },
-                { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động' }
+                { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/sneaker' },
+                { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/jersey' },
+                { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorts' }
             ].map((category) => (
-                <Card 
-                  key={category.name} 
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    maxWidth: '360px',
-                    mx: 'auto',
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
-                    }
-                  }}
-                >
-                  <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+                <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      maxWidth: '360px',
+                      mx: 'auto',
+                      '&:hover': {
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
+                      }
+                    }}
+                  >
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
                 <CardMedia
                   component="img"
                   image={category.image}
@@ -358,6 +359,7 @@ export default function WomenPage() {
                     </Box>
                   </Box>
               </Card>
+                </Link>
             ))}
           </Box>
         </Container>
@@ -465,7 +467,7 @@ export default function WomenPage() {
             )}
             {!loading && !error && products.length > 0 && (
               <Box sx={{ position: 'relative', overflow: 'hidden' }}>
-                {/* Left Navigation Arrow */}
+                {/* Left Navigation Button */}
                 <IconButton
                   onClick={handleCarouselPrev}
                   disabled={carouselIndex === 0}
@@ -475,29 +477,29 @@ export default function WomenPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'white',
+                    bgcolor: 'rgba(255,255,255,0.9)',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.1)' },
-                    '&.Mui-disabled': { bgcolor: 'rgba(255,255,255,0.5)' }
+                    '&:hover': { bgcolor: 'white' },
+                    '&.Mui-disabled': { opacity: 0 }
                   }}
                 >
                   <ArrowBackIosIcon />
                 </IconButton>
 
-                {/* Right Navigation Arrow */}
+                {/* Right Navigation Button */}
                 <IconButton
                   onClick={handleCarouselNext}
-                  disabled={carouselIndex >= Math.max(0, products.length - 4)}
+                  disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
                   sx={{
                     position: 'absolute',
                     right: 0,
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'white',
+                    bgcolor: 'rgba(255,255,255,0.9)',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white', transform: 'translateY(-50%) scale(1.1)' },
-                    '&.Mui-disabled': { bgcolor: 'rgba(255,255,255,0.5)' }
+                    '&:hover': { bgcolor: 'white' },
+                    '&.Mui-disabled': { opacity: 0 }
                   }}
                 >
                   <ArrowForwardIosIcon />
@@ -509,46 +511,41 @@ export default function WomenPage() {
                     display: 'flex',
                     gap: { xs: 2, sm: 3, md: 4 },
                     transition: 'transform 0.5s ease-in-out',
-                    transform: `translateX(-${carouselIndex * (100 / 4)}%)`,
-                    width: `${Math.max(products.length, 4) * 25}%`
+                    transform: `translateX(-${carouselIndex * 280 * 4}px)`,
+                    width: `${Math.max(products.length, 4) * 280}px`,
                   }}
                 >
                   {products.map((product) => (
-                    <Box 
+                    <Box
                       key={product._id}
                       sx={{
-                        minWidth: { xs: '240px', sm: '260px', md: '280px' },
-                        maxWidth: { xs: '260px', sm: '280px', md: '300px' },
+                        minWidth: 280,
+                        maxWidth: 280,
                         flex: '0 0 auto',
                         display: 'flex',
                         justifyContent: 'center',
                         '&:hover': {
                           transform: 'translateY(-8px)',
                           transition: 'all 0.3s ease',
-                          zIndex: 1
-                        }
+                          zIndex: 1,
+                        },
                       }}
                     >
-                      <Box sx={{ 
-                        width: '100%',
-                        maxWidth: 280,
-                        margin: '0 auto'
-                      }}>
-              <ProductCard
-                          name={product.name || 'Unnamed Product'}
-                          image={
-                            product.images?.[0] 
-                              ? `/assets/images/women/${getTeamNameFromProduct(product)}/${product.images[0]}` 
-                              : '/assets/images/placeholder.jpg'
-                          }
-                          price={product.price || 0}
-                discountPrice={product.discountPrice}
-                          tags={product.tags || []}
-                brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-                          categories={product.categories || []}
-                onAddToCart={() => handleAddToCart(product.name)}
-                        />
-                      </Box>
+                      <ProductCard
+                        productId={product._id}
+                        name={product.name || 'Unnamed Product'}
+                        image={
+                          product.images?.[0]
+                            ? `/assets/images/women/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
+                            : '/assets/images/placeholder.jpg'
+                        }
+                        price={product.price || 0}
+                        discountPrice={product.discountPrice}
+                        tags={product.tags || []}
+                        brand={product.brand || { _id: '', name: 'Unknown Brand' }}
+                        categories={product.categories || []}
+                        onAddToCart={() => handleAddToCart(product.name)}
+                      />
                     </Box>
                   ))}
                 </Box>
@@ -560,25 +557,25 @@ export default function WomenPage() {
                   gap: 2, 
                   mt: 4 
                 }}>
-                  {Array.from({ length: 5 }).map((_, index) => (
+                  {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
                     <Box
                       key={index}
-                      onClick={() => setCarouselIndex(Math.min(index * Math.floor((products.length - 4) / 4), products.length - 4))}
+                      onClick={() => setCarouselIndex(index)}
                       sx={{
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
                           transform: 'scale(1.2)'
                         }
                       }}
-              />
-            ))}
-          </Box>
+                    />
+                  ))}
+                </Box>
               </Box>
             )}
         </Container>
