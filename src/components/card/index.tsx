@@ -13,7 +13,9 @@ import {
   IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
+import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
@@ -33,6 +35,7 @@ interface ProductCardProps {
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
+  productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
 }
@@ -49,6 +52,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   labels,
   allCategories,
   allBrands,
+  productId,
   backgroundColor = '#ffffff',
   colors = 1,
 }) => {
@@ -98,6 +102,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  // Debug logs
+  if (typeof window !== 'undefined') {
+    console.log('ProductCard tags:', tags);
+    console.log('ProductCard allCategories:', allCategories);
+  }
 
   return (
     <motion.div
@@ -175,6 +185,23 @@ const ProductCard: React.FC<ProductCardProps> = ({
               boxShadow: isLibImage ? undefined : '0 2px 12px rgba(0,0,0,0.08)',
             }}
           />
+          {/* Favorite Button (top right) */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              zIndex: 3,
+              pointerEvents: 'auto',
+            }}
+          >
+            <FavoriteButton
+              productId={productId}
+              size="small"
+              color="error"
+              showTooltip={true}
+            />
+          </Box>
         </Box>
 
         {/* Product Description Overlay */}
@@ -284,6 +311,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   })}
                 </Typography>
               )}
+            </Box>
+
+            {/* Star rating (5.0) */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+              {[...Array(5)].map((_, i) => (
+                <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
+              ))}
+              <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
+                5.0
+              </Box>
             </Box>
 
             {/* Brand and Categories */}

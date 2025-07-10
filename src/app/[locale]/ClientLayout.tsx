@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Container } from '@mui/material';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ChatBox from '@/components/ChatBox';
 import { AuthProvider } from '@/context/AuthContext';
 import PageTransitionOverlay from '@/components/ui/PageTransitionOverlay';
 import { NextIntlClientProvider } from 'next-intl';
@@ -88,6 +89,8 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
             <AuthProvider>{children}</AuthProvider>
           </Box>
           {typeof window !== 'undefined' && !isManagerPage && <Footer />}
+          {/* ChatBox - hiển thị trên mọi trang */}
+          <ChatBox userId="guest-123" />
         </Box>
       </NextIntlClientProvider>
     </ThemeProvider>

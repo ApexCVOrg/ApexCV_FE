@@ -21,7 +21,14 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={inter.className} style={{ backgroundColor: '#fff', minHeight: '100vh', margin: 0 }}>
+      <body
+        className={inter.className}
+        style={{
+          backgroundColor: '#fff',
+          minHeight: '100vh',
+          margin: 0,
+        }}
+      >
         <ClientLayout locale={locale}>{children}</ClientLayout>
       </body>
     </html>
