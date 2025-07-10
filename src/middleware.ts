@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleAuthMiddleware } from './store/middleware/authMiddleware';
-import { handleI18nMiddleware } from './store/middleware/i18nMiddleware';
 import { getToken } from 'next-auth/jwt';
 import createIntlMiddleware from 'next-intl/middleware';
 
 // Create next-intl middleware
 const intlMiddleware = createIntlMiddleware({
   locales: ['en', 'vi'],
-  defaultLocale: 'en',
+  defaultLocale: 'vi',
 });
 
 export async function middleware(request: NextRequest) {
@@ -17,38 +15,25 @@ export async function middleware(request: NextRequest) {
     return intlResponse;
   }
 
-  // Handle authentication middleware
-  const authResponse = handleAuthMiddleware(request);
-  if (authResponse) {
-    return authResponse;
-  }
+  // Chỉ kiểm tra auth cho các route cần bảo vệ
+  const pathname = request.nextUrl.pathname;
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isManagerRoute = pathname.startsWith('/manager');
+  const isDashboardRoute = pathname.startsWith('/dashboard');
 
-  // Handle i18n middleware
-  const i18nResponse = handleI18nMiddleware(request);
-  if (i18nResponse) {
-    return i18nResponse;
-  }
-
-  const token = await getToken({ req: request });
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin');
-  const isManagerRoute = request.nextUrl.pathname.startsWith('/manager');
-
-  if (isAdminRoute) {
+  if (isAdminRoute || isManagerRoute || isDashboardRoute) {
+    const token = await getToken({ req: request });
     if (!token) {
       return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
     // Check if user is admin
-    if (token.role !== 'admin') {
+    if (isAdminRoute && token.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
-  }
 
-  if (isManagerRoute) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
-    if (token.role !== 'manager' && token.role !== 'admin') {
+    // Check if user is manager or admin
+    if (isManagerRoute && token.role !== 'manager' && token.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }
@@ -57,5 +42,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|.*\\..*).*)', '/admin/:path*'],
+  matcher: [
+    // Skip all internal paths (_next)
+    '/((?!_next|api|.*\\..*).*)',
+    // Optional: only run on root (/) URL
+    // '/'
+  ],
 };

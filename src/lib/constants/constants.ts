@@ -24,6 +24,7 @@ export const API_ENDPOINTS = {
     CATEGORIES: '/manager/categories',
     ORDERS: '/manager/orders',
     CUSTOMERS: '/manager/customers',
+    USERS: '/manager/users',
     SETTINGS: '/manager/settings',
     STATS: {
       SALES: '/manager/stats/sales',
@@ -141,15 +142,16 @@ export const ROUTES = {
     CATEGORIES: '/manager/categories',
     ORDERS: '/manager/orders',
     CUSTOMERS: '/manager/customers',
+    USERS: '/manager/users',
     SETTINGS: '/manager/settings',
   },
 };
 
 // Manager Dashboard Constants
 export const MANAGER = {
-  DRAWER_WIDTH: 220,
+  DRAWER_WIDTH: 200,
   STATS: {
-    REFRESH_INTERVAL: 300000, // 5 minutes
+    REFRESH_INTERVAL: 3600000, // 1 hour
     CHART_COLORS: {
       PRIMARY: '#1976d2',
       SUCCESS: '#2e7d32',
@@ -198,6 +200,7 @@ export const ERROR_MESSAGES = {
     INVALID_PRODUCT_DATA: 'Invalid product data',
     INVALID_CATEGORY_DATA: 'Invalid category data',
     INVALID_ORDER_DATA: 'Invalid order data',
+    INVALID_USER_DATA: 'Invalid user data',
     FILE_TOO_LARGE: `File size must be less than ${MANAGER.FILE_UPLOAD.MAX_SIZE / 1024 / 1024}MB`,
     INVALID_FILE_TYPE: 'Invalid file type',
     TOO_MANY_FILES: `Maximum ${MANAGER.FILE_UPLOAD.MAX_FILES} files allowed`,
@@ -218,6 +221,10 @@ export const SUCCESS_MESSAGES = {
     CATEGORY_UPDATED: 'Category updated successfully',
     CATEGORY_DELETED: 'Category deleted successfully',
     ORDER_UPDATED: 'Order updated successfully',
+    ORDER_DELETED: 'Order deleted successfully',
+    USER_CREATED: 'User created successfully',
+    USER_UPDATED: 'User updated successfully',
+    USER_DELETED: 'User deleted successfully',
     SETTINGS_SAVED: 'Settings saved successfully',
   },
 };
