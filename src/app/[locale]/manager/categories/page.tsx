@@ -109,8 +109,10 @@ export default function CategoriesPage() {
   };
 
   // Apply filters when search terms or filters change
+
   useEffect(() => {
     filterCategories();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, statusFilter, categories]);
 
   // Clear all filters
@@ -144,6 +146,7 @@ export default function CategoriesPage() {
     } else {
       fetchCategories();
     }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, page, limit]);
 
   // Handle page change

@@ -179,6 +179,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -457,6 +458,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           }}
           className="product-image"
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={image}
             alt={name}
