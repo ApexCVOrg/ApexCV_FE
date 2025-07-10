@@ -535,19 +535,20 @@ export default function WomenPage() {
                         margin: '0 auto'
                       }}>
               <ProductCard
-                          name={product.name || 'Unnamed Product'}
-                          image={
-                            product.images?.[0] 
-                              ? `/assets/images/women/${getTeamNameFromProduct(product)}/${product.images[0]}` 
-                              : '/assets/images/placeholder.jpg'
-                          }
-                          price={product.price || 0}
+                productId={product._id}
+                name={product.name || 'Unnamed Product'}
+                image={
+                  product.images?.[0] 
+                    ? `/assets/images/women/${getTeamNameFromProduct(product)}/${product.images[0]}` 
+                    : '/assets/images/placeholder.jpg'
+                }
+                price={product.price || 0}
                 discountPrice={product.discountPrice}
-                          tags={product.tags || []}
+                tags={product.tags || []}
                 brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-                          categories={product.categories || []}
+                categories={product.categories || []}
                 onAddToCart={() => handleAddToCart(product.name)}
-                        />
+              />
                       </Box>
                     </Box>
                   ))}

@@ -496,6 +496,7 @@ export default function KidsPage() {
                         margin: '0 auto'
                       }}>
                         <ProductCard
+                          productId={product._id}
                           name={product.name || 'Unnamed Product'}
                           image={
                             product.images?.[0] 

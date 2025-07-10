@@ -41,7 +41,7 @@ const TestCardsPage = () => {
           name={sampleNames[idx]}
           image={imageBase + img}
           price={samplePrices[idx]}
-          discountPrice={samplePrices[idx] - 200000}có
+          discountPrice={samplePrices[idx] - 200000}
           tags={['new', 'hot']}
           brand={{ _id: 'nike', name: 'Nike' }}
           categories={[{ _id: 'shoes', name: 'Shoes' }]}
