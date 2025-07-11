@@ -15,6 +15,7 @@ import {
   TextField,
   InputAdornment,
   useMediaQuery,
+  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
@@ -22,7 +23,9 @@ import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface Product {
   _id: string;
@@ -121,13 +124,19 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [libProducts, setLibProducts] = useState<Product[]>([]);
+  const [otherProducts, setOtherProducts] = useState<Product[]>([]);
   useAuth();
   const isLargeScreen = useMediaQuery('(width: 1440px) and (height: 1920px)');
   const [scrollY, setScrollY] = useState(0);
   // State for pagination (load more)
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
+  // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
+  const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
+  // State lưu hướng chuyển động (slide direction)
+  const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -263,9 +272,24 @@ export default function HomePage() {
           (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
         );
       }
+      // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
+      const libFileNames = [
+        'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
+        'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+      ];
+      const isLib = (product: Product) => {
+        const img = product.images?.[0] || '';
+        return libFileNames.includes(img);
+      };
+      if (tabKey === 'filtered') {
+        setLibProducts(filtered.filter(isLib));
+        setOtherProducts(filtered.filter(p => !isLib(p)));
+      }
       setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
+      setLibProducts([]);
+      setOtherProducts([]);
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
@@ -274,12 +298,13 @@ export default function HomePage() {
 
   // Reset visibleCount khi filter/search thay đổi
   useEffect(() => {
-    setVisibleCount(10);
+    setVisibleCount(6);
   }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
 
   // Reset visible count khi đổi tab hoặc filter
   useEffect(() => {
     setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: 5 }));
+    setTabStartIndex(prev => ({ ...prev, [TABS[tab].key]: 0 }));
   }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery]);
 
   // Fetch products when tab or filters change
@@ -312,6 +337,141 @@ export default function HomePage() {
     <>
       {/* Banner luôn hiển thị ở đầu trang, fade out + trượt lên khi cuộn */}
       <HomepageBanner scrollY={scrollY} />
+      {/* HÀNG SẢN PHẨM LIB NGAY DƯỚI BANNER */}
+      {libProducts.length > 0 && (
+        <Box sx={{
+          maxWidth: 1200,
+          mx: 'auto',
+          width: '100%',
+          mt: 2,
+          mb: 4,
+        }}>
+          <Box
+            sx={{
+              width: '100%',
+              maxWidth: 1200,
+              minHeight: 220,
+              mx: 'auto',
+              my: 6,
+              position: 'relative',
+              background: 'transparent',
+            }}
+          >
+            {/* Nike ở góc trên trái */}
+            <Typography
+              variant="h1"
+              fontWeight={900}
+              sx={{
+                fontSize: 35,
+                fontFamily: 'monospace',
+                position: 'absolute',
+                top: 30,
+                left: 130,
+                zIndex: 2,
+              }}
+            >
+              NIKE
+            </Typography>
+
+            {/* Just Do It ở góc dưới phải */}
+            <Typography
+              variant="h1"
+              fontWeight={900}
+              sx={{
+                fontSize: 35,
+                fontFamily: 'monospace',
+                position: 'absolute',
+                bottom: 30,
+                right: 150,
+                zIndex: 2,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Just Do It
+            </Typography>
+
+            {/* Logo swoosh ở giữa */}
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+                userSelect: 'none',
+              }}
+            >
+              <pre
+                style={{
+                  fontFamily: 'monospace',
+                  fontSize: '22px',
+                  lineHeight: '20px',
+                  textAlign: 'center',
+                  margin: 0,
+                  padding: 0,
+                  background: 'none',
+                  border: 'none',
+                }}>{`
+⠀⠀⢀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣤⡤⠖⠚⠁
+⠀⣰⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣀⣠⣤⣴⣶⡿⠿⠛⠉⠀⠀⠀⠀⠀
+⢰⣿⣿⣧⣀⣀⣀⣀⣀⣤⣴⣶⣶⣿⣿⣿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠟⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠙⢿⣿⣿⣿⣿⡿⠿⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    `}</pre>
+            </Box>
+          </Box>
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            sx={{ mb: 4, textAlign: 'center', maxWidth: 700, mx: 'auto' }}
+          >
+            Khám phá các mẫu giày Nike Air Max hot nhất, thiết kế thời thượng, hiệu năng vượt trội. Được yêu thích bởi sneakerhead toàn cầu!
+          </Typography>
+          {/* Chia thành 2 hàng, mỗi hàng 3 sản phẩm */}
+          {[0, 1].map(rowIdx => (
+            <Box
+              key={rowIdx}
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: 10, // tăng khoảng cách giữa các card
+                mb: rowIdx === 0 ? 6 : 2, // tăng khoảng cách giữa 2 hàng
+              }}
+            >
+              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
+                const { gender, team } = guessGenderAndTeam(product);
+                let imgSrc = '/assets/images/placeholder.jpg';
+                if (product.images && product.images[0]) {
+                  imgSrc = getImageSrc(product.images[0], gender, team);
+                }
+                return (
+                  <ProductCard
+                    key={product._id}
+                    productId={product._id}
+                    name={product.name}
+                    image={imgSrc}
+                    price={product.price}
+                    discountPrice={product.discountPrice}
+                    tags={product.tags}
+                    brand={product.brand}
+                    categories={product.categories}
+                    // @ts-expect-error: Product label may be string, not ProductLabel
+                    labels={product.label ? [product.label as string] : []}
+                    allCategories={categories}
+                    allBrands={brands}
+                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                    backgroundColor="#f8f9fa"
+                    colors={3}
+                  />
+                );
+              })}
+            </Box>
+          ))}
+        </Box>
+      )}
+      {/* PHẦN CÒN LẠI GIỮ NGUYÊN */}
       <Box 
         sx={{ 
           width: '100%',
@@ -391,6 +551,7 @@ export default function HomePage() {
                   flexShrink: 0, 
                   mb: { xs: 4, md: 0 }, 
                   px: { xs: 0, md: 1 },
+                  ml: { md: -20 },
                   '@media screen and (width: 1440px) and (height: 1920px)': {
                     width: '320px',
                     padding: '0 1rem',
@@ -569,43 +730,50 @@ export default function HomePage() {
                     display: 'grid',
                     gridTemplateColumns: {
                       xs: 'repeat(2, 1fr)',
-                      md: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
                     },
                     gap: isLargeScreen ? 3 : 2,
                     padding: isLargeScreen ? '2rem 0' : '1rem 0',
                     '@media screen and (width: 1440px) and (height: 1920px)': {
-                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
                       gap: '2rem',
                       padding: '2rem 0',
                     }
                   }}
                 >
-                  {products['filtered']?.slice(0, visibleCount).length > 0 ? products['filtered'].slice(0, visibleCount).map((product) => {
+                  {otherProducts.slice(0, visibleCount).length > 0 ? otherProducts.slice(0, visibleCount).map((product, idx) => {
                     const { gender, team } = guessGenderAndTeam(product);
                     let imgSrc = '/assets/images/placeholder.jpg';
                     if (product.images && product.images[0]) {
                       imgSrc = getImageSrc(product.images[0], gender, team);
                     }
-                    // console.log('Image src:', imgSrc, product);
                     return (
-                      <ProductCard
+                      <motion.div
                         key={product._id}
-                        productId={product._id}
-                        name={product.name}
-                        image={imgSrc}
-                        price={product.price}
-                        discountPrice={product.discountPrice}
-                        tags={product.tags}
-                        brand={product.brand}
-                        categories={product.categories}
-                        // @ts-expect-error: Product label may be string, not ProductLabel
-                        labels={product.label ? [product.label as string] : []}
-                        allCategories={categories}
-                        allBrands={brands}
-                        onAddToCart={() => console.log('Add to cart:', product._id)}
-                        backgroundColor="#f8f9fa"
-                        colors={3}
-                      />
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: idx * 0.07 }}
+                        style={{ display: 'flex', height: '100%' }}
+                      >
+                        <ProductCard
+                          productId={product._id}
+                          name={product.name}
+                          image={imgSrc}
+                          price={product.price}
+                          discountPrice={product.discountPrice}
+                          tags={product.tags}
+                          brand={product.brand}
+                          categories={product.categories}
+                          // @ts-expect-error: Product label may be string, not ProductLabel
+                          labels={product.label ? [product.label as string] : []}
+                          allCategories={categories}
+                          allBrands={brands}
+                          onAddToCart={() => console.log('Add to cart:', product._id)}
+                          backgroundColor="#f8f9fa"
+                          colors={3}
+                          sx={{ height: '100%' }}
+                        />
+                      </motion.div>
                     );
                   }) : (
                     <Box sx={{ textAlign: 'center', py: 4, gridColumn: '1/-1' }}>
@@ -625,21 +793,42 @@ export default function HomePage() {
                 </Box>
               )}
               {/* Load more button */}
-              {products['filtered'] && products['filtered'].length > visibleCount && (
+              {otherProducts && otherProducts.length > visibleCount && (
                 <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                  <Button variant="outlined" onClick={() => setVisibleCount(c => c + 10)}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => setVisibleCount(c => c + 3)}
+                    sx={{
+                      color: '#111',
+                      borderColor: '#111',
+                      fontWeight: 700,
+                      '&:hover': {
+                        borderColor: '#111',
+                        background: 'rgba(0,0,0,0.04)',
+                        color: '#111',
+                      },
+                    }}
+                  >
                     Load more
                   </Button>
                 </Box>
               )}
               {/* Tabs section moved below the product grid */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6 }}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6, display: 'flex', justifyContent: 'center' }}>
                 <Tabs 
                   value={tab} 
                   onChange={(e: React.SyntheticEvent, newValue: number) => setTab(newValue)}
-                  variant="scrollable"
-                  scrollButtons="auto"
+                  variant="standard"
                   sx={{
+                    '& .MuiTabs-flexContainer': { justifyContent: 'center' },
+                    '& .MuiTabs-indicator': { backgroundColor: '#111' },
+                    '& .MuiTab-root': {
+                      color: '#444',
+                      fontWeight: 600,
+                    },
+                    '& .Mui-selected': {
+                      color: '#111 !important',
+                    },
                     '@media screen and (width: 1440px) and (height: 1920px)': {
                       '& .MuiTab-root': {
                         fontSize: '1.2rem',
@@ -648,6 +837,7 @@ export default function HomePage() {
                       }
                     }
                   }}
+                  centered
                 >
                   {TABS.map((tabItem, index) => (
                     <Tab 
@@ -662,76 +852,134 @@ export default function HomePage() {
                 </Tabs>
               </Box>
               {/* Tabbed Products Row (each tab = 1 row, horizontal scroll) */}
-              <Box
-                className="tabbed-product-row"
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  overflowX: 'auto',
-                  overflowY: 'hidden',
-                  maxHeight: 420,
-                  minHeight: 340,
-                  alignItems: 'stretch',
-                  gap: 3,
-                  py: 2,
-                  mb: 4,
-                  scrollBehavior: 'smooth',
-                  px: 1,
-                  '@media screen and (width: 1440px) and (height: 1920px)': {
-                    gap: '2rem',
-                    padding: '2rem 0',
-                  }
-                }}
-                onWheel={e => {
-                  const target = e.currentTarget;
-                  if (e.deltaY !== 0) {
-                    e.preventDefault();
-                    target.scrollLeft += e.deltaY;
-                  }
-                }}
-              >
-                {products[TABS[tab].key]?.slice(0, tabVisibleCount[TABS[tab].key] || 5).length > 0 ? products[TABS[tab].key].slice(0, tabVisibleCount[TABS[tab].key] || 5).map((product) => {
-                    const { gender, team } = guessGenderAndTeam(product);
-                    let imgSrc = '/assets/images/placeholder.jpg';
-                    if (product.images && product.images[0]) {
-                      imgSrc = getImageSrc(product.images[0], gender, team);
+              <Box sx={{ position: 'relative', width: '100%', mb: 4, display: 'flex', alignItems: 'center' }}>
+                <IconButton
+                  sx={{ position: 'absolute', left: -40, zIndex: 2, bgcolor: '#fff', boxShadow: 1, '&:hover': { bgcolor: '#f5f5f5' } }}
+                  onClick={() => {
+                    const key = TABS[tab].key;
+                    setTabSlideDirection('left');
+                    setTabStartIndex(prev => {
+                      const current = prev[key] || 0;
+                      return { ...prev, [key]: Math.max(0, current - 3) };
+                    });
+                  }}
+                  disabled={(tabStartIndex[TABS[tab].key] || 0) === 0}
+                >
+                  <ArrowBackIosNewIcon />
+                </IconButton>
+                <Box
+                  id="tabbed-product-row"
+                  className="tabbed-product-row"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    overflowX: 'hidden',
+                    overflowY: 'hidden',
+                    alignItems: 'stretch',
+                    gap: 1,
+                    py: 2,
+                    width: '100%',
+                    maxWidth: 1400,
+                    mx: 'auto',
+                    scrollBehavior: 'smooth',
+                    px: 0,
+                    pb: 4,
+                    '@media screen and (width: 1440px) and (height: 1920px)': {
+                      gap: '2rem',
+                      padding: '2rem 0',
+                      maxWidth: 1600,
                     }
-                    return (
-                      <Box key={product._id} sx={{ minWidth: 320, flex: '0 0 auto' }}>
-                        <ProductCard
-                          productId={product._id}
-                          name={product.name}
-                          image={imgSrc}
-                          price={product.price}
-                          discountPrice={product.discountPrice}
-                          tags={product.tags}
-                          brand={product.brand}
-                          categories={product.categories}
-                          // @ts-expect-error: Product label may be string, not ProductLabel
-                          labels={product.label ? [product.label as string] : []}
-                          allCategories={categories}
-                          allBrands={brands}
-                          onAddToCart={() => console.log('Add to cart:', product._id)}
-                          backgroundColor="#f8f9fa"
-                          colors={3}
-                        />
-                      </Box>
-                    );
-                  }) : (
-                  <Box sx={{ textAlign: 'center', py: 4, minWidth: 320 }}>
-                    <Typography 
-                      variant="h6" 
-                      color="text.secondary"
-                      sx={{
-                        '@media screen and (width: 1440px) and (height: 1920px)': {
-                          fontSize: '1.5rem',
-                        }
-                      }}
-                    >
-                      No products found in this tab.
-                    </Typography>
-                  </Box>
-                )}
+                  }}
+                >
+                  {(() => {
+                    const key = TABS[tab].key;
+                    const start = tabStartIndex[key] || 0;
+                    const tabProducts = products[key] || [];
+                    const visible = tabProducts.slice(start, start + 3);
+                    if (visible.length > 0) {
+                      return (
+                        <AnimatePresence initial={false} custom={tabSlideDirection}>
+                          {visible.map((product) => {
+                            const { gender, team } = guessGenderAndTeam(product);
+                            let imgSrc = '/assets/images/placeholder.jpg';
+                            if (product.images && product.images[0]) {
+                              imgSrc = getImageSrc(product.images[0], gender, team);
+                            }
+                            return (
+                              <motion.div
+                                key={product._id}
+                                initial={tabSlideDirection === 'right'
+                                  ? { x: 100, opacity: 0 }
+                                  : { x: -100, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={tabSlideDirection === 'right'
+                                  ? { x: -100, opacity: 0 }
+                                  : { x: 100, opacity: 0 }}
+                                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                                style={{ minWidth: 320, flex: '0 0 auto' }}
+                              >
+                                <ProductCard
+                                  productId={product._id}
+                                  name={product.name}
+                                  image={imgSrc}
+                                  price={product.price}
+                                  discountPrice={product.discountPrice}
+                                  tags={product.tags}
+                                  brand={product.brand}
+                                  categories={product.categories}
+                                  // @ts-expect-error: Product label may be string, not ProductLabel
+                                  labels={product.label ? [product.label as string] : []}
+                                  allCategories={categories}
+                                  allBrands={brands}
+                                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                                  backgroundColor="#f8f9fa"
+                                  colors={3}
+                                />
+                              </motion.div>
+                            );
+                          })}
+                        </AnimatePresence>
+                      );
+                    } else {
+                      return (
+                        <Box sx={{ textAlign: 'center', py: 4, minWidth: 10000 }}>
+                          <Typography 
+                            variant="h6" 
+                            color="text.secondary"
+                            sx={{
+                              '@media screen and (width: 1440px) and (height: 1920px)': {
+                                fontSize: '1.5rem',
+                              }
+                            }}
+                          >
+                            No products found in this tab.
+                          </Typography>
+                        </Box>
+                      );
+                    }
+                  })()}
+                </Box>
+                <IconButton
+                  sx={{ position: 'absolute', right: -40, zIndex: 2, bgcolor: '#fff', boxShadow: 1, '&:hover': { bgcolor: '#f5f5f5' } }}
+                  onClick={() => {
+                    const key = TABS[tab].key;
+                    setTabSlideDirection('right');
+                    setTabStartIndex(prev => {
+                      const current = prev[key] || 0;
+                      const tabProducts = products[key] || [];
+                      return { ...prev, [key]: Math.min(current + 3, Math.max(0, tabProducts.length - 3)) };
+                    });
+                  }}
+                  disabled={(() => {
+                    const key = TABS[tab].key;
+                    const current = tabStartIndex[key] || 0;
+                    const tabProducts = products[key] || [];
+                    return current + 3 >= tabProducts.length;
+                  })()}
+                >
+                  <ArrowForwardIosIcon />
+                </IconButton>
               </Box>
               {/* Load more button for tab */}
               {products[TABS[tab].key] && (tabVisibleCount[TABS[tab].key] || 5) < products[TABS[tab].key].length && (
