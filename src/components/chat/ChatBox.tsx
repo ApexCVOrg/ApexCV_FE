@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useRef, useEffect } from 'react';
 import {
@@ -10,10 +10,6 @@ import {
   Avatar,
   Fab,
   Collapse,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
 } from '@mui/material';
 import {
   Send as SendIcon,
@@ -21,8 +17,6 @@ import {
   Close as CloseIcon,
   Minimize as MinimizeIcon,
 } from '@mui/icons-material';
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
 
 interface Message {
   id: string;
@@ -32,10 +26,14 @@ interface Message {
 }
 
 interface ChatBoxProps {
-  userId?: string;
+  userId?: string; // truyền từ ngoài vào, không fix cứng
+  apiUrl?: string; // endpoint BE, mặc định lấy từ env
 }
 
-const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({
+  userId,
+  apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat`,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -50,68 +48,57 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
+  // Tự động cuộn xuống cuối khi có tin nhắn mới
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Gửi tin nhắn và fetch từ BE
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
-
+    if (!inputMessage.trim() || isLoading || !userId) return; // phải có userId mới gửi
     const userMessage: Message = {
       id: Date.now().toString(),
       text: inputMessage.trim(),
       isUser: true,
       timestamp: new Date(),
     };
-
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
-
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: userMessage.text,
-          userId: userId,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMessage.text, userId }),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
+      if (!response.ok) throw new Error('Failed to send message');
+      const { success, data } = await response.json();
+      let botText = '';
+      if (success && Array.isArray(data?.docs) && data.docs.length > 0) {
+        botText = data.docs.map(
+          (doc: { id: string; title: string; snippet: string; score?: number }) =>
+            `• ${doc.title}: ${doc.snippet}${doc.score !== undefined ? ` (score: ${doc.score})` : ''}`
+        ).join('\n\n');
+      } else if (data?.reply) {
+        botText = data.reply;
+      } else {
+        botText = 'Xin lỗi, mình chưa tìm thấy thông tin phù hợp.';
       }
-
-      const data = await response.json();
-      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.reply || 'Xin lỗi, tôi không hiểu. Bạn có thể nói rõ hơn không?',
+        text: botText,
         isUser: false,
         timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      
+    } catch (err) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.',
         isUser: false,
         timestamp: new Date(),
       };
-
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -126,13 +113,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
   };
 
   const toggleChat = () => {
-    // Kiểm tra xem user đã đăng nhập chưa
-    if (!isAuthenticated) {
-      // Nếu chưa đăng nhập, chuyển hướng đến trang login
-      router.push('/auth/login');
-      return;
-    }
-    
     setIsOpen(!isOpen);
     if (!isOpen) {
       setTimeout(() => {
@@ -225,14 +205,36 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
           {/* Messages */}
           <Collapse in={!isMinimized}>
             <Box
+              tabIndex={0}
               sx={{
                 flex: 1,
-                overflowY: 'auto',
+                minHeight: 0,
+                maxHeight: '100%',
+                overflowY: 'scroll',
+                overscrollBehaviorY: 'contain',
                 p: 2,
                 backgroundColor: '#f8f9fa',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 1,
+                outline: 'none',
+                scrollbarWidth: 'thin',
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#bdbdbd',
+                  borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f0f0f0',
+                },
+                '&:focus': {
+                  boxShadow: '0 0 0 2px #1976d2',
+                },
+              }}
+              onClick={e => {
+                (e.currentTarget as HTMLDivElement).focus();
               }}
             >
               {messages.map((message) => (
@@ -277,7 +279,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
                   </Box>
                 </Box>
               ))}
-              
               {isLoading && (
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
                   <Box sx={{ maxWidth: '80%' }}>
@@ -297,7 +298,6 @@ const ChatBox: React.FC<ChatBoxProps> = ({ userId = 'guest-123' }) => {
                   </Box>
                 </Box>
               )}
-              
               <div ref={messagesEndRef} />
             </Box>
 

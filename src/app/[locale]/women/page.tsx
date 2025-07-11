@@ -1,9 +1,8 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, IconButton } from "@mui/material";
+import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress, IconButton } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
-import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
@@ -34,7 +33,6 @@ export default function WomenPage() {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -57,7 +55,7 @@ export default function WomenPage() {
       }
       
       // Check parent category with optional chaining
-      const parentCategory = (category as any).parentCategory;
+      const parentCategory = category.parentCategory;
       if (parentCategory) {
         const parentNameLower = parentCategory.name.toLowerCase();
         for (const team of teamNames) {
@@ -113,7 +111,6 @@ export default function WomenPage() {
       const result = await response.json();
       if (result.success) {
         setProducts(result.data);
-        setCurrentPage(1);
         setDisplayedProducts(result.data.slice(0, productsPerPage));
       } else {
         throw new Error(result.message);
@@ -124,13 +121,6 @@ export default function WomenPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handlePageChange = (newPage: number) => {
-    const startIndex = (newPage - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    setDisplayedProducts(products.slice(startIndex, endIndex));
-    setCurrentPage(newPage);
   };
 
   const handleAddToCart = (productName: string) => {
@@ -208,7 +198,7 @@ export default function WomenPage() {
               letterSpacing: '-0.02em'
             }}
           >
-            WOMEN'S FOOTBALL
+            WOMENS FOOTBALL
           </Typography>
           <Typography 
             variant="h3" 
@@ -535,19 +525,20 @@ export default function WomenPage() {
                         margin: '0 auto'
                       }}>
               <ProductCard
-                          name={product.name || 'Unnamed Product'}
-                          image={
-                            product.images?.[0] 
-                              ? `/assets/images/women/${getTeamNameFromProduct(product)}/${product.images[0]}` 
-                              : '/assets/images/placeholder.jpg'
-                          }
-                          price={product.price || 0}
+                productId={product._id}
+                name={product.name || 'Unnamed Product'}
+                image={
+                  product.images?.[0] 
+                    ? `/assets/images/women/${getTeamNameFromProduct(product)}/${product.images[0]}` 
+                    : '/assets/images/placeholder.jpg'
+                }
+                price={product.price || 0}
                 discountPrice={product.discountPrice}
-                          tags={product.tags || []}
+                tags={product.tags || []}
                 brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-                          categories={product.categories || []}
+                categories={product.categories || []}
                 onAddToCart={() => handleAddToCart(product.name)}
-                        />
+              />
                       </Box>
                     </Box>
                   ))}

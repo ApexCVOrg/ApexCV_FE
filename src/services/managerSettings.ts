@@ -32,6 +32,7 @@ export interface ManagerSettings {
   notifications: {
     emailEnabled: boolean;
     smsEnabled: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rules?: any;
   };
   integrations: {
@@ -41,12 +42,14 @@ export interface ManagerSettings {
 }
 
 class ManagerSettingsService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async getSectionSettings<T = any>(section: keyof ManagerSettings): Promise<T> {
     const url = `${API_ENDPOINTS.MANAGER.SETTINGS}/${section}`;
     const response = await apiService.get<T>(url);
     return response.data;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async updateSectionSettings<T = any>(section: keyof ManagerSettings, data: T): Promise<T> {
     const url = `${API_ENDPOINTS.MANAGER.SETTINGS}/${section}`;
     const response = await apiService.put<T>(url, data);

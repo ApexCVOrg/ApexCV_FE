@@ -361,6 +361,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                 }}
               >
                 <ProductCard
+                  productId={product._id}
                   name={product.name || 'Unnamed Product'}
                   image={product.images?.[0] ? `/assets/images/${gender}/${teamName.toLowerCase()}/${product.images[0]}` : '/assets/images/placeholder.jpg'}
                   price={product.price || 0}

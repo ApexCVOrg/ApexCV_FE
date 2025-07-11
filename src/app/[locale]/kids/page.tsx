@@ -1,11 +1,8 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, IconButton } from "@mui/material";
+import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
-import RefreshIcon from '@mui/icons-material/Refresh';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 interface Product {
   _id: string;
@@ -34,7 +31,6 @@ export default function KidsPage() {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -57,7 +53,7 @@ export default function KidsPage() {
       }
       
       // Check parent category with optional chaining
-      const parentCategory = (category as any).parentCategory;
+      const parentCategory = category.parentCategory;
       if (parentCategory) {
         const parentNameLower = parentCategory.name.toLowerCase();
         for (const team of teamNames) {
@@ -113,7 +109,6 @@ export default function KidsPage() {
       const result = await response.json();
       if (result.success) {
         setProducts(result.data);
-        setCurrentPage(1);
         setDisplayedProducts(result.data.slice(0, productsPerPage));
       } else {
         throw new Error(result.message);
@@ -126,24 +121,8 @@ export default function KidsPage() {
     }
   };
 
-  const handlePageChange = (newPage: number) => {
-    const startIndex = (newPage - 1) * productsPerPage;
-    const endIndex = startIndex + productsPerPage;
-    setDisplayedProducts(products.slice(startIndex, endIndex));
-    setCurrentPage(newPage);
-  };
-
   const handleAddToCart = (productName: string) => {
     console.log('Add to cart:', productName);
-  };
-
-  const handleCarouselNext = () => {
-    const maxIndex = Math.max(0, products.length - 4);
-    setCarouselIndex(prev => Math.min(prev + 1, maxIndex));
-  };
-
-  const handleCarouselPrev = () => {
-    setCarouselIndex(prev => Math.max(prev - 1, 0));
   };
 
   if (error) {
@@ -496,6 +475,7 @@ export default function KidsPage() {
                         margin: '0 auto'
                       }}>
                         <ProductCard
+                          productId={product._id}
                           name={product.name || 'Unnamed Product'}
                           image={
                             product.images?.[0] 
