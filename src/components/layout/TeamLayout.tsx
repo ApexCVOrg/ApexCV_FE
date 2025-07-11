@@ -24,6 +24,7 @@ interface TeamLayoutProps {
   children: React.ReactNode;
   section: 'men' | 'women' | 'kids';
   title: string;
+  hideTabs?: boolean;
 }
 
 const teams: TeamInfo[] = [
@@ -62,49 +63,54 @@ const tabColors: Record<string, string> = {
   "bayern-munich": "#DC052D",
 };
 
-export default function TeamLayout({ children, section, title }: TeamLayoutProps) {
+export default function TeamLayout({ children, section, title, hideTabs }: TeamLayoutProps) {
   const pathname = usePathname();
   const currentTeam = pathname.split('/').pop() || '';
 
   return (
     <Container maxWidth="lg" className={styles.container}>
       <Box>
-        <Typography variant="h4" component="h1" className={styles.title} gutterBottom>
-          {title}
-        </Typography>
-        <Paper
-          elevation={3}
-          className={styles.tabsWrapper}
-        >
-          {teams.map((team) => (
-            <Link
-              key={team.route}
-              href={`/${section}/${team.route}`}
-              style={{ textDecoration: 'none' }}
+        {!hideTabs && (
+          <>
+            <Typography variant="h4" component="h1" className={styles.title} gutterBottom sx={{ mt: 8 }}>
+              {title}
+            </Typography>
+            <Paper
+              elevation={3}
+              className={styles.tabsWrapper}
+              sx={{ mt: 2 }}
             >
-              <Box
-                className={
-                  currentTeam === team.route
-                    ? `${styles.teamIcon} ${styles.active}`
-                    : styles.teamIcon
-                }
-                style={
-                  currentTeam === team.route
-                    ? { borderColor: tabColors[team.route] }
-                    : undefined
-                }
-              >
-                <Image
-                  src={team.logo}
-                  alt={team.name}
-                  width={60}
-                  height={60}
-                  style={{ objectFit: 'contain' }}
-                />
-              </Box>
-            </Link>
-          ))}
-        </Paper>
+              {teams.map((team) => (
+                <Link
+                  key={team.route}
+                  href={`/${section}/${team.route}`}
+                  style={{ textDecoration: 'none' }}
+                >
+                  <Box
+                    className={
+                      currentTeam === team.route
+                        ? `${styles.teamIcon} ${styles.active}`
+                        : styles.teamIcon
+                    }
+                    style={
+                      currentTeam === team.route
+                        ? { borderColor: tabColors[team.route] }
+                        : undefined
+                    }
+                  >
+                    <Image
+                      src={team.logo}
+                      alt={team.name}
+                      width={60}
+                      height={60}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </Box>
+                </Link>
+              ))}
+            </Paper>
+          </>
+        )}
         {children}
       </Box>
     </Container>

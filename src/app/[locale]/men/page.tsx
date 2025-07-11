@@ -252,31 +252,33 @@ export default function MenPage() {
           </Box>
 
           {/* CTA Button */}
-          <Button 
-            variant="contained" 
-            size="small"
-            sx={{ 
-              bgcolor: 'white',
-              color: 'black',
-              px: { xs: 2, md: 2.5 },
-              py: { xs: 0.5, md: 0.7 },
-              fontSize: { xs: '0.7rem', md: '0.8rem' },
-              fontWeight: 'bold',
-              textTransform: 'none',
-              borderRadius: 0,
-              border: '2px solid black',
-              minWidth: '100px',
-              '&:hover': {
-                bgcolor: 'black',
-                color: 'white',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Mua ngay
-          </Button>
+          <Link href="/men/real-madrid" style={{ textDecoration: 'none' }}>
+            <Button 
+              variant="contained" 
+              size="small"
+              sx={{ 
+                bgcolor: 'white',
+                color: 'black',
+                px: { xs: 2, md: 2.5 },
+                py: { xs: 0.5, md: 0.7 },
+                fontSize: { xs: '0.7rem', md: '0.8rem' },
+                fontWeight: 'bold',
+                textTransform: 'none',
+                borderRadius: 0,
+                border: '2px solid black',
+                minWidth: '100px',
+                '&:hover': {
+                  bgcolor: 'black',
+                  color: 'white',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Mua ngay
+            </Button>
+          </Link>
         </Box>
       </Box>
       <Container maxWidth="xl" disableGutters>
@@ -316,8 +318,8 @@ export default function MenPage() {
             }}>
               {[
                 { name: 'Giày sneaker', image: '/assets/images/men/arsenal/Arsenal_Men\'s_Training_Shoes.avif', description: 'Phong cách và thoải mái', href: '/men/sneaker' },
-                { name: 'Áo đấu', image: '/assets/images/men/arsenal/Arsenal_Home_2425.avif', description: 'Chính thức và đẳng cấp', href: '/men/jersey' },
-                { name: 'Quần short', image: '/assets/images/men/arsenal/Arsenal_24-25_Home_Shorts.avif', description: 'Thoải mái vận động', href: '/men/shorts' }
+                { name: 'Áo đấu', image: '/assets/images/men/arsenal/Arsenal_Home_2425.avif', description: 'Chính thức và đẳng cấp', href: '/men/Jersey' },
+                { name: 'Quần short', image: '/assets/images/men/arsenal/Arsenal_24-25_Home_Shorts.avif', description: 'Thoải mái vận động', href: '/men/shorttrouser' }
               ].map((category) => (
                 <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
                   <Card 

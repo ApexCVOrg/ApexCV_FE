@@ -138,13 +138,11 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
         { title: tHeader('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
         { title: tHeader('men.jersey'), href: ROUTES.MEN.JERSEY },
         { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
-        { title: tHeader('men.sportset'), href: ROUTES.MEN.SPORTSET },
         { title: tHeader('men.trousers'), href: ROUTES.MEN.TROUSERS },
         { title: tHeader('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
         { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
         { title: tHeader('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
         { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
-        { title: tHeader('men.basic'), href: ROUTES.MEN.BASIC },
         { title: tHeader('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
       ]
     },

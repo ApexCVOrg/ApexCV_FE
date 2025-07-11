@@ -11,6 +11,9 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 interface Product {
   _id: string;
@@ -24,15 +27,17 @@ interface Product {
   createdAt: string;
 }
 
-export default function MenSneakerPage() {
+export default function MenShortsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
   const [error, setError] = useState<string | null>(null);
+  const { locale } = useParams();
+  const productCount = products.length;
 
   // Helper function to sort products
   const sortProducts = (products: Product[], sortType: string) => {
-    console.log('[SneakerPage] Sorting products by:', sortType);
+    console.log('[ShortsPage] Sorting products by:', sortType);
     const sortedProducts = [...products];
     
     switch (sortType) {
@@ -69,7 +74,7 @@ export default function MenSneakerPage() {
   };
 
   useEffect(() => {
-    const fetchSneakers = async () => {
+    const fetchShorts = async () => {
       setLoading(true);
       setError(null);
       try {
@@ -98,7 +103,7 @@ export default function MenSneakerPage() {
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
-        console.log('[SneakerPage] Fetching products with URL:', apiUrl);
+        console.log('[ShortsPage] Fetching products with URL:', apiUrl);
         
         const res = await fetch(apiUrl);
         const data = await res.json();
@@ -115,37 +120,37 @@ export default function MenSneakerPage() {
           "juventus"
         ];
         
-        const sneakers = (data.data || []).filter(
+        const shorts = (data.data || []).filter(
           (p: any) =>
             (p.categories || []).some(
-              (c: any) => c.name.toLowerCase() === "sneakers"
+              (c: any) => c.name.toLowerCase() === "shorts"
             ) &&
             (p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase()))
         );
 
-        console.log('[SneakerPage] Filtered sneakers before sorting:', sneakers.length);
-        console.log('[SneakerPage] Current sortBy value:', sortBy);
+        console.log('[ShortsPage] Filtered shorts before sorting:', shorts.length);
+        console.log('[ShortsPage] Current sortBy value:', sortBy);
         
         // Apply client-side sorting
-        const sortedSneakers = sortProducts(sneakers, sortBy);
-        console.log('[SneakerPage] Final sorted sneakers count:', sortedSneakers.length);
-        console.log('[SneakerPage] Sample sorted sneakers:', sortedSneakers.slice(0, 3).map(p => ({
+        const sortedShorts = sortProducts(shorts, sortBy);
+        console.log('[ShortsPage] Final sorted shorts count:', sortedShorts.length);
+        console.log('[ShortsPage] Sample sorted shorts:', sortedShorts.slice(0, 3).map(p => ({
           name: p.name,
           price: p.price,
           discountPrice: p.discountPrice,
           createdAt: p.createdAt
         })));
         
-        setProducts(sortedSneakers);
+        setProducts(sortedShorts);
       } catch (err) {
-        console.error('[SneakerPage] Error:', err);
+        console.error('[ShortsPage] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
       }
     };
     
-    fetchSneakers();
+    fetchShorts();
   }, [sortBy]);
 
   if (error) {
@@ -157,33 +162,59 @@ export default function MenSneakerPage() {
   }
 
   return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <>
+      {/* Breadcrumb và Heading */}
+      <Box sx={{ px: { xs: 2, md: 6 }, pt: 4, pb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
+          <Link href="/men" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', fontWeight: 700, marginRight: 2 }}>
+            <ArrowBackIosIcon fontSize="small" sx={{ mr: 0.5 }} />
+            BACK
+          </Link>
+          <Link href={`/${locale}`} style={{ textDecoration: 'none' }}>
+            <Typography component="span" sx={{ color: 'grey.400', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Home</Typography>
+          </Link>
+          <Typography component="span" sx={{ color: 'grey.400', mx: 0.5 }}>/</Typography>
+          <Link href="/men" style={{ textDecoration: 'none' }}>
+            <Typography component="span" sx={{ color: 'grey.400', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Men</Typography>
+          </Link>
+          <Typography component="span" sx={{ color: 'grey.400', mx: 0.5 }}>/</Typography>
+          <Typography component="span" sx={{ color: 'text.primary', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px', fontSize: '1rem' }}>Short Trousers</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
+            MEN'S SHORT TROUSERS
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'grey.500', fontWeight: 400, ml: 1 }}>
+            {productCount > 0 ? `[${productCount}]` : ''}
+          </Typography>
+        </Box>
+        <Typography variant="body1" sx={{ mt: 2, maxWidth: 900, color: 'text.secondary', fontSize: { xs: '1rem', md: '1.1rem' } }}>
+          Explore our range of men's short trousers, perfect for training, casual wear, and everything in between. Lightweight, comfortable, and stylish for every occasion.
+        </Typography>
+      </Box>
+      {/* Sort Bar giữ nguyên ngoài box xám */}
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>Sort By</InputLabel>
+          <Select 
+            value={sortBy} 
+            label="Sort By" 
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <MenuItem value="newest">Newest</MenuItem>
+            <MenuItem value="price-low">Price: Low to High</MenuItem>
+            <MenuItem value="price-high">Price: High to Low</MenuItem>
+            <MenuItem value="popular">Most Popular</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+      {/* Danh sách sản phẩm không còn box màu xám */}
       <Container maxWidth={false} sx={{ 
         py: 4, 
         px: { xs: 2, sm: 3, md: 4 },
         maxWidth: '1600px',
         width: '100%'
       }}>
-        {/* Sort Bar */}
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h4" fontWeight={700}>Giày Sneaker Nam</Typography>
-          <FormControl sx={{ minWidth: 200 }}>
-            <InputLabel>Sort By</InputLabel>
-            <Select 
-              value={sortBy} 
-              label="Sort By" 
-              onChange={(e) => {
-                setSortBy(e.target.value);
-              }}
-            >
-              <MenuItem value="newest">Newest</MenuItem>
-              <MenuItem value="price-low">Price: Low to High</MenuItem>
-              <MenuItem value="price-high">Price: High to Low</MenuItem>
-              <MenuItem value="popular">Most Popular</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
             <CircularProgress />
@@ -192,7 +223,7 @@ export default function MenSneakerPage() {
           <>
             {products.length === 0 && (
               <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-                Không có sản phẩm sneaker nào.
+                Không có sản phẩm quần short nào.
               </Typography>
             )}
             <Box
@@ -239,6 +270,6 @@ export default function MenSneakerPage() {
           </>
         )}
       </Container>
-    </Box>
+    </>
   );
 } 
