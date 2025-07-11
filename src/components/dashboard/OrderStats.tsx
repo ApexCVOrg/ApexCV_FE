@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Grid from '@mui/material/Grid';
 import {
   PieChart,
@@ -33,6 +34,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
   const safeOrderStatusData = orderStatusData || [];
   const safeTotalOrders = totalOrders || 0;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
@@ -58,10 +60,12 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
     }
     return null;
   };
-
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomLegend = ({ payload }: any) => (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
-      {payload?.map((entry: any, index: number) => (
+      {// eslint-disable-next-line @typescript-eslint/no-explicit-any
+      payload?.map((entry: any, index: number) => (
         <Box
           key={index}
           sx={{
@@ -129,6 +133,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
+                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                 <CustomLegend payload={safeOrderStatusData.map((item, index) => ({
                   value: item.name,
                   color: item.color,

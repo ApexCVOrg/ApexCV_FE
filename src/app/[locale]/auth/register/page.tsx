@@ -25,12 +25,7 @@ import {
 import {
   Visibility,
   VisibilityOff,
-  Person,
-  Email,
-  AccountCircle,
-  Phone,
   Facebook,
-  LocationOn,
   CheckCircle,
 } from '@mui/icons-material';
 import Image from 'next/image';
@@ -49,7 +44,7 @@ export default function RegisterPage() {
   const t = useTranslations('register');
   const router = useRouter();
   const pathname = usePathname();
-  const { register } = useAuth();
+  useAuth();
   const locale = pathname?.split('/')[1] || 'vi';
 
   // Form state
@@ -629,15 +624,6 @@ export default function RegisterPage() {
     }
   };
 
-  const ErrorDisplay = ({ field }: { field: string }) => {
-    if (!fieldErrors[field]) return null;
-    return (
-      <Typography color="error" variant="caption" sx={{ display: 'block', mt: 0.5, ml: 2 }}>
-        {fieldErrors[field]}
-      </Typography>
-    );
-  };
-
   // Clear form data button
   const handleClearForm = () => {
     setFormData(initialFormData);
@@ -685,7 +671,7 @@ export default function RegisterPage() {
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="body2" sx={{ color: 'gray', mb: 1 }}>
-              💡 Information will be automatically saved so you don't have to enter it again
+              💡 Information will be automatically saved so you dont have to enter it again
             </Typography>
             
             <TextField

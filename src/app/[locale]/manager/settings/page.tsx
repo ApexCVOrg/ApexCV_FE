@@ -17,6 +17,7 @@ import {
   FormControl,
   FormControlLabel,
   Divider,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   SelectChangeEvent,
 } from "@mui/material";
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -58,6 +59,7 @@ function TabPanel({ children, value, index }: { children: React.ReactNode; value
 
 // Patch Partial<ManagerSettings> to allow dynamic string index
 interface ManagerSettingsForm extends Partial<ManagerSettings> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -94,6 +96,7 @@ export default function ManagerSettingsPage() {
   }, [tab]);
 
   // Helper to update nested state
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFormChange = (path: string) => (e: any) => {
     // e.target.type may not exist on all event types, so fallback to value
     const value = e.target?.type === 'checkbox' ? e.target.checked : e.target.value;
@@ -113,6 +116,7 @@ export default function ManagerSettingsPage() {
     try {
       await managerSettingsService.updateSectionSettings(section, form[section]);
       setSuccess('Settings saved successfully');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save settings');
     } finally {

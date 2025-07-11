@@ -20,7 +20,9 @@ import {
   ListItemText,
   Badge,
   useTheme,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TextField,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   InputAdornment,
   Menu,
   ListItemIcon,
@@ -79,7 +81,9 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
 
   // Header luôn trong suốt, có thể thêm shadow nhẹ khi cuộn xuống

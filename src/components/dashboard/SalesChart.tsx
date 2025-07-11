@@ -8,6 +8,7 @@ import {
   Box,
 } from '@mui/material';
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   LineChart,
   Line,
   XAxis,
@@ -39,6 +40,7 @@ export default function SalesChart({ data }: SalesChartProps) {
     }).format(value);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (

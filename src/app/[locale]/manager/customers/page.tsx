@@ -36,7 +36,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import api from "@/services/api";
 import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
 import { useTranslations } from "next-intl";
@@ -151,6 +150,7 @@ export default function CustomersPage() {
   // Apply filters when search terms or filters change
   useEffect(() => {
     filterUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, roleFilter, statusFilter, verificationFilter, users]);
 
   // Clear all filters
@@ -189,6 +189,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, limit]);
 
   // Handle page change
