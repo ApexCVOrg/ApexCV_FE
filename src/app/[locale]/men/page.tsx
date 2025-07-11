@@ -14,6 +14,8 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 export default function MenPage() {
@@ -235,6 +237,7 @@ export default function MenPage() {
                   }}
                 >
                   <ProductCard
+                    _id={product._id}
                     name={product.name}
                     image={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
                     price={product.price}
@@ -242,7 +245,8 @@ export default function MenPage() {
                     tags={product.tags}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories}
-                    onAddToCart={() => handleAddToCart(product.name)}
+                    sizes={product.sizes}
+                    colors={product.colors}
                   />
                 </Box>
               ))}

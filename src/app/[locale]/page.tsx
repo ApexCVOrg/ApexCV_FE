@@ -19,14 +19,19 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import ProductCard from '@/components/card';
 import SearchIcon from '@mui/icons-material/Search';
 import TeamButtonsMUI from "@/components/button/TeamButtonsMUI";
 import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
+import HomeCartSidebar from '@/components/ui/HomeCartSidebar';
 import { ProductLabel } from '@/types/components/label';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
+import { useHomeCartContext } from '@/context/HomeCartContext';
+import { useAuthContext } from '@/context/AuthContext';
 
 interface Product {
   _id: string;
@@ -38,6 +43,8 @@ interface Product {
   categories: { _id: string; name: string }[]; // theo model
   brand: { _id: string; name: string };
   label?: string;
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 interface Brand {
@@ -56,6 +63,18 @@ export default function Home() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('newest');
   const [searchQuery, setSearchQuery] = useState('');
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error' | 'info' | 'warning';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
+  const { addToHomeCart } = useHomeCartContext();
+  const { token } = useAuthContext();
 
   // Fetch initial categories and brands only once
   useEffect(() => {
@@ -166,6 +185,39 @@ export default function Home() {
     );
   };
 
+  const handleAddToCart = (product: Product) => {
+    if (!token) {
+      setSnackbar({
+        open: true,
+        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+        severity: 'warning',
+      });
+      return;
+    }
+
+    addToHomeCart({
+      productId: product._id,
+      name: product.name,
+      image: product.images[0],
+      price: product.price,
+      discountPrice: product.discountPrice,
+      brand: product.brand.name,
+      size: undefined,
+      color: undefined,
+      quantity: 1,
+    });
+
+    setSnackbar({
+      open: true,
+      message: 'Đã thêm sản phẩm vào giỏ hàng!',
+      severity: 'success',
+    });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -175,152 +227,179 @@ export default function Home() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
-          PICK YOUR TEAM
-        </Typography>
-        <TeamButtonsMUI />
-      </Box>
-
-      <Grid container spacing={4}>
-        {/* Filters Sidebar */}
-        <Box sx={{ width: { xs: '100%', md: '25%' } }}>
-          <Box sx={{ position: 'sticky', top: 20 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Filters
+    <>
+      <Box sx={{ display: 'flex' }}>
+        <Container maxWidth="xl" sx={{ 
+          py: 4, 
+          flex: 1, 
+          marginRight: { xs: 0, md: '400px' },
+          maxWidth: '100% !important'
+        }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Typography variant="h4" component="h1" align="center" gutterBottom>
+              PICK YOUR TEAM
             </Typography>
+            <TeamButtonsMUI />
+          </Box>
 
-            {/* Search */}
-            <TextField
-              fullWidth
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{ mb: 3 }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
+          <Grid container spacing={4}>
+            {/* Filters Sidebar */}
+            <Box sx={{ width: { xs: '100%', md: '25%' } }}>
+              <Box sx={{ position: 'sticky', top: 20 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Filters
+                </Typography>
 
-            {/* Price Range */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Price Range
-              </Typography>
-              <Slider
-                value={priceRange}
-                onChange={handlePriceChange}
-                valueLabelDisplay="auto"
-                min={0}
-                max={5000000}
-                step={100000}
-                valueLabelFormat={(value) => `${value.toLocaleString('vi-VN')}đ`}
-              />
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="body2">{priceRange[0].toLocaleString('vi-VN')}đ</Typography>
-                <Typography variant="body2">{priceRange[1].toLocaleString('vi-VN')}đ</Typography>
-              </Stack>
-            </Box>
+                {/* Search */}
+                <TextField
+                  fullWidth
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  sx={{ mb: 3 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
 
-            <Divider sx={{ my: 2 }} />
-
-            {/* Categories Tree */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Categories
-              </Typography>
-              <CategoryTreeFilter
-                categories={categoryTree}
-                selectedCategories={selectedCategories}
-                onCategoryChange={handleCategoryChange}
-              />
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            {/* Brands */}
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                Brands
-              </Typography>
-              <FormGroup>
-                {brands.map((brand) => (
-                  <FormControlLabel
-                    key={brand._id}
-                    control={
-                      <Checkbox
-                        checked={selectedBrands.includes(brand._id)}
-                        onChange={(e) => handleBrandChange(e, brand._id)}
-                      />
-                    }
-                    label={brand.name}
+                {/* Price Range */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Price Range
+                  </Typography>
+                  <Slider
+                    value={priceRange}
+                    onChange={handlePriceChange}
+                    valueLabelDisplay="auto"
+                    min={0}
+                    max={5000000}
+                    step={100000}
+                    valueLabelFormat={(value) => `${value.toLocaleString('vi-VN')}đ`}
                   />
-                ))}
-              </FormGroup>
-            </Box>
-          </Box>
-        </Box>
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="body2">{priceRange[0].toLocaleString('vi-VN')}đ</Typography>
+                    <Typography variant="body2">{priceRange[1].toLocaleString('vi-VN')}đ</Typography>
+                  </Stack>
+                </Box>
 
-        {/* Products Grid */}
-        <Box sx={{ width: { xs: '100%', md: '75%' } }}>
-          {/* Sort and Filter Bar */}
-          <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6">{products.length} Products</Typography>
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Sort By</InputLabel>
-              <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-                <MenuItem value="newest">Newest</MenuItem>
-                <MenuItem value="price-low">Price: Low to High</MenuItem>
-                <MenuItem value="price-high">Price: High to Low</MenuItem>
-                <MenuItem value="popular">Most Popular</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+                <Divider sx={{ my: 2 }} />
 
-          {/* Products Grid */}
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: 'repeat(2, 1fr)',
-                md: 'repeat(3, 1fr)',
-              },
-              gap: 3,
-            }}
-          >
-            {products.map((product) => {
-              const validLabels = Array.isArray(product.label)
-                ? product.label.filter(l => [
-                    'new', 'hot', 'sale', 'outlet', 'limited', 'preorder', 'exclusive', 'bestseller', 'trend', 'restock'
-                  ].includes(l)) as ProductLabel[]
-                : undefined;
-              return (
-                <Box key={product._id}>
-                  <ProductCard
-                    name={product.name}
-                    image={product.images[0]}
-                    price={product.price}
-                    discountPrice={product.discountPrice}
-                    tags={product.tags}
-                    brand={product.brand}
-                    categories={product.categories}
-                    labels={validLabels}
-                    allCategories={categories}
-                    allBrands={brands}
-                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                {/* Categories Tree */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Categories
+                  </Typography>
+                  <CategoryTreeFilter
+                    categories={categoryTree}
+                    selectedCategories={selectedCategories}
+                    onCategoryChange={handleCategoryChange}
                   />
                 </Box>
-              );
-            })}
-          </Box>
-        </Box>
-      </Grid>
-    </Container>
+
+                <Divider sx={{ my: 2 }} />
+
+                {/* Brands */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                    Brands
+                  </Typography>
+                  <FormGroup>
+                    {brands.map((brand) => (
+                      <FormControlLabel
+                        key={brand._id}
+                        control={
+                          <Checkbox
+                            checked={selectedBrands.includes(brand._id)}
+                            onChange={(e) => handleBrandChange(e, brand._id)}
+                          />
+                        }
+                        label={brand.name}
+                      />
+                    ))}
+                  </FormGroup>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Products Grid */}
+            <Box sx={{ width: { xs: '100%', md: '75%' } }}>
+              {/* Sort and Filter Bar */}
+              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h6">{products.length} Products</Typography>
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel>Sort By</InputLabel>
+                  <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+                    <MenuItem value="newest">Newest</MenuItem>
+                    <MenuItem value="price-low">Price: Low to High</MenuItem>
+                    <MenuItem value="price-high">Price: High to Low</MenuItem>
+                    <MenuItem value="popular">Most Popular</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+
+              {/* Products Grid */}
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                  },
+                  gap: 3,
+                }}
+              >
+                {products.map((product) => {
+                  const validLabels = Array.isArray(product.label)
+                    ? product.label.filter(l => [
+                        'new', 'hot', 'sale', 'outlet', 'limited', 'preorder', 'exclusive', 'bestseller', 'trend', 'restock'
+                      ].includes(l)) as ProductLabel[]
+                    : undefined;
+                  return (
+                    <Box key={product._id}>
+                      <ProductCard
+                        _id={product._id}
+                        name={product.name}
+                        image={product.images[0]}
+                        price={product.price}
+                        discountPrice={product.discountPrice}
+                        tags={product.tags}
+                        brand={product.brand}
+                        categories={product.categories}
+                        labels={validLabels}
+                        allCategories={categories}
+                        allBrands={brands}
+                        sizes={product.sizes}
+                        colors={product.colors}
+                        onAddToCart={() => handleAddToCart(product)}
+                      />
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          </Grid>
+        </Container>
+
+        {/* Home Cart Sidebar - Chỉ hiển thị ở trang home */}
+        <HomeCartSidebar />
+      </Box>
+
+      {/* Snackbar thông báo */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 }

@@ -38,6 +38,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { useCartContext } from '@/context/CartContext';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -64,6 +65,7 @@ const Header = () => {
   const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
+  const { cartItemCount } = useCartContext();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
   const [userRole, setUserRole] = useState<User['role'] | null>(null);
@@ -539,7 +541,7 @@ const Header = () => {
               {language.toUpperCase()}
             </Button>
             <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
-              <Badge badgeContent={0} color="secondary">
+              <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>

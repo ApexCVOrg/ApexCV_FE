@@ -15,6 +15,8 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 export default function KidsPage() {
@@ -184,6 +186,7 @@ export default function KidsPage() {
             {displayedProducts.map((product) => (
               <ProductCard
                 key={product._id}
+                _id={product._id}
                 name={product.name}
                 image={product.image}
                 price={product.price}
@@ -191,7 +194,8 @@ export default function KidsPage() {
                 tags={product.tags}
                 brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                 categories={product.categories}
-                onAddToCart={() => handleAddToCart(product.name)}
+                sizes={product.sizes}
+                colors={product.colors}
               />
             ))}
           </Box>

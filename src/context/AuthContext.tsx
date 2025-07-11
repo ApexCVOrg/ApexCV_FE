@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
+    const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
       setToken(storedToken);
       // Bạn có thể fetch user profile ở đây nếu cần
@@ -41,13 +41,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const setAuth = ({ token, user }: AuthState) => {
     setToken(token);
     setUser(user);
-    if (token) localStorage.setItem('authToken', token);
+    if (token) localStorage.setItem('auth_token', token);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('auth_token');
     router.push('/auth/login');
   };
 

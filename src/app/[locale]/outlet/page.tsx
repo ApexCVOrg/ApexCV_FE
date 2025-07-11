@@ -17,6 +17,8 @@ interface Product {
   tags?: string[];
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2';
@@ -122,6 +124,7 @@ export default function OutletPage() {
             {Array.isArray(products) && products.map((product) => (
               <Box key={product._id} className="product-card">
                 <ProductCard
+                  _id={product._id}
                   name={product.name}
                   image={product.images[0]}
                   price={product.price}
@@ -129,7 +132,8 @@ export default function OutletPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  sizes={product.sizes}
+                  colors={product.colors}
                 />
               </Box>
             ))}
