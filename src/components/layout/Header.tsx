@@ -146,9 +146,9 @@ const Header = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentY = window.scrollY;
-          if (currentY > lastScrollY && currentY > 80) {
+          if (currentY > 80) {
             setHideHeader(true);
-          } else {
+          } else if (currentY < 40) {
             setHideHeader(false);
           }
           setLastScrollY(currentY);

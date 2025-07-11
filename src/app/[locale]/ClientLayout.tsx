@@ -25,8 +25,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   const pathname = usePathname();
   const prevPath = useRef<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // Header scrollY state
-  const [scrollY, setScrollY] = useState(0);
   const auth = useAuth();
   const currentUser = auth.getCurrentUser ? auth.getCurrentUser() : null;
   const userId = currentUser?.id ? String(currentUser.id) : (currentUser?.email || 'guest-guest');
@@ -49,13 +47,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
     };
   }, [pathname]);
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   const isManagerPage = typeof window !== 'undefined' ? window.location.pathname.startsWith(`/${locale}/manager`) : false;
 
   return (
@@ -76,7 +67,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
                 },
               }}
             >
-              <Header scrollY={scrollY} />
+              <Header />
               <Box
                 component="main"
                 className="main-content"
