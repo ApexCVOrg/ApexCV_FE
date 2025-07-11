@@ -3,8 +3,10 @@
 import React, { useEffect, useRef } from 'react';
 import {
   Card,
+  CardMedia,
   CardContent,
   Typography,
+  Button,
   Box,
   Chip,
   Stack,
@@ -14,7 +16,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
-import { ProductLabel } from '@/types/components/label';
+import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -47,6 +49,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   onAddToCart,
+  labels,
   allCategories,
   allBrands,
   productId,
@@ -56,13 +59,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
+  const displayLabels = labels?.filter(l => l !== 'sale') || [];
 
   // Kiểm tra xem có phải ảnh trong lib không
   const isLibImage = image.includes('/assets/images/lib/');
 
-  // GSAP Animation cho entrance effect (luôn áp dụng cho mọi card)
+  // GSAP Animation cho entrance effect (chỉ cho lib images)
   useEffect(() => {
-    if (cardRef.current) {
+    if (isLibImage && cardRef.current) {
       gsap.fromTo(cardRef.current, 
         {
           opacity: 0,
@@ -79,7 +83,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         }
       );
     }
-  }, []);
+  }, [isLibImage]);
 
   // Debug logs
   if (typeof window !== 'undefined') {
@@ -99,7 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
 
-  // Render giao diện khác nhau cho ảnh lib và ảnh thường
+  // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
     return (
       <motion.div
@@ -179,7 +183,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -194,6 +197,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               }}
             />
           </Box>
+
           {/* Product Description Overlay */}
           <Box
             sx={{
@@ -234,6 +238,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               >
                 {name}
               </Typography>
+
               {/* Colors Info */}
               <Typography 
                 variant="body2" 
@@ -247,6 +252,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               >
                 {colors} colors
               </Typography>
+
               {/* Price Section */}
               <Box sx={{ mb: 2 }}>
                 {isDiscounted ? (
@@ -300,6 +306,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   </Typography>
                 )}
               </Box>
+
               {/* Star rating (5.0) */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 {[...Array(5)].map((_, i) => (
@@ -309,6 +316,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   5.0
                 </Box>
               </Box>
+
               {/* Brand and Categories */}
               <Typography 
                 variant="body2" 
@@ -320,6 +328,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               >
                 {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
               </Typography>
+
               {/* Tags */}
               {(tags || []).length > 0 && (
                 <Stack direction="row" spacing={0.5} mb={2} flexWrap="wrap">
@@ -350,6 +359,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               )}
             </CardContent>
           </Box>
+
           {/* Icon giỏ hàng ẩn, hover card mới hiện ra */}
           <IconButton
             className="cart-btn"
@@ -358,7 +368,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               bottom: 20,
               left: '50%',
               transform: 'translateX(-50%) translateY(20px)',
-              background: '#2f2f30',
+              background: '#1976d2',
               color: '#fff',
               width: 48,
               height: 48,
@@ -368,7 +378,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               pointerEvents: 'none',
               transition: 'opacity 0.3s, transform 0.4s cubic-bezier(.4,2,.6,1)',
               '&:hover': {
-                background: '#5e5091',
+                background: '#1565c0',
               },
             }}
             onClick={onAddToCart}
@@ -380,57 +390,47 @@ const ProductCard: React.FC<ProductCardProps> = ({
     );
   }
 
-  // Card thường: ảnh để thẳng, hover chỉ phóng nhẹ
+  // Nếu không phải ảnh lib, render card style đơn giản
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 60 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-      style={{ height: '100%' }}
-    >
-      <Card
-        ref={cardRef}
-        sx={{
-          borderRadius: '24px',
-          background: backgroundColor,
-          boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
-          p: 0,
-          pt: 0,
-          pb: 3,
-          px: 2,
-          position: 'relative',
-          overflow: 'visible',
-          minWidth: 260,
-          maxWidth: 300,
-          minHeight: 350,
-          maxHeight: 400,
-          mx: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          transition: 'box-shadow 0.3s',
-          '&:hover': {
-            boxShadow: '0 8px 32px 0 rgba(0,0,0,0.16)',
-            '.cart-btn': {
-              opacity: 1,
-              pointerEvents: 'auto',
-            },
-            '.product-image': {
-              transform: 'scale(1.08)', // chỉ phóng nhẹ, không nghiêng
-              filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.12))',
-            },
-          },
-        }}
-      >
-        {/* Favorite Button (top right of card) */}
+    <Card sx={{
+      maxWidth: 320,
+      borderRadius: 4,
+      boxShadow: 2,
+      p: 1.5,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      background: '#fff',
+      transition: 'box-shadow 0.2s',
+      '&:hover': { boxShadow: 6 },
+    }}>
+      <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: 220,
+            borderRadius: 3,
+            overflow: 'hidden',
+            bgcolor: '#f6f6f6',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CardMedia
+            component="img"
+            image={image}
+            alt={name}
+            sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </Box>
+        {/* Favorite Button */}
         <Box
           sx={{
             position: 'absolute',
             top: 12,
             right: 12,
             zIndex: 3,
-            pointerEvents: 'auto',
           }}
         >
           <FavoriteButton
@@ -440,224 +440,109 @@ const ProductCard: React.FC<ProductCardProps> = ({
             showTooltip={true}
           />
         </Box>
-        {/* Ảnh sản phẩm để thẳng, lấp đầy chiều ngang, crop dọc, KHÔNG absolute */}
-        <Box
-          sx={{
-            width: '100%',
-            height: 140,
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'none',
-            pointerEvents: 'none',
-            overflow: 'hidden',
-            borderTopLeftRadius: '24px',
-            borderTopRightRadius: '24px',
-            transition: 'transform 0.4s cubic-bezier(.4,2,.6,1), filter 0.4s cubic-bezier(.4,2,.6,1)',
-          }}
-          className="product-image"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={image}
-            alt={name}
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover', // lấp đầy ngang, crop dọc
-              filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.12))',
-              display: 'block',
-              background: 'none',
-              transition: 'filter 0.4s cubic-bezier(.4,2,.6,1)',
-              borderTopLeftRadius: '24px',
-              borderTopRightRadius: '24px',
+        {isDiscounted && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 12,
+              left: 12,
+              bgcolor: '#222',
+              color: '#fff',
+              px: 1.5,
+              py: 0.5,
+              borderRadius: 1,
+              fontWeight: 700,
+              fontSize: 13,
+              zIndex: 2,
             }}
-          />
-        </Box>
-        {/* Product Description Overlay */}
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: 'linear-gradient(transparent, rgba(255,255,255,0.9) 20%, white)',
-            padding: '20px',
-            borderRadius: '20px 20px 0 0',
-            transform: 'translateY(50px)',
-            transition: 'transform 0.3s ease',
-            '&:hover': {
-              transform: 'translateY(30px)',
-            },
-          }}
-        >
-          <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-            {/* Product Name */}
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="h3"
+          >
+            {`${Math.round(100 - (discountPrice! / price) * 100)}% OFF`}
+          </Box>
+        )}
+        {displayLabels.map((label, idx) => {
+          const labelDisplay = PRODUCT_LABELS.find(l => l.value === label)?.label || label;
+          return (
+            <Chip
+              key={label + idx}
+              label={labelDisplay}
+              color="warning"
+              size="small"
               sx={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                height: '2.4em',
-                lineHeight: '1.2em',
-                fontWeight: 600,
-                textTransform: 'capitalize',
-                letterSpacing: '0.5px',
-                color: 'black',
-                fontSize: '14px',
+                position: 'absolute',
+                top: 12 + (isDiscounted ? (idx + 1) : idx) * 32,
+                left: 12,
+                fontWeight: 'bold',
+                fontSize: 12,
+                paddingX: 1,
+                zIndex: 2,
               }}
-            >
-              {name}
-            </Typography>
-            {/* Colors Info */}
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ 
-                fontSize: '12px',
-                textTransform: 'capitalize',
-                letterSpacing: '0.5px',
-                marginBottom: 1,
-              }}
-            >
-              {colors} colors
-            </Typography>
-            {/* Price Section */}
-            <Box sx={{ mb: 2 }}>
-              {isDiscounted ? (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography
-                    variant="h6"
-                    color="error"
-                    sx={{ 
-                      fontWeight: 'bold',
-                      fontSize: '14px',
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <ShoppingCartIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                    {discountPrice.toLocaleString('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND',
-                    })}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ 
-                      textDecoration: 'line-through',
-                      fontSize: '12px',
-                    }}
-                  >
-                    {price.toLocaleString('vi-VN', {
-                      style: 'currency',
-                      currency: 'VND',
-                    })}
-                  </Typography>
-                </Stack>
-              ) : (
-                <Typography
-                  variant="h6"
-                  color="primary"
-                  sx={{ 
-                    fontWeight: 'bold',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <ShoppingCartIcon sx={{ fontSize: 16, mr: 0.5 }} />
-                  {price.toLocaleString('vi-VN', {
-                    style: 'currency',
-                    currency: 'VND',
-                  })}
-                </Typography>
-              )}
-            </Box>
-            {/* Star rating (5.0) */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              {[...Array(5)].map((_, i) => (
-                <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
-              ))}
-              <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
-                5.0
-              </Box>
-            </Box>
-            {/* Brand and Categories */}
-            <Typography 
-              variant="body2" 
-              color="text.secondary" 
-              sx={{ 
-                fontSize: '12px',
-                marginBottom: 1,
-              }}
-            >
-              {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
-            </Typography>
-            {/* Tags */}
-            {(tags || []).length > 0 && (
-              <Stack direction="row" spacing={0.5} mb={2} flexWrap="wrap">
-                {(tags || []).map((tag) => {
-                  let displayTag = tag;
-                  let found: CategoryLike | undefined;
-                  if (allCategories) {
-                    found = allCategories.find(cat => String(cat.id ?? cat._id) === String(tag));
-                    if (found) displayTag = found.name;
-                  }
-                  return (
-                    <Chip
-                      key={tag}
-                      label={displayTag}
-                      size="small"
-                      sx={{
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        backgroundColor: '#f1f1f1',
-                        color: '#333',
-                        fontSize: '10px',
-                        height: '20px',
-                      }}
-                    />
-                  );
-                })}
-              </Stack>
-            )}
-          </CardContent>
-        </Box>
-        {/* Icon giỏ hàng ẩn, hover card mới hiện ra */}
-        <IconButton
-          className="cart-btn"
-          sx={{
-            position: 'absolute',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%) translateY(20px)',
-            background: '#2f2f30',
-            color: '#fff',
-            width: 48,
-            height: 48,
-            zIndex: 3,
-            boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
-            opacity: 0,
-            pointerEvents: 'none',
-            transition: 'opacity 0.3s, transform 0.4s cubic-bezier(.4,2,.6,1)',
-            '&:hover': {
-              background: '#5e5091',
-            },
-          }}
-          onClick={onAddToCart}
+            />
+          );
+        })}
+      </Box>
+      <CardContent sx={{ width: '100%', p: 0, flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+        <Typography
+          gutterBottom
+          variant="subtitle1"
+          component="h3"
+          sx={{ fontWeight: 600, mb: 1, color: '#222', minHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
         >
-          <ShoppingCartIcon sx={{ fontSize: 28 }} />
-        </IconButton>
-      </Card>
-    </motion.div>
+          {name}
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a237e', mr: 1 }}>
+            {isDiscounted ? discountPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+          </Typography>
+          {isDiscounted && (
+            <Typography variant="body2" sx={{ color: '#888', textDecoration: 'line-through', mr: 1 }}>
+              {price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+            </Typography>
+          )}
+        </Box>
+        {/* Star rating and value (placeholder) */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          {[...Array(5)].map((_, i) => (
+            <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
+          ))}
+          <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
+            5.0
+          </Box>
+        </Box>
+        {/* Brand and categories */}
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
+        </Typography>
+        {/* Tags */}
+        {(tags || []).length > 0 && (
+          <Stack direction="row" spacing={0.5} mb={1} flexWrap="wrap" sx={{ rowGap: 0.75 }}>
+            {(tags || []).map((tag) => {
+              let displayTag = tag;
+              let found: CategoryLike | undefined;
+              if (allCategories) {
+                found = allCategories.find(cat => String(cat.id ?? cat._id) === String(tag));
+                if (found) displayTag = found.name;
+              }
+              return (
+                <Chip
+                  key={tag}
+                  label={displayTag}
+                  size="small"
+                  sx={{ fontWeight: 600, textTransform: 'uppercase', backgroundColor: '#f1f1f1', color: '#333' }}
+                />
+              );
+            })}
+          </Stack>
+        )}
+        <Button
+          variant="contained"
+          startIcon={<ShoppingCartIcon />}
+          onClick={onAddToCart}
+          sx={{ mt: 'auto', width: '100%', bgcolor: '#111a2f', color: '#fff', fontWeight: 700, borderRadius: 2, py: 1, '&:hover': { bgcolor: '#222c4c' } }}
+        >
+          {t('addToCart')}
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 
