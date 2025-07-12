@@ -144,6 +144,7 @@ export const ROUTES = {
     CUSTOMERS: '/manager/customers',
     USERS: '/manager/users',
     SETTINGS: '/manager/settings',
+    CHAT: '/manager/chats',
   },
 };
 
