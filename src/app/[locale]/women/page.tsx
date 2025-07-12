@@ -174,8 +174,8 @@ export default function WomenPage() {
         }}
       >
         <Image
-          src="/assets/images/women/banner/adidas_WWC.png"
-          alt="Women's World Cup Collection"
+          src="/assets/images/banner/COLLECTIO-BANNER-HOME-KIT-25-26-CHICAS.webp"
+          alt="Women's Football Collection"
           fill
           style={{ objectFit: 'cover' }}
           priority
@@ -187,67 +187,98 @@ export default function WomenPage() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-end',
             alignItems: 'flex-start',
             padding: { xs: 4, md: 8, lg: 12 },
+            pb: { xs: 6, md: 10, lg: 12 },
           }}
         >
-          <Typography 
-            variant="h1" 
-            component="h1" 
+          {/* Main Title Block */}
+          <Box
             sx={{
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: { xs: '3rem', md: '5rem', lg: '6.5rem' },
-              lineHeight: 0.9,
-              textShadow: '3px 3px 6px rgba(0,0,0,0.7)',
-              mb: 3,
-              maxWidth: '800px',
-              letterSpacing: '-0.02em'
-            }}
-          >
-            WOMEN'S FOOTBALL
-          </Typography>
-          <Typography 
-            variant="h3" 
-            component="h2" 
-            sx={{
-              color: 'white',
-              fontWeight: 300,
-              fontSize: { xs: '1.4rem', md: '2rem', lg: '2.5rem' },
-              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
-              mb: 5,
-              maxWidth: '600px',
-              opacity: 0.95
-            }}
-          >
-            Chính thức và đẳng cấp
-          </Typography>
-          <Button 
-            variant="contained" 
-            size="large"
-            sx={{ 
               bgcolor: 'white',
               color: 'black',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderRadius: 0,
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.9)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-              },
-              transition: 'all 0.3s ease'
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.5, md: 0.8 },
+              mb: 0.5,
+              maxWidth: 'fit-content',
+              display: 'inline-block',
+              borderRadius: 1
             }}
           >
-            Khám phá ngay
-          </Button>
+            <Typography 
+              variant="h1" 
+              component="h1" 
+              sx={{
+                fontWeight: 'bold',
+                fontSize: { xs: '1.2rem', md: '1.6rem', lg: '2rem' },
+                lineHeight: 1,
+                letterSpacing: '-0.01em',
+                textTransform: 'uppercase',
+                margin: 0
+              }}
+            >
+              HOME KIT 25/26 CHICAS
+            </Typography>
+          </Box>
+
+          {/* Subtitle Block */}
+          <Box
+            sx={{
+              bgcolor: 'white',
+              color: 'black',
+              px: { xs: 1.5, md: 2 },
+              py: { xs: 0.4, md: 0.6 },
+              mb: 2,
+              maxWidth: 'fit-content',
+              display: 'inline-block',
+              borderRadius: 1
+            }}
+          >
+            <Typography 
+              variant="h6" 
+              component="h2" 
+              sx={{
+                fontWeight: 400,
+                fontSize: { xs: '0.75rem', md: '0.85rem', lg: '0.95rem' },
+                margin: 0,
+                letterSpacing: '0.01em'
+              }}
+            >
+              Bộ sưu tập chính thức của các nữ cầu thủ
+            </Typography>
+          </Box>
+
+          {/* CTA Button */}
+          <Link href="/women/real-madrid" style={{ textDecoration: 'none' }}>
+            <Button 
+              variant="contained" 
+              size="small"
+              sx={{ 
+                bgcolor: 'white',
+                color: 'black',
+                px: { xs: 2, md: 2.5 },
+                py: { xs: 0.5, md: 0.7 },
+                fontSize: { xs: '0.7rem', md: '0.8rem' },
+                fontWeight: 'bold',
+                textTransform: 'none',
+                borderRadius: 0,
+                border: '2px solid black',
+                minWidth: '100px',
+                '&:hover': {
+                  bgcolor: 'black',
+                  color: 'white',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Khám phá ngay
+            </Button>
+          </Link>
         </Box>
       </Box>
       <Container maxWidth="xl" disableGutters>
@@ -287,8 +318,8 @@ export default function WomenPage() {
           }}>
             {[
                 { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/sneaker' },
-                { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/jersey' },
-                { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorts' }
+                { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/Jersey-women' },
+                { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorttrouser-women' }
             ].map((category) => (
                 <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
                   <Card 

@@ -69,13 +69,11 @@ export const ROUTES = {
     THUN_POLO: '/men/thunpolo',
     JERSEY: '/men/Jersey',
     HOODIE: '/men/hoodie',
-    SPORTSET: '/men/sportset',
     TROUSERS: '/men/trousers',
     TIGHT_PANTS: '/men/tightpants',
     SHORT_TROUSER: '/men/shorttrouser',
     SPORTSWEAR: '/men/sportswear',
     JACKET: '/men/jacket',
-    BASIC: '/men/basic',
     TRACKSUITS: '/men/tracksuits',
   },
   WOMEN: {
@@ -92,13 +90,18 @@ export const ROUTES = {
     DRESS: '/women/dress-women',
     SKIRT: '/women/skirt-women',
     SPORTSWEAR: '/women/sportswear-women',
-    BASIC: '/women/basic-women',
     TRACKSUITS: '/women/tracksuits-women',
   },
   KIDS: {
     ROOT: '/kids',
     CLOTHES_BOYS: '/kids/clothes-boys',
     CLOTHES_GIRLS: '/kids/clothes-girls',
+  },
+  SHOES: {
+    ROOT: '/shoes',
+    MEN: '/shoes/men',
+    WOMEN: '/shoes/women',
+    KIDS: '/shoes/kids',
   },
   ACCESSORIES: {
     ROOT: '/accessories',

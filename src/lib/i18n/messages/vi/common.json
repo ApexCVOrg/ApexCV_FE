@@ -333,6 +333,12 @@
       "clothes_boys": "Quần áo bé trai",
       "clothes_girls": "Quần áo bé gái"
     },
+    "shoes": {
+      "title": "Giày",
+      "men": "Giày Nam",
+      "women": "Giày Nữ",
+      "kids": "Giày Trẻ em"
+    },
     "accessories": {
       "title": "Phụ kiện",
       "bags": "Túi xách",

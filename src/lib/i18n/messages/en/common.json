@@ -344,6 +344,12 @@
       "clothes_boys": "Boys' Clothes",
       "clothes_girls": "Girls' Clothes"
     },
+    "shoes": {
+      "title": "Shoes",
+      "men": "Men's Shoes",
+      "women": "Women's Shoes",
+      "kids": "Kids' Shoes"
+    },
     "accessories": {
       "title": "Accessories",
       "bags": "Bags",

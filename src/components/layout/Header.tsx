@@ -132,6 +132,15 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
 
   const NAV_LINKS = [
     {
+      title: tHeader('shoes.title'),
+      href: ROUTES.SHOES.ROOT,
+      submenu: [
+        { title: tHeader('shoes.men'), href: ROUTES.SHOES.MEN },
+        { title: tHeader('shoes.women'), href: ROUTES.SHOES.WOMEN },
+        { title: tHeader('shoes.kids'), href: ROUTES.SHOES.KIDS }
+      ]
+    },
+    {
       title: tHeader('men.title'),
       href: ROUTES.MEN.ROOT,
       submenu: [
@@ -162,7 +171,6 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
         { title: tHeader('women.dress'), href: ROUTES.WOMEN.DRESS },
         { title: tHeader('women.skirt'), href: ROUTES.WOMEN.SKIRT },
         { title: tHeader('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
-        { title: tHeader('women.basic'), href: ROUTES.WOMEN.BASIC },
         { title: tHeader('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
       ]
     },
