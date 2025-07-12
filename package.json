@@ -40,7 +40,8 @@
     "react-material-ui-carousel": "^3.4.2",
     "react-scroll-parallax": "^3.4.5",
     "recharts": "^3.0.2",
-    "sass": "^1.89.0"
+    "sass": "^1.89.0",
+    "swiper": "^11.2.10"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

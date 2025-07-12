@@ -553,7 +553,7 @@ const ChatBox: React.FC = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ChatIcon fontSize="small" />
+                <ChatIcon fontSize="small" />
               <Typography variant="subtitle1" fontWeight={600}>
                 {chatType === 'ai' ? 'Trợ lý ảo' : 'Chat với shop'}
               </Typography>
@@ -604,7 +604,7 @@ const ChatBox: React.FC = () => {
                   AI
                 </Button>
                 <Button
-                  size="small"
+                size="small"
                   onClick={() => handleChatTypeChange('shop')}
                   sx={{
                     color: chatType === 'shop' ? '#667eea' : 'white',
@@ -630,18 +630,18 @@ const ChatBox: React.FC = () => {
           </Box>
 
           {/* Messages */}
-          <Box
-            sx={{
-              flex: 1,
+            <Box
+              sx={{
+                flex: 1,
               minHeight: 0,
               maxHeight: '100%',
               overflowY: 'scroll',
               overscrollBehaviorY: 'contain',
-              p: 2,
-              backgroundColor: '#f8f9fa',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 1,
+                p: 2,
+                backgroundColor: '#f8f9fa',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1,
               scrollbarWidth: 'thin',
               '&::-webkit-scrollbar': {
                 width: '8px',
@@ -686,7 +686,7 @@ const ChatBox: React.FC = () => {
                 <Typography 
                   variant="h6" 
                   sx={{ 
-                    mb: 1, 
+                    mb: 1,
                     fontWeight: 600,
                     color: 'text.primary',
                   }}
@@ -775,15 +775,15 @@ const ChatBox: React.FC = () => {
                     flexDirection: 'column',
                     maxWidth: '85%',
                     alignItems: msg.isUser ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 1.5,
+                    }}
+                  >
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        p: 1.5,
                       backgroundColor: msg.isUser ? '#1976d2' : 'white',
                       color: msg.isUser ? 'white' : 'text.primary',
-                      borderRadius: 2,
+                        borderRadius: 2,
                       borderBottomLeftRadius: msg.isUser ? 2 : 0,
                       borderBottomRightRadius: msg.isUser ? 0 : 2,
                       boxShadow: msg.isUser 
@@ -800,10 +800,10 @@ const ChatBox: React.FC = () => {
                       }}
                     >
                       {msg.text}
-                    </Typography>
-                  </Paper>
-                  <Typography 
-                    variant="caption" 
+                      </Typography>
+                    </Paper>
+                    <Typography
+                      variant="caption"
                     sx={{ 
                       mt: 0.5, 
                       color: 'text.secondary',
@@ -815,10 +815,10 @@ const ChatBox: React.FC = () => {
                       hour: '2-digit', 
                       minute: '2-digit' 
                     })}
-                  </Typography>
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))}
             {chatLoading && (
               <Box
                 sx={{
@@ -835,28 +835,28 @@ const ChatBox: React.FC = () => {
                     alignItems: 'flex-start',
                   }}
                 >
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 1.5,
-                      backgroundColor: 'white',
-                      borderRadius: 2,
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        p: 1.5,
+                        backgroundColor: 'white',
+                        borderRadius: 2,
                       borderBottomLeftRadius: 0,
                       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                    }}
-                  >
+                      }}
+                    >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <CircularProgress size={16} />
                       <Typography variant="body2" color="text.secondary">
                         {chatType === 'ai' ? 'Bot đang trả lời...' : 'Đang gửi tin nhắn...'}
                       </Typography>
                     </Box>
-                  </Paper>
+                    </Paper>
+                  </Box>
                 </Box>
-              </Box>
-            )}
-            <div ref={messagesEndRef} />
-          </Box>
+              )}
+              <div ref={messagesEndRef} />
+            </Box>
 
           {/* Suggestion Buttons */}
           {chatType === 'ai' && suggestions.length > 0 && (
@@ -983,47 +983,47 @@ const ChatBox: React.FC = () => {
             }}
           >
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
-              <TextField
-                fullWidth
-                size="small"
+                <TextField
+                  fullWidth
+                  size="small"
                 placeholder={chatType === 'ai' ? 'Nhập tin nhắn...' : 'Nhập tin nhắn cho shop...'}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 disabled={chatLoading || (chatType === 'shop' && !shopChatStarted)}
                 multiline
                 maxRows={3}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
-                  },
-                }}
-              />
-              <IconButton
-                onClick={handleSendMessage}
+                    },
+                  }}
+                />
+                <IconButton
+                  onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || chatLoading || (chatType === 'shop' && !shopChatStarted)}
-                sx={{
-                  backgroundColor: '#1976d2',
-                  color: 'white',
+                  sx={{
+                    backgroundColor: '#1976d2',
+                    color: 'white',
                   minWidth: 40,
                   height: 40,
-                  '&:hover': {
-                    backgroundColor: '#1565c0',
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
                     transform: 'scale(1.05)',
-                  },
-                  '&:disabled': {
-                    backgroundColor: '#e0e0e0',
-                    color: '#9e9e9e',
+                    },
+                    '&:disabled': {
+                      backgroundColor: '#e0e0e0',
+                      color: '#9e9e9e',
                     transform: 'none',
-                  },
+                    },
                   transition: 'all 0.2s ease',
-                }}
-              >
-                <SendIcon fontSize="small" />
-              </IconButton>
+                  }}
+                >
+                  <SendIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Box>
-          </Box>
         </Paper>
       </Collapse>
 

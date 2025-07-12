@@ -407,7 +407,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
         <Box
           sx={{
-            width: '100%',
+            width: 320,
             height: 220,
             borderRadius: 3,
             overflow: 'hidden',
