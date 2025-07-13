@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress } from "@mui/material";
+import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress, IconButton } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
 import { HeroBanner } from "@/components/banner";
@@ -128,6 +128,14 @@ export default function KidsPage() {
 
   const handleAddToCart = (productName: string) => {
     console.log('Add to cart:', productName);
+  };
+
+  const handleCarouselPrev = () => {
+    setCarouselIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleCarouselNext = () => {
+    setCarouselIndex((prev) => Math.min(prev + 1, Math.ceil(products.length / 4) - 1));
   };
 
   if (error) {

@@ -83,6 +83,9 @@ const Header = () => {
   const [anchorElShoes, setAnchorElShoes] = useState<null | HTMLElement>(null);
   const openShoesMenu = Boolean(anchorElShoes);
   const [showShoesMenu, setShowShoesMenu] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
