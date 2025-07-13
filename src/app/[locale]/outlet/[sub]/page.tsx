@@ -88,6 +88,7 @@ export default function OutletSubCategoryPage() {
           {Array.isArray(products) && products.map((product) => (
             <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
               <ProductCard
+                productId={product._id}
                 name={product.name}
                 image={product.images[0]}
                 price={product.price}

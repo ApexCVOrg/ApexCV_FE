@@ -29,7 +29,9 @@ const HomepageBanner: React.FC<{ scrollY?: number }> = ({ scrollY = 0 }) => {
         filter: `blur(${blur}px)`,
         transition: 'opacity 0.6s cubic-bezier(.4,1.2,.6,1), transform 0.6s cubic-bezier(.4,1.2,.6,1), filter 0.6s cubic-bezier(.4,1.2,.6,1)',
       }}
+      
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={BANNER_URL}
         alt="Homepage Banner"
