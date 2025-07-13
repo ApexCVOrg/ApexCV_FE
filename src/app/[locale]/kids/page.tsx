@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, IconButton } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
+import { HeroBanner } from "@/components/banner";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -158,98 +159,14 @@ export default function KidsPage() {
   return (
     <>
       {/* Hero Banner */}
-      <Box
-        sx={{
-          position: 'relative',
-          width: '100vw',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          minHeight: { xs: '60vh', md: '80vh', lg: '90vh' },
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Image
-          src="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
-          alt="Kids' Football Collection"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: { xs: 4, md: 8, lg: 12 },
-          }}
-        >
-          <Typography 
-            variant="h1" 
-            component="h1" 
-            sx={{
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: { xs: '3rem', md: '5rem', lg: '6.5rem' },
-              lineHeight: 0.9,
-              textShadow: '3px 3px 6px rgba(0,0,0,0.7)',
-              mb: 3,
-              maxWidth: '800px',
-              letterSpacing: '-0.02em'
-            }}
-          >
-            NIDAS KIDS
-          </Typography>
-          <Typography 
-            variant="h3" 
-            component="h2" 
-            sx={{
-              color: 'white',
-              fontWeight: 300,
-              fontSize: { xs: '1.4rem', md: '2rem', lg: '2.5rem' },
-              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
-              mb: 5,
-              maxWidth: '600px',
-              opacity: 0.95
-            }}
-          >
-            Chính thức và đẳng cấp
-          </Typography>
-          <Button 
-            variant="contained" 
-            size="large"
-            sx={{ 
-              bgcolor: 'white',
-              color: 'black',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderRadius: 0,
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.9)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Khám phá ngay
-          </Button>
-        </Box>
-      </Box>
+      <HeroBanner
+        imageSrc="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
+        imageAlt="ADIDAS SMILEY Banner"
+        title="ADIDAS | SMILEY"
+        subtitle="Share true joy with your smile."
+        ctaText="Shop Now"
+        ctaLink="/shop"
+      />
       <Container maxWidth="xl" disableGutters>
         {/* Categories Section */}
         <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>

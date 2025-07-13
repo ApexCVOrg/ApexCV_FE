@@ -39,6 +39,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
+import MegaMenuShoes from './MegaMenuShoes';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -76,6 +77,10 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
   const [mounted, setMounted] = useState(false);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
+  // Thêm state cho mega menu shoes
+  const [anchorElShoes, setAnchorElShoes] = useState<null | HTMLElement>(null);
+  const openShoesMenu = Boolean(anchorElShoes);
+  const [showShoesMenu, setShowShoesMenu] = useState(false);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -135,9 +140,11 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
       title: tHeader('shoes.title'),
       href: ROUTES.SHOES.ROOT,
       submenu: [
-        { title: tHeader('shoes.men'), href: ROUTES.SHOES.MEN },
-        { title: tHeader('shoes.women'), href: ROUTES.SHOES.WOMEN },
-        { title: tHeader('shoes.kids'), href: ROUTES.SHOES.KIDS }
+        { title: tHeader('shoes.samba'), href: ROUTES.SHOES.SAMBA },
+        { title: tHeader('shoes.gazelle'), href: ROUTES.SHOES.GAZELLE },
+        { title: tHeader('shoes.campus'), href: ROUTES.SHOES.CAMPUS },
+        { title: tHeader('shoes.spezial'), href: ROUTES.SHOES.SPEZIAL },
+        { title: tHeader('shoes.superstar'), href: ROUTES.SHOES.SUPERSTAR },
       ]
     },
     {
@@ -372,145 +379,173 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
               }}
             >
               <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', minWidth: 0 }}>
-                {NAV_LINKS.map(({ title, href, submenu }, i) => (
-                  <Box 
-                    key={title} 
-                    sx={{ 
-                      position: 'relative',
-                      '&:hover': {
-                        '& .MuiPopover-root': {
-                          pointerEvents: 'auto',
-                        }
-                      }
-                    }}
-                    onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
-                  >
-                    <Button
-                      color="inherit"
-                      onClick={() => handleMenuClick(i, href as string)}
-                      sx={{
-                        fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
-                        fontSize: '1rem',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '3px',
-                          backgroundColor: 'black',
-                          transform: 'scaleX(0)',
-                          transition: 'transform 0.3s ease',
-                          transformOrigin: 'bottom',
-                        },
-                        '&:hover': {
-                          backgroundColor: 'transparent',
-                          '&::after': {
-                            transform: 'scaleX(1)',
-                          },
-                        },
-                      }}
+                {NAV_LINKS.map(({ title, href, submenu }, i) => {
+                  return i === 0 ? (
+                    <Box
+                      key={title}
+                      sx={{ position: 'relative', display: 'inline-block' }}
+                      onMouseEnter={() => setShowShoesMenu(true)}
+                      onMouseLeave={() => setShowShoesMenu(false)}
                     >
-                      {title}
-                    </Button>
-
-                    {submenu && (
-                      <Popover
-                        open={openMenuIndex === i}
-                        anchorEl={anchorElMenu}
-                        onClose={handleMenuClose}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'left',
-                        }}
-                        PaperProps={{
-                          sx: {
-                            left: 0,
-                            right: 0,
-                            width: '100vw',
-                            maxWidth: 'none',
-                            borderRadius: 0,
-                            boxShadow: 2,
-                            px: 0,
-                            mt: 0,
-                          }
-                        }}
+                      <Button
+                        color="inherit"
+                        onClick={() => handleMenuClick(i, href as string)}
                         sx={{
-                          pointerEvents: 'none',
-                          '& .MuiPopover-paper': {
-                            pointerEvents: 'auto',
-                          },
-                        }}
-                        slotProps={{
-                          paper: {
-                            onMouseEnter: () => setAnchorElMenu(anchorElMenu),
-                            onMouseLeave: handleMenuClose,
+                          fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                          fontSize: '1rem',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
                           }
                         }}
                       >
-                        {href === ROUTES.OUTLET.ROOT ? (
-                          <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
-                            {(submenu as OutletSubmenu).map((group) =>
-                              'children' in group ? (
-                                <Box key={group.title}>
-                                  <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
-                                  {group.children.map((item) => (
+                        {title}
+                      </Button>
+                      {showShoesMenu && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            left: 0,
+                            top: '100%',
+                            zIndex: 2000,
+                            mt: 0,
+                          }}
+                        >
+                          <MegaMenuShoes />
+                        </Box>
+                      )}
+                    </Box>
+                  ) : (
+                    <Box 
+                      key={title} 
+                      sx={{ 
+                        position: 'relative',
+                        '&:hover': {
+                          '& .MuiPopover-root': {
+                            pointerEvents: 'auto',
+                          }
+                        }
+                      }}
+                      onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                      onMouseLeave={handleMenuClose}
+                    >
+                      <Button
+                        color="inherit"
+                        onClick={() => handleMenuClick(i, href as string)}
+                        sx={{
+                          fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                          fontSize: '1rem',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                          }
+                        }}
+                      >
+                        {title}
+                      </Button>
+                      {submenu && (
+                        <Popover
+                          open={openMenuIndex === i}
+                          anchorEl={anchorElMenu}
+                          onClose={handleMenuClose}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                          }}
+                          PaperProps={{
+                            sx: {
+                              left: 0,
+                              right: 0,
+                              width: '100vw',
+                              maxWidth: 'none',
+                              borderRadius: 0,
+                              boxShadow: 2,
+                              px: 0,
+                              mt: 0,
+                            }
+                          }}
+                          sx={{
+                            pointerEvents: 'none',
+                            '& .MuiPopover-paper': {
+                              pointerEvents: 'auto',
+                            },
+                          }}
+                          slotProps={{
+                            paper: {
+                              onMouseEnter: () => setAnchorElMenu(anchorElMenu),
+                              onMouseLeave: handleMenuClose,
+                            }
+                          }}
+                        >
+                          {href === ROUTES.OUTLET.ROOT ? (
+                            <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
+                              {(submenu as OutletSubmenu).map((group) =>
+                                'children' in group ? (
+                                  <Box key={group.title}>
+                                    <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
+                                    {group.children.map((item) => (
+                                      <MenuItem
+                                        key={item.title}
+                                        component={Link}
+                                        href={item.href}
+                                        onClick={handleMenuClose}
+                                        sx={{ minWidth: 180 }}
+                                      >
+                                        {item.title}
+                                      </MenuItem>
+                                    ))}
+                                  </Box>
+                                ) : (
+                                  <Box key={group.title}>
                                     <MenuItem
-                                      key={item.title}
                                       component={Link}
-                                      href={item.href}
+                                      href={group.href}
                                       onClick={handleMenuClose}
                                       sx={{ minWidth: 180 }}
                                     >
-                                      {item.title}
+                                      {group.title}
                                     </MenuItem>
-                                  ))}
-                                </Box>
-                              ) : (
-                                <Box key={group.title}>
+                                  </Box>
+                                )
+                              )}
+                            </Box>
+                          ) : (
+                            <Box sx={{ p: 1 }}>
+                              {submenu
+                                .filter((item): item is OutletSubmenuItem => 'href' in item)
+                                .map((item) => (
                                   <MenuItem
+                                    key={item.title}
                                     component={Link}
-                                    href={group.href}
+                                    href={item.href}
                                     onClick={handleMenuClose}
-                                    sx={{ minWidth: 180 }}
+                                    sx={{
+                                      textTransform: 'capitalize',
+                                      minWidth: 200,
+                                    }}
                                   >
-                                    {group.title}
+                                    {item.title}
                                   </MenuItem>
-                                </Box>
-                              )
-                            )}
-                          </Box>
-                        ) : (
-                          <Box sx={{ p: 1 }}>
-                            {submenu
-                              .filter((item): item is OutletSubmenuItem => 'href' in item)
-                              .map((item) => (
-                                <MenuItem
-                                  key={item.title}
-                                  component={Link}
-                                  href={item.href}
-                                  onClick={handleMenuClose}
-                                  sx={{
-                                    textTransform: 'capitalize',
-                                    minWidth: 200,
-                                  }}
-                                >
-                                  {item.title}
-                                </MenuItem>
-                              ))}
-                          </Box>
-                        )}
-                      </Popover>
-                    )}
-                  </Box>
-                ))}
+                                ))}
+                            </Box>
+                          )}
+                        </Popover>
+                      )}
+                    </Box>
+                  );
+                })}
               </Stack>
             </Box>
           )}

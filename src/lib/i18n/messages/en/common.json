@@ -346,9 +346,11 @@
     },
     "shoes": {
       "title": "Shoes",
-      "men": "Men's Shoes",
-      "women": "Women's Shoes",
-      "kids": "Kids' Shoes"
+      "samba": "Samba",
+      "gazelle": "Gazelle",
+      "campus": "Campus",
+      "spezial": "Spezial",
+      "superstar": "Superstar"
     },
     "accessories": {
       "title": "Accessories",

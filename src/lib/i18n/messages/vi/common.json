@@ -335,9 +335,11 @@
     },
     "shoes": {
       "title": "Giày",
-      "men": "Giày Nam",
-      "women": "Giày Nữ",
-      "kids": "Giày Trẻ em"
+      "samba": "Samba",
+      "gazelle": "Gazelle",
+      "campus": "Campus",
+      "spezial": "Spezial",
+      "superstar": "Superstar"
     },
     "accessories": {
       "title": "Phụ kiện",
