@@ -489,4 +489,4 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       </Container>
     </Box>
   );
-} 
+}

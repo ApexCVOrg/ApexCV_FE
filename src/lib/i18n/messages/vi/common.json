@@ -505,5 +505,23 @@
     "emptyTitle": "Chưa có sản phẩm yêu thích",
     "emptyDescription": "Bắt đầu thêm sản phẩm vào danh sách yêu thích để xem chúng ở đây. Bạn có thể thêm sản phẩm bằng cách nhấp vào biểu tượng trái tim trên bất kỳ thẻ sản phẩm nào.",
     "startShopping": "Bắt đầu mua sắm"
+  },
+  "cartPage": {
+    "loginToViewCart": "Đăng nhập để xem giỏ hàng",
+    "login": "Đăng nhập",
+    "cartEmpty": "Giỏ hàng trống",
+    "noProductsInCart": "Bạn chưa có sản phẩm nào trong giỏ hàng",
+    "continueShopping": "Tiếp tục mua sắm",
+    "cart": "Giỏ hàng",
+    "productCount": "{count} sản phẩm",
+    "size": "Kích thước",
+    "color": "Màu sắc",
+    "stockLeft": "Còn: {stock} sản phẩm",
+    "orderSummary": "Tổng quan đơn hàng",
+    "subtotal": "Tạm tính",
+    "shippingFee": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "checkout": "Thanh toán",
+    "clearCart": "Xóa giỏ hàng"
   }
 }

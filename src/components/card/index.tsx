@@ -10,6 +10,8 @@ import {
   Box,
   Chip,
   Stack,
+  Snackbar,
+  Alert,
   IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -17,6 +19,7 @@ import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+import { useAuthContext } from '@/context/AuthContext';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -24,6 +27,7 @@ import { motion } from 'framer-motion';
 export type CategoryLike = { id?: string; _id?: string; name: string };
 
 interface ProductCardProps {
+  _id: string;
   name: string;
   image: string;
   price: number;
@@ -38,9 +42,11 @@ interface ProductCardProps {
   productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
+  addToCartButtonProps?: React.ComponentProps<typeof Button>;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+  _id,
   name,
   image,
   price,
@@ -55,6 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   productId,
   backgroundColor = '#ffffff',
   colors = 1,
+  addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -102,6 +109,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  const handleAddToCartClick = () => {
+    if (!token) {
+      setSnackbar({
+        open: true,
+        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    // Gọi callback onAddToCart
+    if (onAddToCart) {
+      onAddToCart();
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
@@ -535,12 +562,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Stack>
         )}
         <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
+          variant={addToCartButtonProps?.variant || 'contained'}
+          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
           onClick={onAddToCart}
-          sx={{ mt: 'auto', width: '100%', bgcolor: '#111a2f', color: '#fff', fontWeight: 700, borderRadius: 2, py: 1, '&:hover': { bgcolor: '#222c4c' } }}
+          sx={{
+            mt: 'auto',
+            width: '100%',
+            bgcolor: addToCartButtonProps?.sx?.bgcolor || '#111a2f',
+            color: addToCartButtonProps?.sx?.color || '#fff',
+            fontWeight: addToCartButtonProps?.sx?.fontWeight || 700,
+            borderRadius: addToCartButtonProps?.sx?.borderRadius || 2,
+            py: addToCartButtonProps?.sx?.py || 1,
+            textTransform: addToCartButtonProps?.sx?.textTransform || 'none',
+            '&:hover': addToCartButtonProps?.sx?.['&:hover'] || { bgcolor: '#222c4c' },
+            ...addToCartButtonProps?.sx,
+          }}
+          {...addToCartButtonProps}
         >
-          {t('addToCart')}
+          {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
     </Card>
