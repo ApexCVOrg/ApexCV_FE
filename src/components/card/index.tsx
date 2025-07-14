@@ -42,6 +42,7 @@ interface ProductCardProps {
   productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
+  addToCartButtonProps?: React.ComponentProps<typeof Button>;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -60,6 +61,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   productId,
   backgroundColor = '#ffffff',
   colors = 1,
+  addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -208,6 +210,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -432,7 +435,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
         <Box
           sx={{
-            width: '100%',
+            width: 320,
             height: 220,
             borderRadius: 3,
             overflow: 'hidden',
@@ -559,12 +562,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Stack>
         )}
         <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
+          variant={addToCartButtonProps?.variant || 'contained'}
+          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
           onClick={onAddToCart}
-          sx={{ mt: 'auto', width: '100%', bgcolor: '#111a2f', color: '#fff', fontWeight: 700, borderRadius: 2, py: 1, '&:hover': { bgcolor: '#222c4c' } }}
+          sx={{
+            mt: 'auto',
+            width: '100%',
+            bgcolor: addToCartButtonProps?.sx?.bgcolor || '#111a2f',
+            color: addToCartButtonProps?.sx?.color || '#fff',
+            fontWeight: addToCartButtonProps?.sx?.fontWeight || 700,
+            borderRadius: addToCartButtonProps?.sx?.borderRadius || 2,
+            py: addToCartButtonProps?.sx?.py || 1,
+            textTransform: addToCartButtonProps?.sx?.textTransform || 'none',
+            '&:hover': addToCartButtonProps?.sx?.['&:hover'] || { bgcolor: '#222c4c' },
+            ...addToCartButtonProps?.sx,
+          }}
+          {...addToCartButtonProps}
         >
-          {t('addToCart')}
+          {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
     </Card>

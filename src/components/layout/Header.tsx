@@ -60,7 +60,7 @@ interface User {
   role: 'admin' | 'manager' | 'user';
 }
 
-const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
+const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
@@ -80,6 +80,9 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
   const [mounted, setMounted] = useState(false);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
+  const [scrollY, setScrollY] = useState(0);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [hideHeader, setHideHeader] = useState(false);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -87,9 +90,6 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
   const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
-
-  // Header luôn trong suốt, có thể thêm shadow nhẹ khi cuộn xuống
-  const showShadow = scrollY > 32;
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -135,6 +135,33 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
       }
     }
   }, [pathname, getCurrentUser]);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          if (currentY > 80) {
+            setHideHeader(true);
+          } else if (currentY < 40) {
+            setHideHeader(false);
+          }
+          setLastScrollY(currentY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const NAV_LINKS = [
     {
@@ -314,13 +341,14 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
           bgcolor: 'transparent',
           color: isDarkMode ? '#fff' : '#000',
           borderBottom: 'none',
-          boxShadow: showShadow ? '0 2px 16px 0 rgba(0,0,0,0.06)' : 'none',
+          boxShadow: 'none',
           px: { xs: 1, md: 2 },
           width: '100%',
           left: 0,
           top: 0,
           zIndex: 100,
-          transition: 'background 0.4s, box-shadow 0.4s',
+          transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
+          transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
         }}
         elevation={0}
       >
@@ -434,8 +462,10 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
                           sx: {
                             left: 0,
                             right: 0,
-                            width: '100vw',
-                            maxWidth: 'none',
+                            width: 'auto',
+                            maxWidth: 1200,
+                            maxHeight: 400,
+                            overflowY: 'auto',
                             borderRadius: 0,
                             boxShadow: 2,
                             px: 0,
@@ -561,7 +591,7 @@ const Header = ({ scrollY = 0 }: { scrollY?: number }) => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2 }}
+                  sx={{ ml: 2, mr: 10 }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
