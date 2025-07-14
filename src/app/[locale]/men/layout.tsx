@@ -11,16 +11,11 @@ export default function MenLayout({
   const pathname = usePathname();
   // Các route KHÔNG muốn hiện Pick your team
   const hideTabsRoutes = [
-    '/men/thunpolo',
     '/men/hoodie',
-    '/men/sportswear',
-    '/men/trousers',
-    '/men/tightpants',
     '/men/jacket',
     '/men/shorttrouser',
     '/men/Jersey',
-    '/men/tracksuits',
-    
+    'men/team-sneaker'
   ];
   const hideTabs = hideTabsRoutes.some(route => pathname.endsWith(route));
   return (

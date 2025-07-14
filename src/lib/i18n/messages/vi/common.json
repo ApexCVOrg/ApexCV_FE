@@ -302,19 +302,21 @@
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
       "short_trouser": "Quần short",    
-      "jacket": "Áo khoác"
+      "jacket": "Áo khoác",
+      "team_sneaker": "Giày thể thao theo đội"
     },
     "women": {
       "title": "Nữ",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
       "jacket": "Áo khoác",
-      "short_trouser": "Quần short"
+      "short_trouser": "Quần short",
+      "team_sneaker": "Giày thể thao theo đội"
     },
     "kids": {
       "title": "Trẻ em",
       "jersey": "Áo Jersey",
-      "short": "Quần short",
+      "tracksuits": "Đồ bộ thể thao",
       "smiley": "Bộ Sưu Tập Smiley"
     },
     "shoes": {

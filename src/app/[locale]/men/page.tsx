@@ -307,7 +307,7 @@ export default function MenPage() {
               mx: 'auto'
             }}>
               {[
-                { name: 'Giày sneaker', image: '/assets/images/men/arsenal/Arsenal_Men\'s_Training_Shoes.avif', description: 'Phong cách và thoải mái', href: '/men/sneaker' },
+                { name: 'Giày sneaker', image: '/assets/images/men/arsenal/Arsenal_Men\'s_Training_Shoes.avif', description: 'Phong cách và thoải mái', href: '/men/team-sneaker' },
                 { name: 'Áo đấu', image: '/assets/images/men/arsenal/Arsenal_Home_2425.avif', description: 'Chính thức và đẳng cấp', href: '/men/Jersey' },
                 { name: 'Quần short', image: '/assets/images/men/arsenal/Arsenal_24-25_Home_Shorts.avif', description: 'Thoải mái vận động', href: '/men/shorttrouser' }
               ].map((category) => (

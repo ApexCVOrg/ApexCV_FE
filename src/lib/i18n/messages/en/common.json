@@ -310,39 +310,24 @@
   "header": {
     "men": {
       "title": "Men",
-      "thun_polo": "T-shirts & Polo",
       "jersey": "Jersey",
       "hoodie": "Hoodie",
-      "sportset": "Sports Set",
-      "trousers": "Trousers",
-      "tight_pants": "Tight Pants",
       "short_trouser": "Shorts",
-      "sportswear": "Sportswear",
       "jacket": "Jacket",
-      "basic": "Basic",
-      "tracksuits": "Tracksuits"
+      "team_sneaker": "Team Sneaker"
     },
     "women": {
       "title": "Women",
-      "thun_croptop": "Tee & Croptop",
-      "sweatshirt": "Sweatshirt",
-      "sports_bra": "Sports Bra",
       "jersey": "Jersey",
       "hoodie": "Hoodie",
       "jacket": "Jacket",
-      "trousers": "Trousers",
       "short_trouser": "Shorts",
-      "leggings": "Leggings",
-      "dress": "Dress",
-      "skirt": "Skirt",
-      "sportswear": "Sportswear",
-      "basic": "Basic",
-      "tracksuits": "Tracksuits"
+      "team_sneaker": "Team Sneaker"
     },
     "kids": {
       "title": "Kids",
       "jersey": "Jersey",
-      "short": "Shorts",
+      "tracksuits": "Tracksuits",
       "smiley": "Smiley Collection"
     },
     "shoes": {

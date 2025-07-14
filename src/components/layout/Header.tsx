@@ -189,6 +189,7 @@ const Header = () => {
         { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
         { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
         { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
+        { title: tHeader('men.team_sneaker'), href: ROUTES.MEN.TEAM_SNEAKER },
       ]
     },
     {
@@ -199,6 +200,7 @@ const Header = () => {
         { title: tHeader('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
         { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
         { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
+        { title: tHeader('women.team_sneaker'), href: ROUTES.WOMEN.TEAM_SNEAKER },
       ]
     },
     {
@@ -206,7 +208,7 @@ const Header = () => {
       href: ROUTES.KIDS.ROOT,
       submenu: [
         { title: tHeader('kids.jersey'), href: ROUTES.KIDS.JERSEY },
-        { title: tHeader('kids.short'), href: ROUTES.KIDS.SHORT },
+        { title: tHeader('kids.tracksuits'), href: ROUTES.KIDS.TRACKSUITS },
         { title: tHeader('kids.smiley'), href: ROUTES.KIDS.SMILEY },
       ]
     },

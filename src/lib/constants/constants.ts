@@ -70,6 +70,7 @@ export const ROUTES = {
     HOODIE: '/men/hoodie',
     SHORT_TROUSER: '/men/shorttrouser',
     JACKET: '/men/jacket',
+    TEAM_SNEAKER: '/men/team-sneaker',
   },
   WOMEN: {
     ROOT: '/women',
@@ -77,11 +78,12 @@ export const ROUTES = {
     HOODIE: '/women/hoodie-women',
     JACKET: '/women/jacket-women',
     SHORT_TROUSER: '/women/shorttrouser-women',
+    TEAM_SNEAKER: '/women/team-sneaker',
   },
   KIDS: {
     ROOT: '/kids',
     JERSEY: '/kids/jersey-kids',
-    SHORT: '/kids/short-kids',
+    TRACKSUITS: '/kids/tracksuits-kids',
     SMILEY: '/kids/smiley-kids',
   },
   SHOES: {
