@@ -4,31 +4,32 @@ import Link from "next/link";
 import { ROUTES } from '@/lib/constants/constants';
 
 const allNewShoes = [
+  { name: "ADIZERO", route: "/shoes/adizero" },
+  { name: "GAZELLE", route: ROUTES.SHOES.GAZELLE },
+  { name: "SAMBA", route: ROUTES.SHOES.SAMBA },
   { name: "SL 72", route: ROUTES.SHOES.SL_72 },
-  { name: "Stan Smith", route: ROUTES.SHOES.STAN_SMITH },
-  { name: "Low Profile Collection", route: ROUTES.SHOES.LOW_PROFILE_COLLECTION },
+  { name: "SPEZIAL", route: ROUTES.SHOES.SPEZIAL },
+  { name: "SUPERSTAR", route: ROUTES.SHOES.SUPERSTAR },
 ];
 const trendingShoes = [
-  { name: "Every Day Running", route: ROUTES.SHOES.EVERY_DAY_RUNNING },
-  { name: "Run Energised", route: ROUTES.SHOES.RUN_ENERGISED },
-  { name: "Race to win", route: ROUTES.SHOES.RACE_TO_WIN },
-  { name: "Walking", route: ROUTES.SHOES.WALKING },
+  { name: "Air Force", route: "/shoes/air-force" },
+  { name: "Air Max", route: "/shoes/air-max" },
 ];
 const featured = [
   { name: "SAMBA", img: "/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif", route: ROUTES.SHOES.SAMBA },
   { name: "GAZELLE", img: "/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif", route: ROUTES.SHOES.GAZELLE },
-  { name: "SPEZIAL", img: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif", route: ROUTES.SHOES.SPEZIAL },
+  { name: "SL 72", img: "/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif", route: ROUTES.SHOES.SL_72 },
   { name: "SUPERSTAR", img: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif", route: ROUTES.SHOES.SUPERSTAR },
 ];
 
-export default function MegaMenuShoes() {
+export default function HeaderMenuShoes() {
   return (
     <Box sx={{ bgcolor: 'white', boxShadow: 3, borderRadius: 2, p: 1.5, minWidth: 700, display: 'grid', gridTemplateRows: '1fr 1fr', gap: 0 }}>
-      {/* Hàng 1: ALL NEW SHOES + 2 ảnh đầu */}
+      {/* Hàng 1: ADIDAS + 2 ảnh đầu */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', minHeight: 200 }}>
         <Box sx={{ minWidth: 200, pr: 3, borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, mt: 1 }}>
-            ALL NEW SHOES
+            ADIDAS
           </Typography>
           <List dense disablePadding>
             {allNewShoes.map((item) => (
@@ -53,11 +54,11 @@ export default function MegaMenuShoes() {
           ))}
         </Box>
       </Box>
-      {/* Hàng 2: TRENDING SHOES + 2 ảnh sau */}
+      {/* Hàng 2: NIKE + 2 ảnh sau */}
       <Box sx={{ display: 'flex', alignItems: 'flex-start', minHeight: 200, mt: 2 }}>
         <Box sx={{ minWidth: 200, pr: 3, borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
           <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1, mt: 1 }}>
-            TRENDING SHOES
+            NIKE
           </Typography>
           <List dense disablePadding>
             {trendingShoes.map((item) => (

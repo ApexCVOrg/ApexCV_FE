@@ -1,13 +1,13 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Card, CardContent, Container, Button, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { ArrowForward, Star } from "@mui/icons-material";
+import { Box, Typography, Container, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import Link from "next/link";
 import ProductCard from "@/components/card";
 
 interface Product {
   _id: string;
   name: string;
+  description?: string;
   images: string[];
   price: number;
   discountPrice?: number;
@@ -16,15 +16,7 @@ interface Product {
   categories?: { _id: string; name: string }[];
 }
 
-const TABS = [
-  // { label: "SPEZIAL", value: "spezial", image: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif" }, // Loại bỏ SPEZIAL
-  { label: "SAMBA", value: "samba", image: "/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif" },
-  { label: "SUPERSTAR", value: "superstar", image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif" },
-  { label: "GAZELLE", value: "gazelle", image: "/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif" },
-  { label: "SL 72", value: "sl-72", image: "/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif" }
-];
-
-export default function SambaPage() {
+export default function AdizeroPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
@@ -37,7 +29,7 @@ export default function SambaPage() {
         const data = await res.json();
         
         // Lọc sản phẩm theo categoryPath mong muốn
-        const desiredPath = ['Shoes', 'Adidas', 'Samba'];
+        const desiredPath = ['Shoes', 'Adidas', 'Adizero'];
         
         // Thử nhiều cách filter khác nhau
         const filtered = (data.data || []).filter((item: any) => {
@@ -59,11 +51,11 @@ export default function SambaPage() {
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
             const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
-            if (categoryNames.includes('samba')) return true;
+            if (categoryNames.includes('adizero')) return true;
           }
           
           // Cách 4: Kiểm tra trong name hoặc description
-          if (item.name.toLowerCase().includes('samba')) return true;
+          if (item.name.toLowerCase().includes('adizero')) return true;
           
           return false;
         });
@@ -78,32 +70,19 @@ export default function SambaPage() {
     };
     fetchProducts();
   }, []);
-  // Breadcrumb + Heading
+
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh", mt: 10, position: 'relative' }}>
-      {/* Banner ở phía sau */}
-      <Box sx={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        height: 400, 
-        zIndex: 1 
-      }}>
-        <img 
-          src="https://res.cloudinary.com/dqmb4e2et/image/upload/v1752376328/originals_ss25_the_original_introduce_plp_the_original_iwp_background_media_d_79a5b46e37_lwnind.avif" 
-          alt="Banner" 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
-            objectFit: 'cover' 
-          }} 
-        />
+      {/* Banner */}
+      <Box sx={{ position: 'relative', width: '100vw', left: '50%', right: '50%', transform: 'translateX(-50%)', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#000', overflow: 'hidden', p: 0, m: 0, minHeight: { xs: '320px', md: '400px' }, maxHeight: '600px' }}>
+        <img src="https://res.cloudinary.com/dqmb4e2et/image/upload/v1752486876/global_adizero_running_ss25_launch_pdp_boston_women_banner_statement_1_d_b621f7cbda_go299l.avif" alt="Adizero Banner" style={{ width: '100vw', height: '40vw', minHeight: '320px', maxHeight: '600px', objectFit: 'cover', display: 'block', margin: 0, padding: 0, filter: 'brightness(0.55)' }} />
+        <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#fff', px: 2, zIndex: 2, textAlign: 'center', pointerEvents: 'none' }}>
+          <Typography variant="h5" sx={{ color: 'rgba(255,255,255,0.85)', mt: 30, textShadow: '0 2px 8px #000' }}>Tốc độ tối đa, hiệu suất vượt trội.</Typography>
+        </Box>
       </Box>
       
-      {/* Breadcrumb và navigation ở phía trên banner */}
+      {/* Breadcrumb */}
       <Box sx={{ position: 'relative', zIndex: 2 }}>
-        {/* Breadcrumb */}
         <Box sx={{ px: { xs: 2, md: 6 }, pt: 4, pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
             <Link href="/shoes" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit', fontWeight: 700, marginRight: 2 }}>
@@ -117,54 +96,17 @@ export default function SambaPage() {
               <Typography component="span" sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Shoes</Typography>
             </Link>
             <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>/</Typography>
-            <Typography component="span" sx={{ color: 'text.primary', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px', fontSize: '1rem' }}>Samba</Typography>
+            <Typography component="span" sx={{ color: 'text.primary', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px', fontSize: '1rem' }}>Adizero</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
-              ADIDAS SAMBA
+              ADIDAS ADIZERO
             </Typography>
             <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
-              [111]
+              [{products.length}]
             </Typography>
           </Box>
         </Box>
-        {/* Tab Card Navigation */}
-        <Container maxWidth="xl" sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-start', alignItems: 'flex-end', pb: 2 }}>
-            {TABS.map(tab => (
-              <Link key={tab.value} href={`/shoes/${tab.value}`} style={{ textDecoration: 'none', flex: 1 }}>
-                <Box sx={{
-                  border: 0,
-                  borderBottom: tab.value === 'samba' ? '4px solid #000' : 'none',
-                  bgcolor: tab.value === 'samba' ? '#000' : '#fff',
-                  color: tab.value === 'samba' ? '#fff' : '#111',
-                  fontWeight: tab.value === 'samba' ? 700 : 500,
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  p: 0,
-                  pb: 0,
-                  minWidth: 180,
-                  maxWidth: 220,
-                  mx: 0.5,
-                  '&:hover': {
-                    borderBottom: '4px solid #000',
-                    bgcolor: tab.value === 'samba' ? '#000' : '#f5f5f5',
-                    color: '#000',
-                    fontWeight: 700,
-                    transform: 'scale(1.04)',
-                    boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)'
-                  }
-                }}>
-                  <Box sx={{ width: '100%', height: 160, overflow: 'hidden', borderRadius: 0 }}>
-                    <img src={tab.image} alt={tab.label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </Box>
-                  <Typography sx={{ py: 2, fontWeight: tab.value === 'samba' ? 700 : 600, fontSize: '1.1rem', letterSpacing: 1, bgcolor: tab.value === 'samba' ? '#000' : '#fff', color: tab.value === 'samba' ? '#fff' : '#111', textTransform: 'uppercase' }}>{tab.label}</Typography>
-                </Box>
-              </Link>
-            ))}
-          </Box>
-        </Container>
       </Box>
       
       {/* Filter Bar */}
@@ -184,6 +126,7 @@ export default function SambaPage() {
             </Select>
           </FormControl>
         </Box>
+        
         {/* Product List */}
         <Box
           display="flex"
@@ -194,7 +137,7 @@ export default function SambaPage() {
         >
           {loading ? (
             <div>Loading...</div>
-          ) : (
+          ) : products.length > 0 ? (
             products.map((product) => (
               <Box
                 key={product._id}
@@ -221,6 +164,15 @@ export default function SambaPage() {
                 />
               </Box>
             ))
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 8, width: '100%' }}>
+              <Typography variant="h5" sx={{ color: 'text.secondary', mb: 2 }}>
+                Không tìm thấy sản phẩm Adizero
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                Sản phẩm có thể đang được cập nhật hoặc tạm thời không có sẵn.
+              </Typography>
+            </Box>
           )}
         </Box>
       </Container>

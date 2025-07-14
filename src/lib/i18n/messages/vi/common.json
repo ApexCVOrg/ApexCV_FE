@@ -299,39 +299,23 @@
   "header": {
     "men": {
       "title": "Nam",
-      "thun_polo": "Áo Thun & Polo",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
-      "sportset": "Bộ đồ thể thao",
-      "trousers": "Quần",
-      "tight_pants": "Quần bó",
-      "short_trouser": "Quần short",
-      "sportswear": "Đồ thể thao",
-      "jacket": "Áo khoác",
-      "basic": "Cơ bản",
-      "tracksuits": "Bộ thể thao"
+      "short_trouser": "Quần short",    
+      "jacket": "Áo khoác"
     },
     "women": {
       "title": "Nữ",
-      "thun_croptop": "Thun & Croptop",
-      "sweatshirt": "Áo nỉ",
-      "sports_bra": "Áo ngực thể thao",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
       "jacket": "Áo khoác",
-      "trousers": "Quần",
-      "short_trouser": "Quần short",
-      "leggings": "Leggings",
-      "dress": "Đầm",
-      "skirt": "Chân váy",
-      "sportswear": "Đồ thể thao",
-      "basic": "Cơ bản",
-      "tracksuits": "Bộ thể thao"
+      "short_trouser": "Quần short"
     },
     "kids": {
       "title": "Trẻ em",
-      "clothes_boys": "Quần áo bé trai",
-      "clothes_girls": "Quần áo bé gái"
+      "jersey": "Áo Jersey",
+      "short": "Quần short",
+      "smiley": "Bộ Sưu Tập Smiley"
     },
     "shoes": {
       "title": "Giày",
@@ -339,7 +323,11 @@
       "gazelle": "Gazelle",
       "campus": "Campus",
       "spezial": "Spezial",
-      "superstar": "Superstar"
+      "superstar": "Superstar",
+      "sl72": "SL 72",
+      "adizero": "Adizero",
+      "air_force": "Air Force",
+      "air_max": "Air Max"
     },
     "accessories": {
       "title": "Phụ kiện",

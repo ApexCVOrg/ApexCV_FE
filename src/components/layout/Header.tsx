@@ -41,7 +41,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
-import MegaMenuShoes from './MegaMenuShoes';
+import HeaderMenuShoes from './HeaderMenuShoes';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -173,51 +173,41 @@ const Header = () => {
       submenu: [
         { title: tHeader('shoes.samba'), href: ROUTES.SHOES.SAMBA },
         { title: tHeader('shoes.gazelle'), href: ROUTES.SHOES.GAZELLE },
-        { title: tHeader('shoes.campus'), href: ROUTES.SHOES.CAMPUS },
-        { title: tHeader('shoes.spezial'), href: ROUTES.SHOES.SPEZIAL },
+        { title: tHeader('shoes.sl72'), href: ROUTES.SHOES.SL_72 },
         { title: tHeader('shoes.superstar'), href: ROUTES.SHOES.SUPERSTAR },
+        { title: tHeader('shoes.spezial'), href: ROUTES.SHOES.SPEZIAL },
+        { title: tHeader('shoes.adizero'), href: ROUTES.SHOES.ADIZERO },
+        { title: tHeader('shoes.air_force'), href: ROUTES.SHOES.AIR_FORCE },
+        { title: tHeader('shoes.air_max'), href: ROUTES.SHOES.AIR_MAX },
       ]
     },
     {
       title: tHeader('men.title'),
       href: ROUTES.MEN.ROOT,
       submenu: [
-        { title: tHeader('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
         { title: tHeader('men.jersey'), href: ROUTES.MEN.JERSEY },
         { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
-        { title: tHeader('men.trousers'), href: ROUTES.MEN.TROUSERS },
-        { title: tHeader('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
         { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
-        { title: tHeader('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
         { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
-        { title: tHeader('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
       ]
     },
     {
       title: tHeader('women.title'),
       href: ROUTES.WOMEN.ROOT,
       submenu: [
-        { title: tHeader('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
-        { title: tHeader('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
-        { title: tHeader('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
         { title: tHeader('women.jersey'), href: ROUTES.WOMEN.JERSEY },
         { title: tHeader('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
         { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
-        { title: tHeader('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
         { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
-        { title: tHeader('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
-        { title: tHeader('women.dress'), href: ROUTES.WOMEN.DRESS },
-        { title: tHeader('women.skirt'), href: ROUTES.WOMEN.SKIRT },
-        { title: tHeader('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
-        { title: tHeader('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
       ]
     },
     {
       title: tHeader('kids.title'),
       href: ROUTES.KIDS.ROOT,
       submenu: [
-        { title: tHeader('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
-        { title: tHeader('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
+        { title: tHeader('kids.jersey'), href: ROUTES.KIDS.JERSEY },
+        { title: tHeader('kids.short'), href: ROUTES.KIDS.SHORT },
+        { title: tHeader('kids.smiley'), href: ROUTES.KIDS.SMILEY },
       ]
     },
     {
@@ -447,7 +437,7 @@ const Header = () => {
                             mt: 0,
                           }}
                         >
-                          <MegaMenuShoes />
+                          <HeaderMenuShoes />
                         </Box>
                       )}
                     </Box>

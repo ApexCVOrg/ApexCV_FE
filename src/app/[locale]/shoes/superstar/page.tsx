@@ -1,43 +1,83 @@
 "use client";
-import React, { useState } from "react";
-import { Box, Typography, Card, CardContent, Container, Button, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import { ArrowForward, Star } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Container, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import Link from "next/link";
+import ProductCard from "@/components/card";
+
+interface Product {
+  _id: string;
+  name: string;
+  description?: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  tags?: string[];
+  brand?: string | { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
+}
 
 const TABS = [
-  { label: "SPEZIAL", value: "spezial", image: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif" },
+  // { label: "SPEZIAL", value: "spezial", image: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif" }, // Loại bỏ SPEZIAL
   { label: "SAMBA", value: "samba", image: "/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif" },
   { label: "SUPERSTAR", value: "superstar", image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif" },
   { label: "GAZELLE", value: "gazelle", image: "/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif" },
   { label: "SL 72", value: "sl-72", image: "/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif" }
 ];
 
-const superstarProducts = [
-  {
-    name: "Superstar Vintage",
-    price: "$140",
-    image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif",
-    rating: 4.9,
-    reviews: 312
-  },
-  {
-    name: "Superstar Classic",
-    price: "$135",
-    image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_02_standard.avif",
-    rating: 4.8,
-    reviews: 267
-  },
-  {
-    name: "Superstar Premium",
-    price: "$150",
-    image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_03_standard.avif",
-    rating: 4.9,
-    reviews: 289
-  }
-];
-
 export default function SuperstarPage() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+        const data = await res.json();
+        
+        // Lọc sản phẩm theo categoryPath mong muốn
+        const desiredPath = ['Shoes', 'Adidas', 'Superstar'];
+        
+        // Thử nhiều cách filter khác nhau
+        const filtered = (data.data || []).filter((item: any) => {
+          // Cách 1: Kiểm tra nếu categoryPath là array
+          if (Array.isArray(item.categoryPath)) {
+            const isMatch = desiredPath.every((cat, idx) => 
+              (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+            );
+            if (isMatch) return true;
+          }
+          
+          // Cách 2: Kiểm tra nếu categoryPath là string
+          if (typeof item.categoryPath === 'string') {
+            const pathString = item.categoryPath.toLowerCase();
+            const desiredString = desiredPath.join('/').toLowerCase();
+            if (pathString === desiredString) return true;
+          }
+          
+          // Cách 3: Kiểm tra nếu có field khác chứa category info
+          if (item.categories && Array.isArray(item.categories)) {
+            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            if (categoryNames.includes('superstar')) return true;
+          }
+          
+          // Cách 4: Kiểm tra trong name hoặc description
+          if (item.name.toLowerCase().includes('superstar')) return true;
+          
+          return false;
+        });
+        
+        setProducts(filtered);
+      } catch (e) {
+        console.error('Error fetching products:', e);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
   
   return (
     <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh", mt: 10, position: 'relative' }}>
@@ -73,6 +113,10 @@ export default function SuperstarPage() {
               <Typography component="span" sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Home</Typography>
             </Link>
             <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>/</Typography>
+            <Link href="/shoes" style={{ textDecoration: 'none' }}>
+              <Typography component="span" sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Shoes</Typography>
+            </Link>
+            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>/</Typography>
             <Typography component="span" sx={{ color: 'text.primary', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px', fontSize: '1rem' }}>Superstar</Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -80,7 +124,7 @@ export default function SuperstarPage() {
               ADIDAS SUPERSTAR
             </Typography>
             <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
-              [156]
+              [{products.length}]
             </Typography>
           </Box>
         </Box>
@@ -124,7 +168,7 @@ export default function SuperstarPage() {
       </Box>
       
       {/* Filter Bar */}
-      <Container maxWidth="lg" sx={{ mb: 3, position: 'relative', zIndex: 2, mt: 6 }}>
+      <Container maxWidth="lg" sx={{ mb: 3, position: 'relative', zIndex: 2, mt: 6, px: { xs: 1, md: 4 } }}>
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Sort By</InputLabel>
@@ -141,78 +185,43 @@ export default function SuperstarPage() {
           </FormControl>
         </Box>
         {/* Product List */}
-        <Box display="flex" flexWrap="wrap" gap={4} justifyContent="center">
-          {superstarProducts.map((product) => (
-            <Box key={product.name} flex="1 1 320px" maxWidth={400} minWidth={260}>
-              <Card sx={{ 
-                borderRadius: 3, 
-                boxShadow: 3, 
-                transition: "0.3s", 
-                overflow: 'hidden',
-                position: 'relative',
-                zIndex: 2,
-                '&:hover': { 
-                  boxShadow: 8, 
-                  transform: 'translateY(-6px)' 
-                } 
-              }}>
-                <Box sx={{ 
-                  height: 250, 
-                  position: "relative", 
-                  overflow: "hidden"
-                }}>
-                  <img 
-                    src={product.image} 
-                    alt={product.name} 
-                    style={{ 
-                      width: "100%", 
-                      height: "100%", 
-                      objectFit: "cover" 
-                    }} 
-                  />
-                  <Box sx={{
-                    position: 'absolute',
-                    top: 16,
-                    right: 16,
-                    bgcolor: 'rgba(0,0,0,0.7)',
-                    color: 'white',
-                    px: 2,
-                    py: 0.5,
-                    borderRadius: 2,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 0.5
-                  }}>
-                    <Star sx={{ fontSize: 16, color: '#ffd700' }} />
-                    <Typography variant="body2">{product.rating}</Typography>
-                  </Box>
-                </Box>
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    {product.name}
-                  </Typography>
-                  <Typography variant="h5" sx={{ 
-                    fontWeight: "bold", 
-                    color: "primary.main",
-                    mb: 1
-                  }}>
-                    {product.price}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-                    {product.reviews} reviews
-                  </Typography>
-                  <Button 
-                    variant="outlined" 
-                    fullWidth
-                    endIcon={<ArrowForward />}
-                    sx={{ borderRadius: 2 }}
-                  >
-                    View Details
-                  </Button>
-                </CardContent>
-              </Card>
-            </Box>
-          ))}
+        <Box
+          display="flex"
+          flexWrap="wrap"
+          gap={6}
+          justifyContent="center"
+          alignItems="stretch"
+        >
+          {loading ? (
+            <div>Loading...</div>
+          ) : (
+            products.map((product) => (
+              <Box
+                key={product._id}
+                flex="1 1 320px"
+                maxWidth={320}
+                minWidth={260}
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'stretch',
+                  m: 0,
+                }}
+              >
+                <ProductCard
+                  productId={product._id}
+                  name={product.name}
+                  image={product.images?.[0] || "/assets/images/placeholder.jpg"}
+                  price={product.price}
+                  discountPrice={product.discountPrice}
+                  tags={product.tags}
+                  brand={product.brand}
+                  categories={product.categories}
+                  onAddToCart={() => {}}
+                />
+              </Box>
+            ))
+          )}
         </Box>
       </Container>
     </Box>

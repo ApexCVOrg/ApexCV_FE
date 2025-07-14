@@ -62,20 +62,22 @@ export default function ShoesPage() {
         mx: 'calc(-50vw + 50%)',
         background: '#fff'
       }}>
-        <img 
-          src="https://res.cloudinary.com/dqmb4e2et/image/upload/v1752339174/s3_mca0rk.webp"
-          alt="Banner"
-          style={{ 
-            width: '100vw',
-            height: 'auto',
-            display: 'block',
-            border: 'none',
-            borderRadius: 0,
-            boxShadow: 'none',
-            margin: 0,
-            padding: 0
-          }}
-        />
+        <Link href="/shoes/adizero" style={{ width: '100vw', display: 'block' }}>
+          <img 
+            src="https://res.cloudinary.com/dqmb4e2et/image/upload/v1752339174/s3_mca0rk.webp"
+            alt="Banner"
+            style={{ 
+              width: '100vw',
+              height: 'auto',
+              display: 'block',
+              border: 'none',
+              borderRadius: 0,
+              boxShadow: 'none',
+              margin: 0,
+              padding: 0
+            }}
+          />
+        </Link>
       </Box>
 
       {/* Categories Section */}

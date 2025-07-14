@@ -341,8 +341,9 @@
     },
     "kids": {
       "title": "Kids",
-      "clothes_boys": "Boys' Clothes",
-      "clothes_girls": "Girls' Clothes"
+      "jersey": "Jersey",
+      "short": "Shorts",
+      "smiley": "Smiley Collection"
     },
     "shoes": {
       "title": "Shoes",
@@ -350,7 +351,11 @@
       "gazelle": "Gazelle",
       "campus": "Campus",
       "spezial": "Spezial",
-      "superstar": "Superstar"
+      "superstar": "Superstar",
+      "sl72": "SL 72",
+      "adizero": "Adizero",
+      "air_force": "Air Force",
+      "air_max": "Air Max"
     },
     "accessories": {
       "title": "Accessories",
