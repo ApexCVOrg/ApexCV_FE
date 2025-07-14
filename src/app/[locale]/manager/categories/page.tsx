@@ -22,11 +22,18 @@ import {
   Chip,
   Alert,
   Snackbar,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Pagination,
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 import {
   API_ENDPOINTS,
   SUCCESS_MESSAGES,
@@ -51,8 +58,19 @@ export default function CategoriesPage() {
   const t = useTranslations("manager.categories");
 
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCategories, setTotalCategories] = useState(0);
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -70,12 +88,49 @@ export default function CategoriesPage() {
     severity: "success" | "error";
   }>({ open: false, message: "", severity: "success" });
 
-  // Fetch categories
+  // Search and filter function
+  const filterCategories = () => {
+    let filtered = categories || [];
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(category =>
+        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(category => category.status === statusFilter);
+    }
+
+    setFilteredCategories(filtered);
+  };
+
+  // Apply filters when search terms or filters change
+
+  useEffect(() => {
+    filterCategories();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, statusFilter, categories]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+  };
+
+  // Fetch categories with pagination
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await api.get<Category[]>(API_ENDPOINTS.MANAGER.CATEGORIES);
+      const response = await api.get<Category[]>(API_ENDPOINTS.MANAGER.CATEGORIES, {
+        params: { page, limit }
+      });
       setCategories(response.data);
+      setTotalCategories(response.data.length);
+      setTotalPages(Math.ceil(response.data.length / limit));
       setError(null);
     } catch {
       setError(ERROR_MESSAGES.NETWORK_ERROR);
@@ -91,7 +146,13 @@ export default function CategoriesPage() {
     } else {
       fetchCategories();
     }
-  }, [router]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router, page, limit]);
+
+  // Handle page change
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+    setPage(value);
+  };
 
   // Handle form input changes
   const handleInputChange = (
@@ -206,8 +267,8 @@ export default function CategoriesPage() {
   };
 
   return (
-    <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} sx={{ flexWrap: 'wrap' }}>
         <Typography variant="h4" component="h1" fontWeight="bold">
           {t("title")}
         </Typography>
@@ -226,7 +287,56 @@ export default function CategoriesPage() {
         </Alert>
       )}
 
-      <TableContainer component={Paper}>
+      {/* Search and Filter Section */}
+      <Paper sx={{ p: 2, mb: 2, maxWidth: '100%', overflowX: 'auto' }}>
+        <Stack spacing={2}>
+          {/* Search Bar */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <TextField
+              placeholder={t("search.searchCategories")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ flexGrow: 1 }}
+              InputProps={{
+                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
+              }}
+            />
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={clearFilters}
+              disabled={!searchTerm && statusFilter === "all"}
+            >
+              {t("search.clearFilters")}
+            </Button>
+          </Box>
+
+          {/* Filter Row */}
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', width: '100%', overflowX: 'auto' }}>
+            <FormControl sx={{ minWidth: 120 }}>
+              <InputLabel>Status</InputLabel>
+              <Select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                label="Status"
+              >
+                <MenuItem value="all">{t("search.allStatus")}</MenuItem>
+                <MenuItem value="active">{t("status.active")}</MenuItem>
+                <MenuItem value="inactive">{t("status.inactive")}</MenuItem>
+              </Select>
+            </FormControl>
+
+            {/* Results Count */}
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+              <Typography variant="body2" color="text.secondary">
+                {t("search.resultsCount", { filtered: filteredCategories.length, total: totalCategories, itemType: t("search.categories") })}
+              </Typography>
+            </Box>
+          </Box>
+        </Stack>
+      </Paper>
+
+      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -252,16 +362,14 @@ export default function CategoriesPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              categories.map((category) => (
+              filteredCategories.map((category) => (
                 <TableRow key={typeof category._id === 'string' ? category._id : ''}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.description}</TableCell>
                   <TableCell>
-                    {typeof category.parentCategory === 'string'
-                      ? (categories.find(cat => cat._id === category.parentCategory)?.name || '-')
-                      : (typeof category.parentCategory === 'object' && category.parentCategory !== null
-                        ? (category.parentCategory as { name: string }).name
-                        : '-')}
+                    {category.parentCategory
+                      ? category.parentCategory.name
+                      : '-'}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -293,6 +401,20 @@ export default function CategoriesPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={handlePageChange}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -330,7 +452,12 @@ export default function CategoriesPage() {
               >
                 <option value="">{t("none")}</option>
                 {categories
-                  .filter(cat => !cat.parentCategory) // chỉ lấy các category là parent
+                  .filter(cat => {
+                    // Chỉ lấy các category không có parentCategory hoặc parentCategory là null/undefined
+                    return !cat.parentCategory || 
+                           (typeof cat.parentCategory === 'string' && cat.parentCategory === '') ||
+                           (typeof cat.parentCategory === 'object' && cat.parentCategory === null);
+                  })
                   .map(parentCat => (
                     <option key={parentCat._id} value={parentCat._id}>
                       {parentCat.name}

@@ -20,6 +20,7 @@ import {
     Stack,
     Menu,
     MenuItem,
+    Tooltip,
 } from "@mui/material";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
@@ -36,6 +37,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 // Các ngôn ngữ hỗ trợ
@@ -48,6 +51,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const t = useTranslations("manager.layout");
     const theme = useTheme();
     const { theme: currentTheme } = useCustomTheme();
@@ -72,6 +76,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
+    };
+
+    const handleSidebarToggle = () => {
+        setSidebarCollapsed(!sidebarCollapsed);
     };
 
     const toggleLanguage = () => {
@@ -116,22 +124,38 @@ export default function RootLayout({ children }: RootLayoutProps) {
         { icon: <SettingsIcon />, text: t("settings"), href: ROUTES.MANAGER.SETTINGS },
     ];
 
+    const drawerWidth = sidebarCollapsed ? 80 : MANAGER.DRAWER_WIDTH;
+
     const drawer = (
         <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
             <Toolbar
                 sx={{
                     fontWeight: 900,
-                    fontSize: 28,
-                    p: 3,
+                    fontSize: sidebarCollapsed ? 20 : 28,
+                    p: sidebarCollapsed ? 2 : 3,
                     fontFamily: "'Anton', sans-serif",
                     letterSpacing: 2,
-                    color: theme.palette.primary.main
+                    color: theme.palette.primary.main,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                 }}
             >
-                NIDAS
+                {!sidebarCollapsed && "NIDAS"}
+                <IconButton
+                    onClick={handleSidebarToggle}
+                    sx={{
+                        color: theme.palette.primary.main,
+                        '&:hover': {
+                            backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                        },
+                    }}
+                >
+                    {sidebarCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                </IconButton>
             </Toolbar>
             <Divider />
-            <List sx={{ flexGrow: 1, px: 2 }}>
+            <List sx={{ flexGrow: 1, px: sidebarCollapsed ? 1 : 2 }}>
                 {menuItems.map((item) => (
                     <ListItemButton
                         key={item.text}
@@ -139,43 +163,64 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         sx={{
                             borderRadius: 2,
                             mb: 1,
+                            minHeight: 48,
+                            justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                             "&:hover": {
                                 backgroundColor: "rgba(0, 0, 0, 0.04)",
                             },
                         }}
                     >
-                        <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
-                        <ListItemText
-                            primary={item.text}
-                            primaryTypographyProps={{
-                                fontWeight: 500,
-                                fontSize: "0.95rem",
+                        <ListItemIcon 
+                            sx={{ 
+                                minWidth: sidebarCollapsed ? 0 : 40,
+                                justifyContent: 'center',
                             }}
-                        />
+                        >
+                            {item.icon}
+                        </ListItemIcon>
+                        {!sidebarCollapsed && (
+                            <ListItemText
+                                primary={item.text}
+                                primaryTypographyProps={{
+                                    fontWeight: 500,
+                                    fontSize: "0.95rem",
+                                }}
+                            />
+                        )}
                     </ListItemButton>
                 ))}
             </List>
             <Divider />
-            <List sx={{ px: 2 }}>
+            <List sx={{ px: sidebarCollapsed ? 1 : 2 }}>
                 <ListItemButton
                     sx={{
                         borderRadius: 2,
                         color: theme.palette.error.main,
+                        minHeight: 48,
+                        justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                         "&:hover": {
                             backgroundColor: "rgba(211, 47, 47, 0.04)",
                         },
                     }}
                 >
-                    <ListItemIcon sx={{ minWidth: 40, color: "inherit" }}>
+                    <ListItemIcon 
+                        sx={{ 
+                            minWidth: sidebarCollapsed ? 0 : 40,
+                            color: "inherit",
+                            justifyContent: 'center',
+                        }}
+                    >
                         <LogoutIcon />
                     </ListItemIcon>
-                    <ListItemText
-                        primary={t("logout")}
-                        primaryTypographyProps={{
-                            fontWeight: 500,
-                            fontSize: "0.95rem",
-                        }}
-                    />
+                    {!sidebarCollapsed && (
+                        <ListItemText
+                            primary={t("logout")}
+                            primaryTypographyProps={{
+                                fontWeight: 500,
+                                fontSize: "0.95rem",
+                            }}
+                        />
+                    )}
                 </ListItemButton>
             </List>
         </Box>
@@ -184,7 +229,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <>
             <CssBaseline />
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: "flex", minHeight: '100vh', backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5' }}>
                 <AppBar
                     position="fixed"
                     sx={{
@@ -192,36 +237,44 @@ export default function RootLayout({ children }: RootLayoutProps) {
                         backgroundColor: currentTheme === 'dark' ? '#000' : '#fff',
                         color: currentTheme === 'dark' ? '#fff' : '#000',
                         boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        width: { sm: `calc(100vw - ${drawerWidth}px)` },
+                        ml: { sm: `${drawerWidth}px` },
+                        transition: 'width 0.5s cubic-bezier(.4,2,.6,1), margin-left 0.5s cubic-bezier(.4,2,.6,1)',
+                        height: 64,
+                        display: 'flex',
+                        justifyContent: 'center',
                     }}
                 >
-                    <Toolbar sx={{ px: { xs: 2, sm: 3 } }}>
-                        <IconButton
-                            color="inherit"
-                            aria-label="open drawer"
-                            edge="start"
-                            onClick={handleDrawerToggle}
-                            sx={{
-                                mr: 2,
-                                display: { sm: "none" },
-                                width: 40,
-                                height: 40,
-                            }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography
-                            variant="h6"
-                            noWrap
-                            component="div"
-                            sx={{
-                                flexGrow: 1,
-                                fontWeight: 600,
-                                fontSize: "1.1rem",
-                                minWidth: 200,
-                            }}
-                        >
-                            {t("managerDashboard")}
-                        </Typography>
+                    <Toolbar sx={{ px: { xs: 2, sm: 3 }, minHeight: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <IconButton
+                                color="inherit"
+                                aria-label="open drawer"
+                                edge="start"
+                                onClick={handleDrawerToggle}
+                                sx={{
+                                    mr: 2,
+                                    display: { sm: "none" },
+                                    width: 40,
+                                    height: 40,
+                                }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <Typography
+                                variant="h6"
+                                noWrap
+                                component="div"
+                                sx={{
+                                    fontWeight: 700,
+                                    fontSize: "1.15rem",
+                                    letterSpacing: 1,
+                                    minWidth: 200,
+                                }}
+                            >
+                                {t("managerDashboard")}
+                            </Typography>
+                        </Box>
                         <Stack
                             direction="row"
                             spacing={2}
@@ -232,48 +285,56 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             }}
                         >
                             <ThemeToggle />
-                            <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={toggleLanguage}
-                                sx={{
-                                    color: 'inherit',
-                                    borderColor: 'inherit',
-                                    textTransform: 'uppercase',
-                                    minWidth: 48,
-                                    height: 36,
-                                    fontWeight: 'bold',
-                                    fontSize: '0.875rem',
-                                    px: 2,
-                                    '&:hover': {
-                                        borderColor: currentTheme === 'dark' ? 'white' : 'black',
-                                        backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    },
-                                }}
-                            >
-                                {language.toUpperCase()}
-                            </Button>
-                            <IconButton
-                                sx={{
-                                    width: 40,
-                                    height: 40,
-                                    color: 'inherit',
-                                    '&:hover': {
-                                        backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    },
-                                }}
-                            >
-                                <NotificationsIcon />
-                            </IconButton>
-                            <IconButton onClick={handleAvatarClick} sx={{ ml: 2 }}>
-                                <Avatar />
-                            </IconButton>
+                            <Tooltip title="Change Language">
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={toggleLanguage}
+                                    sx={{
+                                        color: 'inherit',
+                                        borderColor: 'inherit',
+                                        textTransform: 'uppercase',
+                                        minWidth: 48,
+                                        height: 36,
+                                        fontWeight: 'bold',
+                                        fontSize: '0.875rem',
+                                        px: 2,
+                                        borderRadius: 2,
+                                        '&:hover': {
+                                            borderColor: currentTheme === 'dark' ? 'white' : 'black',
+                                            backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        },
+                                    }}
+                                >
+                                    {language.toUpperCase()}
+                                </Button>
+                            </Tooltip>
+                            <Tooltip title="Notifications">
+                                <IconButton
+                                    sx={{
+                                        width: 40,
+                                        height: 40,
+                                        color: 'inherit',
+                                        borderRadius: 2,
+                                        '&:hover': {
+                                            backgroundColor: currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                        },
+                                    }}
+                                >
+                                    <NotificationsIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Account">
+                                <IconButton onClick={handleAvatarClick} sx={{ ml: 2, borderRadius: 2 }}>
+                                    <Avatar />
+                                </IconButton>
+                            </Tooltip>
                         </Stack>
                     </Toolbar>
                 </AppBar>
                 <Box
                     component="nav"
-                    sx={{ width: { sm: MANAGER.DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
+                    sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
                     aria-label="sidebar folders"
                 >
                     <Drawer
@@ -282,15 +343,23 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             display: { xs: "none", sm: "block" },
                             "& .MuiDrawer-paper": {
                                 boxSizing: "border-box",
-                                width: MANAGER.DRAWER_WIDTH,
+                                width: drawerWidth,
                                 borderRight: "1px solid rgba(0, 0, 0, 0.12)",
                                 backgroundColor: currentTheme === 'dark' ? '#111' : '#fff',
                                 color: currentTheme === 'dark' ? '#fff' : '#000',
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                                transition: 'width 0.5s cubic-bezier(.4,2,.6,1)',
+                                overflowX: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                py: 1,
                             },
                         }}
                         open
                     >
-                        {drawer}
+                        <Box sx={{ width: '100%' }}>{drawer}</Box>
                     </Drawer>
                     <Drawer
                         variant="temporary"
@@ -316,50 +385,56 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     component="main"
                     sx={{
                         flexGrow: 1,
-                        width: { sm: `calc(100% - ${MANAGER.DRAWER_WIDTH}px)` },
-                        mt: 8,
-                        backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5',
-                        minHeight: "100vh",
+                        width: { xs: '100vw', sm: `calc(100vw - ${drawerWidth}px)` },
+                        pt: '64px',
                         color: currentTheme === 'dark' ? '#fff' : '#000',
-                        p: 0,
-                        px: 0,
-                        py: 0,
-                        pt: 0,
-                        pb: 0,
-                        m: 0,
-                        mx: 0,
-                        my: 0,
-                        mt: 8,
-                        mb: 0,
+                        minHeight: 'calc(100vh - 64px)',
+                        boxSizing: 'border-box',
+                        overflowX: 'auto',
+                        p: { xs: 2, md: 3 },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        transition: 'width 0.5s cubic-bezier(.4,2,.6,1)',
                     }}
                 >
-                    <Menu
-                        anchorEl={anchorEl}
-                        open={open}
-                        onClose={handleClose}
-                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    <Box
+                        sx={{
+                            width: '100%',
+                            maxWidth: '1200px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
                     >
-                        <MenuItem onClick={handleHome}>
-                            <ListItemIcon>
-                                <HomeIcon fontSize="small" />
-                            </ListItemIcon>
-                            Home
-                        </MenuItem>
-                        <MenuItem onClick={handleClose}>
-                            <ListItemIcon>
-                                <PersonIcon fontSize="small" />
-                            </ListItemIcon>
-                            Account
-                        </MenuItem>
-                        <MenuItem onClick={handleLogout}>
-                            <ListItemIcon>
-                                <LogoutIcon fontSize="small" />
-                            </ListItemIcon>
-                            Logout
-                        </MenuItem>
-                    </Menu>
-                    {children}
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleClose}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                        >
+                            <MenuItem onClick={handleHome}>
+                                <ListItemIcon>
+                                    <HomeIcon fontSize="small" />
+                                </ListItemIcon>
+                                Home
+                            </MenuItem>
+                            <MenuItem onClick={handleClose}>
+                                <ListItemIcon>
+                                    <PersonIcon fontSize="small" />
+                                </ListItemIcon>
+                                Account
+                            </MenuItem>
+                            <MenuItem onClick={handleLogout}>
+                                <ListItemIcon>
+                                    <LogoutIcon fontSize="small" />
+                                </ListItemIcon>
+                                Logout
+                            </MenuItem>
+                        </Menu>
+                        {children}
+                    </Box>
                 </Box>
             </Box>
         </>

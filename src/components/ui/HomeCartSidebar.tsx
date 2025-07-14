@@ -112,7 +112,7 @@ const HomeCartSidebar: React.FC = () => {
   const handleConfirmCart = async () => {
     try {
       await confirmHomeCart();
-      router.push('/cart');
+      // router.push('/cart'); // Đừng chuyển trang sau khi xác nhận
     } catch (error) {
       console.error('Error confirming home cart:', error);
     }

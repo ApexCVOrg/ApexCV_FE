@@ -3,15 +3,20 @@ import React, { useEffect, useState } from "react";
 import {
     Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, Stack, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select, Tooltip
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select, Tooltip,
+    Pagination
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
 import api from "@/services/api";
 import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
 import { Checkbox, ListItemText } from "@mui/material";
 import { PRODUCT_LABELS } from '@/types/components/label';
+import { useTranslations } from "next-intl";
 
 interface Product {
     _id: string;
@@ -49,11 +54,25 @@ interface Brand {
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<{ _id: string; name: string; parentCategory: string | null }[]>([]);
     const [brands, setBrands] = useState<Brand[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+    
+    // Pagination states
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalProducts, setTotalProducts] = useState(0);
+    
+    // Search and filter states
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
+    const [categoryFilter, setCategoryFilter] = useState<string>("all");
+    const [brandFilter, setBrandFilter] = useState<string>("all");
+    
     const [formData, setFormData] = useState<ProductFormData>({
         name: "",
         description: "",
@@ -74,16 +93,70 @@ export default function ProductsPage() {
     const [colorInput, setColorInput] = useState("");
     const [imageInput, setImageInput] = useState("");
 
+    const t = useTranslations("manager.products");
 
     // 1. Get subCategories (categories with parentCategory != null)
     const subCategories = categories.filter(cat => cat.parentCategory);
 
-    // Fetch products and categories
+    // Search and filter function
+    const filterProducts = () => {
+        let filtered = products || [];
+
+        // Filter by search term
+        if (searchTerm) {
+            filtered = filtered.filter(product =>
+                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Filter by status
+        if (statusFilter !== "all") {
+            filtered = filtered.filter(product => product.status === statusFilter);
+        }
+
+        // Filter by category
+        if (categoryFilter !== "all") {
+            filtered = filtered.filter(product => 
+                product.categories.includes(categoryFilter)
+            );
+        }
+
+        // Filter by brand
+        if (brandFilter !== "all") {
+            filtered = filtered.filter(product => {
+                const brandId = typeof product.brand === 'string' ? product.brand : product.brand?._id;
+                return brandId === brandFilter;
+            });
+        }
+
+        setFilteredProducts(filtered);
+    };
+
+    // Apply filters when search terms or filters change
+    useEffect(() => {
+        filterProducts();
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+     [searchTerm, statusFilter, categoryFilter, brandFilter, products]);
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSearchTerm("");
+        setStatusFilter("all");
+        setCategoryFilter("all");
+        setBrandFilter("all");
+    };
+
+    // Fetch products and categories with pagination
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const res = await api.get<Product[]>(API_ENDPOINTS.MANAGER.PRODUCTS);
+            const res = await api.get<Product[]>(API_ENDPOINTS.MANAGER.PRODUCTS, {
+                params: { page, limit }
+            });
             setProducts(res.data);
+            setTotalProducts(res.data.length);
+            setTotalPages(Math.ceil(res.data.length / limit));
         } catch {
             setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: "error" });
         } finally {
@@ -107,7 +180,13 @@ export default function ProductsPage() {
         fetchProducts();
         fetchCategories();
         fetchBrands();
-    }, []);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+     [page, limit]);
+
+    // Handle page change
+    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
 
     // Form handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -197,7 +276,7 @@ export default function ProductsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm("Are you sure you want to delete this product?")) return;
+        if (!window.confirm(t("deleteConfirm"))) return;
         try {
             await api.delete(`${API_ENDPOINTS.MANAGER.PRODUCTS}/${id}`);
             setSnackbar({ open: true, message: SUCCESS_MESSAGES.MANAGER.PRODUCT_DELETED, severity: "success" });
@@ -247,16 +326,14 @@ export default function ProductsPage() {
         return '-';
     };
 
-    // Helper: Lấy tên category từ string hoặc object
-    const getCategoryDisplay = (cat: string | { _id: string; name: string }) => {
-        if (typeof cat === 'string') {
-            const found = categories.find(c => c._id === cat);
-            return found ? found.name : cat;
+    // Helper: Lấy tên category dạng parent-sub
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getCategoryDisplay = (cat: any) => {
+        if (!cat) return '';
+        if (cat.parentCategory && cat.parentCategory.name) {
+            return `${cat.parentCategory.name} - ${cat.name}`;
         }
-        if (typeof cat === 'object' && cat !== null) {
-            return cat.name || (cat._id && (categories.find(c => c._id === cat._id)?.name)) || '[object Object]';
-        }
-        return '';
+        return cat.name;
     };
 
     // Helper: Format ngày tháng
@@ -272,42 +349,126 @@ export default function ProductsPage() {
     };
 
     return (
-        <Box sx={{ width: '100%', px: 0, pt: 2, pb: 0 }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1} sx={{ px: 2, mb: 0 }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2rem' }}>Products</Typography>
+        <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', px: { xs: 1, md: 3 }, pt: 2, pb: 0, overflowX: 'auto' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1} sx={{ px: 2, mb: 0, flexWrap: 'wrap' }}>
+                <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2rem' }}>{t("title")}</Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()} sx={{ fontSize: '1rem', py: 1.5, px: 3 }}>
-                    Add Product
+                    {t("addNew")}
                 </Button>
             </Stack>
+
+            {/* Search and Filter Section */}
+            <Paper sx={{ p: 2, mb: 2, mx: 2, maxWidth: '100%', overflowX: 'auto' }}>
+                <Stack spacing={2}>
+                    {/* Search Bar */}
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                        <TextField
+                            placeholder={t("searchPlaceholder")}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            sx={{ flexGrow: 1 }}
+                            InputProps={{
+                                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
+                            }}
+                        />
+                        <Button
+                            variant="outlined"
+                            startIcon={<ClearIcon />}
+                            onClick={clearFilters}
+                            disabled={!searchTerm && statusFilter === "all" && categoryFilter === "all" && brandFilter === "all"}
+                        >
+                            {t("clear")}
+                        </Button>
+                    </Box>
+
+                    {/* Filter Row */}
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', width: '100%', overflowX: 'auto' }}>
+                        <FormControl sx={{ minWidth: 120 }}>
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                label="Status"
+                            >
+                                <MenuItem value="all">{t("allStatus")}</MenuItem>
+                                <MenuItem value="active">{t("active")}</MenuItem>
+                                <MenuItem value="inactive">{t("inactive")}</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <FormControl sx={{ minWidth: 150 }}>
+                            <InputLabel>Category</InputLabel>
+                            <Select
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                label="Category"
+                            >
+                                <MenuItem value="all">{t("allCategories")}</MenuItem>
+                                {categories.map((category) => (
+                                    <MenuItem key={category._id} value={category._id}>
+                                        {category.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <FormControl sx={{ minWidth: 120 }}>
+                            <InputLabel>Brand</InputLabel>
+                            <Select
+                                value={brandFilter}
+                                onChange={(e) => setBrandFilter(e.target.value)}
+                                label="Brand"
+                            >
+                                <MenuItem value="all">{t("allBrands")}</MenuItem>
+                                {brands.map((brand) => (
+                                    <MenuItem key={brand._id} value={brand._id}>
+                                        {brand.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        {/* Results Count */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
+                            <Typography variant="body2" color="text.secondary">
+                                {t("resultsCount", { filtered: filteredProducts.length, total: totalProducts, itemType: t("products") })}
+                            </Typography>
+                        </Box>
+                    </Box>
+                </Stack>
+            </Paper>
+
             <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto', boxShadow: 3, mt: 0 }}>
                 <Table sx={{ width: '100%' }}>
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Image</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Name</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 260 }}>Description</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Price</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Category</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>Brand</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Status</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>Created At</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>Label</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Actions</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("name")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 260 }}>{t("description")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("price")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("category")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>{t("brand")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("status")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("createdAt")}</TableCell>
+                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>{t("label")}</TableCell>
+                            <TableCell align="right" sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("actions")}</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading ? (
                             <TableRow key="loading">
-                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>Loading...</TableCell>
+                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>{t("loading")}</TableCell>
                             </TableRow>
-                        ) : products.length === 0 ? (
+                        ) : filteredProducts.length === 0 ? (
                             <TableRow key="empty">
-                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>No products found</TableCell>
+                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>{t("noProducts")}</TableCell>
                             </TableRow>
                         ) : (
-                            products.map(product => (
+                            filteredProducts.map(product => (
                                 <TableRow key={product._id} sx={{ fontSize: '1rem', height: 64 }}>
                                     <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                        
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
                                             alt={product.name}
@@ -394,34 +555,49 @@ export default function ProductsPage() {
                     </TableBody>
                 </Table>
             </TableContainer>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                    <Pagination
+                        count={totalPages}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        showFirstButton
+                        showLastButton
+                    />
+                </Box>
+            )}
+            
             {/* Dialog Add/Edit */}
             <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-                <DialogTitle>{selectedProduct ? "Edit Product" : "Add Product"}</DialogTitle>
+                <DialogTitle>{selectedProduct ? t("editProduct") : t("addProduct")}</DialogTitle>
                 <form onSubmit={handleSubmit}>
                     <DialogContent>
                         <Stack spacing={2}>
-                            <TextField name="name" label="Name" value={formData.name} onChange={handleInputChange} required fullWidth />
-                            <TextField name="description" label="Description" value={formData.description} onChange={handleInputChange} multiline rows={3} fullWidth />
-                            <TextField name="price" label="Price" type="number" value={formData.price} onChange={handleInputChange} required fullWidth />
-                            <TextField name="discountPrice" label="Discount Price" type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
+                            <TextField name="name" label={t("name")} value={formData.name} onChange={handleInputChange} required fullWidth />
+                            <TextField name="description" label={t("description")} value={formData.description} onChange={handleInputChange} multiline rows={3} fullWidth />
+                            <TextField name="price" label={t("price")} type="number" value={formData.price} onChange={handleInputChange} required fullWidth />
+                            <TextField name="discountPrice" label={t("discountPrice")} type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
                             
                             {/* Status select - đưa lên trên */}
                             <FormControl fullWidth required>
-                                <InputLabel id="status-label">Status</InputLabel>
+                                <InputLabel id="status-label">{t("status")}</InputLabel>
                                 <Select
                                     labelId="status-label"
                                     value={formData.status}
                                     onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as "active" | "inactive" }))}
-                                    label="Status"
+                                    label={t("status")}
                                 >
-                                    <MenuItem value="active">Active</MenuItem>
-                                    <MenuItem value="inactive">Inactive</MenuItem>
+                                    <MenuItem value="active">{t("active")}</MenuItem>
+                                    <MenuItem value="inactive">{t("inactive")}</MenuItem>
                                 </Select>
                             </FormControl>
 
                             {/* Categories multi-select */}
                             <FormControl fullWidth required>
-                                <InputLabel id="categories-label">Categories</InputLabel>
+                                <InputLabel id="categories-label">{t("categories")}</InputLabel>
                                 <Select
                                     labelId="categories-label"
                                     multiple
@@ -433,7 +609,7 @@ export default function ProductsPage() {
                                             categories: typeof value === "string" ? value.split(",") : value,
                                         }));
                                     }}
-                                    label="Categories"
+                                    label={t("categories")}
                                     renderValue={(selected) => (
                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                             {selected.map((value, idx) => {
@@ -463,7 +639,7 @@ export default function ProductsPage() {
                                 required
                                 fullWidth
                             >
-                                <option value="">Select brand</option>
+                                <option value="">{t("selectBrand")}</option>
                                 {brands.map(brand => (
                                     <option key={brand._id} value={brand._id}>{brand.name}</option>
                                 ))}
@@ -491,7 +667,7 @@ export default function ProductsPage() {
                             </Box>
                             {/* Sizes */}
                             <Box>
-                                <Typography variant="subtitle2">Sizes</Typography>
+                                <Typography variant="subtitle2">{t("sizes")}</Typography>
                                 <Button onClick={handleAddSize} startIcon={<AddIcon />} size="small">Add Size</Button>
                                 <Stack spacing={1} mt={1}>
                                     {formData.sizes.map((sz, idx) => (
@@ -537,7 +713,7 @@ export default function ProductsPage() {
                             </Box>
                             {/* Label (multi-select) */}
                             <FormControl fullWidth required>
-                                <InputLabel id="label-label">Label</InputLabel>
+                                <InputLabel id="label-label">{t("label")}</InputLabel>
                                 <Select
                                     labelId="label-label"
                                     multiple
@@ -549,7 +725,7 @@ export default function ProductsPage() {
                                             label: typeof value === 'string' ? value.split(',') : value,
                                         }));
                                     }}
-                                    label="Label"
+                                    label={t("label")}
                                     renderValue={(selected) => (
                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                             {selected.map((value, idx) => {
@@ -569,7 +745,7 @@ export default function ProductsPage() {
                             </FormControl>
                             {/* Tags (multi-select, like categories) */}
                             <FormControl fullWidth>
-                                <InputLabel id="tags-label">Tags (SubCategories)</InputLabel>
+                                <InputLabel id="tags-label">{t("tags")} ({t("subCategories")})</InputLabel>
                                 <Select
                                     labelId="tags-label"
                                     multiple
@@ -581,7 +757,7 @@ export default function ProductsPage() {
                                             tags: typeof value === 'string' ? value.split(',') : value,
                                         }));
                                     }}
-                                    label="Tags (SubCategories)"
+                                    label={t("tags")}
                                     renderValue={(selected) => (
                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                             {selected.map((value, idx) => {
@@ -602,8 +778,8 @@ export default function ProductsPage() {
                         </Stack>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleCloseDialog}>Cancel</Button>
-                        <Button type="submit" variant="contained">{selectedProduct ? "Update" : "Create"}</Button>
+                        <Button onClick={handleCloseDialog}>{t("cancel")}</Button>
+                        <Button type="submit" variant="contained">{selectedProduct ? t("update") : t("create")}</Button>
                     </DialogActions>
                 </form>
             </Dialog>
