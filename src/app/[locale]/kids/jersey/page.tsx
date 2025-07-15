@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import ProductCard from "@/components/card";
-import { Box } from "@mui/material";
+import React from "react";
+import GenderPageLayout from "@/components/layout/GenderPageLayout";
 
 interface Product {
   _id: string;
@@ -12,96 +11,76 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  createdAt: string;
 }
 
 export default function KidsJerseyPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchJerseys = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
-        const data = await res.json();
-        
-        if (!data.success) {
-          throw new Error(data.message || 'Failed to fetch products');
+  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
+    let apiSortBy = sortBy;
+    let sortOrder = 'desc';
+    if (sortBy === 'price-low') { apiSortBy = 'price'; sortOrder = 'asc'; }
+    else if (sortBy === 'price-high') { apiSortBy = 'price'; sortOrder = 'desc'; }
+    else if (sortBy === 'newest') { apiSortBy = 'createdAt'; sortOrder = 'desc'; }
+    else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
+    
+    try {
+      // Fetch only kids' products with sorting
+      const queryParams = new URLSearchParams({
+        status: 'active',
+        gender: 'kids',
+        sortBy: apiSortBy,
+        sortOrder: sortOrder
+      });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+      const data = await res.json();
+      
+      // Lọc sản phẩm jersey cho kids
+      const filtered = (data.data || []).filter((item: any) => {
+        // Kiểm tra categoryPath
+        if (Array.isArray(item.categoryPath)) {
+          const hasJersey = item.categoryPath.some((cat: string) => 
+            cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('t-shirts')
+          );
+          if (hasJersey) return true;
         }
         
-        const teamNames = [
-          "arsenal",
-          "real madrid", 
-          "manchester united",
-          "bayern munich",
-          "juventus"
-        ];
+        // Kiểm tra categories array
+        if (item.categories && Array.isArray(item.categories)) {
+          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const hasJerseyCategory = categoryNames.some((name: string) => 
+            name.includes('jersey') || name.includes('t-shirts')
+          );
+          if (hasJerseyCategory) return true;
+        }
         
-        const jerseys = (data.data || []).filter(
-          (p: any) =>
-            (p.categories || []).some(
-              (c: any) => c.name.toLowerCase() === "t-shirts" || c.name.toLowerCase() === "jersey"
-            ) &&
-            (p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase()))
-        );
+        // Kiểm tra tags
+        if (item.tags && Array.isArray(item.tags)) {
+          const hasJerseyTag = item.tags.some((tag: string) => 
+            tag.toLowerCase().includes('jersey')
+          );
+          if (hasJerseyTag) return true;
+        }
         
-        setProducts(jerseys);
-      } catch (error) {
-        console.error('Error fetching jerseys:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchJerseys();
-  }, []);
-
-  if (loading) return <div>Đang tải...</div>;
+        // Kiểm tra trong name
+        if (item.name.toLowerCase().includes('jersey')) return true;
+        
+        return false;
+      });
+      
+      return filtered;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw new Error('Failed to fetch products');
+    }
+  };
 
   return (
-    <div style={{ padding: 32 }}>
-      <h1>Áo đấu Trẻ em</h1>
-      {products.length === 0 && <p>Không có sản phẩm áo đấu nào.</p>}
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: '1fr',
-            sm: 'repeat(2, 1fr)',
-            md: 'repeat(3, 1fr)',
-            lg: 'repeat(4, 1fr)',
-          },
-          gap: { xs: 2, sm: 3 },
-          width: '100%',
-          justifyContent: 'center',
-        }}
-      >
-        {products.map((product) => (
-          <Box 
-            key={product._id}
-            sx={{
-              width: '100%',
-              display: 'flex',
-              justifyContent: 'center'
-            }}
-          >
-            <ProductCard
-              productId={product._id}
-              name={product.name}
-              image={
-                product.images?.[0]
-                  ? `/assets/images/kids/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
-                  : "/assets/images/placeholder.jpg"
-              }
-              price={product.price}
-              discountPrice={product.discountPrice}
-              tags={product.tags || []}
-              brand={product.brand || { _id: "", name: "Unknown Brand" }}
-              categories={product.categories || []}
-              onAddToCart={() => {}}
-            />
-          </Box>
-        ))}
-      </Box>
-    </div>
+    <GenderPageLayout
+      pageTitle="KIDS' JERSEYS"
+      pageDescription="Discover our collection of kids' football jerseys from top clubs. Perfect for young football fans."
+      category="Jersey"
+      fetchProducts={fetchProducts}
+      emptyMessage="No jerseys found."
+    />
   );
 } 

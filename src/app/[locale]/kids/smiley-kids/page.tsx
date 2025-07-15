@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import ShoesPageLayout from "@/components/layout/ShoesPageLayout";
+import GenderPageLayout from "@/components/layout/GenderPageLayout";
 
 interface Product {
   _id: string;
@@ -14,14 +14,7 @@ interface Product {
   createdAt: string;
 }
 
-const TABS = [
-  { label: "SAMBA", value: "samba", image: "/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif" },
-  { label: "SUPERSTAR", value: "superstar", image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif" },
-  { label: "GAZELLE", value: "gazelle", image: "/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif" },
-  { label: "SL 72", value: "sl-72", image: "/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif" }
-];
-
-export default function SambaPage() {
+export default function KidsSmileyPage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
     let apiSortBy = sortBy;
     let sortOrder = 'desc';
@@ -31,44 +24,45 @@ export default function SambaPage() {
     else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
     
     try {
-      // Fetch products with sorting
+      // Fetch only kids' products with sorting
       const queryParams = new URLSearchParams({
         status: 'active',
+        gender: 'kids',
         sortBy: apiSortBy,
         sortOrder: sortOrder
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
       
-      // Lọc sản phẩm samba
+      // Lọc sản phẩm smiley cho kids
       const filtered = (data.data || []).filter((item: any) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasSamba = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('samba')
+          const hasSmiley = item.categoryPath.some((cat: string) => 
+            cat.toLowerCase().includes('smiley') || cat.toLowerCase().includes('smileys')
           );
-          if (hasSamba) return true;
+          if (hasSmiley) return true;
         }
         
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
-          const hasSambaCategory = categoryNames.some((name: string) => 
-            name.includes('samba')
+          const hasSmileyCategory = categoryNames.some((name: string) => 
+            name.includes('smiley') || name.includes('smileys')
           );
-          if (hasSambaCategory) return true;
+          if (hasSmileyCategory) return true;
         }
         
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasSambaTag = item.tags.some((tag: string) => 
-            tag.toLowerCase().includes('samba')
+          const hasSmileyTag = item.tags.some((tag: string) => 
+            tag.toLowerCase().includes('smiley')
           );
-          if (hasSambaTag) return true;
+          if (hasSmileyTag) return true;
         }
         
         // Kiểm tra trong name
-        if (item.name.toLowerCase().includes('samba')) return true;
+        if (item.name.toLowerCase().includes('smiley')) return true;
         
         return false;
       });
@@ -81,13 +75,12 @@ export default function SambaPage() {
   };
 
   return (
-    <ShoesPageLayout
-      pageTitle="ADIDAS SAMBA"
-      pageDescription="Discover the iconic Adidas Samba collection. Classic design meets modern comfort."
-      category="Samba"
+    <GenderPageLayout
+      pageTitle="KIDS' SMILEY"
+      pageDescription="Fun and colorful smiley collection for kids. Bright designs that bring joy to young ones."
+      category="Smiley"
       fetchProducts={fetchProducts}
-      emptyMessage="No samba shoes found."
-      tabs={TABS}
+      emptyMessage="No smiley products found."
     />
   );
 } 

@@ -83,7 +83,7 @@ export const ROUTES = {
   KIDS: {
     ROOT: '/kids',
     JERSEY: '/kids/jersey-kids',
-    TRACKSUITS: '/kids/tracksuits-kids',
+    TRACKSUITS: '/kids/tracksuit',
     SMILEY: '/kids/smiley-kids',
   },
   SHOES: {

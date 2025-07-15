@@ -12,21 +12,19 @@ export default function WomenLayout({
   const pathname = usePathname();
   // Các route KHÔNG muốn hiện Pick your team
   const hideTabsRoutes = [
-    '/women/thun-croptop',
-    '/women/hoodie-women',
-    '/women/sportswear-women',
-    '/women/trousers-women',
-    '/women/leggings-women',
     '/women/jacket-women',
     '/women/shorttrouser-women',
     '/women/Jersey-women',
-    '/women/tracksuits-women',
-    '/women/dress-women',
-    '/women/sweatshirt-women',
-    '/women/skirt-women',
-    '/women/sports-bra', // Thêm route mới
+    '/women/team-sneaker',
+    '/women/hoodie-women'
   ];
   const hideTabs = hideTabsRoutes.some(route => pathname.endsWith(route));
+  
+  // Nếu là trang sử dụng GenderPageLayout, chỉ render children
+  if (hideTabs) {
+    return <>{children}</>;
+  }
+  
   return (
     <TeamLayout section="women" title="PICK YOUR TEAM" hideTabs={hideTabs}>
       {children}

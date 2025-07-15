@@ -3,7 +3,7 @@ import React from 'react';
 import TeamLayout from '../../../components/layout/TeamLayout';
 import { usePathname } from 'next/navigation';
 
-export default function MenLayout({
+export default function KidsLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -12,12 +12,19 @@ export default function MenLayout({
   // Các route KHÔNG muốn hiện Pick your team
   const hideTabsRoutes = [
     '/kids/smiley-kids',
-    '/kids/short-kids',
-    '/kids/jersey-kids',
+    '/kids/tracksuit',
+    '/kids/jersey',
+    '/kids/team-sneaker'
   ];
   const hideTabs = hideTabsRoutes.some(route => pathname.endsWith(route));
+  
+  // Nếu là trang sử dụng GenderPageLayout, chỉ render children
+  if (hideTabs) {
+    return <>{children}</>;
+  }
+  
   return (
-    <TeamLayout section="men" title="PICK YOUR TEAM" hideTabs={hideTabs}>
+    <TeamLayout section="kids" title="PICK YOUR TEAM" hideTabs={hideTabs}>
       {children}
     </TeamLayout>
   );

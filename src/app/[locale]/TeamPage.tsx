@@ -307,7 +307,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         {/* Sort and Filter Bar */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{products.length} Products</Typography>
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl sx={{ minWidth: 200, mr: { xs: 3, sm: 6, md: 8 } }}>
             <InputLabel>Sort By</InputLabel>
             <Select 
               value={sortBy} 

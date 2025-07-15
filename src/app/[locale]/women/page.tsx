@@ -87,11 +87,22 @@ export default function WomenPage() {
         console.log('[WomenPage] API Response:', result);
         
         if (result.success) {
+          const teamNames = [
+            "arsenal",
+            "real madrid",
+            "manchester united",
+            "bayern munich",
+            "juventus"
+          ];
+          // Lọc sản phẩm thuộc 5 team lớn cho women
+          const teamProducts = (result.data || []).filter((p: any) =>
+            p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+          );
           console.log('[WomenPage] Total products:', result.data?.length);
-          console.log('[WomenPage] Sample product data:', result.data?.[0]);
-          console.log('[WomenPage] Sample image path:', result.data?.[0]?.images?.[0]);
-          setProducts(result.data || []);
-          setDisplayedProducts((result.data || []).slice(0, productsPerPage));
+          console.log('[WomenPage] Team products:', teamProducts.length);
+          console.log('[WomenPage] Sample product data:', teamProducts?.[0]);
+          setProducts(teamProducts);
+          setDisplayedProducts(teamProducts.slice(0, productsPerPage));
         } else {
           throw new Error(result.message || 'API returned unsuccessful response');
         }
@@ -111,8 +122,19 @@ export default function WomenPage() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=women`);
       const result = await response.json();
       if (result.success) {
-        setProducts(result.data);
-        setDisplayedProducts(result.data.slice(0, productsPerPage));
+        const teamNames = [
+          "arsenal",
+          "real madrid",
+          "manchester united",
+          "bayern munich",
+          "juventus"
+        ];
+        // Lọc sản phẩm thuộc 5 team lớn cho women
+        const teamProducts = (result.data || []).filter((p: any) =>
+          p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+        );
+        setProducts(teamProducts);
+        setDisplayedProducts(teamProducts.slice(0, productsPerPage));
       } else {
         throw new Error(result.message);
       }
