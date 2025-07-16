@@ -260,6 +260,7 @@ export default function SpezialPage() {
                     width: '100%',
                   }}>
                     <ProductCard
+                      _id={products[0]._id}
                       productId={products[0]._id}
                       name={products[0].name}
                       image={products[0].images?.[0] || "/assets/images/placeholder.jpg"}

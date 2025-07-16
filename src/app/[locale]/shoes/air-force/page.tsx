@@ -216,6 +216,7 @@ export default function AirForcePage() {
                 }}
               >
                 <ProductCard
+                  _id={product._id}
                   productId={product._id}
                   name={product.name}
                   image={fixImageUrl(product.images?.[0] || "")}

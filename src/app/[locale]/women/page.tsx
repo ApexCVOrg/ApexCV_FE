@@ -15,18 +15,9 @@ interface Product {
   discountPrice?: number;
   tags: string[];
   brand: { _id: string; name: string };
-  categories: { 
-    _id: string; 
-    name: string;
-    parentCategory?: {
-      _id: string;
-      name: string;
-      parentCategory?: {
-        _id: string;
-        name: string;
-      };
-    };
-  }[];
+  categories: { _id: string; name: string }[];
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 export default function WomenPage() {
@@ -56,7 +47,7 @@ export default function WomenPage() {
       }
       
       // Check parent category with optional chaining
-      const parentCategory = category.parentCategory;
+      const parentCategory = (category as any).parentCategory;
       if (parentCategory) {
         const parentNameLower = parentCategory.name.toLowerCase();
         for (const team of teamNames) {
@@ -329,7 +320,7 @@ export default function WomenPage() {
               mx: 'auto'
           }}>
             {[
-                { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/sneaker' },
+                { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/team-sneaker' },
                 { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/Jersey-women' },
                 { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorttrouser-women' }
             ].map((category) => (
@@ -575,6 +566,7 @@ export default function WomenPage() {
                       }}
                     >
                       <ProductCard
+                        _id={product._id}
                         productId={product._id}
                         name={product.name || 'Unnamed Product'}
                         image={

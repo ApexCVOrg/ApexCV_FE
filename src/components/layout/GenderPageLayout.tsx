@@ -144,6 +144,7 @@ export default function GenderPageLayout({
               {products.map((product) => (
                 <Box key={product._id} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
                   <ProductCard
+                    _id={product._id}
                     productId={product._id}
                     name={product.name}
                     image={(() => {
