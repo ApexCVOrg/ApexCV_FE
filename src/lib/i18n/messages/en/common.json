@@ -862,5 +862,23 @@
     "all": "All",
     "banned": "Banned",
     "notBanned": "Not banned"
+  },
+  "cartPage": {
+    "loginToViewCart": "Login to view cart",
+    "login": "Login",
+    "cartEmpty": "Cart is empty",
+    "noProductsInCart": "You don't have any products in your cart",
+    "continueShopping": "Continue Shopping",
+    "cart": "Cart",
+    "productCount": "{count} products",
+    "size": "Size",
+    "color": "Color",
+    "stockLeft": "Stock left: {stock}",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shippingFee": "Shipping Fee",
+    "total": "Total",
+    "checkout": "Checkout",
+    "clearCart": "Clear Cart"
   }
 }

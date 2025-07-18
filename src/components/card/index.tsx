@@ -10,6 +10,10 @@ import {
   Box,
   Chip,
   Stack,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Snackbar,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Alert,
   IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -17,6 +21,10 @@ import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useAuthContext } from '@/context/AuthContext';
+import api from '@/services/api';
+import { useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -24,6 +32,7 @@ import { motion } from 'framer-motion';
 export type CategoryLike = { id?: string; _id?: string; name: string };
 
 interface ProductCardProps {
+  _id: string;
   name: string;
   image: string;
   price: number;
@@ -38,9 +47,12 @@ interface ProductCardProps {
   productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
+  addToCartButtonProps?: React.ComponentProps<typeof Button>;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _id,
   name,
   image,
   price,
@@ -55,6 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   productId,
   backgroundColor = '#ffffff',
   colors = 1,
+  addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -102,6 +115,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  const { token } = useAuthContext();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+
+  const handleAddToCart = async () => {
+    if (!token) {
+      setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
+      return;
+    }
+    try {
+      await api.post('/carts/add', { productId });
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
+    }
+  };
 
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
@@ -381,11 +410,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 background: '#1565c0',
               },
             }}
-            onClick={onAddToCart}
+            onClick={handleAddToCart}
           >
             <ShoppingCartIcon sx={{ fontSize: 28 }} />
           </IconButton>
         </Card>
+        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </motion.div>
     );
   }
@@ -534,14 +568,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Stack>
         )}
         <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
-          onClick={onAddToCart}
-          sx={{ mt: 'auto', width: '100%', bgcolor: '#111a2f', color: '#fff', fontWeight: 700, borderRadius: 2, py: 1, '&:hover': { bgcolor: '#222c4c' } }}
+          variant={addToCartButtonProps?.variant || 'contained'}
+          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
+          onClick={handleAddToCart}
+          sx={{
+            mt: 'auto',
+            width: '100%',
+            bgcolor: '#111a2f',
+            color: '#fff',
+            fontWeight: 700,
+            borderRadius: 2,
+            py: 1,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#222c4c' },
+            ...addToCartButtonProps?.sx, // đặt cuối cùng để props có thể override
+          }}
+          {...addToCartButtonProps}
         >
-          {t('addToCart')}
+          {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

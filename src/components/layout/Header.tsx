@@ -39,6 +39,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
 
@@ -67,6 +68,7 @@ const Header = () => {
   const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
+  const { cartItemCount } = useCartContext();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
   const { favoritesCount } = useFavorites();
@@ -604,7 +606,7 @@ const Header = () => {
               {language.toUpperCase()}
             </Button>
             <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
-              <Badge badgeContent={0} color="secondary">
+              <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
@@ -643,6 +645,13 @@ const Header = () => {
                       <Person fontSize="small" />
                     </ListItemIcon>
                     {t('profile')}
+                  </MenuItem>
+                  {/* Thêm menu voucher */}
+                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
+                    <ListItemIcon>
+                      <span role="img" aria-label="voucher">🎟️</span>
+                    </ListItemIcon>
+                    Voucher
                   </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>

@@ -2,7 +2,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
 import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import dynamic from 'next/dynamic';
+const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: false });
 import { AuthProvider } from '@/context/AuthContext';
 import PageTransitionOverlay from '@/components/ui/PageTransitionOverlay';
 import { NextIntlClientProvider } from 'next-intl';

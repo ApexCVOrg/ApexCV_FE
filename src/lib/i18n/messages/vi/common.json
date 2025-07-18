@@ -856,5 +856,23 @@
     "all": "Tất cả",
     "banned": "Bị ban",
     "notBanned": "Không bị ban"
+  },
+  "cartPage": {
+    "loginToViewCart": "Đăng nhập để xem giỏ hàng",
+    "login": "Đăng nhập",
+    "cartEmpty": "Giỏ hàng trống",
+    "noProductsInCart": "Bạn chưa có sản phẩm nào trong giỏ hàng",
+    "continueShopping": "Tiếp tục mua sắm",
+    "cart": "Giỏ hàng",
+    "productCount": "{count} sản phẩm",
+    "size": "Kích thước",
+    "color": "Màu sắc",
+    "stockLeft": "Còn: {stock} sản phẩm",
+    "orderSummary": "Tổng quan đơn hàng",
+    "subtotal": "Tạm tính",
+    "shippingFee": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "checkout": "Thanh toán",
+    "clearCart": "Xóa giỏ hàng"
   }
 }

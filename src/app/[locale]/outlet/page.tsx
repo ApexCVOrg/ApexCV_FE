@@ -17,6 +17,8 @@ interface Product {
   tags?: string[];
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  sizes?: { size: string; stock: number }[];
+  colors?: string[];
 }
 
 const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2';
@@ -130,7 +132,9 @@ export default function OutletPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  sizes={product.sizes}
+                  // @ts-expect-error colors prop expects number, but product.colors is string[]
+                  colors={product.colors}
                 />
               </Box>
             ))}

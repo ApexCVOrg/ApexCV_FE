@@ -2,11 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Box,
-  Typography,
-  Button,
-  Tabs,
-  Tab,
   CircularProgress,
   Slider,
   Checkbox,
@@ -15,6 +10,11 @@ import {
   TextField,
   InputAdornment,
   useMediaQuery,
+  Box,
+  Typography,
+  Button,
+  Tabs,
+  Tab,
   IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
@@ -27,6 +27,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
+import { useHomeCartContext } from '@/context/HomeCartContext';
+import { useCartContext } from '@/context/CartContext';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Snackbar from '@mui/material/Snackbar';
 
 interface Product {
   _id: string;
@@ -125,6 +133,8 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
   useAuth();
@@ -133,11 +143,16 @@ export default function HomePage() {
   // State for pagination (load more)
   const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { addToHomeCart } = useHomeCartContext();
+  const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
   const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
   const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -528,6 +543,7 @@ export default function HomePage() {
           py: { xs: 2, md: 4 },
           position: 'relative',
           zIndex: 1,
+          marginRight: { md: '380px' }, // Để chừa chỗ cho sidebar bên phải
         }}
       >
         <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
@@ -781,8 +797,8 @@ export default function HomePage() {
                       xs: 'repeat(2, 1fr)',
                       md: 'repeat(3, 1fr)',
                     },
-                    gap: isLargeScreen ? 3 : 2,
-                    padding: isLargeScreen ? '2rem 0' : '1rem 0',
+                    gap: 3,
+                    p: 2,
                     '@media screen and (width: 1440px) and (height: 1920px)': {
                       gridTemplateColumns: 'repeat(3, 1fr)',
                       gap: '2rem',
@@ -911,6 +927,16 @@ export default function HomePage() {
           </Box>
         </Box>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Box sx={{ bgcolor: 'success.main', color: 'white', p: 2, borderRadius: 1 }}>
+          Product added to cart!
+        </Box>
+      </Snackbar>
     </>
   );
 }
