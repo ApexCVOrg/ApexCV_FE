@@ -67,6 +67,13 @@ export const useAuth = () => {
     return authService.getCurrentUser();
   }, []);
 
+  const getToken = useCallback(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    return localStorage.getItem('auth_token');
+  }, []);
+
   const login = useCallback(
     async (email: string, password: string) => {
       try {
@@ -259,6 +266,7 @@ export const useAuth = () => {
     forgotPassword,
     resetPassword,
     getCurrentUser,
+    getToken,
     handleGoogleAuth,
     setAuthData,
     loading,

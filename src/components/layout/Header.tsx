@@ -86,10 +86,36 @@ const Header = () => {
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
+
+  // --- NEW HEADER SHOW/HIDE LOGIC ---
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          setScrollY(currentY);
+          if (currentY < bannerHeight) {
+            setHideHeader(false); // Always show header above banner
+          } else {
+            if (currentY > lastY) {
+              setHideHeader(true); // Scrolling down, hide
+            } else if (currentY < lastY) {
+              setHideHeader(false); // Scrolling up, show
+            }
+          }
+          lastY = currentY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [bannerHeight]);
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];

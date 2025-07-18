@@ -23,6 +23,8 @@ import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuthContext } from '@/context/AuthContext';
+import api from '@/services/api';
+import { useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -114,28 +116,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleAddToCartClick = () => {
-    // @ts-expect-error token is not defined, ignore for now
+  const { token } = useAuthContext();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+
+  const handleAddToCart = async () => {
     if (!token) {
-      // @ts-expect-error setSnackbar is not defined, ignore for now
-      setSnackbar({
-        open: true,
-        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
-        severity: 'warning',
-      });
+      setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
       return;
     }
-    
-    // Gọi callback onAddToCart
-    if (onAddToCart) {
-      onAddToCart();
+    try {
+      await api.post('/carts/add', { productId });
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
     }
-  };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleCloseSnackbar = () => {
-    // @ts-expect-error setSnackbar is not defined, ignore for now
-    setSnackbar(prev => ({ ...prev, open: false }));
   };
 
   // Nếu là ảnh lib, render card style hiện tại với animation
@@ -218,7 +212,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -417,11 +410,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 background: '#1565c0',
               },
             }}
-            onClick={onAddToCart}
+            onClick={handleAddToCart}
           >
             <ShoppingCartIcon sx={{ fontSize: 28 }} />
           </IconButton>
         </Card>
+        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </motion.div>
     );
   }
@@ -572,7 +570,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Button
           variant={addToCartButtonProps?.variant || 'contained'}
           startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
-          onClick={onAddToCart}
+          onClick={handleAddToCart}
           sx={{
             mt: 'auto',
             width: '100%',
@@ -590,6 +588,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };
