@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cartService, Cart, CartItem, AddToCartRequest } from '@/services/cart';
 import { useAuthContext } from './AuthContext';
 

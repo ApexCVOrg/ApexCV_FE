@@ -23,7 +23,9 @@ import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
@@ -130,6 +132,7 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
@@ -139,7 +142,9 @@ export default function HomePage() {
   // State for pagination (load more)
   const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
   const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex

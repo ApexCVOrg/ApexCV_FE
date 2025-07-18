@@ -620,6 +620,13 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
+                  {/* Thêm menu voucher */}
+                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
+                    <ListItemIcon>
+                      <span role="img" aria-label="voucher">🎟️</span>
+                    </ListItemIcon>
+                    Voucher
+                  </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" />

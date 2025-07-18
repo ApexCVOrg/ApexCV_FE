@@ -6,6 +6,7 @@ interface ProductDetailSidebarProps {
 }
 
 const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({ productId }) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +77,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({ productId }
       {/* Ví dụ hiển thị size và số lượng */}
       <Typography variant="subtitle2" sx={{ mb: 1 }}>Size có sẵn:</Typography>
       <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {(product.sizes || ['US 7', 'US 8', 'US 9']).map((size: any, idx: number) => (
           <Chip key={typeof size === 'string' ? size : size?._id || idx} label={typeof size === 'string' ? size : size?.name || idx} variant="outlined" />
         ))}

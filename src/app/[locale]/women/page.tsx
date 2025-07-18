@@ -14,11 +14,6 @@ interface Product {
   discountPrice?: number;
   tags: string[];
   brand: { _id: string; name: string };
-<<<<<<< HEAD
-  categories: { _id: string; name: string }[];
-  sizes?: { size: string; stock: number }[];
-  colors?: string[];
-=======
   categories: { 
     _id: string; 
     name: string;
@@ -31,7 +26,6 @@ interface Product {
       };
     };
   }[];
->>>>>>> bd6ba218fa2cbe45da96fb21a3c070e6d60b124f
 }
 
 export default function WomenPage() {
@@ -531,13 +525,7 @@ export default function WomenPage() {
                         margin: '0 auto'
                       }}>
               <ProductCard
-<<<<<<< HEAD
-                key={product._id}
                 _id={product._id}
-                name={product.name}
-                image={product.image}
-                price={product.price}
-=======
                 productId={product._id}
                 name={product.name || 'Unnamed Product'}
                 image={
@@ -546,18 +534,11 @@ export default function WomenPage() {
                     : '/assets/images/placeholder.jpg'
                 }
                 price={product.price || 0}
->>>>>>> bd6ba218fa2cbe45da96fb21a3c070e6d60b124f
                 discountPrice={product.discountPrice}
                 tags={product.tags || []}
                 brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-<<<<<<< HEAD
-                categories={product.categories}
-                sizes={product.sizes}
-                colors={product.colors}
-=======
                 categories={product.categories || []}
                 onAddToCart={() => handleAddToCart(product.name)}
->>>>>>> bd6ba218fa2cbe45da96fb21a3c070e6d60b124f
               />
                       </Box>
                     </Box>

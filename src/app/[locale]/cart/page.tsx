@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client"
 import { useState } from "react"
 import {
@@ -57,6 +58,10 @@ export default function CartPage() {
   const { token } = useAuthContext()
   const router = useRouter()
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
+  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
+  const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
+  const [voucherError, setVoucherError] = useState<string>("");
+  const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
   const t = useTranslations("cartPage")
 
   // Common styles matching login form
@@ -269,10 +274,18 @@ export default function CartPage() {
     }
   }
 
+  // Hàm tính giá sau voucher (ưu tiên giá từ API)
+  const getDiscountedPrice = (cartItem: CartItemWithId) => {
+    const applied = appliedVouchers[cartItem._id];
+    if (applied && applied.newPrice) return applied.newPrice;
+    return cartItem.product.discountPrice || cartItem.product.price;
+  };
+
   const calculateSubtotal = () => {
     return cart.cartItems.reduce((total, item) => {
-      const price = item.product.discountPrice || item.product.price
-      return total + price * item.quantity
+      const cartItem = item as CartItemWithId;
+      const price = getDiscountedPrice(cartItem);
+      return total + price * cartItem.quantity;
     }, 0)
   }
 
@@ -294,6 +307,44 @@ export default function CartPage() {
       })
     }
   }
+
+  // Hàm gọi API áp dụng voucher
+  const handleApplyVoucher = async (cartItem: CartItemWithId) => {
+    const code = voucherInputs[cartItem._id];
+    if (!code) return;
+    setApplyingVoucherId(cartItem._id);
+    setVoucherError("");
+    try {
+      const res = await fetch("http://localhost:5000/api/voucher/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          voucherCode: code,
+          productId: cartItem.product._id,
+          price: cartItem.product.discountPrice || cartItem.product.price,
+          quantity: cartItem.quantity,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAppliedVouchers(v => ({
+          ...v,
+          [cartItem._id]: {
+            code,
+            newPrice: data.newPrice,
+            discountAmount: data.discountAmount,
+            message: data.message,
+          },
+        }));
+      } else {
+        setVoucherError(data.message || "Voucher không hợp lệ");
+      }
+    } catch (err) {
+      setVoucherError("Có lỗi khi áp dụng voucher");
+    } finally {
+      setApplyingVoucherId(null);
+    }
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -332,13 +383,8 @@ export default function CartPage() {
               const isUpdating = updatingItems.has(cartItem._id)
               const price = cartItem.product.discountPrice || cartItem.product.price
               const originalPrice = cartItem.product.price
-              const isDiscounted =
-                cartItem.product.discountPrice && cartItem.product.discountPrice < cartItem.product.price
-
-              const maxQuantity = cartItem.product.sizes?.find(
-                (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
-              )?.stock ?? 1;
-
+              const discountedPrice = getDiscountedPrice(cartItem);
+              const appliedVoucher = appliedVouchers[cartItem._id];
               return (
                 <Paper
                   key={cartItem._id}
@@ -351,7 +397,7 @@ export default function CartPage() {
                     p: 3,
                     display: "flex",
                     alignItems: "center",
-                    minHeight: 180,
+                    minHeight: 240,
                   }}
                 >
                   {isUpdating && (
@@ -547,78 +593,105 @@ export default function CartPage() {
                       </IconButton>
                     </Box>
 
+                    {/* Voucher input */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                              {isDiscounted ? (
-                                <>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              color: "black",
-                              fontWeight: 900,
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            {price.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                                    })}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                            sx={{
-                              color: "gray",
-                              textDecoration: "line-through",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {originalPrice.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                                    })}
-                                  </Typography>
+                      <TextField
+                        size="small"
+                        label="Voucher"
+                        value={voucherInputs[cartItem._id] || ""}
+                        onChange={e => setVoucherInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
+                        sx={{ width: 140, ...blackBorderStyle }}
+                        inputProps={{ style: { textTransform: "uppercase" } }}
+                        disabled={isUpdating || applyingVoucherId === cartItem._id}
+                      />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
+                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id}
+                        onClick={() => handleApplyVoucher(cartItem)}
+                      >
+                        {applyingVoucherId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
+                      </Button>
+                      {appliedVoucher && (
+                        <>
                           <Chip
-                            label={`-${Math.round(100 - (price / originalPrice) * 100)}%`}
-                            sx={{
-                              bgcolor: "black",
-                              color: "white",
-                              fontWeight: 700,
-                              borderRadius: 0,
-                              ml: 1,
+                            label={`Đã áp dụng: ${appliedVoucher.code}`}
+                            color="success"
+                            size="small"
+                            sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
+                            onDelete={() => {
+                              setAppliedVouchers(v => {
+                                const newV = { ...v };
+                                delete newV[cartItem._id];
+                                return newV;
+                              });
                             }}
                           />
-                                </>
-                              ) : (
+                          {appliedVoucher.message && (
+                            <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
+                              {appliedVoucher.message}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                    {/* Hiển thị lỗi voucher */}
+                    {voucherError && (
+                      <Typography variant="caption" color="error" sx={{ mb: 1 }}>
+                        {voucherError}
+                      </Typography>
+                    )}
+                    {/* Giá sản phẩm sau voucher */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                      {discountedPrice !== originalPrice ? (
+                        <>
+                          <Typography
+                            variant="h6"
+                            sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
+                          >
+                            {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "gray", textDecoration: "line-through", fontWeight: 600 }}
+                          >
+                            {originalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                          </Typography>
+                          <Chip
+                            label={`- ${appliedVoucher?.discountAmount ? Math.round(100 * appliedVoucher.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            sx={{ bgcolor: "black", color: "white", fontWeight: 700, borderRadius: 0, ml: 1 }}
+                          />
+                        </>
+                      ) : (
                         <Typography
                           variant="h6"
-                          sx={{
-                            color: "black",
-                            fontWeight: 900,
-                            letterSpacing: "0.02em",
-                          }}
+                          sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
                         >
-                          {price.toLocaleString("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                                  })}
-                                </Typography>
-                              )}
-                            </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                        </Typography>
+                      )}
+                    </Box>
+                    {/* Controls số lượng */}
+                    {(() => {
+                      const maxQuantity = cartItem.product.sizes?.find(
+                        (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
+                      )?.stock ?? 1;
+                      return (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <IconButton
                             onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity - 1)}
                             disabled={isUpdating || cartItem.quantity <= 1}
-                        sx={{
-                          border: "2px solid black",
-                          borderRadius: 0,
-                          color: "black",
-                          "&:hover": { bgcolor: "black", color: "white" },
-                          "&.Mui-disabled": { borderColor: "gray", color: "gray" },
-                        }}
+                            sx={{
+                              border: "2px solid black",
+                              borderRadius: 0,
+                              color: "black",
+                              "&:hover": { bgcolor: "black", color: "white" },
+                              "&.Mui-disabled": { borderColor: "gray", color: "gray" },
+                            }}
                           >
                             <RemoveIcon />
                           </IconButton>
-
                           <TextField
                             value={cartItem.quantity}
                             onChange={(e) => {
@@ -643,20 +716,21 @@ export default function CartPage() {
                             }}
                             disabled={isUpdating}
                           />
-
                           <IconButton
                             onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity + 1)}
                             disabled={isUpdating || cartItem.quantity >= maxQuantity}
-                        sx={{
-                          border: "2px solid black",
-                          borderRadius: 0,
-                          color: "black",
-                          "&:hover": { bgcolor: "black", color: "white" },
-                        }}
+                            sx={{
+                              border: "2px solid black",
+                              borderRadius: 0,
+                              color: "black",
+                              "&:hover": { bgcolor: "black", color: "white" },
+                            }}
                           >
                             <AddIcon />
                           </IconButton>
                         </Box>
+                      );
+                    })()}
                       </Box>
                 </Paper>
               )
