@@ -141,6 +141,7 @@ export default function FavoritesPage() {
           {favorites.map((product) => (
             <Box key={product._id}>
               <ProductCard
+                _id={product._id}
                 productId={product._id}
                 name={product.name}
                 image={product.images[0] || '/assets/images/placeholder.jpg'}
