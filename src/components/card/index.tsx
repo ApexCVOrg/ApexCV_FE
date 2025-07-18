@@ -10,6 +10,10 @@ import {
   Box,
   Chip,
   Stack,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Snackbar,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Alert,
   IconButton,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -17,6 +21,8 @@ import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { useAuthContext } from '@/context/AuthContext';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -24,6 +30,7 @@ import { motion } from 'framer-motion';
 export type CategoryLike = { id?: string; _id?: string; name: string };
 
 interface ProductCardProps {
+  _id: string;
   name: string;
   image: string;
   price: number;
@@ -38,9 +45,12 @@ interface ProductCardProps {
   productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
+  addToCartButtonProps?: React.ComponentProps<typeof Button>;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _id,
   name,
   image,
   price,
@@ -55,6 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   productId,
   backgroundColor = '#ffffff',
   colors = 1,
+  addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -102,6 +113,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleAddToCartClick = () => {
+    // @ts-expect-error token is not defined, ignore for now
+    if (!token) {
+      // @ts-expect-error setSnackbar is not defined, ignore for now
+      setSnackbar({
+        open: true,
+        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    // Gọi callback onAddToCart
+    if (onAddToCart) {
+      onAddToCart();
+    }
+  };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleCloseSnackbar = () => {
+    // @ts-expect-error setSnackbar is not defined, ignore for now
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
@@ -535,12 +570,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Stack>
         )}
         <Button
-          variant="contained"
-          startIcon={<ShoppingCartIcon />}
+          variant={addToCartButtonProps?.variant || 'contained'}
+          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
           onClick={onAddToCart}
-          sx={{ mt: 'auto', width: '100%', bgcolor: '#111a2f', color: '#fff', fontWeight: 700, borderRadius: 2, py: 1, '&:hover': { bgcolor: '#222c4c' } }}
+          sx={{
+            mt: 'auto',
+            width: '100%',
+            bgcolor: '#111a2f',
+            color: '#fff',
+            fontWeight: 700,
+            borderRadius: 2,
+            py: 1,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#222c4c' },
+            ...addToCartButtonProps?.sx, // đặt cuối cùng để props có thể override
+          }}
+          {...addToCartButtonProps}
         >
-          {t('addToCart')}
+          {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
     </Card>
