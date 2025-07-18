@@ -166,6 +166,27 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          if (currentY > 80) {
+            setHideHeader(true);
+          } else if (currentY < 40) {
+            setHideHeader(false);
+          }
+          setLastScrollY(currentY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   const NAV_LINKS = [
     {
       title: tHeader('men.title'),

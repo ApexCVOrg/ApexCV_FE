@@ -239,12 +239,14 @@ export default function HomePage() {
       ];
       const isLib = (product: Product) => {
         const img = product.images?.[0] || '';
-        return libFileNames.includes(img);
+        const fileName = img.split('/').pop();
+        return libFileNames.includes(fileName || '');
       };
-      
-      setLibProducts(filtered.filter((p: Product) => isLib(p)));
+      const libFiltered = filtered.filter((p: Product) => isLib(p));
+      setLibProducts(libFiltered);
       setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
       setProducts(prev => ({ ...prev, filtered }));
+      console.log('libProducts:', libFiltered);
     } catch (error) {
       setLibProducts([]);
       setOtherProducts([]);
@@ -306,11 +308,35 @@ export default function HomePage() {
             .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
         }
       }
-      
+      // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
+      filtered = (Array.isArray(filtered) ? filtered : []).filter((product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+      // Lọc theo category (nếu có chọn)
+      if (selectedCategories.length > 0) {
+        filtered = filtered.filter((product: Product) =>
+          (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
+        );
+      }
+      // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
+      const libFileNames = [
+        'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
+        'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+      ];
+      const isLib = (product: Product) => {
+        const img = product.images?.[0] || '';
+        return libFileNames.includes(img);
+      };
+      if (tabKey === 'filtered') {
+        setLibProducts(filtered.filter(isLib));
+        setOtherProducts(filtered.filter(p => !isLib(p)));
+      }
       setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
-      console.error('Error fetching tab products:', error);
+      setLibProducts([]);
+      setOtherProducts([]);
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -328,7 +354,7 @@ export default function HomePage() {
     if (tabProducts.length > 3) {
       setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
     }
-  }, [tab, products]);
+  }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery, products]);
 
   // Fetch filtered products when filters change
   useEffect(() => {
@@ -400,7 +426,6 @@ export default function HomePage() {
             >
               NIKE
             </Typography>
-
             {/* Just Do It ở góc dưới phải */}
             <Typography
               variant="h1"
@@ -417,7 +442,6 @@ export default function HomePage() {
             >
               Just Do It
             </Typography>
-
             {/* Logo swoosh ở giữa */}
             <Box
               sx={{
@@ -469,11 +493,8 @@ export default function HomePage() {
               }}
             >
               {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
-                const { gender, team } = guessGenderAndTeam(product);
-                let imgSrc = '/assets/images/placeholder.jpg';
-                if (product.images && product.images[0]) {
-                  imgSrc = getImageSrc(product.images[0], gender, team);
-                }
+                // Luôn lấy đúng ảnh lib
+                const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
                 return (
                   <ProductCard
                     key={product._id}

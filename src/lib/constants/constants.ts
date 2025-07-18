@@ -34,6 +34,23 @@ export const API_ENDPOINTS = {
     },
     BRANDS: '/manager/brands',
   },
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    PRODUCTS: '/admin/products',
+    CATEGORIES: '/admin/categories',
+    ORDERS: '/admin/orders',
+    CUSTOMERS: '/admin/customers',
+    USERS: '/admin/users',
+    SETTINGS: '/admin/settings',
+    COUPONS: '/admin/coupons',
+    STATS: {
+      SALES: '/admin/stats/sales',
+      USERS: '/admin/stats/users',
+      ORDERS: '/admin/stats/orders',
+      CUSTOMERS: '/admin/stats/customers',
+    },
+    BRANDS: '/admin/brands',
+  },
 };
 
 // API Base URL
@@ -146,10 +163,53 @@ export const ROUTES = {
     SETTINGS: '/manager/settings',
     CHAT: '/manager/chats',
   },
+  ADMIN: {
+    DASHBOARD: '/admin/dashboard',
+    PRODUCTS: '/admin/products',
+    CATEGORIES: '/admin/categories',
+    ORDERS: '/admin/orders',
+    CUSTOMERS: '/admin/customers',
+    USERS: '/admin/users',
+    SETTINGS: '/admin/settings',
+    CHAT: '/admin/chats',
+    LOGS: '/admin/logs',
+    COUPONS: '/admin/coupons',
+  },
 };
 
 // Manager Dashboard Constants
 export const MANAGER = {
+  DRAWER_WIDTH: 200,
+  STATS: {
+    REFRESH_INTERVAL: 3600000, // 1 hour
+    CHART_COLORS: {
+      PRIMARY: '#1976d2',
+      SUCCESS: '#2e7d32',
+      WARNING: '#ed6c02',
+      INFO: '#0288d1',
+    },
+  },
+  TABLE: {
+    DEFAULT_PAGE_SIZE: 10,
+    PAGE_SIZE_OPTIONS: [10, 25, 50, 100],
+  },
+  DATE_FORMAT: {
+    DISPLAY: 'DD/MM/YYYY',
+    API: 'YYYY-MM-DD',
+    DATETIME: 'DD/MM/YYYY HH:mm',
+  },
+  FILE_UPLOAD: {
+    MAX_SIZE: 5 * 1024 * 1024, // 5MB
+    ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif'],
+    MAX_FILES: 5,
+  },
+  NOTIFICATIONS: {
+    MAX_DISPLAY: 5,
+    AUTO_HIDE_DURATION: 6000, // 6 seconds
+  },
+};
+// Admin Dashboard Constants
+export const ADMIN = {
   DRAWER_WIDTH: 200,
   STATS: {
     REFRESH_INTERVAL: 3600000, // 1 hour
