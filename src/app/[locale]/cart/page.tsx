@@ -27,12 +27,22 @@ import { useCartContext } from "@/context/CartContext"
 import { useAuthContext } from "@/context/AuthContext"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { createVnpayPayment } from '@/services/api';
 
 // Extend CartItem interface to include _id
 interface ProductSize {
   size: string
   stock: number
   color?: string
+}
+
+// Sửa lại interface User để cho phép cả id và _id
+interface User {
+  id?: string;
+  _id?: string;
+  email: string;
+  fullName?: string;
+  role?: string;
 }
 
 interface CartItemWithId {
@@ -54,7 +64,7 @@ interface CartItemWithId {
 
 export default function CartPage() {
   const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext()
-  const { token } = useAuthContext()
+  const { token, user } = useAuthContext()
   const router = useRouter()
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
   const t = useTranslations("cartPage")
@@ -294,6 +304,93 @@ export default function CartPage() {
       })
     }
   }
+  const handleVnpayCheckout = async () => {
+    console.log("[VNPAY] Bắt đầu thanh toán");
+    console.log("[VNPAY] user object:", user);
+    const userId = user?.id || (user as any)?._id;
+    console.log("[VNPAY] userId:", userId);
+    if (!cart) {
+      console.warn("[VNPAY] Không có cart");
+      return;
+    }
+    if (cart.cartItems.length === 0) {
+      console.warn("[VNPAY] Giỏ hàng rỗng");
+      return;
+    }
+    if (!token) {
+      console.warn("[VNPAY] Không có token đăng nhập");
+      return;
+    }
+    if (!userId) {
+      console.warn("[VNPAY] Không có user id");
+      return;
+    }
+  
+    const total = cart.cartItems.reduce(
+      (sum, item) => sum + (item.product.discountPrice || item.product.price) * item.quantity,
+      0
+    );
+  
+    const orderItems = cart.cartItems.map((item) => ({
+      product: item.product._id,
+      quantity: item.quantity,
+      size: [{ size: item.size, color: item.color }],
+      price: item.product.discountPrice || item.product.price,
+    }));
+  
+    const payload = {
+      vnp_Amount: total,
+      vnp_IpAddr: '127.0.0.1',
+      vnp_ReturnUrl: typeof window !== 'undefined' ? window.location.origin + '/payment/vnpay-return' : '',
+      vnp_TxnRef: 'ORDER_' + Date.now(),
+      vnp_OrderInfo: `Thanh toán đơn hàng #${Date.now()}`,
+  
+      orderItems,
+      shippingAddress: {
+        recipientName: 'Tên người nhận',
+        street: 'Địa chỉ đường',
+        city: 'Thành phố',
+        state: 'Tỉnh/Quận',
+        postalCode: 'Mã bưu điện',
+        country: 'Việt Nam',
+        phone: '0123456789'
+      },
+      paymentMethod: 'vnpay',
+      shippingPrice: 0,
+      taxPrice: 0,
+      totalPrice: total,
+      user: userId,
+    };
+    console.log("[VNPAY] Payload gửi đi:", payload);
+  
+    try {
+      const res = await fetch('/api/payment/vnpay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      console.log("[VNPAY] Response status:", res.status);
+      const json = await res.json();
+      console.log("[VNPAY] payment response:", json);
+if (json?.paymentUrl) {
+  window.location.href = json.paymentUrl;
+} else {
+  alert("Không nhận được link thanh toán!");
+}
+    } catch (err) {
+      console.error("[VNPAY] payment error:", err);
+      alert("Đã xảy ra lỗi khi thanh toán qua VNPAY!");
+    }
+  };
+
+  // Thêm hàm tạm thời nếu chưa có để tránh lỗi linter
+  const handleCheckout = () => {
+    // TODO: Xử lý thanh toán thông thường ở đây
+    alert('Chức năng thanh toán thông thường chưa được triển khai!');
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -753,7 +850,22 @@ export default function CartPage() {
                   variant="contained"
                   fullWidth
                   size="large"
-                onClick={() => router.push("/profile")}
+                onClick={handleVnpayCheckout}
+                sx={{
+                  ...buttonStyle,
+                  bgcolor: "black",
+                  color: "white",
+                  "&:hover": { bgcolor: "gray.800" },
+                }}
+              >
+                Thanh toán qua VNPAY
+                </Button>
+
+                <Button
+                  variant="contained"
+                  fullWidth
+                  size="large"
+                onClick={handleCheckout}
                 sx={{
                   ...buttonStyle,
                   bgcolor: "black",
@@ -806,4 +918,4 @@ export default function CartPage() {
       </Box>
     </Container>
   )
-} 
+    }

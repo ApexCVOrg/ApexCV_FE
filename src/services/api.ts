@@ -76,4 +76,23 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Gọi API backend để tạo link thanh toán VNPAY
+ */
+export async function createVnpayPayment(data: any): Promise<string> {
+  const token = localStorage.getItem('auth_token');
+  const res = await fetch('/api/payment/vnpay', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Tạo link thanh toán thất bại');
+  const json = await res.json();
+  return json.paymentUrl;
+}
+
+
 export default api;
