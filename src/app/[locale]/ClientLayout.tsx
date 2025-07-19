@@ -86,10 +86,9 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
                 }}
               >
                 {children}
+                <ChatBox />
               </Box>
               {typeof window !== 'undefined' && !isManagerPage && <Footer />}
-              {/* ChatBox - hiển thị trên mọi trang */}
-              <ChatBox userId={userId} />
             </Box>
           </FavoritesProvider>
         </AuthProvider>

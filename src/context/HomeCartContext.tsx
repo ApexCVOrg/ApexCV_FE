@@ -1,5 +1,6 @@
 'use client';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useCartContext } from './CartContext';
 
@@ -35,6 +36,7 @@ const HomeCartContext = createContext<HomeCartContextProps | undefined>(undefine
 export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
   const [homeCartItems, setHomeCartItems] = useState<HomeCartItem[]>([]);
   const [isHomeCartOpen, setIsHomeCartOpen] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToCart, loading } = useCartContext();
 
   // Tính tổng số lượng sản phẩm trong home cart

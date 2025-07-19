@@ -19,7 +19,11 @@ import StarIcon from '@mui/icons-material/Star';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuthContext } from '@/context/AuthContext';
+import { useCartContext } from '@/context/CartContext';
+import api from '@/services/api';
+import { useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -130,6 +134,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
     setSnackbar(prev => ({ ...prev, open: false }));
   };
 
+  const { token } = useAuthContext();
+  const { refreshCart } = useCartContext();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+
+  const handleAddToCart = async () => {
+    if (!token) {
+      setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
+      return;
+    }
+    try {
+      await api.post('/carts/add', { productId });
+      await refreshCart(); // Refresh cart state
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
+    }
+  };
+
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
     return (
@@ -210,7 +232,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -409,11 +430,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 background: '#1565c0',
               },
             }}
-            onClick={onAddToCart}
+            onClick={handleAddToCart}
           >
             <ShoppingCartIcon sx={{ fontSize: 28 }} />
           </IconButton>
         </Card>
+        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </motion.div>
     );
   }
@@ -564,24 +590,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Button
           variant={addToCartButtonProps?.variant || 'contained'}
           startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
-          onClick={onAddToCart}
+          onClick={handleAddToCart}
           sx={{
             mt: 'auto',
             width: '100%',
-            bgcolor: addToCartButtonProps?.sx?.bgcolor || '#111a2f',
-            color: addToCartButtonProps?.sx?.color || '#fff',
-            fontWeight: addToCartButtonProps?.sx?.fontWeight || 700,
-            borderRadius: addToCartButtonProps?.sx?.borderRadius || 2,
-            py: addToCartButtonProps?.sx?.py || 1,
-            textTransform: addToCartButtonProps?.sx?.textTransform || 'none',
-            '&:hover': addToCartButtonProps?.sx?.['&:hover'] || { bgcolor: '#222c4c' },
-            ...addToCartButtonProps?.sx,
+            bgcolor: '#111a2f',
+            color: '#fff',
+            fontWeight: 700,
+            borderRadius: 2,
+            py: 1,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#222c4c' },
+            ...addToCartButtonProps?.sx, // đặt cuối cùng để props có thể override
           }}
           {...addToCartButtonProps}
         >
           {addToCartButtonProps?.children || t('addToCart')}
         </Button>
       </CardContent>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

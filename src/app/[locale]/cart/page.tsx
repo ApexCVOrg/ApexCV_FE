@@ -1,5 +1,6 @@
-"use client"
-import { useState } from "react"
+/* eslint-disable */
+"use client";
+import { useState } from "react";
 import {
   Container,
   Typography,
@@ -18,56 +19,52 @@ import {
   Select,
   MenuItem,
   Paper,
-} from "@mui/material"
-import DeleteIcon from "@mui/icons-material/Delete"
-import AddIcon from "@mui/icons-material/Add"
-import RemoveIcon from "@mui/icons-material/Remove"
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
-import { useCartContext } from "@/context/CartContext"
-import { useAuthContext } from "@/context/AuthContext"
-import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
-import { createVnpayPayment } from '@/services/api';
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useCartContext } from "@/context/CartContext";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { createVnpayPayment } from "@/services/api";
 
 // Extend CartItem interface to include _id
 interface ProductSize {
-  size: string
-  stock: number
-  color?: string
-}
-
-// Sửa lại interface User để cho phép cả id và _id
-interface User {
-  id?: string;
-  _id?: string;
-  email: string;
-  fullName?: string;
-  role?: string;
+  size: string;
+  stock: number;
+  color?: string;
 }
 
 interface CartItemWithId {
-  _id: string
+  _id: string;
   product: {
-    _id: string
-    name: string
-    price: number
-    discountPrice?: number
-    images: string[]
-    brand?: { _id: string; name: string }
-    sizes?: ProductSize[]
-    colors?: string[]
-  }
-  size?: string
-  color?: string
-  quantity: number
+    _id: string;
+    name: string;
+    price: number;
+    discountPrice?: number;
+    images: string[];
+    brand?: { _id: string; name: string };
+    sizes?: ProductSize[];
+    colors?: string[];
+  };
+  size?: string;
+  color?: string;
+  quantity: number;
 }
 
 export default function CartPage() {
-  const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext()
-  const { token, user } = useAuthContext()
-  const router = useRouter()
-  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
-  const t = useTranslations("cartPage")
+  const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext();
+  const { token } = useAuthContext();
+  const router = useRouter();
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
+  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
+  const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
+  const [voucherError, setVoucherError] = useState<string>("");
+  const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const t = useTranslations("cartPage");
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -83,7 +80,7 @@ export default function CartPage() {
       color: "black",
       "&.Mui-focused": { color: "black" },
     },
-  }
+  };
 
   const buttonStyle = {
     borderRadius: 0,
@@ -91,7 +88,7 @@ export default function CartPage() {
     letterSpacing: "0.05em",
     textTransform: "uppercase" as const,
     py: 1.5,
-  }
+  };
 
   if (!token) {
     return (
@@ -134,7 +131,7 @@ export default function CartPage() {
           </Button>
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (loading) {
@@ -153,7 +150,7 @@ export default function CartPage() {
           <CircularProgress sx={{ color: "black" }} />
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (error) {
@@ -178,11 +175,11 @@ export default function CartPage() {
               fontWeight: 600,
             }}
           >
-          {error}
-        </Alert>
+            {error}
+          </Alert>
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (!cart || cart.cartItems.length === 0) {
@@ -237,159 +234,168 @@ export default function CartPage() {
           </Button>
         </Paper>
       </Container>
-    )
+    );
   }
 
   const handleQuantityChange = async (cartItemId: string, newQuantity: number) => {
-    if (newQuantity <= 0) return
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
+    if (newQuantity <= 0) return;
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
     try {
-      await updateCartItem(cartItemId, newQuantity)
+      await updateCartItem(cartItemId, newQuantity);
     } catch (error) {
-      console.error("Error updating quantity:", error)
+      console.error("Error updating quantity:", error);
     } finally {
       setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
-    }
-  }
-
-  const handleRemoveItem = async (cartItemId: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
-    try {
-      await removeFromCart(cartItemId)
-    } catch (error) {
-      console.error("Error removing item:", error)
-    } finally {
-      setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
-    }
-  }
-
-  const handleClearCart = async () => {
-    try {
-      await clearCart()
-    } catch (error) {
-      console.error("Error clearing cart:", error)
-    }
-  }
-
-  const calculateSubtotal = () => {
-    return cart.cartItems.reduce((total, item) => {
-      const price = item.product.discountPrice || item.product.price
-      return total + price * item.quantity
-    }, 0)
-  }
-
-  const subtotal = calculateSubtotal()
-  const shipping = 0
-  const total = subtotal + shipping
-
-  const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
-    try {
-      await updateCartItem(cartItemId, undefined, newSize, newColor)
-    } catch (error) {
-      console.error("Error updating item options:", error)
-    } finally {
-      setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
-    }
-  }
-  const handleVnpayCheckout = async () => {
-    console.log("[VNPAY] Bắt đầu thanh toán");
-    console.log("[VNPAY] user object:", user);
-    const userId = user?.id || (user as any)?._id;
-    console.log("[VNPAY] userId:", userId);
-    if (!cart) {
-      console.warn("[VNPAY] Không có cart");
-      return;
-    }
-    if (cart.cartItems.length === 0) {
-      console.warn("[VNPAY] Giỏ hàng rỗng");
-      return;
-    }
-    if (!token) {
-      console.warn("[VNPAY] Không có token đăng nhập");
-      return;
-    }
-    if (!userId) {
-      console.warn("[VNPAY] Không có user id");
-      return;
-    }
-  
-    const total = cart.cartItems.reduce(
-      (sum, item) => sum + (item.product.discountPrice || item.product.price) * item.quantity,
-      0
-    );
-  
-    const orderItems = cart.cartItems.map((item) => ({
-      product: item.product._id,
-      quantity: item.quantity,
-      size: [{ size: item.size, color: item.color }],
-      price: item.product.discountPrice || item.product.price,
-    }));
-  
-    const payload = {
-      vnp_Amount: total,
-      vnp_IpAddr: '127.0.0.1',
-      vnp_ReturnUrl: typeof window !== 'undefined' ? window.location.origin + '/payment/vnpay-return' : '',
-      vnp_TxnRef: 'ORDER_' + Date.now(),
-      vnp_OrderInfo: `Thanh toán đơn hàng #${Date.now()}`,
-  
-      orderItems,
-      shippingAddress: {
-        recipientName: 'Tên người nhận',
-        street: 'Địa chỉ đường',
-        city: 'Thành phố',
-        state: 'Tỉnh/Quận',
-        postalCode: 'Mã bưu điện',
-        country: 'Việt Nam',
-        phone: '0123456789'
-      },
-      paymentMethod: 'vnpay',
-      shippingPrice: 0,
-      taxPrice: 0,
-      totalPrice: total,
-      user: userId,
-    };
-    console.log("[VNPAY] Payload gửi đi:", payload);
-  
-    try {
-      const res = await fetch('/api/payment/vnpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
       });
-      console.log("[VNPAY] Response status:", res.status);
-      const json = await res.json();
-      console.log("[VNPAY] payment response:", json);
-if (json?.paymentUrl) {
-  window.location.href = json.paymentUrl;
-} else {
-  alert("Không nhận được link thanh toán!");
-}
-    } catch (err) {
-      console.error("[VNPAY] payment error:", err);
-      alert("Đã xảy ra lỗi khi thanh toán qua VNPAY!");
     }
   };
 
-  // Thêm hàm tạm thời nếu chưa có để tránh lỗi linter
-  const handleCheckout = () => {
-    // TODO: Xử lý thanh toán thông thường ở đây
-    alert('Chức năng thanh toán thông thường chưa được triển khai!');
+  const handleRemoveItem = async (cartItemId: string) => {
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
+    try {
+      await removeFromCart(cartItemId);
+    } catch (error) {
+      console.error("Error removing item:", error);
+    } finally {
+      setUpdatingItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleClearCart = async () => {
+    try {
+      await clearCart();
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!cart || cart.cartItems.length === 0) return;
+    
+    setIsProcessingPayment(true);
+    try {
+      // Tạo dữ liệu VNPAY theo đúng format
+      const vnpayData = {
+        vnp_Amount: total, // VNPAY yêu cầu số tiền nhân 100
+        vnp_IpAddr: '127.0.0.1', // IP của client
+        vnp_ReturnUrl: `${window.location.origin}/payment/vnpay-return`,
+        vnp_TxnRef: `ORDER_${Date.now()}`, // Mã giao dịch duy nhất
+        vnp_OrderInfo: `Thanh toan don hang ${Date.now()}`, // Thông tin đơn hàng
+        vnp_ExpireDate: Math.floor((Date.now() + 15 * 60 * 1000) / 1000), // Hết hạn sau 15 phút (timestamp)
+        vnp_CreateDate: Math.floor(Date.now() / 1000), // Ngày tạo (timestamp)
+        // Dữ liệu đơn hàng để lưu vào session
+        orderItems: cart.cartItems.map(item => ({
+          product: item.product._id,
+          name: item.product.name,
+          quantity: item.quantity,
+          size: [{
+            size: item.size || 'M',
+            color: item.color || 'Default',
+            quantity: item.quantity,
+          }],
+          price: item.product.discountPrice || item.product.price,
+        })),
+        shippingAddress: {
+          fullName: 'Khách hàng',
+          phone: '0123456789',
+          address: 'Địa chỉ giao hàng',
+          city: 'Hà Nội',
+          district: 'Quận 1',
+          ward: 'Phường 1',
+        },
+        paymentMethod: 'VNPAY',
+        totalPrice: total,
+        taxPrice: 0,
+        shippingPrice: 0,
+      };
+
+      const paymentUrl = await createVnpayPayment(vnpayData);
+      window.location.href = paymentUrl;
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Có lỗi xảy ra khi tạo thanh toán");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  // Hàm tính giá sau voucher (ưu tiên giá từ API)
+  const getDiscountedPrice = (cartItem: CartItemWithId) => {
+    const applied = appliedVouchers[cartItem._id];
+    if (applied && applied.newPrice) return applied.newPrice;
+    return cartItem.product.discountPrice || cartItem.product.price;
+  };
+
+  const calculateSubtotal = () => {
+    return cart.cartItems.reduce((total, item) => {
+      const cartItem = item as CartItemWithId;
+      const price = getDiscountedPrice(cartItem);
+      return total + price * cartItem.quantity;
+    }, 0);
+  };
+
+  const subtotal = calculateSubtotal();
+  const shipping = 0;
+  const total = subtotal + shipping;
+
+  const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
+    try {
+      await updateCartItem(cartItemId, undefined, newSize, newColor);
+    } catch (error) {
+      console.error("Error updating item options:", error);
+    } finally {
+      setUpdatingItems((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
+      });
+    }
+  };
+
+  // Hàm gọi API áp dụng voucher
+  const handleApplyVoucher = async (cartItem: CartItemWithId) => {
+    const code = voucherInputs[cartItem._id];
+    if (!code) return;
+    setApplyingVoucherId(cartItem._id);
+    setVoucherError("");
+    try {
+      const res = await fetch("http://localhost:5000/api/voucher/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          voucherCode: code,
+          productId: cartItem.product._id,
+          price: cartItem.product.discountPrice || cartItem.product.price,
+          quantity: cartItem.quantity,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAppliedVouchers(v => ({
+          ...v,
+          [cartItem._id]: {
+            code,
+            newPrice: data.newPrice,
+            discountAmount: data.discountAmount,
+            message: data.message,
+          },
+        }));
+      } else {
+        setVoucherError(data.message || "Voucher không hợp lệ");
+      }
+    } catch (err) {
+      setVoucherError("Có lỗi khi áp dụng voucher");
+    } finally {
+      setApplyingVoucherId(null);
+    }
   };
 
   return (
@@ -417,7 +423,7 @@ if (json?.paymentUrl) {
           }}
         >
           {t("productCount", { count: cart.cartItems.length })}
-      </Typography>
+        </Typography>
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
@@ -425,17 +431,12 @@ if (json?.paymentUrl) {
         <Box sx={{ flex: { md: 2 } }}>
           <Stack spacing={3}>
             {cart.cartItems.map((item) => {
-              const cartItem = item as CartItemWithId
-              const isUpdating = updatingItems.has(cartItem._id)
-              const price = cartItem.product.discountPrice || cartItem.product.price
-              const originalPrice = cartItem.product.price
-              const isDiscounted =
-                cartItem.product.discountPrice && cartItem.product.discountPrice < cartItem.product.price
-
-              const maxQuantity = cartItem.product.sizes?.find(
-                (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
-              )?.stock ?? 1;
-
+              const cartItem = item as CartItemWithId;
+              const isUpdating = updatingItems.has(cartItem._id);
+              const price = cartItem.product.discountPrice || cartItem.product.price;
+              const originalPrice = cartItem.product.price;
+              const discountedPrice = getDiscountedPrice(cartItem);
+              const appliedVoucher = appliedVouchers[cartItem._id];
               return (
                 <Paper
                   key={cartItem._id}
@@ -448,7 +449,7 @@ if (json?.paymentUrl) {
                     p: 3,
                     display: "flex",
                     alignItems: "center",
-                    minHeight: 180,
+                    minHeight: 240,
                   }}
                 >
                   {isUpdating && (
@@ -480,14 +481,14 @@ if (json?.paymentUrl) {
                         bgcolor: "#f6f6f6",
                       }}
                     >
-                        <CardMedia
-                          component="img"
+                      <CardMedia
+                        component="img"
                         height="120"
                         image={cartItem.product.images[0] || "/assets/images/placeholder.jpg"}
-                          alt={cartItem.product.name}
+                        alt={cartItem.product.name}
                         sx={{ objectFit: "contain", borderRadius: 0 }}
-                        />
-                      </Box>
+                      />
+                    </Box>
                   </Box>
 
                   <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -507,9 +508,9 @@ if (json?.paymentUrl) {
                             letterSpacing: "0.02em",
                           }}
                         >
-                              {cartItem.product.name}
-                            </Typography>
-                            {cartItem.product.brand && (
+                          {cartItem.product.name}
+                        </Typography>
+                        {cartItem.product.brand && (
                           <Typography
                             variant="body2"
                             sx={{
@@ -521,16 +522,16 @@ if (json?.paymentUrl) {
                               fontSize: "0.75rem",
                             }}
                           >
-                                {cartItem.product.brand.name}
-                              </Typography>
-                            )}
+                            {cartItem.product.brand.name}
+                          </Typography>
+                        )}
 
-                            <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                              {/* Size */}
-                              {cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
+                        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                          {/* Size */}
+                          {cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("size")}</InputLabel>
-                                  <Select
+                              <Select
                                 value={cartItem.size || ""}
                                 label={t("size")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, e.target.value, cartItem.color)}
@@ -546,11 +547,11 @@ if (json?.paymentUrl) {
                                       sx={{ fontWeight: 600, textTransform: "uppercase" }}
                                     >
                                       {sz.size}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              ) : (
+                                    </MenuItem>
+                                  ))}
+                              </Select>
+                            </FormControl>
+                          ) : (
                             cartItem.size && (
                               <Chip
                                 label={`${t("size")}: ${cartItem.size}`}
@@ -567,11 +568,11 @@ if (json?.paymentUrl) {
                             )
                           )}
 
-                              {/* Color */}
+                          {/* Color */}
                           {cartItem.product.sizes && cartItem.product.sizes.some((sz) => "color" in sz && sz.color) ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("color")}</InputLabel>
-                                  <Select
+                              <Select
                                 value={cartItem.color || ""}
                                 label={t("color")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, cartItem.size, e.target.value)}
@@ -580,8 +581,8 @@ if (json?.paymentUrl) {
                                 {[
                                   ...new Set(
                                     cartItem.product.sizes?.map((sz: ProductSize) =>
-                                      "color" in sz ? sz.color : undefined,
-                                    ),
+                                      "color" in sz ? sz.color : undefined
+                                    )
                                   ),
                                 ].map(
                                   (color: string | undefined) =>
@@ -593,11 +594,11 @@ if (json?.paymentUrl) {
                                       >
                                         {color}
                                       </MenuItem>
-                                    ),
+                                    )
                                 )}
-                                  </Select>
-                                </FormControl>
-                              ) : (
+                              </Select>
+                            </FormControl>
+                          ) : (
                             cartItem.color && (
                               <Chip
                                 label={`${t("color")}: ${cartItem.color}`}
@@ -612,8 +613,8 @@ if (json?.paymentUrl) {
                                 }}
                               />
                             )
-                              )}
-                            </Stack>
+                          )}
+                        </Stack>
                         {/* Hiển thị tồn kho ngoài dropdown */}
                         {cartItem.size && cartItem.color && cartItem.product.sizes && (
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
@@ -644,78 +645,105 @@ if (json?.paymentUrl) {
                       </IconButton>
                     </Box>
 
+                    {/* Voucher input */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                              {isDiscounted ? (
-                                <>
-                          <Typography
-                            variant="h6"
-                            sx={{
-                              color: "black",
-                              fontWeight: 900,
-                              letterSpacing: "0.02em",
-                            }}
-                          >
-                            {price.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                                    })}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                            sx={{
-                              color: "gray",
-                              textDecoration: "line-through",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {originalPrice.toLocaleString("vi-VN", {
-                              style: "currency",
-                              currency: "VND",
-                                    })}
-                                  </Typography>
+                      <TextField
+                        size="small"
+                        label="Voucher"
+                        value={voucherInputs[cartItem._id] || ""}
+                        onChange={e => setVoucherInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
+                        sx={{ width: 140, ...blackBorderStyle }}
+                        inputProps={{ style: { textTransform: "uppercase" } }}
+                        disabled={isUpdating || applyingVoucherId === cartItem._id}
+                      />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
+                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id}
+                        onClick={() => handleApplyVoucher(cartItem)}
+                      >
+                        {applyingVoucherId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
+                      </Button>
+                      {appliedVoucher && (
+                        <>
                           <Chip
-                            label={`-${Math.round(100 - (price / originalPrice) * 100)}%`}
-                            sx={{
-                              bgcolor: "black",
-                              color: "white",
-                              fontWeight: 700,
-                              borderRadius: 0,
-                              ml: 1,
+                            label={`Đã áp dụng: ${appliedVoucher.code}`}
+                            color="success"
+                            size="small"
+                            sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
+                            onDelete={() => {
+                              setAppliedVouchers(v => {
+                                const newV = { ...v };
+                                delete newV[cartItem._id];
+                                return newV;
+                              });
                             }}
                           />
-                                </>
-                              ) : (
+                          {appliedVoucher.message && (
+                            <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
+                              {appliedVoucher.message}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                    {/* Hiển thị lỗi voucher */}
+                    {voucherError && (
+                      <Typography variant="caption" color="error" sx={{ mb: 1 }}>
+                        {voucherError}
+                      </Typography>
+                    )}
+                    {/* Giá sản phẩm sau voucher */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                      {discountedPrice !== originalPrice ? (
+                        <>
+                          <Typography
+                            variant="h6"
+                            sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
+                          >
+                            {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "gray", textDecoration: "line-through", fontWeight: 600 }}
+                          >
+                            {originalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                          </Typography>
+                          <Chip
+                            label={`- ${appliedVoucher?.discountAmount ? Math.round(100 * appliedVoucher.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            sx={{ bgcolor: "black", color: "white", fontWeight: 700, borderRadius: 0, ml: 1 }}
+                          />
+                        </>
+                      ) : (
                         <Typography
                           variant="h6"
-                          sx={{
-                            color: "black",
-                            fontWeight: 900,
-                            letterSpacing: "0.02em",
-                          }}
+                          sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
                         >
-                          {price.toLocaleString("vi-VN", {
-                            style: "currency",
-                            currency: "VND",
-                                  })}
-                                </Typography>
-                              )}
-                            </Box>
-
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                        </Typography>
+                      )}
+                    </Box>
+                    {/* Controls số lượng */}
+                    {(() => {
+                      const maxQuantity = cartItem.product.sizes?.find(
+                        (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
+                      )?.stock ?? 1;
+                      return (
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <IconButton
                             onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity - 1)}
                             disabled={isUpdating || cartItem.quantity <= 1}
-                        sx={{
-                          border: "2px solid black",
-                          borderRadius: 0,
-                          color: "black",
-                          "&:hover": { bgcolor: "black", color: "white" },
-                          "&.Mui-disabled": { borderColor: "gray", color: "gray" },
-                        }}
+                            sx={{
+                              border: "2px solid black",
+                              borderRadius: 0,
+                              color: "black",
+                              "&:hover": { bgcolor: "black", color: "white" },
+                              "&.Mui-disabled": { borderColor: "gray", color: "gray" },
+                            }}
                           >
                             <RemoveIcon />
                           </IconButton>
-
                           <TextField
                             value={cartItem.quantity}
                             onChange={(e) => {
@@ -740,23 +768,24 @@ if (json?.paymentUrl) {
                             }}
                             disabled={isUpdating}
                           />
-
                           <IconButton
                             onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity + 1)}
                             disabled={isUpdating || cartItem.quantity >= maxQuantity}
-                        sx={{
-                          border: "2px solid black",
-                          borderRadius: 0,
-                          color: "black",
-                          "&:hover": { bgcolor: "black", color: "white" },
-                        }}
+                            sx={{
+                              border: "2px solid black",
+                              borderRadius: 0,
+                              color: "black",
+                              "&:hover": { bgcolor: "black", color: "white" },
+                            }}
                           >
                             <AddIcon />
                           </IconButton>
                         </Box>
-                      </Box>
+                      );
+                    })()}
+                  </Box>
                 </Paper>
-              )
+              );
             })}
           </Stack>
         </Box>
@@ -784,22 +813,22 @@ if (json?.paymentUrl) {
               }}
             >
               {t("orderSummary")}
-              </Typography>
+            </Typography>
 
             <Box sx={{ position: "relative", my: 3 }}>
               <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
             </Box>
-              
-              <Stack spacing={2}>
+
+            <Stack spacing={2}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>{t("subtotal")}:</Typography>
                 <Typography sx={{ fontWeight: 700, color: "black" }}>
                   {subtotal.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
+                  })}
+                </Typography>
+              </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>
@@ -809,9 +838,9 @@ if (json?.paymentUrl) {
                   {shipping.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
+                  })}
+                </Typography>
+              </Box>
 
               <Box sx={{ position: "relative", my: 2 }}>
                 <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
@@ -828,7 +857,7 @@ if (json?.paymentUrl) {
                   }}
                 >
                   {t("total")}:
-                  </Typography>
+                </Typography>
                 <Typography
                   variant="h6"
                   sx={{
@@ -840,32 +869,18 @@ if (json?.paymentUrl) {
                   {total.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
-              </Stack>
+                  })}
+                </Typography>
+              </Box>
+            </Stack>
 
             <Stack spacing={2} sx={{ mt: 4 }}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                onClick={handleVnpayCheckout}
-                sx={{
-                  ...buttonStyle,
-                  bgcolor: "black",
-                  color: "white",
-                  "&:hover": { bgcolor: "gray.800" },
-                }}
-              >
-                Thanh toán qua VNPAY
-                </Button>
-
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
                 onClick={handleCheckout}
+                disabled={isProcessingPayment}
                 sx={{
                   ...buttonStyle,
                   bgcolor: "black",
@@ -873,12 +888,12 @@ if (json?.paymentUrl) {
                   "&:hover": { bgcolor: "gray.800" },
                 }}
               >
-                {t("checkout")}
-                </Button>
+                {isProcessingPayment ? "Đang xử lý..." : t("checkout")}
+              </Button>
 
-                <Button
-                  variant="outlined"
-                  fullWidth
+              <Button
+                variant="outlined"
+                fullWidth
                 onClick={() => router.push("/")}
                 sx={{
                   ...buttonStyle,
@@ -894,12 +909,12 @@ if (json?.paymentUrl) {
                 }}
               >
                 {t("continueShopping")}
-                </Button>
+              </Button>
 
-                <Button
-                  variant="text"
-                  fullWidth
-                  onClick={handleClearCart}
+              <Button
+                variant="text"
+                fullWidth
+                onClick={handleClearCart}
                 sx={{
                   ...buttonStyle,
                   color: "black",
@@ -911,11 +926,11 @@ if (json?.paymentUrl) {
                 }}
               >
                 {t("clearCart")}
-                </Button>
-              </Stack>
+              </Button>
+            </Stack>
           </Paper>
         </Box>
       </Box>
     </Container>
-  )
-    }
+  );
+}
