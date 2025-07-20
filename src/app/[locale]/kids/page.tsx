@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import ProductCard from "@/components/card";
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -34,6 +35,7 @@ export default function KidsPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
+  const { addToCart } = useCartContext();
 
   // Debug environment variables
   console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
@@ -121,8 +123,17 @@ export default function KidsPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1,
+      });
+      // Có thể thêm snackbar thông báo thành công ở đây
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      // Có thể thêm snackbar thông báo lỗi ở đây
+    }
   };
 
   if (error) {
@@ -475,6 +486,7 @@ export default function KidsPage() {
                         margin: '0 auto'
                       }}>
                         <ProductCard
+                          _id={product._id}
                           productId={product._id}
                           name={product.name || 'Unnamed Product'}
                           image={
@@ -487,7 +499,7 @@ export default function KidsPage() {
                           tags={product.tags || []}
                           brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                           categories={product.categories || []}
-                          onAddToCart={() => handleAddToCart(product.name)}
+                          onAddToCart={() => handleAddToCart(product)}
                         />
                       </Box>
                     </Box>

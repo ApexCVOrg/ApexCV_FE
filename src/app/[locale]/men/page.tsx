@@ -5,6 +5,7 @@ import Image from "next/image";
 import ProductCard from "@/components/card";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -123,8 +124,19 @@ export default function MenPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const { addToCart } = useCartContext();
+
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1,
+      });
+      // Có thể thêm snackbar thông báo thành công ở đây
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      // Có thể thêm snackbar thông báo lỗi ở đây
+    }
   };
 
   const handleCarouselNext = () => {
@@ -553,6 +565,7 @@ export default function MenPage() {
                       margin: '0 auto'
                     }}>
                       <ProductCard
+                        _id={product._id}
                         productId={product._id}
                         name={product.name || 'Unnamed Product'}
                         image={
@@ -565,7 +578,7 @@ export default function MenPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                     </Box>

@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import ProductCard from '@/components/card';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
+import { useCartContext } from '@/context/CartContext';
 
 export default function FavoritesPage() {
   const t = useTranslations('favorites');
@@ -33,6 +34,7 @@ export default function FavoritesPage() {
     error,
     clearAllFavorites,
   } = useFavorites();
+  const { addToCart } = useCartContext();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -150,7 +152,18 @@ export default function FavoritesPage() {
                 tags={product.tags}
                 brand={product.brand}
                 categories={product.categories}
-                onAddToCart={() => console.log('Add to cart:', product._id)}
+                onAddToCart={async () => {
+                  try {
+                    await addToCart({
+                      productId: product._id,
+                      quantity: 1,
+                    });
+                    // Có thể thêm snackbar thông báo thành công ở đây
+                  } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    // Có thể thêm snackbar thông báo lỗi ở đây
+                  }
+                }}
               />
             </Box>
           ))}

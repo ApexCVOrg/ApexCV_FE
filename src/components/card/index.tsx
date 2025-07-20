@@ -10,9 +10,7 @@ import {
   Box,
   Chip,
   Stack,
-   
   Snackbar,
-   
   Alert,
   IconButton,
 } from '@mui/material';
@@ -23,6 +21,7 @@ import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
  
 import { useAuthContext } from '@/context/AuthContext';
+import { useCartContext } from '@/context/CartContext';
 import api from '@/services/api';
 import { useState } from 'react';
 import { gsap } from 'gsap';
@@ -51,8 +50,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _id,
   name,
   image,
   price,
@@ -67,6 +64,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   backgroundColor = '#ffffff',
   colors = 1,
   addToCartButtonProps,
+  onAddToCart,
 }) => {
   const t = useTranslations('productCard');
   const cardRef = useRef<HTMLDivElement>(null);
@@ -115,21 +113,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
 
-  const { token } = useAuthContext();
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
-
   const handleAddToCart = async () => {
     if (!token) {
       setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
       return;
     }
+    
+    // Gọi callback onAddToCart nếu có
+    if (onAddToCart) {
+      onAddToCart();
+      return;
+    }
+    
+    // Nếu không có callback, thực hiện logic mặc định
     try {
       await api.post('/carts/add', { productId });
+      await refreshCart(); // Refresh cart state
       setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
     } catch {
       setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
     }
   };
+
+  const { token } = useAuthContext();
+  const { refreshCart } = useCartContext();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
 
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {

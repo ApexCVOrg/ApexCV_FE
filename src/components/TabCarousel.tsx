@@ -9,6 +9,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ProductCard from '@/components/card';
 import { ProductLabel } from '@/types/components/label';
+import { useCartContext } from '@/context/CartContext';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -41,6 +42,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products }) => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<any>(null);
+  const { addToCart } = useCartContext();
 
   // Swiper breakpoints configuration
   const swiperBreakpoints = {
@@ -316,7 +318,18 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products }) => {
                   brand={product.brand}
                   categories={product.categories}
                   labels={product.label ? [product.label as ProductLabel] : []}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  onAddToCart={async () => {
+                    try {
+                      await addToCart({
+                        productId: product._id,
+                        quantity: 1,
+                      });
+                      // Có thể thêm snackbar thông báo thành công ở đây
+                    } catch (error) {
+                      console.error('Error adding to cart:', error);
+                      // Có thể thêm snackbar thông báo lỗi ở đây
+                    }
+                  }}
                   backgroundColor="#f8f9fa"
                   colors={3}
                 />

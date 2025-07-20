@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ProductCard from '@/components/card/index';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -29,6 +30,7 @@ export default function OutletSubCategoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const { addToCart } = useCartContext();
 
   useEffect(() => {
     const subId = CATEGORY_NAME_TO_ID[sub as string];
@@ -88,6 +90,7 @@ export default function OutletSubCategoryPage() {
           {Array.isArray(products) && products.map((product) => (
             <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
               <ProductCard
+                _id={product._id}
                 productId={product._id}
                 name={product.name}
                 image={product.images[0]}
@@ -96,7 +99,18 @@ export default function OutletSubCategoryPage() {
                 tags={product.tags}
                 brand={product.brand}
                 categories={product.categories}
-                onAddToCart={() => console.log('Add to cart:', product._id)}
+                onAddToCart={async () => {
+                  try {
+                    await addToCart({
+                      productId: product._id,
+                      quantity: 1,
+                    });
+                    // Có thể thêm snackbar thông báo thành công ở đây
+                  } catch (error) {
+                    console.error('Error adding to cart:', error);
+                    // Có thể thêm snackbar thông báo lỗi ở đây
+                  }
+                }}
               />
             </Box>
           ))}

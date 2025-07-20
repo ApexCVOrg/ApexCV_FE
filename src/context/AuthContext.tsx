@@ -35,7 +35,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
       setToken(storedToken);
-      // Bạn có thể fetch user profile ở đây nếu cần
+      // Fetch user profile từ backend
+      fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/users/profile', {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+        .then(res => res.json())
+        .then(user => setUser(user))
+        .catch(() => setUser(null));
     }
   }, []);
 

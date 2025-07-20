@@ -24,11 +24,11 @@ import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
 import { motion } from 'framer-motion';
 import TabCarousel from '@/components/TabCarousel';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
+ 
+ 
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -140,6 +140,7 @@ export default function HomePage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const { addToCart } = useCartContext();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -512,7 +513,17 @@ export default function HomePage() {
                     labels={product.label ? [product.label as string] : []}
                     allCategories={categories}
                     allBrands={brands}
-                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                    onAddToCart={async () => {
+                      try {
+                        await addToCart({
+                          productId: product._id,
+                          quantity: 1,
+                        });
+                        setSnackbarOpen(true);
+                      } catch (error) {
+                        console.error('Error adding to cart:', error);
+                      }
+                    }}
                     backgroundColor="#f8f9fa"
                     colors={3}
                   />
@@ -781,8 +792,9 @@ export default function HomePage() {
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: {
-                      xs: 'repeat(2, 1fr)',
-                      md: 'repeat(3, 1fr)',
+                      xs: '1fr',
+                      sm: '1fr 1fr',
+                      md: '1fr 1fr 1fr 1fr',
                     },
                     gap: 3,
                     p: 2,
@@ -820,9 +832,29 @@ export default function HomePage() {
                           labels={product.label ? [product.label as string] : []}
                           allCategories={categories}
                           allBrands={brands}
-                          onAddToCart={() => console.log('Add to cart:', product._id)}
+                          onAddToCart={async () => {
+                            await addToCart({
+                              productId: product._id,
+                              quantity: 1,
+                              // size, color nếu có
+                            });
+                            setSnackbarOpen(true);
+                          }}
                           backgroundColor="#f8f9fa"
                           colors={3}
+                          addToCartButtonProps={{
+                            variant: 'contained',
+                            sx: {
+                              borderRadius: 0,
+                              fontWeight: 700,
+                              bgcolor: 'black',
+                              color: 'white',
+                              py: 1.5,
+                              textTransform: 'uppercase',
+                              '&:hover': { bgcolor: 'gray.800' },
+                            },
+                            startIcon: <ShoppingCartIcon />,
+                          }}
                           sx={{ height: '100%' }}
                         />
                       </motion.div>

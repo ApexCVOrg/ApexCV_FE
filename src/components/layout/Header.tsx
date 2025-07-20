@@ -43,6 +43,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
+import HistoryIcon from '@mui/icons-material/History';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -678,6 +679,12 @@ const Header = () => {
                         {favoritesCount > 99 ? '99+' : favoritesCount}
                       </Box>
                     )}
+                  </MenuItem>
+                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/history`); }}>
+                    <ListItemIcon>
+                      <HistoryIcon fontSize="small" />
+                    </ListItemIcon>
+                    Lịch sử
                   </MenuItem>
                   {userRole === 'admin' && (
                     <MenuItem onClick={handleAdminDashboard}>
