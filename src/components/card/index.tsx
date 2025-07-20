@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardMedia,
@@ -68,6 +69,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
+  const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
   const displayLabels = labels?.filter(l => l !== 'sale') || [];
@@ -113,6 +115,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
+
+  const handleCardClick = () => {
+    router.push(`/product/${productId}`);
+  };
 
   const handleAddToCartClick = () => {
     if (!token) {
@@ -164,6 +170,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <Card 
           ref={cardRef}
+          onClick={handleCardClick}
           sx={{ 
             borderRadius: '24px',
             background: backgroundColor,
@@ -183,6 +190,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             transition: 'box-shadow 0.3s',
+            cursor: 'pointer',
             '&:hover': {
               boxShadow: '0 8px 32px 0 rgba(0,0,0,0.16)',
               '.cart-btn': {
@@ -205,6 +213,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               zIndex: 3,
               pointerEvents: 'auto',
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <FavoriteButton
               productId={productId}
@@ -430,7 +439,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 background: '#1565c0',
               },
             }}
-            onClick={handleAddToCart}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart();
+            }}
           >
             <ShoppingCartIcon sx={{ fontSize: 28 }} />
           </IconButton>
@@ -446,18 +458,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Nếu không phải ảnh lib, render card style đơn giản
   return (
-    <Card sx={{
-      maxWidth: 320,
-      borderRadius: 4,
-      boxShadow: 2,
-      p: 1.5,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      background: '#fff',
-      transition: 'box-shadow 0.2s',
-      '&:hover': { boxShadow: 6 },
-    }}>
+    <Card 
+      onClick={handleCardClick}
+      sx={{
+        maxWidth: 320,
+        borderRadius: 4,
+        boxShadow: 2,
+        p: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: '#fff',
+        transition: 'box-shadow 0.2s',
+        cursor: 'pointer',
+        '&:hover': { boxShadow: 6 },
+      }}
+    >
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
         <Box
           sx={{
@@ -486,6 +502,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             right: 12,
             zIndex: 3,
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <FavoriteButton
             productId={productId}
@@ -590,7 +607,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Button
           variant={addToCartButtonProps?.variant || 'contained'}
           startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAddToCart();
+          }}
           sx={{
             mt: 'auto',
             width: '100%',
