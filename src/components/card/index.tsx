@@ -10,9 +10,7 @@ import {
   Box,
   Chip,
   Stack,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Snackbar,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Alert,
   IconButton,
 } from '@mui/material';
@@ -23,6 +21,7 @@ import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuthContext } from '@/context/AuthContext';
+import { useCartContext } from '@/context/CartContext';
 import api from '@/services/api';
 import { useState } from 'react';
 import { gsap } from 'gsap';
@@ -51,7 +50,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _id,
   name,
   image,
@@ -116,7 +114,28 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
 
+  const handleAddToCartClick = () => {
+    if (!token) {
+      setSnackbar({
+        open: true,
+        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+        severity: 'warning',
+      });
+      return;
+    }
+    
+    // Gọi callback onAddToCart
+    if (onAddToCart) {
+      onAddToCart();
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
   const { token } = useAuthContext();
+  const { refreshCart } = useCartContext();
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
 
   const handleAddToCart = async () => {
@@ -126,6 +145,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
     try {
       await api.post('/carts/add', { productId });
+      await refreshCart(); // Refresh cart state
       setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
     } catch {
       setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });

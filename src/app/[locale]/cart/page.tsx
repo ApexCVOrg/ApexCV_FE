@@ -1,6 +1,6 @@
 /* eslint-disable */
-"use client"
-import { useState } from "react"
+"use client";
+import { useState } from "react";
 import {
   Container,
   Typography,
@@ -19,50 +19,52 @@ import {
   Select,
   MenuItem,
   Paper,
-} from "@mui/material"
-import DeleteIcon from "@mui/icons-material/Delete"
-import AddIcon from "@mui/icons-material/Add"
-import RemoveIcon from "@mui/icons-material/Remove"
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
-import { useCartContext } from "@/context/CartContext"
-import { useAuthContext } from "@/context/AuthContext"
-import { useRouter } from "next/navigation"
-import { useTranslations } from "next-intl"
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import { useCartContext } from "@/context/CartContext";
+import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { createVnpayPayment } from "@/services/api";
 
 // Extend CartItem interface to include _id
 interface ProductSize {
-  size: string
-  stock: number
-  color?: string
+  size: string;
+  stock: number;
+  color?: string;
 }
 
 interface CartItemWithId {
-  _id: string
+  _id: string;
   product: {
-    _id: string
-    name: string
-    price: number
-    discountPrice?: number
-    images: string[]
-    brand?: { _id: string; name: string }
-    sizes?: ProductSize[]
-    colors?: string[]
-  }
-  size?: string
-  color?: string
-  quantity: number
+    _id: string;
+    name: string;
+    price: number;
+    discountPrice?: number;
+    images: string[];
+    brand?: { _id: string; name: string };
+    sizes?: ProductSize[];
+    colors?: string[];
+  };
+  size?: string;
+  color?: string;
+  quantity: number;
 }
 
 export default function CartPage() {
-  const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext()
-  const { token } = useAuthContext()
-  const router = useRouter()
-  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
+  const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext();
+  const { token } = useAuthContext();
+  const router = useRouter();
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
   const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
   const [voucherError, setVoucherError] = useState<string>("");
   const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
-  const t = useTranslations("cartPage")
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const t = useTranslations("cartPage");
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -78,7 +80,7 @@ export default function CartPage() {
       color: "black",
       "&.Mui-focused": { color: "black" },
     },
-  }
+  };
 
   const buttonStyle = {
     borderRadius: 0,
@@ -86,7 +88,7 @@ export default function CartPage() {
     letterSpacing: "0.05em",
     textTransform: "uppercase" as const,
     py: 1.5,
-  }
+  };
 
   if (!token) {
     return (
@@ -129,7 +131,7 @@ export default function CartPage() {
           </Button>
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (loading) {
@@ -148,7 +150,7 @@ export default function CartPage() {
           <CircularProgress sx={{ color: "black" }} />
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (error) {
@@ -173,11 +175,11 @@ export default function CartPage() {
               fontWeight: 600,
             }}
           >
-          {error}
-        </Alert>
+            {error}
+          </Alert>
         </Paper>
       </Container>
-    )
+    );
   }
 
   if (!cart || cart.cartItems.length === 0) {
@@ -232,47 +234,97 @@ export default function CartPage() {
           </Button>
         </Paper>
       </Container>
-    )
+    );
   }
 
   const handleQuantityChange = async (cartItemId: string, newQuantity: number) => {
-    if (newQuantity <= 0) return
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
+    if (newQuantity <= 0) return;
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
     try {
-      await updateCartItem(cartItemId, newQuantity)
+      await updateCartItem(cartItemId, newQuantity);
     } catch (error) {
-      console.error("Error updating quantity:", error)
+      console.error("Error updating quantity:", error);
     } finally {
       setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
+      });
     }
-  }
+  };
 
   const handleRemoveItem = async (cartItemId: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
     try {
-      await removeFromCart(cartItemId)
+      await removeFromCart(cartItemId);
     } catch (error) {
-      console.error("Error removing item:", error)
+      console.error("Error removing item:", error);
     } finally {
       setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
+      });
     }
-  }
+  };
 
   const handleClearCart = async () => {
     try {
-      await clearCart()
+      await clearCart();
     } catch (error) {
-      console.error("Error clearing cart:", error)
+      console.error("Error clearing cart:", error);
     }
-  }
+  };
+
+  const handleCheckout = async () => {
+    if (!cart || cart.cartItems.length === 0) return;
+    
+    setIsProcessingPayment(true);
+    try {
+      // Tạo dữ liệu VNPAY theo đúng format
+      const vnpayData = {
+        vnp_Amount: total, // VNPAY yêu cầu số tiền nhân 100
+        vnp_IpAddr: '127.0.0.1', // IP của client
+        vnp_ReturnUrl: `${window.location.origin}/payment/vnpay-return`,
+        vnp_TxnRef: `ORDER_${Date.now()}`, // Mã giao dịch duy nhất
+        vnp_OrderInfo: `Thanh toan don hang ${Date.now()}`, // Thông tin đơn hàng
+        vnp_ExpireDate: Math.floor((Date.now() + 15 * 60 * 1000) / 1000), // Hết hạn sau 15 phút (timestamp)
+        vnp_CreateDate: Math.floor(Date.now() / 1000), // Ngày tạo (timestamp)
+        // Dữ liệu đơn hàng để lưu vào session
+        orderItems: cart.cartItems.map(item => ({
+          product: item.product._id,
+          name: item.product.name,
+          quantity: item.quantity,
+          size: [{
+            size: item.size || 'M',
+            color: item.color || 'Default',
+            quantity: item.quantity,
+          }],
+          price: item.product.discountPrice || item.product.price,
+        })),
+        shippingAddress: {
+          fullName: 'Khách hàng',
+          phone: '0123456789',
+          address: 'Địa chỉ giao hàng',
+          city: 'Hà Nội',
+          district: 'Quận 1',
+          ward: 'Phường 1',
+        },
+        paymentMethod: 'VNPAY',
+        totalPrice: total,
+        taxPrice: 0,
+        shippingPrice: 0,
+      };
+
+      const paymentUrl = await createVnpayPayment(vnpayData);
+      window.location.href = paymentUrl;
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Có lỗi xảy ra khi tạo thanh toán");
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
 
   // Hàm tính giá sau voucher (ưu tiên giá từ API)
   const getDiscountedPrice = (cartItem: CartItemWithId) => {
@@ -286,27 +338,27 @@ export default function CartPage() {
       const cartItem = item as CartItemWithId;
       const price = getDiscountedPrice(cartItem);
       return total + price * cartItem.quantity;
-    }, 0)
-  }
+    }, 0);
+  };
 
-  const subtotal = calculateSubtotal()
-  const shipping = 0
-  const total = subtotal + shipping
+  const subtotal = calculateSubtotal();
+  const shipping = 0;
+  const total = subtotal + shipping;
 
   const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId))
+    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
     try {
-      await updateCartItem(cartItemId, undefined, newSize, newColor)
+      await updateCartItem(cartItemId, undefined, newSize, newColor);
     } catch (error) {
-      console.error("Error updating item options:", error)
+      console.error("Error updating item options:", error);
     } finally {
       setUpdatingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(cartItemId)
-        return newSet
-      })
+        const newSet = new Set(prev);
+        newSet.delete(cartItemId);
+        return newSet;
+      });
     }
-  }
+  };
 
   // Hàm gọi API áp dụng voucher
   const handleApplyVoucher = async (cartItem: CartItemWithId) => {
@@ -371,7 +423,7 @@ export default function CartPage() {
           }}
         >
           {t("productCount", { count: cart.cartItems.length })}
-      </Typography>
+        </Typography>
       </Box>
 
       <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
@@ -379,10 +431,10 @@ export default function CartPage() {
         <Box sx={{ flex: { md: 2 } }}>
           <Stack spacing={3}>
             {cart.cartItems.map((item) => {
-              const cartItem = item as CartItemWithId
-              const isUpdating = updatingItems.has(cartItem._id)
-              const price = cartItem.product.discountPrice || cartItem.product.price
-              const originalPrice = cartItem.product.price
+              const cartItem = item as CartItemWithId;
+              const isUpdating = updatingItems.has(cartItem._id);
+              const price = cartItem.product.discountPrice || cartItem.product.price;
+              const originalPrice = cartItem.product.price;
               const discountedPrice = getDiscountedPrice(cartItem);
               const appliedVoucher = appliedVouchers[cartItem._id];
               return (
@@ -429,14 +481,14 @@ export default function CartPage() {
                         bgcolor: "#f6f6f6",
                       }}
                     >
-                        <CardMedia
-                          component="img"
+                      <CardMedia
+                        component="img"
                         height="120"
                         image={cartItem.product.images[0] || "/assets/images/placeholder.jpg"}
-                          alt={cartItem.product.name}
+                        alt={cartItem.product.name}
                         sx={{ objectFit: "contain", borderRadius: 0 }}
-                        />
-                      </Box>
+                      />
+                    </Box>
                   </Box>
 
                   <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -456,9 +508,9 @@ export default function CartPage() {
                             letterSpacing: "0.02em",
                           }}
                         >
-                              {cartItem.product.name}
-                            </Typography>
-                            {cartItem.product.brand && (
+                          {cartItem.product.name}
+                        </Typography>
+                        {cartItem.product.brand && (
                           <Typography
                             variant="body2"
                             sx={{
@@ -470,16 +522,16 @@ export default function CartPage() {
                               fontSize: "0.75rem",
                             }}
                           >
-                                {cartItem.product.brand.name}
-                              </Typography>
-                            )}
+                            {cartItem.product.brand.name}
+                          </Typography>
+                        )}
 
-                            <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                              {/* Size */}
-                              {cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
+                        <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                          {/* Size */}
+                          {cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("size")}</InputLabel>
-                                  <Select
+                              <Select
                                 value={cartItem.size || ""}
                                 label={t("size")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, e.target.value, cartItem.color)}
@@ -495,11 +547,11 @@ export default function CartPage() {
                                       sx={{ fontWeight: 600, textTransform: "uppercase" }}
                                     >
                                       {sz.size}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </FormControl>
-                              ) : (
+                                    </MenuItem>
+                                  ))}
+                              </Select>
+                            </FormControl>
+                          ) : (
                             cartItem.size && (
                               <Chip
                                 label={`${t("size")}: ${cartItem.size}`}
@@ -516,11 +568,11 @@ export default function CartPage() {
                             )
                           )}
 
-                              {/* Color */}
+                          {/* Color */}
                           {cartItem.product.sizes && cartItem.product.sizes.some((sz) => "color" in sz && sz.color) ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("color")}</InputLabel>
-                                  <Select
+                              <Select
                                 value={cartItem.color || ""}
                                 label={t("color")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, cartItem.size, e.target.value)}
@@ -529,8 +581,8 @@ export default function CartPage() {
                                 {[
                                   ...new Set(
                                     cartItem.product.sizes?.map((sz: ProductSize) =>
-                                      "color" in sz ? sz.color : undefined,
-                                    ),
+                                      "color" in sz ? sz.color : undefined
+                                    )
                                   ),
                                 ].map(
                                   (color: string | undefined) =>
@@ -542,11 +594,11 @@ export default function CartPage() {
                                       >
                                         {color}
                                       </MenuItem>
-                                    ),
+                                    )
                                 )}
-                                  </Select>
-                                </FormControl>
-                              ) : (
+                              </Select>
+                            </FormControl>
+                          ) : (
                             cartItem.color && (
                               <Chip
                                 label={`${t("color")}: ${cartItem.color}`}
@@ -561,8 +613,8 @@ export default function CartPage() {
                                 }}
                               />
                             )
-                              )}
-                            </Stack>
+                          )}
+                        </Stack>
                         {/* Hiển thị tồn kho ngoài dropdown */}
                         {cartItem.size && cartItem.color && cartItem.product.sizes && (
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
@@ -731,9 +783,9 @@ export default function CartPage() {
                         </Box>
                       );
                     })()}
-                      </Box>
+                  </Box>
                 </Paper>
-              )
+              );
             })}
           </Stack>
         </Box>
@@ -761,22 +813,22 @@ export default function CartPage() {
               }}
             >
               {t("orderSummary")}
-              </Typography>
+            </Typography>
 
             <Box sx={{ position: "relative", my: 3 }}>
               <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
             </Box>
-              
-              <Stack spacing={2}>
+
+            <Stack spacing={2}>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>{t("subtotal")}:</Typography>
                 <Typography sx={{ fontWeight: 700, color: "black" }}>
                   {subtotal.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
+                  })}
+                </Typography>
+              </Box>
 
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>
@@ -786,9 +838,9 @@ export default function CartPage() {
                   {shipping.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
+                  })}
+                </Typography>
+              </Box>
 
               <Box sx={{ position: "relative", my: 2 }}>
                 <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
@@ -805,7 +857,7 @@ export default function CartPage() {
                   }}
                 >
                   {t("total")}:
-                  </Typography>
+                </Typography>
                 <Typography
                   variant="h6"
                   sx={{
@@ -817,17 +869,18 @@ export default function CartPage() {
                   {total.toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
-                    })}
-                  </Typography>
-                </Box>
-              </Stack>
+                  })}
+                </Typography>
+              </Box>
+            </Stack>
 
             <Stack spacing={2} sx={{ mt: 4 }}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  size="large"
-                onClick={() => router.push("/profile")}
+              <Button
+                variant="contained"
+                fullWidth
+                size="large"
+                onClick={handleCheckout}
+                disabled={isProcessingPayment}
                 sx={{
                   ...buttonStyle,
                   bgcolor: "black",
@@ -835,12 +888,12 @@ export default function CartPage() {
                   "&:hover": { bgcolor: "gray.800" },
                 }}
               >
-                {t("checkout")}
-                </Button>
+                {isProcessingPayment ? "Đang xử lý..." : t("checkout")}
+              </Button>
 
-                <Button
-                  variant="outlined"
-                  fullWidth
+              <Button
+                variant="outlined"
+                fullWidth
                 onClick={() => router.push("/")}
                 sx={{
                   ...buttonStyle,
@@ -856,12 +909,12 @@ export default function CartPage() {
                 }}
               >
                 {t("continueShopping")}
-                </Button>
+              </Button>
 
-                <Button
-                  variant="text"
-                  fullWidth
-                  onClick={handleClearCart}
+              <Button
+                variant="text"
+                fullWidth
+                onClick={handleClearCart}
                 sx={{
                   ...buttonStyle,
                   color: "black",
@@ -873,11 +926,11 @@ export default function CartPage() {
                 }}
               >
                 {t("clearCart")}
-                </Button>
-              </Stack>
+              </Button>
+            </Stack>
           </Paper>
         </Box>
       </Box>
     </Container>
-  )
-} 
+  );
+}

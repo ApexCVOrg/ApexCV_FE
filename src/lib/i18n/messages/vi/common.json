@@ -874,5 +874,26 @@
     "total": "Tổng cộng",
     "checkout": "Thanh toán",
     "clearCart": "Xóa giỏ hàng"
+  },
+  "checkout": "Thanh toán",
+  "checkoutPage": {
+    "title": "Thanh toán",
+    "shippingInfo": "Thông tin giao hàng",
+    "fullName": "Họ và tên",
+    "phone": "Số điện thoại",
+    "address": "Địa chỉ",
+    "city": "Tỉnh/Thành phố",
+    "district": "Quận/Huyện",
+    "ward": "Phường/Xã",
+    "orderItems": "Sản phẩm đặt hàng",
+    "orderSummary": "Tổng quan đơn hàng",
+    "subtotal": "Tạm tính",
+    "shippingFee": "Phí vận chuyển",
+    "tax": "Thuế",
+    "total": "Tổng cộng",
+    "payWithVnpay": "Thanh toán VNPAY",
+    "processing": "Đang xử lý...",
+    "paymentError": "Có lỗi xảy ra khi tạo thanh toán",
+    "emptyCart": "Giỏ hàng trống"
   }
 }

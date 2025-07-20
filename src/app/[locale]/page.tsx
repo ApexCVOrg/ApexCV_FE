@@ -23,16 +23,16 @@ import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
+import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
+import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
+import { useHomeCartContext } from '@/context/HomeCartContext';
+import { useCartContext } from '@/context/CartContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
-import { useHomeCartContext } from '@/context/HomeCartContext';
-import { useCartContext } from '@/context/CartContext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 
@@ -794,8 +794,9 @@ export default function HomePage() {
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: {
-                      xs: 'repeat(2, 1fr)',
-                      md: 'repeat(3, 1fr)',
+                      xs: '1fr',
+                      sm: '1fr 1fr',
+                      md: '1fr 1fr 1fr 1fr',
                     },
                     gap: 3,
                     p: 2,
@@ -833,9 +834,29 @@ export default function HomePage() {
                           labels={product.label ? [product.label as string] : []}
                           allCategories={categories}
                           allBrands={brands}
-                          onAddToCart={() => console.log('Add to cart:', product._id)}
+                          onAddToCart={async () => {
+                            await addToCart({
+                              productId: product._id,
+                              quantity: 1,
+                              // size, color nếu có
+                            });
+                            setSnackbarOpen(true);
+                          }}
                           backgroundColor="#f8f9fa"
                           colors={3}
+                          addToCartButtonProps={{
+                            variant: 'contained',
+                            sx: {
+                              borderRadius: 0,
+                              fontWeight: 700,
+                              bgcolor: 'black',
+                              color: 'white',
+                              py: 1.5,
+                              textTransform: 'uppercase',
+                              '&:hover': { bgcolor: 'gray.800' },
+                            },
+                            startIcon: <ShoppingCartIcon />,
+                          }}
                           sx={{ height: '100%' }}
                         />
                       </motion.div>
