@@ -119,6 +119,9 @@ export default function VnpayReturnPage() {
           setStatus('fail');
           setMessage(json.message || 'Không có thông tin chi tiết');
         }
+        
+        // Set message with fallback
+        setMessage(json.message || json.result?.message || 'Không có thông tin chi tiết');
       } catch (err) {
         setStatus('fail');
         setMessage('Lỗi xác thực kết quả thanh toán!');
