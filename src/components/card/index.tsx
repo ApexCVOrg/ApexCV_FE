@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
+import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
@@ -41,6 +42,7 @@ interface ProductCardProps {
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
+  onViewDetail?: () => void; // Click handler cho mở sidebar
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
@@ -60,6 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   onAddToCart,
+  onViewDetail,
   labels,
   allCategories,
   allBrands,
@@ -100,8 +103,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Debug logs
   if (typeof window !== 'undefined') {
-    console.log('ProductCard tags:', tags);
-    console.log('ProductCard allCategories:', allCategories);
   }
 
   // Hiển thị brand đúng tên
@@ -117,10 +118,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   if (!displayBrand) displayBrand = t('unknownBrand');
 
   const handleCardClick = () => {
-    router.push(`/product/${productId}`);
+    if (onViewDetail) {
+      onViewDetail(); // Mở sidebar
+    }
   };
 
-  const handleAddToCartClick = () => {
+  const handleViewDetailButton = () => {
+    router.push(`/product/${productId}`); // Chuyển đến trang detail
+  };
+
+  const handleAddToCartClick = async () => {
     if (!token) {
       setSnackbar({
         open: true,
@@ -129,10 +136,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
       });
       return;
     }
-    
-    // Gọi callback onAddToCart
-    if (onAddToCart) {
-      onAddToCart();
+    try {
+      await api.post('/carts/add', { productId });
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
     }
   };
 
@@ -418,34 +426,62 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </CardContent>
           </Box>
 
-          {/* Icon giỏ hàng ẩn, hover card mới hiện ra */}
-          <IconButton
+                    {/* 2 Icon buttons ẩn, hover card mới hiện ra */}
+          <Box
             className="cart-btn"
             sx={{
               position: 'absolute',
               bottom: 20,
               left: '50%',
               transform: 'translateX(-50%) translateY(20px)',
-              background: '#1976d2',
-              color: '#fff',
-              width: 48,
-              height: 48,
               zIndex: 3,
-              boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
               opacity: 0,
               pointerEvents: 'none',
               transition: 'opacity 0.3s, transform 0.4s cubic-bezier(.4,2,.6,1)',
-              '&:hover': {
-                background: '#1565c0',
-              },
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddToCart();
+              display: 'flex',
+              gap: 1,
             }}
           >
-            <ShoppingCartIcon sx={{ fontSize: 28 }} />
-          </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetailButton();
+              }}
+              sx={{
+                bgcolor: 'white',
+                color: '#1976d2',
+                border: '2px solid #1976d2',
+                width: 48,
+                height: 48,
+                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                '&:hover': { 
+                  bgcolor: '#1976d2', 
+                  color: 'white',
+                  borderColor: '#1976d2'
+                },
+              }}
+            >
+              <SearchIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              sx={{
+                bgcolor: '#1976d2',
+                color: '#fff',
+                width: 48,
+                height: 48,
+                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                '&:hover': {
+                  bgcolor: '#1565c0',
+                },
+              }}
+            >
+              <ShoppingCartIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Box>
         </Card>
         <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
           <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
@@ -604,29 +640,54 @@ const ProductCard: React.FC<ProductCardProps> = ({
             })}
           </Stack>
         )}
-        <Button
-          variant={addToCartButtonProps?.variant || 'contained'}
-          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleAddToCart();
-          }}
-          sx={{
-            mt: 'auto',
-            width: '100%',
-            bgcolor: '#111a2f',
-            color: '#fff',
-            fontWeight: 700,
-            borderRadius: 2,
-            py: 1,
-            textTransform: 'none',
-            '&:hover': { bgcolor: '#222c4c' },
-            ...addToCartButtonProps?.sx, // đặt cuối cùng để props có thể override
-          }}
-          {...addToCartButtonProps}
-        >
-          {addToCartButtonProps?.children || t('addToCart')}
-        </Button>
+        <Stack direction="row" spacing={1} sx={{ mt: 'auto', width: '100%' }}>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetailButton();
+            }}
+            sx={{
+              bgcolor: 'white',
+              color: '#111a2f',
+              borderColor: '#111a2f',
+              fontWeight: 700,
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              '&:hover': { 
+                bgcolor: '#111a2f', 
+                color: 'white',
+                borderColor: '#111a2f'
+              },
+            }}
+          >
+            View Detail
+          </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<ShoppingCartIcon />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart();
+            }}
+            sx={{
+              bgcolor: '#111a2f',
+              color: '#fff',
+              fontWeight: 700,
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#222c4c' },
+              ...addToCartButtonProps?.sx,
+            }}
+            {...addToCartButtonProps}
+          >
+            {addToCartButtonProps?.children || t('addToCart')}
+          </Button>
+        </Stack>
       </CardContent>
       <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>

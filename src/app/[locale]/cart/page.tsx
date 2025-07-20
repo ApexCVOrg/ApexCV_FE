@@ -63,10 +63,10 @@ export default function CartPage() {
   const { token } = useAuthContext();
   const router = useRouter();
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
-  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
-  const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
-  const [voucherError, setVoucherError] = useState<string>("");
-  const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
+  const [couponInputs, setCouponInputs] = useState<{ [cartItemId: string]: string }>({});
+  const [appliedCoupons, setAppliedCoupons] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
+  const [couponError, setCouponError] = useState<string>("");
+  const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const t = useTranslations("cartPage");
   const { isAuthenticated, getCurrentUser } = useAuth();
@@ -123,7 +123,14 @@ export default function CartPage() {
           </Typography>
           <Button
             variant="contained"
-            onClick={() => router.push("/auth/login")}
+            onClick={() => {
+              // Get current locale from URL
+              const currentLocale = window.location.pathname.split('/')[1];
+              const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+                ? `/${currentLocale}/auth/login` 
+                : '/vi/auth/login';
+              router.push(loginUrl);
+            }}
             sx={{
               ...buttonStyle,
               bgcolor: "black",
@@ -419,9 +426,9 @@ export default function CartPage() {
     }
   };
 
-  // Hàm tính giá sau voucher (ưu tiên giá từ API)
+  // Hàm tính giá sau coupon (ưu tiên giá từ API)
   const getDiscountedPrice = (cartItem: CartItemWithId) => {
-    const applied = appliedVouchers[cartItem._id];
+    const applied = appliedCoupons[cartItem._id];
     if (applied && applied.newPrice) return applied.newPrice;
     return cartItem.product.discountPrice || cartItem.product.price;
   };
@@ -459,18 +466,18 @@ export default function CartPage() {
     }
   };
 
-  // Hàm gọi API áp dụng voucher
-  const handleApplyVoucher = async (cartItem: CartItemWithId) => {
-    const code = voucherInputs[cartItem._id];
+  // Hàm gọi API áp dụng coupon
+  const handleApplyCoupon = async (cartItem: CartItemWithId) => {
+    const code = couponInputs[cartItem._id];
     if (!code) return;
-    setApplyingVoucherId(cartItem._id);
-    setVoucherError("");
+    setApplyingCouponId(cartItem._id);
+    setCouponError("");
     try {
-      const res = await fetch("http://localhost:5000/api/voucher/apply", {
+      const res = await fetch("http://localhost:5000/api/coupon/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          voucherCode: code,
+          couponCode: code,
           productId: cartItem.product._id,
           price: cartItem.product.discountPrice || cartItem.product.price,
           quantity: cartItem.quantity,
@@ -478,7 +485,7 @@ export default function CartPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setAppliedVouchers(v => ({
+        setAppliedCoupons(v => ({
           ...v,
           [cartItem._id]: {
             code,
@@ -488,12 +495,13 @@ export default function CartPage() {
           },
         }));
       } else {
-        setVoucherError(data.message || "Voucher không hợp lệ");
+        setCouponError(data.message || "Coupon không hợp lệ");
+        console.log('Coupon error details:', data);
       }
     } catch (err) {
-      setVoucherError("Có lỗi khi áp dụng voucher");
+      setCouponError("Có lỗi khi áp dụng coupon");
     } finally {
-      setApplyingVoucherId(null);
+      setApplyingCouponId(null);
     }
   };
 
@@ -535,7 +543,7 @@ export default function CartPage() {
               const price = cartItem.product.discountPrice || cartItem.product.price;
               const originalPrice = cartItem.product.price;
               const discountedPrice = getDiscountedPrice(cartItem);
-              const appliedVoucher = appliedVouchers[cartItem._id];
+              const appliedCoupon = appliedCoupons[cartItem._id];
               return (
                 <Paper
                   key={cartItem._id}
@@ -773,52 +781,52 @@ export default function CartPage() {
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       <TextField
                         size="small"
-                        label="Voucher"
-                        value={voucherInputs[cartItem._id] || ""}
-                        onChange={e => setVoucherInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
+                        label="Coupon"
+                        value={couponInputs[cartItem._id] || ""}
+                        onChange={e => setCouponInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
                         sx={{ width: 140, ...blackBorderStyle }}
                         inputProps={{ style: { textTransform: "uppercase" } }}
-                        disabled={isUpdating || applyingVoucherId === cartItem._id}
+                        disabled={isUpdating || applyingCouponId === cartItem._id}
                       />
                       <Button
                         variant="outlined"
                         size="small"
                         sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
-                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id}
-                        onClick={() => handleApplyVoucher(cartItem)}
+                        disabled={isUpdating || !couponInputs[cartItem._id] || applyingCouponId === cartItem._id}
+                        onClick={() => handleApplyCoupon(cartItem)}
                       >
-                        {applyingVoucherId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
+                        {applyingCouponId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
                       </Button>
-                      {appliedVoucher && (
+                      {appliedCoupon && (
                         <>
                           <Chip
-                            label={`Đã áp dụng: ${appliedVoucher.code}`}
+                            label={`Đã áp dụng: ${appliedCoupon.code}`}
                             color="success"
                             size="small"
                             sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
                             onDelete={() => {
-                              setAppliedVouchers(v => {
+                              setAppliedCoupons(v => {
                                 const newV = { ...v };
                                 delete newV[cartItem._id];
                                 return newV;
                               });
                             }}
                           />
-                          {appliedVoucher.message && (
+                          {appliedCoupon.message && (
                             <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
-                              {appliedVoucher.message}
+                              {appliedCoupon.message}
                             </Typography>
                           )}
                         </>
                       )}
                     </Box>
-                    {/* Hiển thị lỗi voucher */}
-                    {voucherError && (
+                    {/* Hiển thị lỗi coupon */}
+                    {couponError && (
                       <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {voucherError}
+                        {couponError}
                       </Typography>
                     )}
-                    {/* Giá sản phẩm sau voucher */}
+                    {/* Giá sản phẩm sau coupon */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       {discountedPrice !== originalPrice ? (
                         <>
@@ -835,7 +843,7 @@ export default function CartPage() {
                             {originalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
                           </Typography>
                           <Chip
-                            label={`- ${appliedVoucher?.discountAmount ? Math.round(100 * appliedVoucher.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            label={`- ${appliedCoupon?.discountAmount ? Math.round(100 * appliedCoupon.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
                             sx={{ bgcolor: "black", color: "white", fontWeight: 700, borderRadius: 0, ml: 1 }}
                           />
                         </>

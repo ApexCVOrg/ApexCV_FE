@@ -362,22 +362,24 @@ export default function MessagesPage() {
                         justifyContent: msg.role === "manager" ? "flex-end" : "flex-start",
                       }}
                     >
-                      <Tooltip title={msg.senderName || ""} placement="left" arrow disableInteractive>
+                      <Tooltip title={msg.senderName || (msg.role === "bot" ? "Bot" : "")} placement="left" arrow disableInteractive>
                         <Paper
                           elevation={0}
                           sx={{
                             p: 1.5,
-                            backgroundColor: msg.role === "manager" ? "#1976d2" : "#23272f",
+                            backgroundColor: msg.role === "manager" ? "#1976d2" : 
+                                           msg.role === "bot" ? "#4caf50" : "#23272f",
                             color: "#fff",
                             borderRadius: 3,
                             maxWidth: "60%",
                             minWidth: 60,
-                            boxShadow: msg.role === "manager" ? "0 2px 8px rgba(25, 118, 210, 0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
+                            boxShadow: msg.role === "manager" ? "0 2px 8px rgba(25, 118, 210, 0.15)" : 
+                                       msg.role === "bot" ? "0 2px 8px rgba(76, 175, 80, 0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
                             fontSize: "1rem",
                           }}
                         >
                           <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", fontSize: "1rem" }}>
-                            {msg.content}
+                            {msg.role === "bot" ? `Bot: ${msg.content}` : msg.content}
                           </Typography>
                         </Paper>
                       </Tooltip>

@@ -27,7 +27,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Lấy danh sách favorites
   const fetchFavorites = useCallback(async () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated()) {
       setFavorites([]);
       setFavoritesCount(0);
       return;
@@ -55,7 +55,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Toggle favorite với optimistic update
   const toggleFavorite = useCallback(async (productId: string) => {
-    if (!isAuthenticated) throw new Error('Please login to manage favorites');
+    if (!isAuthenticated()) throw new Error('Please login to manage favorites');
     const currentIsFavorite = isFavorite(productId);
     // Optimistic update
     if (currentIsFavorite) {
@@ -80,7 +80,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Thêm vào favorites
   const addToFavorites = useCallback(async (productId: string) => {
-    if (!isAuthenticated) throw new Error('Please login to add favorites');
+    if (!isAuthenticated()) throw new Error('Please login to add favorites');
     if (isFavorite(productId)) return;
     setFavorites(prev => [...prev, { _id: productId } as FavoriteProduct]);
     setFavoritesCount(prev => prev + 1);
@@ -100,7 +100,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Xóa khỏi favorites
   const removeFromFavorites = useCallback(async (productId: string) => {
-    if (!isAuthenticated) throw new Error('Please login to remove favorites');
+    if (!isAuthenticated()) throw new Error('Please login to remove favorites');
     if (!isFavorite(productId)) return;
     setFavorites(prev => prev.filter(fav => fav._id !== productId));
     setFavoritesCount(prev => prev - 1);
@@ -120,7 +120,7 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
 
   // Xóa tất cả favorites
   const clearAllFavorites = useCallback(async () => {
-    if (!isAuthenticated) throw new Error('Please login to clear favorites');
+    if (!isAuthenticated()) throw new Error('Please login to clear favorites');
     setFavorites([]);
     setFavoritesCount(0);
     try {
