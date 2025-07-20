@@ -60,9 +60,11 @@ export default function CartPage() {
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set())
   const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
   const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
-  const [voucherError, setVoucherError] = useState<string>("");
+  const [voucherError, setVoucherError] = useState<{ [cartItemId: string]: string }>({});
   const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
   const t = useTranslations("cartPage")
+  // State để lưu trạng thái miễn phí ship
+  const [isFreeShipping, setIsFreeShipping] = useState(false);
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -290,7 +292,7 @@ export default function CartPage() {
   }
 
   const subtotal = calculateSubtotal()
-  const shipping = 0
+  const shipping = isFreeShipping ? 0 : 25000
   const total = subtotal + shipping
 
   const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
@@ -312,12 +314,18 @@ export default function CartPage() {
   const handleApplyVoucher = async (cartItem: CartItemWithId) => {
     const code = voucherInputs[cartItem._id];
     if (!code) return;
+    // Reset free shipping nếu áp voucher mới không phải FREESHIP
+    if (code !== 'FREESHIP') setIsFreeShipping(false);
     setApplyingVoucherId(cartItem._id);
-    setVoucherError("");
+    setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
     try {
+      const token = localStorage.getItem('auth_token');
       const res = await fetch("http://localhost:5000/api/voucher/apply", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           voucherCode: code,
           productId: cartItem.product._id,
@@ -336,11 +344,14 @@ export default function CartPage() {
             message: data.message,
           },
         }));
+        if (data.freeShipping) setIsFreeShipping(true);
+        else setIsFreeShipping(false);
+        setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
-        setVoucherError(data.message || "Voucher không hợp lệ");
+        setVoucherError(prev => ({ ...prev, [cartItem._id]: data.message || "Voucher không hợp lệ" }));
       }
     } catch (err) {
-      setVoucherError("Có lỗi khi áp dụng voucher");
+      setVoucherError(prev => ({ ...prev, [cartItem._id]: "Có lỗi khi áp dụng voucher" }));
     } finally {
       setApplyingVoucherId(null);
     }
@@ -608,7 +619,7 @@ export default function CartPage() {
                         variant="outlined"
                         size="small"
                         sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
-                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id}
+                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id || !!appliedVouchers[cartItem._id]}
                         onClick={() => handleApplyVoucher(cartItem)}
                       >
                         {applyingVoucherId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
@@ -623,8 +634,20 @@ export default function CartPage() {
                             onDelete={() => {
                               setAppliedVouchers(v => {
                                 const newV = { ...v };
+                                // Nếu xóa voucher FREESHIP thì reset free shipping
+                                if (appliedVoucher.code === 'FREESHIP') setIsFreeShipping(false);
                                 delete newV[cartItem._id];
                                 return newV;
+                              });
+                              setVoucherError(prev => {
+                                const newErr = { ...prev };
+                                delete newErr[cartItem._id];
+                                return newErr;
+                              });
+                              setVoucherInputs(prev => {
+                                const newInputs = { ...prev };
+                                delete newInputs[cartItem._id];
+                                return newInputs;
                               });
                             }}
                           />
@@ -637,9 +660,9 @@ export default function CartPage() {
                       )}
                     </Box>
                     {/* Hiển thị lỗi voucher */}
-                    {voucherError && (
+                    {voucherError[cartItem._id] && (
                       <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {voucherError}
+                        {voucherError[cartItem._id]}
                       </Typography>
                     )}
                     {/* Giá sản phẩm sau voucher */}

@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import Header from '@/components/layout/Header';
 import dynamic from 'next/dynamic';
 const Footer = dynamic(() => import('@/components/layout/Footer'), { ssr: false });
-import ChatBox from '@/components/ChatBox';
 import { AuthProvider } from '@/context/AuthContext';
 import PageTransitionOverlay from '@/components/ui/PageTransitionOverlay';
 import { NextIntlClientProvider } from 'next-intl';
@@ -13,6 +12,7 @@ import { usePathname } from 'next/navigation';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { useAuth } from '@/hooks/useAuth';
 import { FavoritesProvider } from '@/context/FavoritesContext';
+import ChatBox from '@/components/ChatBox';
 
 interface ClientLayoutProps {
   locale: string;
@@ -86,10 +86,9 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
                 }}
               >
                 {children}
+                <ChatBox />
               </Box>
               {typeof window !== 'undefined' && !isManagerPage && <Footer />}
-              {/* ChatBox - hiển thị trên mọi trang */}
-              <ChatBox userId={userId} />
             </Box>
           </FavoritesProvider>
         </AuthProvider>
