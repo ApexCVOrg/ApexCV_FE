@@ -1,3 +1,4 @@
+
 /* eslint-disable */
 "use client";
 import { useState } from "react";
@@ -19,6 +20,7 @@ import {
   Select,
   MenuItem,
   Paper,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,6 +31,8 @@ import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { createVnpayPayment } from "@/services/api";
+import { useAuth } from '@/hooks/useAuth';
+import { profileService } from '@/services/profile';
 
 // Extend CartItem interface to include _id
 interface ProductSize {
@@ -65,6 +69,7 @@ export default function CartPage() {
   const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const t = useTranslations("cartPage");
+  const { isAuthenticated, getCurrentUser } = useAuth();
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -279,8 +284,92 @@ export default function CartPage() {
   const handleCheckout = async () => {
     if (!cart || cart.cartItems.length === 0) return;
     
+    // Kiểm tra user đã đăng nhập chưa
+    if (!isAuthenticated) {
+      alert("Vui lòng đăng nhập để thanh toán");
+      return;
+    }
+    
+    // Kiểm tra tất cả items đã chọn size và màu chưa
+    const itemsWithoutSizeOrColor = cart.cartItems.filter(item => {
+      const cartItem = item as CartItemWithId;
+      return !cartItem.size || !cartItem.color;
+    });
+    
+    if (itemsWithoutSizeOrColor.length > 0) {
+      const itemNames = itemsWithoutSizeOrColor.map(item => item.product.name).join(', ');
+      alert(`Vui lòng chọn size và màu cho các sản phẩm sau: ${itemNames}`);
+      return;
+    }
+    
     setIsProcessingPayment(true);
     try {
+      // Lấy token từ localStorage
+      const token = localStorage.getItem('auth_token');
+      console.log('Token from localStorage:', token ? 'exists' : 'not found');
+      
+      if (!token) {
+        alert("Token không tồn tại, vui lòng đăng nhập lại");
+        return;
+      }
+
+      // Lưu token vào cookies để VNPAY return có thể truy cập
+      document.cookie = `auth_token=${token}; path=/; max-age=3600; SameSite=Lax`;
+      console.log('Token saved to cookies for VNPAY return');
+
+      // Lấy thông tin user hiện tại từ token
+      let currentUser;
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const payload = JSON.parse(jsonPayload);
+        currentUser = {
+          id: payload.id || payload._id,
+          email: payload.email,
+          role: payload.role
+        };
+        console.log('Current user from token:', currentUser);
+        console.log('Token payload:', payload);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        alert("Token không hợp lệ, vui lòng đăng nhập lại");
+        return;
+      }
+
+      if (!currentUser || !currentUser.id) {
+        alert("Không thể lấy thông tin người dùng từ token");
+        return;
+      }
+
+      // Lấy thông tin profile đầy đủ bao gồm địa chỉ
+      let userProfile;
+      try {
+        console.log('Calling profile service...');
+        userProfile = await profileService.getProfile();
+        console.log('User profile:', userProfile);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        console.error("Error details:", error);
+        alert("Không thể lấy thông tin profile");
+        return;
+      }
+
+      // Lấy địa chỉ mặc định hoặc địa chỉ đầu tiên
+      const defaultAddress = userProfile.addresses?.find(addr => addr.isDefault) || userProfile.addresses?.[0];
+      
+      if (!defaultAddress) {
+        alert("Vui lòng thêm địa chỉ giao hàng trong profile");
+        return;
+      }
+
+      console.log('Default address:', defaultAddress);
+
       // Tạo dữ liệu VNPAY theo đúng format
       const vnpayData = {
         vnp_Amount: total, // VNPAY yêu cầu số tiền nhân 100
@@ -303,18 +392,22 @@ export default function CartPage() {
           price: item.product.discountPrice || item.product.price,
         })),
         shippingAddress: {
-          fullName: 'Khách hàng',
-          phone: '0123456789',
-          address: 'Địa chỉ giao hàng',
-          city: 'Hà Nội',
-          district: 'Quận 1',
-          ward: 'Phường 1',
+          fullName: defaultAddress.recipientName || userProfile.fullName,
+          phone: userProfile.phone,
+          street: defaultAddress.street,
+          city: defaultAddress.city,
+          state: defaultAddress.state,
+          postalCode: defaultAddress.addressNumber, // Map addressNumber to postalCode
+          country: defaultAddress.country,
         },
         paymentMethod: 'VNPAY',
         totalPrice: total,
         taxPrice: 0,
         shippingPrice: 0,
+        user: currentUser.id, // Thêm user ID để backend có thể lấy thông tin
       };
+
+      console.log('VNPAY data:', vnpayData);
 
       const paymentUrl = await createVnpayPayment(vnpayData);
       window.location.href = paymentUrl;
@@ -344,6 +437,12 @@ export default function CartPage() {
   const subtotal = calculateSubtotal();
   const shipping = 0;
   const total = subtotal + shipping;
+
+  // Kiểm tra xem có items nào chưa chọn size hoặc màu không
+  const hasIncompleteItems = cart.cartItems.some(item => {
+    const cartItem = item as CartItemWithId;
+    return !cartItem.size || !cartItem.color;
+  });
 
   const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
     setUpdatingItems((prev) => new Set(prev).add(cartItemId));
@@ -536,6 +635,7 @@ export default function CartPage() {
                                 label={t("size")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, e.target.value, cartItem.color)}
                                 sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                error={!cartItem.size}
                               >
                                 {cartItem.product.sizes
                                   ?.filter((sz) => !cartItem.color || ("color" in sz && sz.color === cartItem.color))
@@ -577,6 +677,7 @@ export default function CartPage() {
                                 label={t("color")}
                                 onChange={(e) => handleUpdateItemOptions(cartItem._id, cartItem.size, e.target.value)}
                                 sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                error={!cartItem.color}
                               >
                                 {[
                                   ...new Set(
@@ -615,6 +716,29 @@ export default function CartPage() {
                             )
                           )}
                         </Stack>
+                        
+                        {/* Warning message khi chưa chọn size hoặc màu */}
+                        {(!cartItem.size || !cartItem.color) && (
+                          <Alert 
+                            severity="warning" 
+                            sx={{ 
+                              mb: 1, 
+                              borderRadius: 0, 
+                              border: "1px solid #ed6c02",
+                              bgcolor: "#fff4e5",
+                              color: "#ed6c02",
+                              fontWeight: 600,
+                              fontSize: "0.75rem"
+                            }}
+                          >
+                            {!cartItem.size && !cartItem.color 
+                              ? "Vui lòng chọn size và màu để thanh toán"
+                              : !cartItem.size 
+                                ? "Vui lòng chọn size để thanh toán"
+                                : "Vui lòng chọn màu để thanh toán"
+                            }
+                          </Alert>
+                        )}
                         {/* Hiển thị tồn kho ngoài dropdown */}
                         {cartItem.size && cartItem.color && cartItem.product.sizes && (
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
@@ -815,6 +939,30 @@ export default function CartPage() {
               {t("orderSummary")}
             </Typography>
 
+            {/* Warning về items chưa hoàn thành */}
+            {hasIncompleteItems && (
+              <Alert 
+                severity="warning" 
+                sx={{ 
+                  mb: 2, 
+                  borderRadius: 0, 
+                  border: "1px solid #ed6c02",
+                  bgcolor: "#fff4e5",
+                  color: "#ed6c02",
+                  fontWeight: 600,
+                  fontSize: "0.875rem"
+                }}
+              >
+                {(() => {
+                  const incompleteCount = cart.cartItems.filter(item => {
+                    const cartItem = item as CartItemWithId;
+                    return !cartItem.size || !cartItem.color;
+                  }).length;
+                  return `${incompleteCount} sản phẩm chưa chọn size hoặc màu. Vui lòng hoàn thành trước khi thanh toán.`;
+                })()}
+              </Alert>
+            )}
+
             <Box sx={{ position: "relative", my: 3 }}>
               <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
             </Box>
@@ -875,21 +1023,32 @@ export default function CartPage() {
             </Stack>
 
             <Stack spacing={2} sx={{ mt: 4 }}>
-              <Button
-                variant="contained"
-                fullWidth
-                size="large"
-                onClick={handleCheckout}
-                disabled={isProcessingPayment}
-                sx={{
-                  ...buttonStyle,
-                  bgcolor: "black",
-                  color: "white",
-                  "&:hover": { bgcolor: "gray.800" },
-                }}
+              <Tooltip 
+                title={hasIncompleteItems ? "Vui lòng chọn size và màu cho tất cả sản phẩm trước khi thanh toán" : ""}
+                placement="top"
               >
-                {isProcessingPayment ? "Đang xử lý..." : t("checkout")}
-              </Button>
+                <span>
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    onClick={handleCheckout}
+                    disabled={isProcessingPayment || hasIncompleteItems}
+                    sx={{
+                      ...buttonStyle,
+                      bgcolor: "black",
+                      color: "white",
+                      "&:hover": { bgcolor: "gray.800" },
+                      "&.Mui-disabled": {
+                        bgcolor: "gray.400",
+                        color: "gray.600"
+                      }
+                    }}
+                  >
+                    {isProcessingPayment ? "Đang xử lý..." : t("checkout")}
+                  </Button>
+                </span>
+              </Tooltip>
 
               <Button
                 variant="outlined"
