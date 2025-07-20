@@ -14,14 +14,26 @@ export async function GET(request: NextRequest) {
     
     console.log('[Frontend API] Calling backend:', apiUrl);
     
+    // Lấy token từ cookies nếu có
+    const authToken = request.cookies.get('auth_token')?.value;
+    console.log('[Frontend API] Auth token from cookies:', authToken ? 'exists' : 'not found');
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+    
+    // Thêm Authorization header nếu có token
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
+    }
+    
     console.log('[Frontend API] Making fetch request to:', apiUrl);
+    console.log('[Frontend API] Headers:', headers);
     
     const response = await fetch(apiUrl, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
+      headers,
       credentials: 'include',
     });
     

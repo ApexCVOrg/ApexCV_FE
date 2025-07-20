@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('auth_token'); // Sửa từ 'authToken' thành 'auth_token'
     // Không tự động redirect, để component tự xử lý
   };
 
