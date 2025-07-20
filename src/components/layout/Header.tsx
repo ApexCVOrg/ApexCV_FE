@@ -651,13 +651,13 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
-                  {/* Thêm menu voucher */}
-                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
-                    <ListItemIcon>
-                      <span role="img" aria-label="voucher">🎟️</span>
-                    </ListItemIcon>
-                    Voucher
-                  </MenuItem>
+                          {/* Thêm menu coupon */}
+        <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
+          <ListItemIcon>
+            <span role="img" aria-label="coupon">🎟️</span>
+          </ListItemIcon>
+          Coupon
+        </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" />

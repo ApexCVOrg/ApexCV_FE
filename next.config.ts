@@ -16,5 +16,13 @@ const nextConfig = {
       'dothethao.net.vn'
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/payment/:path*',
+        destination: 'http://localhost:5000/api/payment/:path*',
+      },
+    ];
+  },
 };
 module.exports = withNextIntl(nextConfig);

@@ -44,7 +44,8 @@ if (!isAuthenticated) {
   setFavorites([]);
   setFavoritesCount(0);
   return;
-}
+}git restore src\components\ChatBox.tsx
+
 
 // Sau
 if (!isAuthenticated()) { // Gọi function

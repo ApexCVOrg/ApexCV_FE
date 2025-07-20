@@ -10,9 +10,7 @@ import {
   Divider,
   List,
   ListItem,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ListItemText,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ListItemSecondaryAction,
   TextField,
   Chip,

@@ -11,14 +11,19 @@ import {
 } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 
-interface Voucher {
+interface Coupon {
   code: string;
-  description: string;
-  expiry: string;
+  type: 'percentage' | 'fixed';
+  value: number;
+  minOrderValue: number;
+  maxUsage: number;
+  used: number;
+  expiresAt: string;
+  isActive: boolean;
 }
 
 // Styled components for high contrast, minimalism
-const VoucherCard = styled(Card)(({ theme }) => ({
+const CouponCard = styled(Card)(({ theme }) => ({
   background: theme.palette.mode === "dark" ? "#111" : "#fff",
   border: `2px solid #111` ,
   boxShadow: "0 2px 12px 0 rgba(0,0,0,0.04)",
@@ -71,16 +76,16 @@ function formatDate(dateString: string) {
   return date.toLocaleDateString('vi-VN');
 }
 
-export default function VoucherPage() {
-  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+export default function CouponPage() {
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: "" });
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/voucher/")
+    fetch("http://localhost:5000/api/coupon/")
       .then(res => res.json())
-      .then(data => setVouchers(data.data || []));
+      .then(data => setCoupons(data.data || []));
   }, []);
 
   const handleCopy = async (code: string) => {
@@ -115,19 +120,19 @@ export default function VoucherPage() {
           fontFamily: `"Be Vietnam Pro", "Inter", "Roboto", "Arial", sans-serif`
         }}
       >
-        Voucher Ưu Đãi
+        Coupon Ưu Đãi
       </Typography>
       <Stack spacing={3}>
-        {vouchers.length === 0 && (
+        {coupons.length === 0 && (
           <Typography textAlign="center" color="text.secondary" fontSize={18}>
-            Hiện chưa có voucher nào.
+            Hiện chưa có coupon nào.
           </Typography>
         )}
-        {vouchers.map((voucher) => (
-          <VoucherCard
-            key={voucher.code}
+        {coupons.map((coupon) => (
+          <CouponCard
+            key={coupon.code}
             tabIndex={0}
-            aria-label={`Voucher ${voucher.code}`}
+            aria-label={`Coupon ${coupon.code}`}
             sx={{
               p: { xs: 2, sm: 3 },
               width: "100%",
@@ -143,7 +148,7 @@ export default function VoucherPage() {
               }}
             >
               <Box sx={{ minWidth: 120, flexShrink: 0 }}>
-                <CodeBox>{voucher.code}</CodeBox>
+                <CodeBox>{coupon.code}</CodeBox>
               </Box>
               <Box sx={{ flex: 1 }}>
                 <Typography
@@ -154,7 +159,7 @@ export default function VoucherPage() {
                   mb={0.5}
                   sx={{ wordBreak: "break-word" }}
                 >
-                  {voucher.description}
+                  {coupon.type === 'percentage' ? `Giảm ${coupon.value}%` : `Giảm ${coupon.value.toLocaleString()}đ`}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -162,20 +167,28 @@ export default function VoucherPage() {
                   fontSize={16}
                   sx={{ mt: 0.5 }}
                 >
-                  Hạn sử dụng: {formatDate(voucher.expiry)}
+                  Đơn hàng tối thiểu: {coupon.minOrderValue.toLocaleString()}đ
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  fontSize={16}
+                  sx={{ mt: 0.5 }}
+                >
+                  Hạn sử dụng: {formatDate(coupon.expiresAt)}
                 </Typography>
               </Box>
               <Box sx={{ minWidth: { xs: "100%", sm: 120 }, mt: { xs: 1, sm: 0 } }}>
                 <CopyButton
-                  aria-label={`Sao chép mã ${voucher.code}`}
+                  aria-label={`Sao chép mã ${coupon.code}`}
                   fullWidth={isMobile}
-                  onClick={() => handleCopy(voucher.code)}
+                  onClick={() => handleCopy(coupon.code)}
                 >
                   Sao chép mã
                 </CopyButton>
               </Box>
             </Box>
-          </VoucherCard>
+          </CouponCard>
         ))}
       </Stack>
       <Snackbar

@@ -319,7 +319,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
                   categories={product.categories}
                   labels={product.label ? [product.label as ProductLabel] : []}
                   onAddToCart={() => console.log('Add to cart:', product._id)}
-                  onClick={() => onProductClick?.(product._id, product)}
+                  onViewDetail={() => onProductClick?.(product._id, product)}
                   backgroundColor="#f8f9fa"
                   colors={3}
                 />

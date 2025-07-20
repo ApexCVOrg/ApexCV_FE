@@ -1847,6 +1847,8 @@ const ChatBox: React.FC = () => {
             minWidth: '20px',
             height: '20px',
           },
+          transition: 'all 0.3s ease',
+          boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
         }}
       >
         <Fab

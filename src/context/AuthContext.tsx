@@ -88,6 +88,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setToken(storedToken);
       setLastActivity(Date.now());
       // Bạn có thể fetch user profile ở đây nếu cần
+      // Fetch user profile từ backend
+      fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/users/profile', {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+        .then(res => res.json())
+        .then(user => setUser(user))
+        .catch(() => setUser(null));
     }
 
     // Listen for storage changes (when token is saved from success page)

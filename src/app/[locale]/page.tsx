@@ -30,7 +30,6 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
@@ -275,6 +274,7 @@ export default function HomePage() {
 
   // Fetch products for tabs (independent of filters)
   const fetchTabProducts = useCallback(async (tabKey: string) => {
+    console.log('Fetching products for tab:', tabKey);
     try {
       let filtered: Product[] = [];
       if (tabKey === 'topSelling') {
@@ -285,13 +285,14 @@ export default function HomePage() {
         filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
           _id: item._id,
           name: item.name,
-          images: [item.image],
+          images: [item.image || ''],
           price: item.totalRevenue || 0,
           discountPrice: undefined,
           tags: [],
           label: '',
           brand: { _id: '', name: '' },
           categories: [{ _id: '', name: item.category || 'Uncategorized' }],
+          orderCount: item.totalQuantity || 0,
         }));
       } else {
         // Các tab còn lại lấy từ API products (không filter theo category, price, brand)
@@ -344,12 +345,13 @@ export default function HomePage() {
         setLibProducts(filtered.filter(isLib));
         setOtherProducts(filtered.filter(p => !isLib(p)));
       }
+      console.log(`Products for ${tabKey}:`, filtered.length, filtered);
       setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
+      console.error('Error fetching products for tab:', tabKey, error);
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
       setLibProducts([]);
       setOtherProducts([]);
-      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
@@ -519,12 +521,12 @@ export default function HomePage() {
                 mb: rowIdx === 0 ? 6 : 2, // tăng khoảng cách giữa 2 hàng
               }}
             >
-              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
-                // Luôn lấy đúng ảnh lib
-                const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
-                return (
-                  <ProductCard
-                    key={product._id}
+                                {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
+                    // Luôn lấy đúng ảnh lib
+                    const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
+                    return (
+                      <ProductCard
+                        key={`lib-${product._id}-${rowIdx}`}
                     productId={product._id}
                     name={product.name}
                     image={imgSrc}
@@ -540,7 +542,7 @@ export default function HomePage() {
                     onAddToCart={() => console.log('Add to cart:', product._id)}
                     backgroundColor="#f8f9fa"
                     colors={3}
-                    onClick={() => handleProductCardClick(product._id, product)}
+                    onViewDetail={() => handleProductCardClick(product._id, product)}
                   />
                 );
               })}
@@ -828,7 +830,7 @@ export default function HomePage() {
                     }
                     return (
                       <motion.div
-                        key={product._id}
+                        key={`other-${product._id}-${idx}`}
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: idx * 0.07 }}
@@ -851,7 +853,7 @@ export default function HomePage() {
                           backgroundColor="#f8f9fa"
                           colors={3}
                           sx={{ height: '100%' }}
-                          onClick={() => handleProductCardClick(product._id, product)}
+                          onViewDetail={() => handleProductCardClick(product._id, product)}
                         />
                       </motion.div>
                     );
