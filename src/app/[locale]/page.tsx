@@ -17,7 +17,8 @@ import {
   Tab,
   IconButton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
+import SearchIcon from '@mui/icons-material/Search';
+import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
@@ -133,8 +134,9 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDetailSidebarOpen, setIsProductDetailSidebarOpen] = useState(false);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
   useAuth();
@@ -261,7 +263,6 @@ export default function HomePage() {
       setLibProducts(libFiltered);
       setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
       setProducts(prev => ({ ...prev, filtered }));
-      console.log('libProducts:', libFiltered);
     } catch (error) {
       setLibProducts([]);
       setOtherProducts([]);
@@ -280,7 +281,6 @@ export default function HomePage() {
         // Top Selling: gọi API public, không cần token
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`);
         const result = await response.json();
-        console.log('Top Selling API response:', response, result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
           _id: item._id,
@@ -400,6 +400,18 @@ export default function HomePage() {
     setSelectedBrands(prev =>
       event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId)
     );
+  };
+
+  const handleProductCardClick = (productId: string, product?: Product) => {
+    setSelectedProductId(productId);
+    setSelectedProduct(product || null);
+    setIsProductDetailSidebarOpen(true);
+  };
+
+  const handleCloseProductDetailSidebar = () => {
+    setIsProductDetailSidebarOpen(false);
+    setSelectedProductId(null);
+    setSelectedProduct(null);
   };
 
   return (
@@ -528,6 +540,7 @@ export default function HomePage() {
                     onAddToCart={() => console.log('Add to cart:', product._id)}
                     backgroundColor="#f8f9fa"
                     colors={3}
+                    onClick={() => handleProductCardClick(product._id, product)}
                   />
                 );
               })}
@@ -536,16 +549,17 @@ export default function HomePage() {
         </Box>
       )}
       {/* PHẦN CÒN LẠI GIỮ NGUYÊN */}
-      <Box 
-        sx={{ 
-          width: '100%',
-          px: 0,
-          py: { xs: 2, md: 4 },
-          position: 'relative',
-          zIndex: 1,
-          marginRight: { md: '380px' }, // Để chừa chỗ cho sidebar bên phải
-        }}
-      >
+              <Box 
+          sx={{ 
+            width: '100%',
+            px: 0,
+            py: { xs: 2, md: 4 },
+            position: 'relative',
+            zIndex: 1,
+            marginRight: { md: isProductDetailSidebarOpen ? '400px' : '0px' }, // Để chừa chỗ cho sidebar bên phải
+            transition: 'margin-right 0.3s ease',
+          }}
+        >
         <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
           {/* Hero Section, Discover... */}
           <motion.div
@@ -837,6 +851,7 @@ export default function HomePage() {
                           backgroundColor="#f8f9fa"
                           colors={3}
                           sx={{ height: '100%' }}
+                          onClick={() => handleProductCardClick(product._id, product)}
                         />
                       </motion.div>
                     );
@@ -921,6 +936,7 @@ export default function HomePage() {
               <Box sx={{ mt: 4 }}>
                 <TabCarousel 
                   products={products[TABS[tab].key] || []}
+                  onProductClick={handleProductCardClick}
                 />
               </Box>
             </motion.div>
@@ -937,6 +953,31 @@ export default function HomePage() {
           Product added to cart!
         </Box>
       </Snackbar>
+
+      {/* Product Detail Sidebar */}
+      <ProductDetailSidebar
+        productId={selectedProductId}
+        product={selectedProduct}
+        isOpen={isProductDetailSidebarOpen}
+        onClose={handleCloseProductDetailSidebar}
+      />
+
+      {/* Overlay for Product Detail Sidebar */}
+      {isProductDetailSidebarOpen && (
+        <Box
+          onClick={handleCloseProductDetailSidebar}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.3)',
+            zIndex: 1200,
+            cursor: 'pointer',
+          }}
+        />
+      )}
     </>
   );
 }

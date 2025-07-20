@@ -41,6 +41,7 @@ interface ProductCardProps {
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
+  onClick?: () => void; // Thêm click handler cho product detail
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
@@ -61,6 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   onAddToCart,
+  onClick,
   labels,
   allCategories,
   allBrands,
@@ -100,8 +102,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Debug logs
   if (typeof window !== 'undefined') {
-    console.log('ProductCard tags:', tags);
-    console.log('ProductCard allCategories:', allCategories);
   }
 
   // Hiển thị brand đúng tên
@@ -119,7 +119,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { token } = useAuthContext();
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Ngăn chặn event bubbling
     if (!token) {
       setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
       return;
@@ -144,6 +145,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <Card 
           ref={cardRef}
+          onClick={onClick}
           sx={{ 
             borderRadius: '24px',
             background: backgroundColor,
@@ -163,6 +165,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             transition: 'box-shadow 0.3s',
+            cursor: onClick ? 'pointer' : 'default',
             '&:hover': {
               boxShadow: '0 8px 32px 0 rgba(0,0,0,0.16)',
               '.cart-btn': {
@@ -426,18 +429,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Nếu không phải ảnh lib, render card style đơn giản
   return (
-    <Card sx={{
-      maxWidth: 320,
-      borderRadius: 4,
-      boxShadow: 2,
-      p: 1.5,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      background: '#fff',
-      transition: 'box-shadow 0.2s',
-      '&:hover': { boxShadow: 6 },
-    }}>
+    <Card 
+      onClick={onClick}
+      sx={{
+        maxWidth: 320,
+        borderRadius: 4,
+        boxShadow: 2,
+        p: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: '#fff',
+        transition: 'box-shadow 0.2s',
+        cursor: onClick ? 'pointer' : 'default',
+        '&:hover': { boxShadow: 6 },
+      }}
+    >
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
         <Box
           sx={{

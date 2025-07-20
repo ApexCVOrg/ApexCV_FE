@@ -116,7 +116,14 @@ export default function CartPage() {
           </Typography>
           <Button
             variant="contained"
-            onClick={() => router.push("/auth/login")}
+            onClick={() => {
+              // Get current locale from URL
+              const currentLocale = window.location.pathname.split('/')[1];
+              const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+                ? `/${currentLocale}/auth/login` 
+                : '/vi/auth/login';
+              router.push(loginUrl);
+            }}
             sx={{
               ...buttonStyle,
               bgcolor: "black",
