@@ -39,7 +39,7 @@ class WebSocketService {
         return;
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://apexcv-be.onrender.com';
       this.ws = new WebSocket(`${wsUrl}?token=${token}`);
 
       this.ws.onopen = () => {

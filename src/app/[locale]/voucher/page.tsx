@@ -75,7 +75,7 @@ export default function CouponPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/coupon/')
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com'}/coupons`)
       .then(res => res.json())
       .then(data => setCoupons(data.data || []));
   }, []);

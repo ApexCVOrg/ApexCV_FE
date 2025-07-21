@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     console.log('[Frontend API] VNPAY return query:', query);
 
     // Forward to backend - loại bỏ /api từ baseURL nếu có
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com';
     const cleanBaseURL = baseURL.replace(/\/api$/, '');
     const apiUrl = `${cleanBaseURL}/api/payment/vnpay/return?${query}`;
 
