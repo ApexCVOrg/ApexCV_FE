@@ -11,13 +11,14 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
 export default function HoodiePage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    // let apiSortBy = sortBy;
-    // let sortOrder = 'desc';
+    let apiSortBy = sortBy;
+    let sortOrder = 'desc';
     if (sortBy === 'price-low') {
       apiSortBy = 'price';
       sortOrder = 'asc';
