@@ -8,6 +8,7 @@
   "productCard": {
     "sale": "Sale",
     "addToCart": "Add to Cart",
+    "addToCartSuccess": "Added to cart!",
     "unknownBrand": "Unknown Brand",
     "uncategorized": "Uncategorized"
   },
@@ -927,5 +928,5 @@
     "measurementInstructions": "How to measure",
     "measurementNotes": "Notes",
     "close": "Close"
-}
+  }
 }

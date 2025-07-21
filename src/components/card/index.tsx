@@ -21,7 +21,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
 import api from '@/services/api';
@@ -76,8 +76,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
   const displayLabels = labels?.filter(l => l !== 'sale') || [];
-  
-
 
   // Kiểm tra xem có phải ảnh trong lib không
   const isLibImage = image.includes('/assets/images/lib/');
@@ -85,7 +83,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // GSAP Animation cho entrance effect (chỉ cho lib images)
   useEffect(() => {
     if (isLibImage && cardRef.current) {
-      gsap.fromTo(cardRef.current, 
+      gsap.fromTo(
+        cardRef.current,
         {
           opacity: 0,
           y: 50,
@@ -96,7 +95,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           y: 0,
           scale: 1,
           duration: 0.6,
-          ease: "elastic.out(1,0.3)",
+          ease: 'elastic.out(1,0.3)',
           delay: Math.random() * 0.3, // Stagger effect
         }
       );
@@ -140,9 +139,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
     try {
       await api.post('/carts/add', { productId });
-      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!',
+        severity: 'success',
+      });
     } catch {
-      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!',
+        severity: 'error',
+      });
     }
   };
 
@@ -152,19 +159,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
   const handleAddToCart = async () => {
     if (!token) {
-      setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
+      setSnackbar({
+        open: true,
+        message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+        severity: 'warning',
+      });
       return;
     }
     try {
       await api.post('/carts/add', { productId });
       await refreshCart(); // Refresh cart state
-      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+      setSnackbar({
+        open: true,
+        message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!',
+        severity: 'success',
+      });
     } catch {
-      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!',
+        severity: 'error',
+      });
     }
   };
 
@@ -178,10 +201,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
         transition={{ duration: 0.7, ease: 'easeOut' }}
         style={{ height: '100%' }}
       >
-        <Card 
+        <Card
           ref={cardRef}
           onClick={handleCardClick}
-          sx={{ 
+          sx={{
             borderRadius: '24px',
             background: backgroundColor,
             boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
@@ -212,7 +235,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.18))',
               },
             },
-          }} 
+          }}
         >
           {/* Favorite Button (top right of card) */}
           <Box
@@ -223,14 +246,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               zIndex: 3,
               pointerEvents: 'auto',
             }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
-            <FavoriteButton
-              productId={productId}
-              size="small"
-              color="error"
-              showTooltip={true}
-            />
+            <FavoriteButton productId={productId} size="small" color="error" showTooltip={true} />
           </Box>
           {/* Ảnh sản phẩm nổi ra ngoài card, hiệu ứng đồng bộ hover */}
           <Box
@@ -247,7 +265,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
               justifyContent: 'center',
               background: 'none',
               pointerEvents: 'none',
-              transition: 'transform 0.4s cubic-bezier(.4,2,.6,1), filter 0.4s cubic-bezier(.4,2,.6,1)',
+              transition:
+                'transform 0.4s cubic-bezier(.4,2,.6,1), filter 0.4s cubic-bezier(.4,2,.6,1)',
             }}
             className="product-image"
           >
@@ -308,10 +327,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </Typography>
 
               {/* Colors Info */}
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
                   fontSize: '12px',
                   textTransform: 'capitalize',
                   letterSpacing: '0.5px',
@@ -328,7 +347,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <Typography
                       variant="h6"
                       color="error"
-                      sx={{ 
+                      sx={{
                         fontWeight: 'bold',
                         fontSize: '14px',
                         display: 'flex',
@@ -344,7 +363,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ 
+                      sx={{
                         textDecoration: 'line-through',
                         fontSize: '12px',
                       }}
@@ -359,7 +378,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   <Typography
                     variant="h6"
                     color="primary"
-                    sx={{ 
+                    sx={{
                       fontWeight: 'bold',
                       fontSize: '14px',
                       display: 'flex',
@@ -380,16 +399,26 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {[...Array(5)].map((_, i) => (
                   <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
                 ))}
-                <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
+                <Box
+                  sx={{
+                    bgcolor: '#f5f5f5',
+                    color: '#222',
+                    fontWeight: 600,
+                    fontSize: 14,
+                    borderRadius: 1,
+                    px: 1,
+                    ml: 1,
+                  }}
+                >
                   5.0
                 </Box>
               </Box>
 
               {/* Brand and Categories */}
-              <Typography 
-                variant="body2" 
-                color="text.secondary" 
-                sx={{ 
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
                   fontSize: '12px',
                   marginBottom: 1,
                 }}
@@ -400,7 +429,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               {/* Tags */}
               {(tags || []).length > 0 && (
                 <Stack direction="row" spacing={0.5} mb={2} flexWrap="wrap">
-                  {(tags || []).map((tag) => {
+                  {(tags || []).map(tag => {
                     let displayTag = tag;
                     let found: CategoryLike | undefined;
                     if (allCategories) {
@@ -428,7 +457,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </CardContent>
           </Box>
 
-                    {/* 2 Icon buttons ẩn, hover card mới hiện ra */}
+          {/* 2 Icon buttons ẩn, hover card mới hiện ra */}
           <Box
             className="cart-btn"
             sx={{
@@ -445,7 +474,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
           >
             <IconButton
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleViewDetailButton();
               }}
@@ -456,17 +485,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 width: 48,
                 height: 48,
                 boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
-                '&:hover': { 
-                  bgcolor: '#1976d2', 
+                '&:hover': {
+                  bgcolor: '#1976d2',
                   color: 'white',
-                  borderColor: '#1976d2'
+                  borderColor: '#1976d2',
                 },
               }}
             >
               <SearchIcon sx={{ fontSize: 20 }} />
             </IconButton>
             <IconButton
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 handleAddToCart();
               }}
@@ -485,8 +514,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </IconButton>
           </Box>
         </Card>
-        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
             {snackbar.message}
           </Alert>
         </Snackbar>
@@ -496,7 +533,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Nếu không phải ảnh lib, render card style đơn giản
   return (
-    <Card 
+    <Card
       onClick={handleCardClick}
       sx={{
         maxWidth: 320,
@@ -540,14 +577,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
             right: 12,
             zIndex: 3,
           }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={e => e.stopPropagation()}
         >
-          <FavoriteButton
-            productId={productId}
-            size="small"
-            color="error"
-            showTooltip={true}
-          />
+          <FavoriteButton productId={productId} size="small" color="error" showTooltip={true} />
         </Box>
         {isDiscounted && (
           <Box
@@ -578,7 +610,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               size="small"
               sx={{
                 position: 'absolute',
-                top: 12 + (isDiscounted ? (idx + 1) : idx) * 32,
+                top: 12 + (isDiscounted ? idx + 1 : idx) * 32,
                 left: 12,
                 fontWeight: 'bold',
                 fontSize: 12,
@@ -589,21 +621,45 @@ const ProductCard: React.FC<ProductCardProps> = ({
           );
         })}
       </Box>
-      <CardContent sx={{ width: '100%', p: 0, flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+      <CardContent
+        sx={{
+          width: '100%',
+          p: 0,
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+        }}
+      >
         <Typography
           gutterBottom
           variant="subtitle1"
           component="h3"
-          sx={{ fontWeight: 600, mb: 1, color: '#222', minHeight: 48, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
+          sx={{
+            fontWeight: 600,
+            mb: 1,
+            color: '#222',
+            minHeight: 48,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+          }}
         >
           {name}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <Typography variant="h5" sx={{ fontWeight: 700, color: '#1a237e', mr: 1 }}>
-            {isDiscounted ? discountPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+            {isDiscounted
+              ? discountPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+              : price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
           </Typography>
           {isDiscounted && (
-            <Typography variant="body2" sx={{ color: '#888', textDecoration: 'line-through', mr: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: '#888', textDecoration: 'line-through', mr: 1 }}
+            >
               {price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
             </Typography>
           )}
@@ -613,7 +669,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {[...Array(5)].map((_, i) => (
             <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
           ))}
-          <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
+          <Box
+            sx={{
+              bgcolor: '#f5f5f5',
+              color: '#222',
+              fontWeight: 600,
+              fontSize: 14,
+              borderRadius: 1,
+              px: 1,
+              ml: 1,
+            }}
+          >
             5.0
           </Box>
         </Box>
@@ -624,7 +690,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Tags */}
         {(tags || []).length > 0 && (
           <Stack direction="row" spacing={0.5} mb={1} flexWrap="wrap" sx={{ rowGap: 0.75 }}>
-            {(tags || []).map((tag) => {
+            {(tags || []).map(tag => {
               let displayTag = tag;
               let found: CategoryLike | undefined;
               if (allCategories) {
@@ -636,7 +702,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   key={tag}
                   label={displayTag}
                   size="small"
-                  sx={{ fontWeight: 600, textTransform: 'uppercase', backgroundColor: '#f1f1f1', color: '#333' }}
+                  sx={{
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    backgroundColor: '#f1f1f1',
+                    color: '#333',
+                  }}
                 />
               );
             })}
@@ -646,7 +717,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <Button
             variant="outlined"
             fullWidth
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               handleViewDetailButton();
             }}
@@ -658,10 +729,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
               borderRadius: 2,
               py: 1,
               textTransform: 'none',
-              '&:hover': { 
-                bgcolor: '#111a2f', 
+              '&:hover': {
+                bgcolor: '#111a2f',
                 color: 'white',
-                borderColor: '#111a2f'
+                borderColor: '#111a2f',
               },
             }}
           >
@@ -671,7 +742,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             variant="contained"
             fullWidth
             startIcon={<ShoppingCartIcon />}
-            onClick={(e) => {
+            onClick={e => {
               e.stopPropagation();
               handleAddToCart();
             }}
@@ -691,8 +762,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Button>
         </Stack>
       </CardContent>
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

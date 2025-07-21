@@ -1,21 +1,10 @@
 'use client';
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-} from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Grid from '@mui/material/Grid';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface OrderStatusData {
   name: string;
@@ -38,7 +27,8 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
-      const percentage = safeTotalOrders > 0 ? ((data.value / safeTotalOrders) * 100).toFixed(1) : '0.0';
+      const percentage =
+        safeTotalOrders > 0 ? ((data.value / safeTotalOrders) * 100).toFixed(1) : '0.0';
       return (
         <Box
           sx={{
@@ -60,7 +50,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
     }
     return null;
   };
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomLegend = ({ payload }: any) => (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
@@ -90,7 +80,11 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             {entry.value}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            ({safeTotalOrders > 0 ? ((entry.payload.value / safeTotalOrders) * 100).toFixed(1) : '0.0'}%)
+            (
+            {safeTotalOrders > 0
+              ? ((entry.payload.value / safeTotalOrders) * 100).toFixed(1)
+              : '0.0'}
+            %)
           </Typography>
         </Box>
       ))}
@@ -98,7 +92,9 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
   );
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, width: '100%' }}>
+    <Box
+      sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, width: '100%' }}
+    >
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
         <Card sx={{ height: '100%', minHeight: 400, flex: 1, maxWidth: 600, width: '100%' }}>
           <CardContent sx={{ p: 3 }}>
@@ -134,11 +130,13 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                   </PieChart>
                 </ResponsiveContainer>
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-                <CustomLegend payload={safeOrderStatusData.map((item, index) => ({
-                  value: item.name,
-                  color: item.color,
-                  payload: item,
-                }))} />
+                <CustomLegend
+                  payload={safeOrderStatusData.map((item, index) => ({
+                    value: item.name,
+                    color: item.color,
+                    payload: item,
+                  }))}
+                />
               </>
             ) : (
               <Box
@@ -197,15 +195,16 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                       }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box sx={{ color: status.color }}>
-                          {status.icon}
-                        </Box>
+                        <Box sx={{ color: status.color }}>{status.icon}</Box>
                         <Box>
                           <Typography variant="body1" sx={{ fontWeight: 600 }}>
                             {status.name}
                           </Typography>
                           <Typography variant="caption" color="text.secondary">
-                            {safeTotalOrders > 0 ? ((status.value / safeTotalOrders) * 100).toFixed(1) : '0.0'}% of total
+                            {safeTotalOrders > 0
+                              ? ((status.value / safeTotalOrders) * 100).toFixed(1)
+                              : '0.0'}
+                            % of total
                           </Typography>
                         </Box>
                       </Box>
@@ -264,4 +263,4 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
       </Box>
     </Box>
   );
-} 
+}

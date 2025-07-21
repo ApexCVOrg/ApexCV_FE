@@ -22,12 +22,7 @@ import {
   StepLabel,
   StepContent,
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  Facebook,
-  CheckCircle,
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, Facebook, CheckCircle } from '@mui/icons-material';
 import Image from 'next/image';
 
 import { useAuth } from '@/hooks/useAuth';
@@ -139,7 +134,7 @@ export default function RegisterPage() {
   // OTP Timer effect
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    
+
     if (otpSent && !otpVerified && !otpExpired && activeStep === 2) {
       interval = setInterval(() => {
         setOtpTimer(prev => {
@@ -215,28 +210,33 @@ export default function RegisterPage() {
   ];
 
   // Handlers
-  const handleChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setFormData(prev => ({ ...prev, [field]: newValue }));
-    
-    // Save basic info (excluding password)
-    if (field !== 'password' && field !== 'confirmPassword') {
-      saveFormData({ [field]: newValue }, activeStep);
-    }
-  };
+  const handleChange =
+    (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setFormData(prev => ({ ...prev, [field]: newValue }));
 
-  const handleAddressChange = (field: keyof typeof formData.address) =>
-      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const value = field === 'isDefault' ? (e.target as HTMLInputElement).checked : e.target.value;
-        setFormData(prev => ({
-          ...prev,
+      // Save basic info (excluding password)
+      if (field !== 'password' && field !== 'confirmPassword') {
+        saveFormData({ [field]: newValue }, activeStep);
+      }
+    };
+
+  const handleAddressChange =
+    (field: keyof typeof formData.address) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const value = field === 'isDefault' ? (e.target as HTMLInputElement).checked : e.target.value;
+      setFormData(prev => ({
+        ...prev,
         address: { ...prev.address, [field]: value },
       }));
-      
+
       // Save address data
-      saveFormData({ 
-        address: { ...formData.address, [field]: value } 
-      }, activeStep);
+      saveFormData(
+        {
+          address: { ...formData.address, [field]: value },
+        },
+        activeStep
+      );
     };
 
   const handleNext = () => {
@@ -287,10 +287,10 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email }),
       });
-      
+
       const data = await response.json();
       console.log('Resend verification response:', data);
-      
+
       if (data.success) {
         // Reset OTP state và chuyển sang step 3
         setOtpSent(true);
@@ -304,23 +304,26 @@ export default function RegisterPage() {
       } else {
         // Nếu resend không thành công, thử cách khác
         console.log('Resend failed, trying alternative approach...');
-        
+
         // Thử gọi register lại với cùng thông tin
-        const registerResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            username: formData.username,
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone,
-          }),
-        });
-        
+        const registerResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: formData.username,
+              fullName: formData.fullName,
+              email: formData.email,
+              password: formData.password,
+              phone: formData.phone,
+            }),
+          }
+        );
+
         const registerData = await registerResponse.json();
         console.log('Re-register response:', registerData);
-        
+
         if (registerData.success) {
           setOtpSent(true);
           setOtpTimer(60);
@@ -346,21 +349,24 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       // Đầu tiên gọi register để tạo verification data
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: formData.username,
-          fullName: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-        }),
-      });
-      
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: formData.username,
+            fullName: formData.fullName,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+          }),
+        }
+      );
+
       const data = await response.json();
       console.log('Register response:', data); // Debug log
-      
+
       if (data.success) {
         setOtpSent(true);
         setOtpTimer(60); // Reset timer
@@ -375,7 +381,7 @@ export default function RegisterPage() {
           setError('verification_in_progress'); // Use a special error code
           return;
         }
-        
+
         // Nếu có lỗi validation từ register
         if (data.errors) {
           setFieldErrors(data.errors);
@@ -394,14 +400,16 @@ export default function RegisterPage() {
   const handleOTPChange = (index: number, value: string) => {
     // Chỉ cho phép nhập số
     if (!/^\d*$/.test(value)) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value.slice(0, 1);
     setOtp(newOtp);
 
     // Tự động chuyển đến ô tiếp theo khi nhập số
     if (value && index < 5) {
-      const nextInput = document.querySelector(`input[data-otp-index="${index + 1}"]`) as HTMLInputElement;
+      const nextInput = document.querySelector(
+        `input[data-otp-index="${index + 1}"]`
+      ) as HTMLInputElement;
       if (nextInput) {
         nextInput.focus();
       }
@@ -411,7 +419,9 @@ export default function RegisterPage() {
   const handleOTPKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     // Xử lý phím Backspace
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      const prevInput = document.querySelector(`input[data-otp-index="${index - 1}"]`) as HTMLInputElement;
+      const prevInput = document.querySelector(
+        `input[data-otp-index="${index - 1}"]`
+      ) as HTMLInputElement;
       if (prevInput) {
         prevInput.focus();
       }
@@ -422,19 +432,21 @@ export default function RegisterPage() {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').slice(0, 6).split('');
     const newOtp = [...otp];
-    
+
     pastedData.forEach((value, index) => {
       if (index < 6 && /^\d$/.test(value)) {
         newOtp[index] = value;
       }
     });
-    
+
     setOtp(newOtp);
-    
+
     // Focus vào ô cuối cùng hoặc ô đầu tiên trống
     const lastFilledIndex = newOtp.findIndex(digit => !digit);
     const focusIndex = lastFilledIndex === -1 ? 5 : lastFilledIndex;
-    const focusInput = document.querySelector(`input[data-otp-index="${focusIndex}"]`) as HTMLInputElement;
+    const focusInput = document.querySelector(
+      `input[data-otp-index="${focusIndex}"]`
+    ) as HTMLInputElement;
     if (focusInput) {
       focusInput.focus();
     }
@@ -445,62 +457,62 @@ export default function RegisterPage() {
       setError('OTP code has expired. Please resend the code.');
       return;
     }
-    
+
     if (otp.some(digit => !digit)) {
       setError('Please enter all 6 OTP digits');
       return;
     }
     setLoading(true);
     try {
-      const requestBody = { 
+      const requestBody = {
         email: formData.email,
-        code: otp.join('')
+        code: otp.join(''),
       };
-      
+
       console.log('Sending verify OTP request:', {
         url: `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`,
-        body: requestBody
+        body: requestBody,
       });
-      
+
       // Thử endpoint verify-email trước
       let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          Accept: 'application/json',
         },
         body: JSON.stringify(requestBody),
       });
-      
+
       console.log('Response status:', response.status);
       console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
+
       // Nếu verify-email không hoạt động, thử verify-otp
       if (!response.ok && response.status === 404) {
         console.log('Trying verify-otp endpoint instead...');
         response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            Accept: 'application/json',
           },
           body: JSON.stringify({
             email: formData.email,
-            otp: otp.join('')
+            otp: otp.join(''),
           }),
         });
         console.log('Verify-OTP response status:', response.status);
       }
-      
+
       // Kiểm tra response có phải JSON không
       const contentType = response.headers.get('content-type');
       console.log('Content-Type:', contentType);
-      
+
       if (!response.ok) {
         // Nếu response không thành công, lấy text để debug
         const errorText = await response.text();
         console.error('Error response text:', errorText);
-        
+
         if (contentType && contentType.includes('application/json')) {
           try {
             const errorData = JSON.parse(errorText);
@@ -513,16 +525,16 @@ export default function RegisterPage() {
         }
         return;
       }
-      
+
       if (!contentType || !contentType.includes('application/json')) {
         const responseText = await response.text();
         console.error('Non-JSON response:', responseText);
         throw new Error('Server returned non-JSON response');
       }
-      
+
       const data = await response.json();
       console.log('Verify OTP response:', data);
-      
+
       if (data.success) {
         setOtpVerified(true);
         setOtpExpired(false); // Reset expired state
@@ -546,7 +558,8 @@ export default function RegisterPage() {
   // Step 4: Address validation
   const validateAddress = (data: typeof initialFormData) => {
     const errors: Record<string, string> = {};
-    if (!data.address.recipientName) errors['address.recipientName'] = 'Please enter the recipient name';
+    if (!data.address.recipientName)
+      errors['address.recipientName'] = 'Please enter the recipient name';
     if (!data.address.street) errors['address.street'] = 'Please enter the street';
     if (!data.address.city) errors['address.city'] = 'Please enter the city';
     if (!data.address.state) errors['address.state'] = 'Please enter the state';
@@ -568,12 +581,14 @@ export default function RegisterPage() {
   const handleFinalRegistration = async () => {
     // Validate address fields
     const addressErrors: Record<string, string> = {};
-    if (!formData.address.recipientName) addressErrors.recipientName = 'Please enter the recipient name';
+    if (!formData.address.recipientName)
+      addressErrors.recipientName = 'Please enter the recipient name';
     if (!formData.address.street) addressErrors.street = 'Please enter the street';
     if (!formData.address.city) addressErrors.city = 'Please enter the city';
     if (!formData.address.state) addressErrors.state = 'Please enter the state';
     if (!formData.address.country) addressErrors.country = 'Please enter the country';
-    if (!formData.address.addressNumber) addressErrors.addressNumber = 'Please enter the address number';
+    if (!formData.address.addressNumber)
+      addressErrors.addressNumber = 'Please enter the address number';
 
     if (Object.keys(addressErrors).length > 0) {
       setFieldErrors(addressErrors);
@@ -585,26 +600,26 @@ export default function RegisterPage() {
     try {
       const requestBody = {
         email: formData.email,
-        address: [formData.address] // Gửi dưới dạng array như backend mong đợi
+        address: [formData.address], // Gửi dưới dạng array như backend mong đợi
       };
-      
+
       console.log('Sending save address request:', {
         url: `${process.env.NEXT_PUBLIC_API_URL}/auth/save-address`,
-        body: requestBody
+        body: requestBody,
       });
 
       // Chỉ lưu address vào database, không gọi lại register
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/save-address`, {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
+        headers: {
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
       });
-      
+
       const data = await response.json();
       console.log('Save address response:', data);
-      
+
       if (data.success) {
         handleStepComplete(4);
         // Clear saved form data after successful registration
@@ -645,7 +660,7 @@ export default function RegisterPage() {
     if (stepIndex <= activeStep || completedSteps.has(stepIndex)) {
       setActiveStep(stepIndex);
       saveFormData({}, stepIndex);
-      
+
       // Clear error khi chuyển step
       setError('');
       setFieldErrors({});
@@ -673,7 +688,7 @@ export default function RegisterPage() {
             <Typography variant="body2" sx={{ color: 'gray', mb: 1 }}>
               💡 Information will be automatically saved so you dont have to enter it again
             </Typography>
-            
+
             <TextField
               label="Tên đăng nhập"
               variant="outlined"
@@ -771,16 +786,27 @@ export default function RegisterPage() {
       case 1:
         return (
           <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Xác thực Email</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Xác thực Email
+            </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
               We will send an OTP code to your email: <strong>{formData.email}</strong>
             </Typography>
 
             {/* Error message with kill verification option */}
             {error === 'verification_in_progress' && (
-              <Box sx={{ mb: 3, p: 2, backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: 1 }}>
+              <Box
+                sx={{
+                  mb: 3,
+                  p: 2,
+                  backgroundColor: '#fff3cd',
+                  border: '1px solid #ffeaa7',
+                  borderRadius: 1,
+                }}
+              >
                 <Typography variant="body2" sx={{ color: '#856404', mb: 2 }}>
-                  This email is currently being verified. You can resend the OTP code or change your email.
+                  This email is currently being verified. You can resend the OTP code or change your
+                  email.
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Button
@@ -792,9 +818,9 @@ export default function RegisterPage() {
                       borderRadius: 0,
                       borderColor: '#856404',
                       color: '#856404',
-                      '&:hover': { 
-                        borderColor: '#6c5ce7', 
-                        backgroundColor: '#f8f9fa' 
+                      '&:hover': {
+                        borderColor: '#6c5ce7',
+                        backgroundColor: '#f8f9fa',
                       },
                     }}
                   >
@@ -811,8 +837,8 @@ export default function RegisterPage() {
                     sx={{
                       borderRadius: 0,
                       color: '#856404',
-                      '&:hover': { 
-                        backgroundColor: '#f8f9fa' 
+                      '&:hover': {
+                        backgroundColor: '#f8f9fa',
                       },
                     }}
                   >
@@ -821,14 +847,14 @@ export default function RegisterPage() {
                 </Box>
               </Box>
             )}
-            
+
             {/* Other error messages */}
             {error && error !== 'verification_in_progress' && (
               <Typography variant="body2" sx={{ color: 'error.main', mb: 2 }}>
                 {error}
               </Typography>
             )}
-            
+
             <Button
               onClick={handleSendOTP}
               fullWidth
@@ -838,7 +864,7 @@ export default function RegisterPage() {
             >
               {loading ? <CircularProgress size={24} /> : 'Send OTP'}
             </Button>
-            
+
             {/* Navigation buttons */}
             <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
               <Button
@@ -861,19 +887,21 @@ export default function RegisterPage() {
       case 2:
         return (
           <Box sx={{ py: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>Enter OTP code</Typography>
+            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+              Enter OTP code
+            </Typography>
             <Typography variant="body2" sx={{ mb: 3, textAlign: 'center' }}>
               The OTP code has been sent to {formData.email}
             </Typography>
-            
+
             {/* Timer display */}
             <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Typography 
-                variant="h4" 
-                sx={{ 
+              <Typography
+                variant="h4"
+                sx={{
                   fontWeight: 'bold',
                   color: otpTimer <= 10 ? 'error.main' : 'primary.main',
-                  fontFamily: 'monospace'
+                  fontFamily: 'monospace',
                 }}
               >
                 {Math.floor(otpTimer / 60)}:{(otpTimer % 60).toString().padStart(2, '0')}
@@ -882,29 +910,31 @@ export default function RegisterPage() {
                 {otpExpired ? 'OTP code has expired' : 'Time remaining'}
               </Typography>
             </Box>
-            
+
             <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', mb: 3 }}>
               {otp.map((digit, index) => (
-            <TextField
+                <TextField
                   key={index}
                   value={digit}
-                  onChange={(e) => handleOTPChange(index, e.target.value)}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleOTPKeyDown(index, e)}
+                  onChange={e => handleOTPChange(index, e.target.value)}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+                    handleOTPKeyDown(index, e)
+                  }
                   onPaste={handleOTPPaste}
                   variant="outlined"
                   size="small"
                   disabled={otpExpired}
                   inputProps={{
                     maxLength: 1,
-                    style: { 
+                    style: {
                       textAlign: 'center',
                       fontSize: '1.2rem',
                       fontWeight: 'bold',
-                      letterSpacing: '0.1em'
+                      letterSpacing: '0.1em',
                     },
                     'data-otp-index': index.toString(),
                     inputMode: 'numeric',
-                    pattern: '[0-9]*'
+                    pattern: '[0-9]*',
                   }}
                   sx={{
                     width: '50px',
@@ -931,12 +961,12 @@ export default function RegisterPage() {
                 />
               ))}
             </Box>
-            
+
             {/* Hướng dẫn nhập OTP */}
             <Typography variant="body2" sx={{ textAlign: 'center', color: 'gray', mb: 2 }}>
               💡 Enter numbers to automatically move to the next field | Paste to quickly enter
             </Typography>
-            
+
             {/* Navigation buttons */}
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
@@ -952,12 +982,12 @@ export default function RegisterPage() {
               >
                 Back
               </Button>
-              
+
               {otpExpired ? (
-                <Button 
-                  onClick={handleSendOTP} 
-                  variant="contained" 
-                  disabled={loading} 
+                <Button
+                  onClick={handleSendOTP}
+                  variant="contained"
+                  disabled={loading}
                   fullWidth
                   sx={{
                     ...buttonStyle,
@@ -968,10 +998,10 @@ export default function RegisterPage() {
                   {loading ? <CircularProgress size={24} /> : 'Resend OTP'}
                 </Button>
               ) : (
-                <Button 
-                  onClick={handleVerifyOTP} 
-                  variant="contained" 
-                  disabled={loading || otpExpired} 
+                <Button
+                  onClick={handleVerifyOTP}
+                  variant="contained"
+                  disabled={loading || otpExpired}
                   fullWidth
                   sx={buttonStyle}
                 >
@@ -985,11 +1015,13 @@ export default function RegisterPage() {
       case 3:
         return (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>Delivery address information</Typography>
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
+              Delivery address information
+            </Typography>
             <Typography variant="body2" sx={{ color: 'gray', mb: 1 }}>
               💡 Address will be automatically saved
             </Typography>
-            
+
             <TextField
               label="Recipient Name"
               variant="outlined"
@@ -1069,7 +1101,7 @@ export default function RegisterPage() {
               }
               label="Set as default address"
             />
-            
+
             {/* Navigation buttons */}
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button
@@ -1085,12 +1117,7 @@ export default function RegisterPage() {
               >
                 Back
               </Button>
-              <Button 
-                onClick={handleAddressSubmit} 
-                variant="contained" 
-                fullWidth
-                sx={buttonStyle}
-              >
+              <Button onClick={handleAddressSubmit} variant="contained" fullWidth sx={buttonStyle}>
                 Continue
               </Button>
             </Box>
@@ -1101,11 +1128,13 @@ export default function RegisterPage() {
         return (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <CheckCircle sx={{ fontSize: 64, color: 'green', mb: 2 }} />
-            <Typography variant="h6" sx={{ mb: 2 }}>Confirm information</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Confirm information
+            </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
               Your account has been created successfully! Now we will save your delivery address.
             </Typography>
-            
+
             <Box sx={{ textAlign: 'left', mb: 3, p: 2, border: '1px solid #ddd' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
                 Account information:
@@ -1114,12 +1143,16 @@ export default function RegisterPage() {
               <Typography variant="body2">Full Name: {formData.fullName}</Typography>
               <Typography variant="body2">Email: {formData.email}</Typography>
               <Typography variant="body2">Phone Number: {formData.phone}</Typography>
-              
+
               <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1, mt: 2 }}>
                 Delivery address:
               </Typography>
-              <Typography variant="body2">Recipient Name: {formData.address.recipientName}</Typography>
-              <Typography variant="body2">Address: {formData.address.addressNumber} {formData.address.street}</Typography>
+              <Typography variant="body2">
+                Recipient Name: {formData.address.recipientName}
+              </Typography>
+              <Typography variant="body2">
+                Address: {formData.address.addressNumber} {formData.address.street}
+              </Typography>
               <Typography variant="body2">City: {formData.address.city}</Typography>
               <Typography variant="body2">State/City: {formData.address.state}</Typography>
               <Typography variant="body2">Country: {formData.address.country}</Typography>
@@ -1127,10 +1160,10 @@ export default function RegisterPage() {
 
             {/* Navigation buttons */}
             <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
+              <Button
                 onClick={handleBackWithConfirmation}
                 variant="outlined"
-              fullWidth
+                fullWidth
                 sx={{
                   borderRadius: 0,
                   borderColor: 'black',
@@ -1142,14 +1175,14 @@ export default function RegisterPage() {
               </Button>
               <Button
                 onClick={handleFinalRegistration}
-              variant="contained"
-              disabled={loading}
+                variant="contained"
+                disabled={loading}
                 fullWidth
-              sx={buttonStyle}
-            >
+                sx={buttonStyle}
+              >
                 {loading ? <CircularProgress size={24} /> : 'Save address and complete'}
-            </Button>
-          </Box>
+              </Button>
+            </Box>
           </Box>
         );
 
@@ -1160,15 +1193,49 @@ export default function RegisterPage() {
 
   return (
     <Container maxWidth="md">
-      <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', py: 4, backgroundColor: 'black' }}>
-        <Paper elevation={3} sx={{ p: 4, width: '100%', backgroundColor: 'white', borderRadius: 0, border: '2px solid black' }}>
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+          backgroundColor: 'black',
+        }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            width: '100%',
+            backgroundColor: 'white',
+            borderRadius: 0,
+            border: '2px solid black',
+          }}
+        >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h3" sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: 'black', mb: 1 }}>
+            <Typography
+              variant="h3"
+              sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: 'black', mb: 1 }}
+            >
               {t('title')}
             </Typography>
-            <Typography variant="body1" sx={{ color: 'gray', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.875rem' }}>
+            <Typography
+              variant="body1"
+              sx={{
+                color: 'gray',
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.875rem',
+              }}
+            >
               {t('subtitle')}{' '}
-              <MuiLink component={Link} href={`/${locale}/auth/login`} color="primary" underline="hover">
+              <MuiLink
+                component={Link}
+                href={`/${locale}/auth/login`}
+                color="primary"
+                underline="hover"
+              >
                 {t('loginLink')}
               </MuiLink>
             </Typography>
@@ -1196,34 +1263,46 @@ export default function RegisterPage() {
             <Button
               variant="outlined"
               fullWidth
-              startIcon={<Image src="/google-icon.svg" alt="Google" width={24} height={24} style={{ marginRight: 8 }} />}
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
-              sx={{ 
+              startIcon={
+                <Image
+                  src="/google-icon.svg"
+                  alt="Google"
+                  width={24}
+                  height={24}
+                  style={{ marginRight: 8 }}
+                />
+              }
+              onClick={() =>
+                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`)
+              }
+              sx={{
                 mb: 2,
                 borderRadius: 0,
                 borderColor: 'black',
                 color: 'black',
-                '&:hover': { 
-                  borderColor: 'black', 
-                  bgcolor: 'grey.50' 
+                '&:hover': {
+                  borderColor: 'black',
+                  bgcolor: 'grey.50',
                 },
               }}
             >
               {t('continueWithGoogle')}
             </Button>
-            <Button 
-              fullWidth 
-              variant="outlined" 
-              startIcon={<Facebook />} 
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
-              sx={{ 
+            <Button
+              fullWidth
+              variant="outlined"
+              startIcon={<Facebook />}
+              onClick={() =>
+                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`)
+              }
+              sx={{
                 mb: 2,
                 borderRadius: 0,
                 borderColor: 'black',
                 color: 'black',
-                '&:hover': { 
-                  borderColor: 'black', 
-                  bgcolor: 'grey.50' 
+                '&:hover': {
+                  borderColor: 'black',
+                  bgcolor: 'grey.50',
                 },
               }}
             >
@@ -1244,9 +1323,10 @@ export default function RegisterPage() {
                 <StepLabel
                   onClick={() => handleStepClick(index)}
                   sx={{
-                    cursor: (index <= activeStep || completedSteps.has(index)) ? 'pointer' : 'default',
+                    cursor:
+                      index <= activeStep || completedSteps.has(index) ? 'pointer' : 'default',
                     '&:hover': {
-                      opacity: (index <= activeStep || completedSteps.has(index)) ? 0.8 : 1,
+                      opacity: index <= activeStep || completedSteps.has(index) ? 0.8 : 1,
                     },
                   }}
                   StepIconComponent={() => (
@@ -1258,13 +1338,22 @@ export default function RegisterPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: completedSteps.has(index) ? 'green' : activeStep === index ? 'black' : 'gray',
+                        backgroundColor: completedSteps.has(index)
+                          ? 'green'
+                          : activeStep === index
+                            ? 'black'
+                            : 'gray',
                         color: 'white',
                         fontSize: '1rem',
-                        cursor: (index <= activeStep || completedSteps.has(index)) ? 'pointer' : 'default',
+                        cursor:
+                          index <= activeStep || completedSteps.has(index) ? 'pointer' : 'default',
                         '&:hover': {
-                          backgroundColor: (index <= activeStep || completedSteps.has(index)) ? 
-                            (completedSteps.has(index) ? '#2e7d32' : '#333') : 'inherit',
+                          backgroundColor:
+                            index <= activeStep || completedSteps.has(index)
+                              ? completedSteps.has(index)
+                                ? '#2e7d32'
+                                : '#333'
+                              : 'inherit',
                         },
                       }}
                     >
@@ -1272,8 +1361,12 @@ export default function RegisterPage() {
                     </Box>
                   )}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{step.label}</Typography>
-                  <Typography variant="body2" sx={{ color: 'gray' }}>{step.description}</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {step.label}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'gray' }}>
+                    {step.description}
+                  </Typography>
                 </StepLabel>
                 <StepContent>{renderStepContent(index)}</StepContent>
               </Step>
@@ -1282,7 +1375,15 @@ export default function RegisterPage() {
 
           {/* Navigation hint */}
           {activeStep > 0 && (
-            <Box sx={{ mb: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: 1, border: '1px solid #e9ecef' }}>
+            <Box
+              sx={{
+                mb: 2,
+                p: 2,
+                backgroundColor: '#f8f9fa',
+                borderRadius: 1,
+                border: '1px solid #e9ecef',
+              }}
+            >
               <Typography variant="body2" sx={{ color: 'gray', textAlign: 'center' }}>
                 💡 You can click on the completed steps to edit
               </Typography>
@@ -1291,7 +1392,17 @@ export default function RegisterPage() {
 
           {/* Error message */}
           {error && (
-            <Typography color="error" variant="body2" sx={{ textAlign: 'center', mt: 2, p: 1, backgroundColor: 'rgba(211, 47, 47, 0.1)', borderRadius: 1 }}>
+            <Typography
+              color="error"
+              variant="body2"
+              sx={{
+                textAlign: 'center',
+                mt: 2,
+                p: 1,
+                backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                borderRadius: 1,
+              }}
+            >
               {error}
             </Typography>
           )}
@@ -1299,7 +1410,13 @@ export default function RegisterPage() {
           <Box sx={{ textAlign: 'center', mt: 3 }}>
             <Typography variant="body2" sx={{ color: 'gray' }}>
               {t('alreadyHaveAccount')}{' '}
-              <MuiLink component={Link} href={`/${locale}/auth/login`} color="primary" underline="hover" sx={{ fontWeight: 'bold' }}>
+              <MuiLink
+                component={Link}
+                href={`/${locale}/auth/login`}
+                color="primary"
+                underline="hover"
+                sx={{ fontWeight: 'bold' }}
+              >
                 {t('signIn')}
               </MuiLink>
             </Typography>

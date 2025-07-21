@@ -1,16 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  Box,
-  Button,
-  Stack,
-  Chip,
-} from '@mui/material';
+import { Card, CardMedia, CardContent, Typography, Box, Button, Stack, Chip } from '@mui/material';
 
 interface ProductCardProps {
   name: string;
@@ -85,11 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Stack direction="row" alignItems="center" spacing={1}>
           {isDiscounted ? (
             <>
-              <Typography
-                variant="body1"
-                color="error"
-                sx={{ fontWeight: 'bold' }}
-              >
+              <Typography variant="body1" color="error" sx={{ fontWeight: 'bold' }}>
                 {discountPrice?.toLocaleString('vi-VN', {
                   style: 'currency',
                   currency: 'VND',
@@ -107,11 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </Typography>
             </>
           ) : (
-            <Typography
-              variant="body1"
-              color="text.primary"
-              sx={{ fontWeight: 'bold' }}
-            >
+            <Typography variant="body1" color="text.primary" sx={{ fontWeight: 'bold' }}>
               {price?.toLocaleString('vi-VN', {
                 style: 'currency',
                 currency: 'VND',
@@ -122,7 +105,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {tags.length > 0 && (
           <Stack direction="row" spacing={0.5} mt={1} flexWrap="wrap">
-            {tags.map((tag) => (
+            {tags.map(tag => (
               <Chip
                 key={tag}
                 label={tag}

@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
-import { Box, Typography, Button } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
+'use client';
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import Image from 'next/image';
+import Link from 'next/link';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 interface Logo {
@@ -31,7 +31,7 @@ export default function HeroBanner({
   ctaText,
   ctaLink,
   logos = [],
-  minHeight = { xs: '60vh', md: '80vh', lg: '90vh' }
+  minHeight = { xs: '60vh', md: '80vh', lg: '90vh' },
 }: HeroBannerProps) {
   return (
     <Box
@@ -49,13 +49,7 @@ export default function HeroBanner({
         justifyContent: 'center',
       }}
     >
-      <Image
-        src={imageSrc}
-        alt={imageAlt}
-        fill
-        style={{ objectFit: 'cover' }}
-        priority
-      />
+      <Image src={imageSrc} alt={imageAlt} fill style={{ objectFit: 'cover' }} priority />
       <Box
         sx={{
           position: 'absolute',
@@ -75,7 +69,18 @@ export default function HeroBanner({
         {logos.length > 0 && (
           <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
             {logos.map((logo, idx) => (
-              <Box key={idx} sx={{ bgcolor: 'white', borderRadius: 0.5, px: 1, py: 0.5, display: 'flex', alignItems: 'center', boxShadow: 1 }}>
+              <Box
+                key={idx}
+                sx={{
+                  bgcolor: 'white',
+                  borderRadius: 0.5,
+                  px: 1,
+                  py: 0.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: 1,
+                }}
+              >
                 <Image
                   src={logo.src}
                   alt={logo.alt}
@@ -101,9 +106,9 @@ export default function HeroBanner({
             boxShadow: 1,
           }}
         >
-          <Typography 
-            variant="h3" 
-            component="h1" 
+          <Typography
+            variant="h3"
+            component="h1"
             sx={{
               fontWeight: 900,
               fontSize: { xs: '1.3rem', md: '2rem', lg: '2.2rem' },
@@ -132,9 +137,9 @@ export default function HeroBanner({
             boxShadow: 1,
           }}
         >
-          <Typography 
-            variant="subtitle1" 
-            component="h2" 
+          <Typography
+            variant="subtitle1"
+            component="h2"
             sx={{
               fontWeight: 400,
               fontSize: { xs: '1rem', md: '1.1rem', lg: '1.15rem' },
@@ -148,11 +153,11 @@ export default function HeroBanner({
         </Box>
         {/* CTA Button */}
         <Link href={ctaLink} style={{ textDecoration: 'none' }}>
-          <Button 
+          <Button
             variant="outlined"
             size="large"
             endIcon={<ArrowForwardIcon sx={{ fontSize: 24, ml: 0.5 }} />}
-            sx={{ 
+            sx={{
               bgcolor: 'white',
               color: 'black',
               px: 3,
@@ -169,7 +174,7 @@ export default function HeroBanner({
                 bgcolor: 'black',
                 color: 'white',
                 borderColor: 'black',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.2)'
+                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
               },
               transition: 'all 0.3s ease',
             }}
@@ -180,4 +185,4 @@ export default function HeroBanner({
       </Box>
     </Box>
   );
-} 
+}

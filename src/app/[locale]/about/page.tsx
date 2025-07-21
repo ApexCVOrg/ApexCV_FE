@@ -15,15 +15,19 @@ export default function AboutPage() {
       </Box>
 
       <Typography variant="body1" paragraph>
-        Nidas is a modern fashion e-commerce platform inspired by Adidas, dedicated to bringing you the latest trends in footwear, apparel, and accessories. We combine style, comfort, and quality to help you express your unique personality through every product.
+        Nidas is a modern fashion e-commerce platform inspired by Adidas, dedicated to bringing you
+        the latest trends in footwear, apparel, and accessories. We combine style, comfort, and
+        quality to help you express your unique personality through every product.
       </Typography>
 
       <Typography variant="body1" paragraph>
-        Our mission is to empower our customers with a seamless shopping experience and a diverse selection of premium products from trusted brands worldwide.
+        Our mission is to empower our customers with a seamless shopping experience and a diverse
+        selection of premium products from trusted brands worldwide.
       </Typography>
 
       <Typography variant="body1" paragraph>
-        At Nidas, innovation and customer satisfaction are our top priorities. We continually strive to enhance our platform and services to meet your evolving needs.
+        At Nidas, innovation and customer satisfaction are our top priorities. We continually strive
+        to enhance our platform and services to meet your evolving needs.
       </Typography>
 
       <Box mt={6} textAlign="center">

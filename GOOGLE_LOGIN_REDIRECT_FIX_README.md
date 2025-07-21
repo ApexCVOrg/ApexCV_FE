@@ -3,6 +3,7 @@
 ## 🎯 Vấn đề
 
 Sau khi login bằng Google thành công, user được redirect đến:
+
 ```
 http://localhost:3000/vi/auth/success?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
@@ -61,7 +62,7 @@ console.log('User role:', role);
 try {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
     headers: {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   });
@@ -79,6 +80,7 @@ try {
 ## 🎨 Flow hoàn chỉnh
 
 ### **Google Login Flow:**
+
 1. User click "Login with Google"
 2. Redirect đến Google OAuth
 3. Google callback về backend
@@ -91,6 +93,7 @@ try {
    - Redirect theo role sau 1 giây
 
 ### **Redirect Logic:**
+
 ```typescript
 // Redirect theo role
 const pathParts = window.location.pathname.split('/');
@@ -108,6 +111,7 @@ if (role === 'admin') {
 ## 🔧 Technical Details
 
 ### **Authentication State Management:**
+
 ```typescript
 // Success page
 localStorage.setItem('auth_token', token);
@@ -129,6 +133,7 @@ useEffect(() => {
 ```
 
 ### **Router Navigation:**
+
 ```typescript
 // Sử dụng Next.js router với fallback
 try {
@@ -142,6 +147,7 @@ try {
 ## 🧪 Testing
 
 ### **Test Cases:**
+
 1. **Google Login**: Click login với Google
 2. **OAuth Redirect**: Kiểm tra redirect đến Google
 3. **Callback**: Kiểm tra callback về success page
@@ -151,6 +157,7 @@ try {
 7. **Homepage Access**: Kiểm tra có thể vào homepage sau login
 
 ### **Expected Behavior:**
+
 - ✅ Google login redirect đúng
 - ✅ Token được lưu vào localStorage
 - ✅ Authentication state được refresh
@@ -164,4 +171,4 @@ try {
 - Trigger storage event để refresh auth state
 - Thêm error handling cho router.push
 - Debug logging để track redirect flow
-- Fallback window.location nếu router.push fail 
+- Fallback window.location nếu router.push fail

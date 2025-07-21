@@ -11,7 +11,7 @@ interface ThemeContextType {
 
 export const ThemeContext = createContext<ThemeContextType>({
   theme: THEME.LIGHT,
-  toggleTheme: () => { },
+  toggleTheme: () => {},
 });
 
 export const useTheme = () => {
@@ -54,9 +54,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <MuiThemeProvider theme={muiTheme}>
-        {children}
-      </MuiThemeProvider>
+      <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>
     </ThemeContext.Provider>
   );
-}; 
+};

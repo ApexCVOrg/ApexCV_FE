@@ -10,7 +10,12 @@ interface CartContextProps {
   loading: boolean;
   error: string | null;
   addToCart: (data: AddToCartRequest) => Promise<void>;
-  updateCartItem: (cartItemId: string, quantity?: number, size?: string, color?: string) => Promise<void>;
+  updateCartItem: (
+    cartItemId: string,
+    quantity?: number,
+    size?: string,
+    color?: string
+  ) => Promise<void>;
   removeFromCart: (cartItemId: string) => Promise<void>;
   clearCart: () => Promise<void>;
   refreshCart: () => Promise<void>;
@@ -71,7 +76,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Cập nhật số lượng, size, color sản phẩm trong giỏ hàng
-  const updateCartItem = async (cartItemId: string, quantity?: number, size?: string, color?: string) => {
+  const updateCartItem = async (
+    cartItemId: string,
+    quantity?: number,
+    size?: string,
+    color?: string
+  ) => {
     try {
       setLoading(true);
       setError(null);
@@ -144,11 +154,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     cartItemCount,
   };
 
-  return (
-    <CartContext.Provider value={value}>
-      {children}
-    </CartContext.Provider>
-  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
 
 export const useCartContext = () => {
@@ -157,4 +163,4 @@ export const useCartContext = () => {
     throw new Error('useCartContext must be used within CartProvider');
   }
   return context;
-}; 
+};
