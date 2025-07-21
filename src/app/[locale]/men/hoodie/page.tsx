@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import GenderPageLayout from "@/components/layout/GenderPageLayout";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct, ApiResponse } from '@/types';
 
 interface Product {
   _id: string;
@@ -16,20 +18,15 @@ interface Product {
 
 export default function HoodiePage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
-    if (sortBy === 'price-low') { apiSortBy = 'price'; sortOrder = 'asc'; }
-    else if (sortBy === 'price-high') { apiSortBy = 'price'; sortOrder = 'desc'; }
-    else if (sortBy === 'newest') { apiSortBy = 'createdAt'; sortOrder = 'desc'; }
-    else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
+    const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
       // Fetch only men's products
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active&gender=men`);
       const data = await res.json();
       
-      // Lọc sản phẩm hoodie cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      // Lọc sản phẩm hoodie cho men
+      const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasHoodie = item.categoryPath.some((cat: string) => 
@@ -40,7 +37,7 @@ export default function HoodiePage() {
         
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasHoodieCategory = categoryNames.some((name: string) => 
             name.includes('hoodie') || name.includes('hoodies')
           );
@@ -61,9 +58,11 @@ export default function HoodiePage() {
         return false;
       });
       
-      return filtered;
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(filtered, sortBy);
+      
+      return sorted;
     } catch (error) {
-      console.error('Error fetching products:', error);
       throw new Error('Failed to fetch products');
     }
   };

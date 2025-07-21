@@ -12,12 +12,23 @@ import Link from "next/link";
 interface Product {
   _id: string;
   name: string;
-  image: string;
+  images: string[];
   price: number;
   discountPrice?: number;
   tags: string[];
   brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
+  categories: { 
+    _id: string; 
+    name: string;
+    parentCategory?: {
+      _id: string;
+      name: string;
+      parentCategory?: {
+        _id: string;
+        name: string;
+      };
+    };
+  }[];
   sizes?: { size: string; stock: number }[];
   colors?: string[];
 }
@@ -31,9 +42,6 @@ export default function WomenPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
-
-  // Debug environment variables
-  console.log('[WomenPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
 
   // Function to get team name from product categories
   const getTeamNameFromProduct = (product: Product): string => {
@@ -86,9 +94,6 @@ export default function WomenPage() {
           const teamProducts = (result.data || []).filter((p: any) =>
             p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
           );
-          console.log('[WomenPage] Total products:', result.data?.length);
-          console.log('[WomenPage] Team products:', teamProducts.length);
-          console.log('[WomenPage] Sample product data:', teamProducts?.[0]);
           setProducts(teamProducts);
           setDisplayedProducts(teamProducts.slice(0, productsPerPage));
         } else {
@@ -128,7 +133,6 @@ export default function WomenPage() {
         throw new Error(result.message);
       }
     } catch (err) {
-      console.error('[WomenPage] Error:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
       setLoading(false);
@@ -147,10 +151,32 @@ export default function WomenPage() {
     setCarouselIndex(prev => Math.min(Math.ceil(products.length / 4) - 1, prev + 1));
   };
 
+  if (error) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Container maxWidth="xl" disableGutters>
+    <>
       {/* Hero Banner */}
-      <Box sx={{ position: 'relative', height: '600px', width: '100%' }}>
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100vw',
+          left: '50%',
+          right: '50%',
+          marginLeft: '-50vw',
+          marginRight: '-50vw',
+          minHeight: { xs: '60vh', md: '80vh', lg: '90vh' },
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <Image
           src="/assets/images/banner/COLLECTIO-BANNER-HOME-KIT-25-26-CHICAS.webp"
           alt="Women's Football Collection"
@@ -182,8 +208,7 @@ export default function WomenPage() {
               py: { xs: 0.5, md: 0.8 },
               mb: 0.5,
               maxWidth: 'fit-content',
-              display: 'inline-block',
-              borderRadius: 1
+              display: 'inline-block'
             }}
           >
             <Typography 
@@ -211,8 +236,7 @@ export default function WomenPage() {
               py: { xs: 0.4, md: 0.6 },
               mb: 2,
               maxWidth: 'fit-content',
-              display: 'inline-block',
-              borderRadius: 1
+              display: 'inline-block'
             }}
           >
             <Typography 
@@ -254,33 +278,51 @@ export default function WomenPage() {
                 transition: 'all 0.3s ease'
               }}
             >
-              Khám phá ngay
+              Mua ngay
             </Button>
           </Link>
         </Box>
       </Box>
-
-      {/* Categories Section */}
-      <Box sx={{ py: 6 }}>
-        <Container maxWidth="lg">
-          <Typography variant="h4" component="h2" align="center" gutterBottom>
-            SHOP BY CATEGORY
-          </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
-            gap: 3, 
-            mt: 2,
-            '& > *': {
-              flex: '1 1 300px',
-              minWidth: '300px'
-            }
-          }}>
-            {[
+      <Container maxWidth="xl" disableGutters>
+        {/* Categories Section */}
+        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
+          <Container maxWidth="lg">
+            <Typography 
+              variant="h3" 
+              component="h2" 
+              align="center" 
+              sx={{
+                fontWeight: 'bold',
+                mb: 2,
+                color: 'text.primary'
+              }}
+            >
+              MUA SẮM THEO DANH MỤC
+            </Typography>
+            <Typography 
+              variant="h6" 
+              align="center" 
+              sx={{
+                color: 'text.secondary',
+                mb: 6,
+                fontWeight: 300
+              }}
+            >
+              Khám phá bộ sưu tập đa dạng dành cho nữ giới
+            </Typography>
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+              gap: { xs: 3, md: 3 },
+              mt: 4,
+              maxWidth: '1200px',
+              mx: 'auto'
+            }}>
+              {[
                 { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/team-sneaker' },
                 { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/Jersey-women' },
                 { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorttrouser-women' }
-            ].map((category) => (
+              ].map((category) => (
                 <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
                   <Card 
                     sx={{ 
@@ -300,79 +342,163 @@ export default function WomenPage() {
                     <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
                       <CardMedia
                         component="img"
-                        height="300"
                         image={category.image}
                         alt={category.name}
+                        sx={{
+                          height: { xs: 240, sm: 280, md: 320 },
+                          objectFit: 'cover',
+                          width: '100%',
+                          transition: 'transform 0.4s ease',
+                          filter: 'brightness(0.95)',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            filter: 'brightness(1)'
+                          }
+                        }}
                       />
-                      <CardContent>
-                        <Typography variant="h6" align="center">
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                          color: 'white',
+                          p: { xs: 2, md: 3 },
+                          textAlign: 'center'
+                        }}
+                      >
+                        <Typography 
+                          variant="h5" 
+                          sx={{ 
+                            fontWeight: 'bold', 
+                            mb: 1,
+                            fontSize: { xs: '1.5rem', md: '1.75rem' },
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                          }}
+                        >
                           {category.name}
                         </Typography>
-                      </CardContent>
+                        <Typography 
+                          variant="body1" 
+                          sx={{ 
+                            opacity: 0.95,
+                            fontSize: { xs: '0.9rem', md: '1rem' },
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                          }}
+                        >
+                          {category.description}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Card>
                 </Link>
-            ))}
-          </Box>
-        </Container>
-      </Box>
-
-      {/* Featured Products */}
-      <Box sx={{ py: 6, bgcolor: 'grey.100' }}>
-        <Container maxWidth="lg">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-            <Typography variant="h4" component="h2">
-              FEATURED PRODUCTS
-            </Typography>
-            <IconButton 
-              onClick={refreshProducts}
-              sx={{ 
-                bgcolor: 'primary.main', 
-                color: 'white',
-                '&:hover': { bgcolor: 'primary.dark' }
-              }}
-            >
-              <RefreshIcon />
-            </IconButton>
-          </Box>
-          {loading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-              <CircularProgress />
+              ))}
             </Box>
-          )}
-          {error && (
-            <Typography color="error" align="center" sx={{ my: 4 }}>
-              Error: {error}
-            </Typography>
-          )}
-          {!loading && !error && displayedProducts.length === 0 && (
+          </Container>
+        </Box>
+
+        {/* Featured Products */}
+        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
+          <Container maxWidth="lg">
             <Box sx={{ 
               display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center',
-              minHeight: '300px',
-              justifyContent: 'center'
+              flexDirection: { xs: 'column', md: 'row' },
+              justifyContent: 'space-between', 
+              alignItems: { xs: 'flex-start', md: 'center' }, 
+              mb: 6,
+              gap: { xs: 3, md: 0 }
             }}>
-              <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
-                Không tìm thấy sản phẩm nào
-              </Typography>
-              <Button 
-                variant="outlined" 
-                onClick={refreshProducts}
-                sx={{
-                  borderColor: 'black',
-                  color: 'black',
-                  '&:hover': {
-                    borderColor: 'black',
-                    bgcolor: 'black',
-                    color: 'white'
-                  }
-                }}
-              >
-                Tải lại
-              </Button>
+              <Box>
+                <Typography 
+                  variant="h3" 
+                  component="h2"
+                  sx={{
+                    fontWeight: 'bold',
+                    color: 'text.primary',
+                    mb: 1
+                  }}
+                >
+                  SẢN PHẨM NỔI BẬT
+                </Typography>
+                <Typography 
+                  variant="h6" 
+                  sx={{
+                    color: 'text.secondary',
+                    fontWeight: 300
+                  }}
+                >
+                  Những sản phẩm được yêu thích nhất
+                </Typography>
+              </Box>
+
             </Box>
-          )}
+            {loading && (
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                minHeight: '300px'
+              }}>
+                <CircularProgress size={60} sx={{ color: 'black' }}/>
+              </Box>
+            )}
+            {error && (
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                minHeight: '300px',
+                justifyContent: 'center'
+              }}>
+                <Typography color="error" align="center" variant="h6" sx={{ mb: 2 }}>
+                  Đã xảy ra lỗi: {error}
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  onClick={refreshProducts}
+                  sx={{
+                    borderColor: 'black',
+                    color: 'black',
+                    '&:hover': {
+                      borderColor: 'black',
+                      bgcolor: 'black',
+                      color: 'white'
+                    }
+                  }}
+                >
+                  Thử lại
+                </Button>
+              </Box>
+            )}
+            {!loading && !error && displayedProducts.length === 0 && (
+              <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                minHeight: '300px',
+                justifyContent: 'center'
+              }}>
+                <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
+                  Không tìm thấy sản phẩm nào
+                </Typography>
+                <Button 
+                  variant="outlined" 
+                  onClick={refreshProducts}
+                  sx={{
+                    borderColor: 'black',
+                    color: 'black',
+                    '&:hover': {
+                      borderColor: 'black',
+                      bgcolor: 'black',
+                      color: 'white'
+                    }
+                  }}
+                >
+                  Tải lại
+                </Button>
+              </Box>
+            )}
             {!loading && !error && products.length > 0 && (
               <Box sx={{ position: 'relative', overflow: 'hidden' }}>
                 {/* Left Navigation Button */}
@@ -444,8 +570,8 @@ export default function WomenPage() {
                         productId={product._id}
                         name={product.name || 'Unnamed Product'}
                         image={
-                          product.image
-                            ? `/assets/images/women/${product.categories?.[1]?.name.toLowerCase()}/${product.image}`
+                          product.images && product.images.length > 0
+                            ? `/assets/images/women/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
                             : '/assets/images/placeholder.jpg'
                         }
                         price={product.price || 0}
@@ -458,7 +584,6 @@ export default function WomenPage() {
                     </Box>
                   ))}
                 </Box>
-                
                 {/* Carousel Indicators */}
                 <Box sx={{ 
                   display: 'flex', 
@@ -487,8 +612,9 @@ export default function WomenPage() {
                 </Box>
               </Box>
             )}
-        </Container>
-      </Box>
-    </Container>
+          </Container>
+        </Box>
+      </Container>
+    </>
   );
 } 

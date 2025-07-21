@@ -40,9 +40,6 @@ export default function KidsPage() {
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Debug environment variables
-  console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
-
   // Function to get team name from product categories
   const getTeamNameFromProduct = (product: Product): string => {
     // Find team category (usually has a parent category that is gender)
@@ -78,7 +75,6 @@ export default function KidsPage() {
       setLoading(true);
       setError(null);
       try {
-        console.log('[KidsPage] Fetching from:', `${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
         
         if (!response.ok) {
@@ -86,19 +82,14 @@ export default function KidsPage() {
         }
         
         const result = await response.json();
-        console.log('[KidsPage] API Response:', result);
         
         if (result.success) {
-          console.log('[KidsPage] Total products:', result.data?.length);
-          console.log('[KidsPage] Sample product data:', result.data?.[0]);
-          console.log('[KidsPage] Sample image path:', result.data?.[0]?.images?.[0]);
           setProducts(result.data || []);
           setDisplayedProducts((result.data || []).slice(0, productsPerPage));
         } else {
           throw new Error(result.message || 'API returned unsuccessful response');
         }
       } catch (err) {
-        console.error('[KidsPage] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);

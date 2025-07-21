@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import GenderPageLayout from "@/components/layout/GenderPageLayout";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct, ApiResponse } from '@/types';
 
 interface Product {
   _id: string;
@@ -16,12 +18,7 @@ interface Product {
 
 export default function KidsTracksuitPage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
-    if (sortBy === 'price-low') { apiSortBy = 'price'; sortOrder = 'asc'; }
-    else if (sortBy === 'price-high') { apiSortBy = 'price'; sortOrder = 'desc'; }
-    else if (sortBy === 'newest') { apiSortBy = 'createdAt'; sortOrder = 'desc'; }
-    else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
+    const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
       // Fetch only kids' products with sorting
@@ -35,7 +32,7 @@ export default function KidsTracksuitPage() {
       const data = await res.json();
       
       // Lọc sản phẩm tracksuit cho kids
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasTracksuit = item.categoryPath.some((cat: string) => 
@@ -46,7 +43,7 @@ export default function KidsTracksuitPage() {
         
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasTracksuitCategory = categoryNames.some((name: string) => 
             name.includes('tracksuit') || name.includes('tracksuits')
           );
@@ -67,9 +64,11 @@ export default function KidsTracksuitPage() {
         return false;
       });
       
-      return filtered;
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(filtered, sortBy);
+      
+      return sorted;
     } catch (error) {
-      console.error('Error fetching products:', error);
       throw new Error('Failed to fetch products');
     }
   };

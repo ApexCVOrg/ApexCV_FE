@@ -1,802 +1,941 @@
-"use client";
-import React, { useEffect, useState } from "react";
+'use client';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'next/navigation';
 import {
-    Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Stack, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    TextField, Snackbar, Alert, Chip, MenuItem, FormControl, InputLabel, Select, Tooltip,
-    Pagination
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import api from "@/services/api";
-import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
-import { Checkbox, ListItemText } from "@mui/material";
-import { PRODUCT_LABELS } from '@/types/components/label';
-import { useTranslations } from "next-intl";
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Button,
+  Chip,
+  Rating,
+  Divider,
+  Tabs,
+  Tab,
+  Card,
+  CardContent,
+  IconButton,
+  Snackbar,
+  Alert,
+  CircularProgress,
+  Badge,
+  Stack,
+  Breadcrumbs,
+  Link,
+  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
+import {
+  ShoppingCart,
+  Favorite,
+  Share,
+  Star,
+  LocalShipping,
+  Security,
+  Refresh,
+  ArrowBack,
+  ArrowForward,
+  Close,
+  Check,
+  Info,
+  ZoomIn,
+} from '@mui/icons-material';
+import { useTranslations } from 'next-intl';
+import { useAuthContext } from '@/context/AuthContext';
+import { useCartContext } from '@/context/CartContext';
+import FavoriteButton from '@/components/ui/FavoriteButton';
+import SizeGuideModal from '@/components/SizeGuideModal';
+import api from '@/services/api';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Product {
-    _id: string;
-    name: string;
-    description: string;
-    price: number;
-    categories: string[];
-    status: "active" | "inactive";
-    createdAt: string;
-    updatedAt: string;
-    brand?: string | Brand;
-    label?: string[];
-    images?: string[];
+  _id: string;
+  name: string;
+  description?: string;
+  price: number;
+  discountPrice?: number;
+  images: string[];
+  sizes: { size: string; stock: number; color?: string }[];
+  colors: string[];
+  tags: string[];
+  brand: { _id: string; name: string };
+  categories: { _id: string; name: string }[];
+  ratingsAverage: number;
+  ratingsQuantity: number;
+  status: string;
+  createdAt: string;
 }
 
-interface ProductFormData {
-    name: string;
-    description: string;
-    price: number;
-    discountPrice?: number;
-    categories: string[];
-    brand: string;
-    images: string[];
-    sizes: { size: string; stock: number }[];
-    colors: string[];
-    tags: string[];
-    status: "active" | "inactive";
-    label?: string[];
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
 }
 
-interface Brand {
-    _id: string;
-    name: string;
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`product-tabpanel-${index}`}
+      aria-labelledby={`product-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
 }
 
-export default function ProductsPage() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<{ _id: string; name: string; parentCategory: string | null }[]>([]);
-    const [brands, setBrands] = useState<Brand[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    
-    // Pagination states
-    const [page, setPage] = useState(1);
-    const [limit] = useState(10);
-    const [totalPages, setTotalPages] = useState(1);
-    const [totalProducts, setTotalProducts] = useState(0);
-    
-    // Search and filter states
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<string>("all");
-    const [categoryFilter, setCategoryFilter] = useState<string>("all");
-    const [brandFilter, setBrandFilter] = useState<string>("all");
-    
-    const [formData, setFormData] = useState<ProductFormData>({
-        name: "",
-        description: "",
-        price: 0,
-        discountPrice: undefined,
-        categories: [],
-        brand: "",
-        images: [],
-        sizes: [],
-        colors: [],
-        tags: [],
-        status: "active",
-        label: [],
-    });
-    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
-        open: false, message: "", severity: "success"
-    });
-    const [colorInput, setColorInput] = useState("");
-    const [imageInput, setImageInput] = useState("");
+export default function ProductDetailPage() {
+  const params = useParams();
+  const t = useTranslations('productDetail');
+  const { token } = useAuthContext();
+  const { refreshCart } = useCartContext();
+  
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
+  const [tabValue, setTabValue] = useState(0);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'warning' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
+  const [showZoomModal, setShowZoomModal] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
-    const t = useTranslations("manager.products");
+  const productId = params.id as string;
 
-    // 1. Get subCategories (categories with parentCategory != null)
-    const subCategories = categories.filter(cat => cat.parentCategory);
-
-    // Search and filter function
-    const filterProducts = () => {
-        let filtered = products || [];
-
-        // Filter by search term
-        if (searchTerm) {
-            filtered = filtered.filter(product =>
-                product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        // Filter by status
-        if (statusFilter !== "all") {
-            filtered = filtered.filter(product => product.status === statusFilter);
-        }
-
-        // Filter by category
-        if (categoryFilter !== "all") {
-            filtered = filtered.filter(product => 
-                product.categories.includes(categoryFilter)
-            );
-        }
-
-        // Filter by brand
-        if (brandFilter !== "all") {
-            filtered = filtered.filter(product => {
-                const brandId = typeof product.brand === 'string' ? product.brand : product.brand?._id;
-                return brandId === brandFilter;
-            });
-        }
-
-        setFilteredProducts(filtered);
-    };
-
-    // Apply filters when search terms or filters change
-    useEffect(() => {
-        filterProducts();
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-     [searchTerm, statusFilter, categoryFilter, brandFilter, products]);
-
-    // Clear all filters
-    const clearFilters = () => {
-        setSearchTerm("");
-        setStatusFilter("all");
-        setCategoryFilter("all");
-        setBrandFilter("all");
-    };
-
-    // Fetch products and categories with pagination
-    const fetchProducts = async () => {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
         setLoading(true);
-        try {
-            const res = await api.get<Product[]>(API_ENDPOINTS.MANAGER.PRODUCTS, {
-                params: { page, limit }
-            });
-            setProducts(res.data);
-            setTotalProducts(res.data.length);
-            setTotalPages(Math.ceil(res.data.length / limit));
-        } catch {
-            setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: "error" });
-        } finally {
-            setLoading(false);
+        const response = await api.get(`/products/${productId}`);
+        const productData = response.data as { data: Product };
+        setProduct(productData.data);
+        
+        // Set default selections
+        if (productData.data.colors?.length > 0) {
+          setSelectedColor(productData.data.colors[0]);
         }
-    };
-    const fetchCategories = async () => {
-        try {
-            const res = await api.get<{ _id: string; name: string; parentCategory: string | null }[]>(API_ENDPOINTS.MANAGER.CATEGORIES);
-            setCategories(res.data);
-        } catch { }
-    };
-    const fetchBrands = async () => {
-        try {
-            const res = await api.get<Brand[]>(API_ENDPOINTS.MANAGER.BRANDS);
-            setBrands(res.data);
-        } catch { }
-    };
-
-    useEffect(() => {
-        fetchProducts();
-        fetchCategories();
-        fetchBrands();
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-     [page, limit]);
-
-    // Handle page change
-    const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
-    };
-
-    // Form handlers
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleOpenDialog = (product?: Product) => {
-        if (product) {
-            setSelectedProduct(product);
-            setFormData({
-                name: product.name,
-                description: product.description,
-                price: product.price,
-                discountPrice: undefined,
-                categories: product.categories || [],
-                brand: "",
-                images: [],
-                sizes: [],
-                colors: [],
-                tags: [],
-                status: product.status,
-                label: Array.isArray(product.label) ? product.label : product.label ? [product.label] : [],
-            });
-        } else {
-            setSelectedProduct(null);
-            setFormData({
-                name: "",
-                description: "",
-                price: 0,
-                discountPrice: undefined,
-                categories: [],
-                brand: "",
-                images: [],
-                sizes: [],
-                colors: [],
-                tags: [],
-                status: "active",
-                label: [],
-            });
+        if (productData.data.sizes?.length > 0) {
+          setSelectedSize(productData.data.sizes[0].size);
         }
-        setOpenDialog(true);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm');
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        setSelectedProduct(null);
-        setFormData({
-            name: "",
-            description: "",
-            price: 0,
-            discountPrice: undefined,
-            categories: [],
-            brand: "",
-            images: [],
-            sizes: [],
-            colors: [],
-            tags: [],
-            status: "active",
-            label: [],
-        });
-    };
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const url = selectedProduct
-                ? `${API_ENDPOINTS.MANAGER.PRODUCTS}/${selectedProduct._id}`
-                : API_ENDPOINTS.MANAGER.PRODUCTS;
-            const method = selectedProduct ? "put" : "post";
-            const submitData = {
-                ...formData,
-                categories: formData.categories.map(cat => typeof cat === 'string' ? cat : cat),
-                label: formData.label,
-            };
-            await api[method](url, submitData);
-            setSnackbar({
-                open: true,
-                message: selectedProduct ? SUCCESS_MESSAGES.MANAGER.PRODUCT_UPDATED : SUCCESS_MESSAGES.MANAGER.PRODUCT_CREATED,
-                severity: "success",
-            });
-            handleCloseDialog();
-            fetchProducts();
-        } catch {
-            setSnackbar({ open: true, message: ERROR_MESSAGES.MANAGER.INVALID_PRODUCT_DATA, severity: "error" });
-        }
-    };
+  // Auto scroll images
+  useEffect(() => {
+    if (autoScroll && product?.images && product.images.length > 1) {
+      autoScrollRef.current = setInterval(() => {
+        setSelectedImage((prev) => 
+          prev < (product?.images?.length - 1) ? prev + 1 : 0
+        );
+      }, 3000);
+    }
 
-    const handleDelete = async (id: string) => {
-        if (!window.confirm(t("deleteConfirm"))) return;
-        try {
-            await api.delete(`${API_ENDPOINTS.MANAGER.PRODUCTS}/${id}`);
-            setSnackbar({ open: true, message: SUCCESS_MESSAGES.MANAGER.PRODUCT_DELETED, severity: "success" });
-            fetchProducts();
-        } catch {
-            setSnackbar({ open: true, message: ERROR_MESSAGES.MANAGER.INVALID_PRODUCT_DATA, severity: "error" });
-        }
+    return () => {
+      if (autoScrollRef.current) {
+        clearInterval(autoScrollRef.current);
+      }
     };
+  }, [autoScroll, product?.images]);
 
-    // Handler động cho tags/colors/images/sizes
-    const handleAddTag = (type: "tags" | "colors", value: string) => {
-        if (!value) return;
-        setFormData(prev => ({ ...prev, [type]: [...prev[type], value] }));
-    };
-    const handleDeleteTag = (type: "tags" | "colors", idx: number) => {
-        setFormData(prev => ({ ...prev, [type]: prev[type].filter((_, i) => i !== idx) }));
-    };
-    const handleAddImage = (url: string) => {
-        if (!url) return;
-        setFormData(prev => ({ ...prev, images: [...prev.images, url] }));
-    };
-    const handleDeleteImage = (idx: number) => {
-        setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
-    };
-    const handleAddSize = () => {
-        setFormData(prev => ({ ...prev, sizes: [...prev.sizes, { size: "", stock: 0 }] }));
-    };
-    const handleSizeChange = (idx: number, field: "size" | "stock", value: string | number) => {
-        setFormData(prev => ({
-            ...prev,
-            sizes: prev.sizes.map((s, i) => i === idx ? { ...s, [field]: value } : s)
-        }));
-    };
-    const handleDeleteSize = (idx: number) => {
-        setFormData(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== idx) }));
-    };
+  const handleAddToCart = async () => {
+    if (!token) {
+      setSnackbar({
+        open: true,
+        message: t('loginToAddToCart'),
+        severity: 'warning',
+      });
+      return;
+    }
 
-    // Helper: Lấy tên brand từ objectId hoặc object
-    const getBrandName = (brand: string | Brand | undefined) => {
-        if (!brand) return '-';
-        if (typeof brand === 'string') {
-            const found = brands.find(b => b._id === brand);
-            return found ? found.name : brand;
-        } else if (typeof brand === 'object' && brand !== null) {
-            return brand.name;
-        }
-        return '-';
-    };
+    if (!selectedSize) {
+      setSnackbar({
+        open: true,
+        message: t('selectSize'),
+        severity: 'warning',
+      });
+      return;
+    }
 
-    // Helper: Lấy tên category dạng parent-sub
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const getCategoryDisplay = (cat: any) => {
-        if (!cat) return '';
-        if (cat.parentCategory && cat.parentCategory.name) {
-            return `${cat.parentCategory.name} - ${cat.name}`;
-        }
-        return cat.name;
-    };
+    if (!selectedColor) {
+      setSnackbar({
+        open: true,
+        message: t('selectColor'),
+        severity: 'warning',
+      });
+      return;
+    }
 
-    // Helper: Format ngày tháng
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+    try {
+      await api.post('/carts/add', {
+        productId: product?._id,
+        size: selectedSize,
+        color: selectedColor,
+        quantity,
+      });
+      await refreshCart();
+      setSnackbar({
+        open: true,
+        message: t('addToCartSuccess'),
+        severity: 'success',
+      });
+    } catch (err: any) {
+      setSnackbar({
+        open: true,
+        message: err.response?.data?.message || t('addToCartError'),
+        severity: 'error',
+      });
+    }
+  };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const getStock = (color: string, size: string) => {
+    return product?.sizes.find(s => s.size === size && s.color === color)?.stock || 0;
+  };
+
+  const getUniqueSizes = () => {
+    if (!product) return [];
+    return Array.from(new Set(product.sizes.map(s => s.size)));
+  };
+
+  const handleImageClick = () => {
+    setShowZoomModal(true);
+  };
+
+  const handlePrevImage = () => {
+    setSelectedImage(prev => prev > 0 ? prev - 1 : (product?.images.length || 1) - 1);
+  };
+
+  const handleNextImage = () => {
+    setSelectedImage(prev => prev < (product?.images.length || 1) - 1 ? prev + 1 : 0);
+  };
+
+  const getProductType = () => {
+    if (!product) return 'clothing';
+    
+    // Check category name
+    const categoryName = product.categories[0]?.name?.toLowerCase() || '';
+    const productName = product.name.toLowerCase();
+    
+    if (categoryName.includes('giày') || categoryName.includes('dép') || categoryName.includes('sneaker')) {
+      return 'shoes';
+    } else if (categoryName.includes('quần') || productName.includes('quần')) {
+      return 'pants';
+    } else {
+      return 'clothing';
+    }
+  };
+
+  // Lấy danh sách màu duy nhất từ mảng sizes
+  const uniqueColors = product ? Array.from(new Set(product.sizes.map(sz => sz.color).filter(Boolean))) : [];
+  // Lấy danh sách size duy nhất theo màu đã chọn
+  const sizesForSelectedColor = product && selectedColor
+    ? product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size)
+    : [];
+  // Lấy danh sách màu duy nhất theo size đã chọn (nếu muốn UX tốt hơn)
+  const colorsForSelectedSize = product && selectedSize
+    ? Array.from(new Set(product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color)))
+    : uniqueColors;
+
+  // Khi chọn màu, nếu size hiện tại không còn hợp lệ thì reset size
+  useEffect(() => {
+    if (selectedColor && product) {
+      const validSizes = product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size);
+      if (!validSizes.includes(selectedSize)) {
+        setSelectedSize(validSizes[0] || '');
+      }
+    }
+  }, [selectedColor, product]);
+
+  // Khi chọn size, nếu màu hiện tại không còn hợp lệ thì reset màu
+  useEffect(() => {
+    if (selectedSize && product) {
+      const validColors = product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color);
+      if (!validColors.includes(selectedColor)) {
+        setSelectedColor(validColors[0] || '');
+      }
+    }
+  }, [selectedSize, product]);
+
+  if (loading) {
     return (
-        <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', px: { xs: 1, md: 3 }, pt: 2, pb: 0, overflowX: 'auto' }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1} sx={{ px: 2, mb: 0, flexWrap: 'wrap' }}>
-                <Typography variant="h4" sx={{ fontWeight: 700, fontSize: '2rem' }}>{t("title")}</Typography>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()} sx={{ fontSize: '1rem', py: 1.5, px: 3 }}>
-                    {t("addNew")}
-                </Button>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box display="flex" flexDirection="column" alignItems="center" minHeight="400px">
+          <Typography variant="h5" color="error" gutterBottom>
+            {error || t('productNotFound')}
+          </Typography>
+          <Button variant="contained" onClick={() => window.history.back()}>
+            <ArrowBack sx={{ mr: 1 }} />
+            {t('backToHome')}
+          </Button>
+        </Box>
+      </Container>
+    );
+  }
+
+  const isDiscounted = product.discountPrice && product.discountPrice < product.price;
+  const discountPercentage = isDiscounted 
+    ? Math.round(((product.price - product.discountPrice!) / product.price) * 100)
+    : 0;
+
+  return (
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Breadcrumbs */}
+      <Breadcrumbs sx={{ mb: 3 }}>
+        <Link href="/" color="inherit" underline="hover">
+          Trang chủ
+        </Link>
+        <Link href={`/${product.categories[0]?.name.toLowerCase()}`} color="inherit" underline="hover">
+          {product.categories[0]?.name}
+        </Link>
+        <Typography color="text.primary">{product.name}</Typography>
+      </Breadcrumbs>
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+        {/* Product Images */}
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
+          <Box sx={{ position: 'sticky', top: 20 }}>
+            {/* Main Image with Carousel */}
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                height: 500,
+                borderRadius: 2,
+                overflow: 'hidden',
+                bgcolor: '#f8f9fa',
+                cursor: 'pointer',
+              }}
+              onClick={handleImageClick}
+            >
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={selectedImage}
+                  src={product.images[selectedImage]}
+                  alt={product.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                  }}
+                />
+              </AnimatePresence>
+
+              {/* Navigation Buttons */}
+              {product.images.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      left: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      bgcolor: 'rgba(0,0,0,0.3)',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'rgba(0,0,0,0.5)' },
+                    }}
+                  >
+                    <ArrowBack />
+                  </IconButton>
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    sx={{
+                      position: 'absolute',
+                      right: 10,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      bgcolor: 'rgba(0,0,0,0.3)',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'rgba(0,0,0,0.5)' },
+                    }}
+                  >
+                    <ArrowForward />
+                  </IconButton>
+                </>
+              )}
+
+              {/* Pagination Dots */}
+              {product.images.length > 1 && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 20,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    gap: 1,
+                  }}
+                >
+                  {product.images.map((_, index) => (
+                    <Box
+                      key={index}
+                      sx={{
+                        width: selectedImage === index ? 12 : 8,
+                        height: selectedImage === index ? 12 : 8,
+                        borderRadius: '50%',
+                        bgcolor: selectedImage === index ? 'white' : 'rgba(255,255,255,0.5)',
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedImage(index);
+                      }}
+                    />
+                  ))}
+                </Box>
+              )}
+
+              {/* Zoom Icon */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 10,
+                  right: 10,
+                  bgcolor: 'rgba(0,0,0,0.3)',
+                  borderRadius: '50%',
+                  p: 1,
+                }}
+              >
+                <ZoomIn sx={{ color: 'white', fontSize: 20 }} />
+              </Box>
+            </Box>
+
+            {/* Thumbnail Images */}
+            {product.images.length > 1 && (
+              <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
+                {product.images.map((image, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      border: selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
+                      bgcolor: '#f8f9fa',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onClick={() => setSelectedImage(index)}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 1}`}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            )}
+          </Box>
+        </Box>
+
+        {/* Product Info */}
+        <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
+          <Box sx={{ position: 'sticky', top: 20 }}>
+            {/* Product Title */}
+            <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600 }}>
+              {product.name}
+            </Typography>
+
+            {/* Rating */}
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Rating value={product.ratingsAverage} precision={0.1} readOnly />
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                {product.ratingsAverage.toFixed(1)} ({product.ratingsQuantity} đánh giá)
+              </Typography>
+            </Box>
+
+            {/* Price */}
+            <Box sx={{ mb: 3 }}>
+              {isDiscounted ? (
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Typography variant="h3" color="error" sx={{ fontWeight: 700 }}>
+                    {product.discountPrice!.toLocaleString('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                    })}
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    color="text.secondary"
+                    sx={{ textDecoration: 'line-through' }}
+                  >
+                    {product.price.toLocaleString('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                    })}
+                  </Typography>
+                  <Chip
+                    label={`-${discountPercentage}%`}
+                    color="error"
+                    size="small"
+                    sx={{ fontWeight: 700 }}
+                  />
+                </Stack>
+              ) : (
+                <Typography variant="h3" color="primary" sx={{ fontWeight: 700 }}>
+                  {product.price.toLocaleString('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
+                  })}
+                </Typography>
+              )}
+            </Box>
+
+            {/* Brand & Categories */}
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t('brand')}: <strong>{product.brand.name}</strong>
+              </Typography>
+              <Typography variant="body2" color="text.secondary" gutterBottom>
+                {t('categories')}: {product.categories.map(cat => cat.name).join(', ')}
+              </Typography>
+            </Box>
+
+            {/* Color Picker */}
+            {uniqueColors.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  {t('colors')}:
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {uniqueColors.map((color) => (
+                    // Nếu muốn UX tốt hơn, chỉ hiện màu hợp lệ với size đã chọn:
+                    // colorsForSelectedSize.includes(color)
+                    // Nếu không muốn, chỉ cần map uniqueColors
+                    colorsForSelectedSize.includes(color) && (
+                    <Box
+                      key={color}
+                      sx={{
+                        position: 'relative',
+                        minWidth: 80,
+                        height: 40,
+                        borderRadius: 20,
+                        border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
+                        bgcolor: selectedColor === color ? '#000' : '#fff',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        px: 2,
+                        '&:hover': {
+                          transform: 'scale(1.05)',
+                          bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
+                        },
+                      }}
+                      onClick={() => color && setSelectedColor(color)}
+                    >
+                      <Typography
+                        sx={{
+                          color: selectedColor === color ? '#fff' : '#000',
+                          fontWeight: 600,
+                          fontSize: 14,
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {color}
+                      </Typography>
+                      {selectedColor === color && (
+                        <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
+                      )}
+                    </Box>
+                    )
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Size Selection */}
+            {sizesForSelectedColor.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    {t('sizes')}:
+                  </Typography>
+                  <Button
+                    startIcon={<Info />}
+                    onClick={() => setShowSizeGuide(true)}
+                    sx={{ textTransform: 'none' }}
+                  >
+                    {t('sizeGuide')}
+                  </Button>
+                </Box>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: 2,
+                }}>
+                  {sizesForSelectedColor.map((size) => (
+                    // Nếu muốn UX tốt hơn, chỉ hiện size hợp lệ với màu đã chọn
+                    <motion.div
+                      key={size}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: '50%',
+                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedSize === size ? '#000' : '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          opacity: selectedColor ? 
+                            (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                        }}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        <Typography
+                          sx={{
+                            color: selectedSize === size ? '#fff' : '#000',
+                            fontWeight: 600,
+                            fontSize: 16,
+                          }}
+                        >
+                          {size}
+                        </Typography>
+                      </Box>
+                    </motion.div>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Stock Information */}
+            {selectedColor && selectedSize && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('colorSizeStock', { 
+                    color: selectedColor,
+                    size: selectedSize, 
+                    stock: getStock(selectedColor, selectedSize)
+                  })}
+                </Typography>
+              </Box>
+            )}
+
+            {/* Quantity */}
+            {selectedColor && selectedSize && getStock(selectedColor, selectedSize) > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  {t('quantity')}:
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <IconButton
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    disabled={quantity <= 1}
+                    sx={{ 
+                      border: '1px solid #ddd',
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    -
+                  </IconButton>
+                  <Typography variant="h6" sx={{ minWidth: 40, textAlign: 'center' }}>
+                    {quantity}
+                  </Typography>
+                  <IconButton
+                    onClick={() => setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))}
+                    disabled={quantity >= getStock(selectedColor, selectedSize)}
+                    sx={{ 
+                      border: '1px solid #ddd',
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    +
+                  </IconButton>
+                </Box>
+              </Box>
+            )}
+
+            {/* Action Buttons */}
+            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<ShoppingCart />}
+                onClick={handleAddToCart}
+                sx={{
+                  flex: 1,
+                  py: 1.5,
+                  bgcolor: '#000',
+                  borderRadius: 3,
+                  '&:hover': { bgcolor: '#333' },
+                }}
+              >
+                {t('addToCart')}
+              </Button>
+              <IconButton
+                sx={{
+                  border: '1px solid #ddd',
+                  color: isFavorite ? '#ff3b30' : '#000',
+                  '&:hover': { bgcolor: '#f5f5f5' },
+                }}
+                onClick={() => setIsFavorite(!isFavorite)}
+              >
+                <Favorite />
+              </IconButton>
+              <IconButton
+                sx={{
+                  border: '1px solid #ddd',
+                  '&:hover': { bgcolor: '#f5f5f5' },
+                }}
+              >
+                <Share />
+              </IconButton>
             </Stack>
 
-            {/* Search and Filter Section */}
-            <Paper sx={{ p: 2, mb: 2, mx: 2, maxWidth: '100%', overflowX: 'auto' }}>
-                <Stack spacing={2}>
-                    {/* Search Bar */}
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                        <TextField
-                            placeholder={t("searchPlaceholder")}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            sx={{ flexGrow: 1 }}
-                            InputProps={{
-                                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
-                            }}
-                        />
-                        <Button
-                            variant="outlined"
-                            startIcon={<ClearIcon />}
-                            onClick={clearFilters}
-                            disabled={!searchTerm && statusFilter === "all" && categoryFilter === "all" && brandFilter === "all"}
-                        >
-                            {t("clear")}
-                        </Button>
-                    </Box>
-
-                    {/* Filter Row */}
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', width: '100%', overflowX: 'auto' }}>
-                        <FormControl sx={{ minWidth: 120 }}>
-                            <InputLabel>Status</InputLabel>
-                            <Select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                label="Status"
-                            >
-                                <MenuItem value="all">{t("allStatus")}</MenuItem>
-                                <MenuItem value="active">{t("active")}</MenuItem>
-                                <MenuItem value="inactive">{t("inactive")}</MenuItem>
-                            </Select>
-                        </FormControl>
-
-                        <FormControl sx={{ minWidth: 150 }}>
-                            <InputLabel>Category</InputLabel>
-                            <Select
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                                label="Category"
-                            >
-                                <MenuItem value="all">{t("allCategories")}</MenuItem>
-                                {categories.map((category) => (
-                                    <MenuItem key={category._id} value={category._id}>
-                                        {category.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        <FormControl sx={{ minWidth: 120 }}>
-                            <InputLabel>Brand</InputLabel>
-                            <Select
-                                value={brandFilter}
-                                onChange={(e) => setBrandFilter(e.target.value)}
-                                label="Brand"
-                            >
-                                <MenuItem value="all">{t("allBrands")}</MenuItem>
-                                {brands.map((brand) => (
-                                    <MenuItem key={brand._id} value={brand._id}>
-                                        {brand.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        {/* Results Count */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-                            <Typography variant="body2" color="text.secondary">
-                                {t("resultsCount", { filtered: filteredProducts.length, total: totalProducts, itemType: t("products") })}
-                            </Typography>
-                        </Box>
-                    </Box>
-                </Stack>
-            </Paper>
-
-            <TableContainer component={Paper} sx={{ width: '100%', overflowX: 'auto', boxShadow: 3, mt: 0 }}>
-                <Table sx={{ width: '100%' }}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>Image</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("name")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 260 }}>{t("description")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("price")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("category")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>{t("brand")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("status")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 180 }}>{t("createdAt")}</TableCell>
-                            <TableCell sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 120 }}>{t("label")}</TableCell>
-                            <TableCell align="right" sx={{ fontWeight: 700, fontSize: '1.1rem', py: 2, width: 100 }}>{t("actions")}</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow key="loading">
-                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>{t("loading")}</TableCell>
-                            </TableRow>
-                        ) : filteredProducts.length === 0 ? (
-                            <TableRow key="empty">
-                                <TableCell colSpan={10} align="center" sx={{ py: 4, fontSize: '1.2rem' }}>{t("noProducts")}</TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredProducts.map(product => (
-                                <TableRow key={product._id} sx={{ fontSize: '1rem', height: 64 }}>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                                        
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src={product.images?.[0] ? `/assets/images/${product.images[0]}` : '/assets/images/placeholder.jpg'}
-                                            alt={product.name}
-                                            style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 6, border: '1px solid #eee' }}
-                                        />
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>{product.name}</TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                                        <Typography variant="body2">
-                                            {product.description}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
-                                        <Typography variant="body2" fontWeight="bold">
-                                            ${product.price.toLocaleString()}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal', wordBreak: 'break-word' }}>
-                                        {product.categories && product.categories.length > 0
-                                            ? product.categories.map(getCategoryDisplay).join(', ')
-                                            : '-'}
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>{getBrandName(product.brand)}</TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
-                                        <Chip 
-                                            label={product.status} 
-                                            color={product.status === "active" ? "success" : "default"} 
-                                            size="small"
-                                            variant="outlined"
-                                            sx={{
-                                                fontWeight: 'bold',
-                                                textTransform: 'uppercase',
-                                                fontSize: '0.85rem',
-                                                '&.MuiChip-colorSuccess': {
-                                                    backgroundColor: '#e8f5e8',
-                                                    color: '#2e7d32',
-                                                    borderColor: '#4caf50'
-                                                },
-                                                '&.MuiChip-colorDefault': {
-                                                    backgroundColor: '#f5f5f5',
-                                                    color: '#666',
-                                                    borderColor: '#ddd'
-                                                }
-                                            }}
-                                        />
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>{formatDate(product.createdAt)}</TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
-                                        {product.label && product.label.length > 0 ? (
-                                            <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                                                {product.label.map((l, idx) => {
-                                                    const labelObj = PRODUCT_LABELS.find(opt => opt.value === l);
-                                                    return (
-                                                        <Chip
-                                                            key={l + '-' + idx}
-                                                            label={labelObj ? labelObj.label : l}
-                                                            size="small"
-                                                            variant="outlined"
-                                                            sx={{
-                                                                fontSize: '0.8rem',
-                                                                height: '22px',
-                                                                backgroundColor: '#f0f8ff',
-                                                                borderColor: '#1976d2',
-                                                                color: '#1976d2',
-                                                                m: 0.2
-                                                            }}
-                                                        />
-                                                    );
-                                                })}
-                                            </Stack>
-                                        ) : '-'}
-                                    </TableCell>
-                                    <TableCell align="right" sx={{ fontSize: '1rem', py: 2, whiteSpace: 'normal' }}>
-                                        <IconButton size="small" onClick={() => handleOpenDialog(product)} sx={{ mr: 1 }}>
-                                            <EditIcon />
-                                        </IconButton>
-                                        <IconButton size="small" onClick={() => handleDelete(product._id)} color="error">
-                                            <DeleteIcon />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                    <Pagination
-                        count={totalPages}
-                        page={page}
-                        onChange={handlePageChange}
-                        color="primary"
-                        showFirstButton
-                        showLastButton
-                    />
+            {/* Product Status */}
+            <Box sx={{ mb: 3 }}>
+              <Stack direction="row" spacing={2}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LocalShipping sx={{ mr: 1, color: 'green' }} />
+                  <Typography variant="body2">{t('freeShipping')}</Typography>
                 </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Security sx={{ mr: 1, color: 'green' }} />
+                  <Typography variant="body2">{t('warranty')}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Refresh sx={{ mr: 1, color: 'green' }} />
+                  <Typography variant="body2">{t('returnPolicy')}</Typography>
+                </Box>
+              </Stack>
+            </Box>
+
+            {/* Tags */}
+            {product.tags.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  {t('tags')}:
+                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {product.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
             )}
-            
-            {/* Dialog Add/Edit */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-                <DialogTitle>{selectedProduct ? t("editProduct") : t("addProduct")}</DialogTitle>
-                <form onSubmit={handleSubmit}>
-                    <DialogContent>
-                        <Stack spacing={2}>
-                            <TextField name="name" label={t("name")} value={formData.name} onChange={handleInputChange} required fullWidth />
-                            <TextField name="description" label={t("description")} value={formData.description} onChange={handleInputChange} multiline rows={3} fullWidth />
-                            <TextField name="price" label={t("price")} type="number" value={formData.price} onChange={handleInputChange} required fullWidth />
-                            <TextField name="discountPrice" label={t("discountPrice")} type="number" value={formData.discountPrice || ""} onChange={handleInputChange} fullWidth />
-                            
-                            {/* Status select - đưa lên trên */}
-                            <FormControl fullWidth required>
-                                <InputLabel id="status-label">{t("status")}</InputLabel>
-                                <Select
-                                    labelId="status-label"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as "active" | "inactive" }))}
-                                    label={t("status")}
-                                >
-                                    <MenuItem value="active">{t("active")}</MenuItem>
-                                    <MenuItem value="inactive">{t("inactive")}</MenuItem>
-                                </Select>
-                            </FormControl>
-
-                            {/* Categories multi-select */}
-                            <FormControl fullWidth required>
-                                <InputLabel id="categories-label">{t("categories")}</InputLabel>
-                                <Select
-                                    labelId="categories-label"
-                                    multiple
-                                    value={formData.categories}
-                                    onChange={(e) => {
-                                        const { value } = e.target;
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            categories: typeof value === "string" ? value.split(",") : value,
-                                        }));
-                                    }}
-                                    label={t("categories")}
-                                    renderValue={(selected) => (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                            {selected.map((value, idx) => {
-                                                const category = categories.find(cat => cat._id === value);
-                                                return <Chip key={value + '-' + idx} label={category?.name || value} />;
-                                            })}
-                                        </Box>
-                                    )}
-                                >
-                                    {categories.map((cat) => (
-                                        <MenuItem key={cat._id} value={cat._id}>
-                                            <Checkbox checked={formData.categories.indexOf(cat._id) > -1} />
-                                            <ListItemText primary={cat.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-
-                            {/* Brand select */}
-                            <TextField
-                                name="brand"
-                                label="Brand"
-                                value={formData.brand}
-                                onChange={e => setFormData(prev => ({ ...prev, brand: e.target.value }))}
-                                select
-                                SelectProps={{ native: true }}
-                                required
-                                fullWidth
-                            >
-                                <option value="">{t("selectBrand")}</option>
-                                {brands.map(brand => (
-                                    <option key={brand._id} value={brand._id}>{brand.name}</option>
-                                ))}
-                            </TextField>
-                            {/* Images */}
-                            <Box>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <TextField
-                                        label="Add Image URL"
-                                        value={imageInput}
-                                        onChange={e => setImageInput(e.target.value)}
-                                        size="small"
-                                    />
-                                    <Button onClick={() => { handleAddImage(imageInput); setImageInput(""); }} variant="outlined" size="small">Add</Button>
-                                </Stack>
-                                <Stack direction="row" spacing={1} mt={1}>
-                                    {formData.images.map((img, idx) => (
-                                        <Chip
-                                            key={idx}
-                                            label={img}
-                                            onDelete={() => handleDeleteImage(idx)}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Box>
-                            {/* Sizes */}
-                            <Box>
-                                <Typography variant="subtitle2">{t("sizes")}</Typography>
-                                <Button onClick={handleAddSize} startIcon={<AddIcon />} size="small">Add Size</Button>
-                                <Stack spacing={1} mt={1}>
-                                    {formData.sizes.map((sz, idx) => (
-                                        <Stack direction="row" spacing={1} alignItems="center" key={idx}>
-                                            <TextField
-                                                label="Size"
-                                                value={sz.size}
-                                                onChange={e => handleSizeChange(idx, "size", e.target.value)}
-                                                size="small"
-                                            />
-                                            <TextField
-                                                label="Stock"
-                                                type="number"
-                                                value={sz.stock}
-                                                onChange={e => handleSizeChange(idx, "stock", Number(e.target.value))}
-                                                size="small"
-                                            />
-                                            <IconButton onClick={() => handleDeleteSize(idx)} size="small"><DeleteIcon /></IconButton>
-                                        </Stack>
-                                    ))}
-                                </Stack>
-                            </Box>
-                            {/* Colors */}
-                            <Box>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <TextField
-                                        label="Add Color"
-                                        value={colorInput}
-                                        onChange={e => setColorInput(e.target.value)}
-                                        size="small"
-                                    />
-                                    <Button onClick={() => { handleAddTag("colors", colorInput); setColorInput(""); }} variant="outlined" size="small">Add</Button>
-                                </Stack>
-                                <Stack direction="row" spacing={1} mt={1}>
-                                    {formData.colors.map((color, idx) => (
-                                        <Chip
-                                            key={idx}
-                                            label={color}
-                                            onDelete={() => handleDeleteTag("colors", idx)}
-                                        />
-                                    ))}
-                                </Stack>
-                            </Box>
-                            {/* Label (multi-select) */}
-                            <FormControl fullWidth required>
-                                <InputLabel id="label-label">{t("label")}</InputLabel>
-                                <Select
-                                    labelId="label-label"
-                                    multiple
-                                    value={formData.label}
-                                    onChange={e => {
-                                        const { value } = e.target;
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            label: typeof value === 'string' ? value.split(',') : value,
-                                        }));
-                                    }}
-                                    label={t("label")}
-                                    renderValue={(selected) => (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                            {selected.map((value, idx) => {
-                                                const labelObj = PRODUCT_LABELS.find(l => l.value === value);
-                                                return <Chip key={value + '-' + idx} label={labelObj ? labelObj.label : value} />;
-                                            })}
-                                        </Box>
-                                    )}
-                                >
-                                    {PRODUCT_LABELS.map(option => (
-                                        <MenuItem key={option.value} value={option.value}>
-                                            <Checkbox checked={(formData.label || []).indexOf(option.value) > -1} />
-                                            <ListItemText primary={option.label} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                            {/* Tags (multi-select, like categories) */}
-                            <FormControl fullWidth>
-                                <InputLabel id="tags-label">{t("tags")} ({t("subCategories")})</InputLabel>
-                                <Select
-                                    labelId="tags-label"
-                                    multiple
-                                    value={formData.tags}
-                                    onChange={e => {
-                                        const { value } = e.target;
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            tags: typeof value === 'string' ? value.split(',') : value,
-                                        }));
-                                    }}
-                                    label={t("tags")}
-                                    renderValue={(selected) => (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                            {selected.map((value, idx) => {
-                                                const sub = subCategories.find(s => s._id === value);
-                                                return <Chip key={value + '-' + idx} label={sub?.name || value} />;
-                                            })}
-                                        </Box>
-                                    )}
-                                >
-                                    {subCategories.map(sub => (
-                                        <MenuItem key={sub._id} value={sub._id}>
-                                            <Checkbox checked={formData.tags.indexOf(sub._id) > -1} />
-                                            <ListItemText primary={sub.name} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Stack>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog}>{t("cancel")}</Button>
-                        <Button type="submit" variant="contained">{selectedProduct ? t("update") : t("create")}</Button>
-                    </DialogActions>
-                </form>
-            </Dialog>
-            {/* Snackbar */}
-            <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-            >
-                <Alert
-                    onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
-                    severity={snackbar.severity}
-                    sx={{ width: "100%" }}
-                >
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
+          </Box>
         </Box>
-    );
-}
+      </Box>
+
+      {/* Product Details Tabs */}
+      <Box sx={{ mt: 6 }}>
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tab label={t('description')} />
+          <Tab label={t('specifications')} />
+          <Tab label={t('reviews')} />
+        </Tabs>
+
+        <TabPanel value={tabValue} index={0}>
+          <Typography variant="body1" sx={{ lineHeight: 1.8 }}>
+            {product.description || 'Chưa có mô tả cho sản phẩm này.'}
+          </Typography>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {t('basicInfo')}
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('productName')}:</strong> {product.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('brand')}:</strong> {product.brand.name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('categories')}:</strong> {product.categories.map(cat => cat.name).join(', ')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('status')}:</strong> {product.status}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('createdAt')}:</strong> {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+            <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    {t('technicalInfo')}
+                  </Typography>
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('colors')}:</strong> {product.colors.join(', ')}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 1 }}>
+                      <strong>{t('reviewCount')}:</strong> {product.ratingsQuantity}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Box>
+          </Box>
+        </TabPanel>
+
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              {t('noReviews')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('beFirstToReview')}
+            </Typography>
+          </Box>
+        </TabPanel>
+      </Box>
+
+      {/* Zoom Modal */}
+      <Modal
+        open={showZoomModal}
+        onClose={() => setShowZoomModal(false)}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            width: '90vw',
+            height: '90vh',
+            bgcolor: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <IconButton
+            onClick={() => setShowZoomModal(false)}
+            sx={{
+              position: 'absolute',
+              top: 20,
+              right: 20,
+              color: 'white',
+              zIndex: 1,
+            }}
+          >
+            <Close />
+          </IconButton>
+          <img
+            src={product.images[selectedImage]}
+            alt={product.name}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+      </Modal>
+
+      {/* Size Guide Modal */}
+      <SizeGuideModal
+        open={showSizeGuide}
+        onClose={() => setShowSizeGuide(false)}
+        productType={getProductType()}
+      />
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </Container>
+  );
+} 

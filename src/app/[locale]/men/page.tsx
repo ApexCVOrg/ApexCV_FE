@@ -38,9 +38,6 @@ export default function MenPage() {
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Debug environment variables
-  console.log('[MenPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
-
   // Function to get team name from product categories
   const getTeamNameFromProduct = (product: Product): string => {
     // Find team category (usually has a parent category that is gender)

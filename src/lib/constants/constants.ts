@@ -99,7 +99,7 @@ export const ROUTES = {
   },
   KIDS: {
     ROOT: '/kids',
-    JERSEY: '/kids/jersey-kids',
+    JERSEY: '/kids/jersey',
     TRACKSUITS: '/kids/tracksuit',
     SMILEY: '/kids/smiley-kids',
   },
@@ -119,8 +119,7 @@ export const ROUTES = {
     BAGS: '/accessories/bags',
     HATS: '/accessories/hats',
     SOCKS: '/accessories/socks',
-    SPORTS_ACCESSORIES: '/accessories/sports-accessories',
-    BACKPACKS: '/accessories/backpacks',
+    EYEWEAR: '/accessories/eyewear',
   },
   COLLECTION_ULTRABOOST: '/collections/ultraboost',
   COLLECTION_ORIGINALS: '/collections/originals',

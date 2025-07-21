@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import ShoesPageLayout from "@/components/layout/ShoesPageLayout";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 
 interface Product {
   _id: string;
@@ -23,12 +24,7 @@ const TABS = [
 
 export default function SambaPage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
-    if (sortBy === 'price-low') { apiSortBy = 'price'; sortOrder = 'asc'; }
-    else if (sortBy === 'price-high') { apiSortBy = 'price'; sortOrder = 'desc'; }
-    else if (sortBy === 'newest') { apiSortBy = 'createdAt'; sortOrder = 'desc'; }
-    else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
+    const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
       // Fetch products with sorting
@@ -73,9 +69,11 @@ export default function SambaPage() {
         return false;
       });
       
-      return filtered;
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(filtered, sortBy);
+      
+      return sorted;
     } catch (error) {
-      console.error('Error fetching products:', error);
       throw new Error('Failed to fetch products');
     }
   };

@@ -21,6 +21,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import ProductCard from '@/components/card';
+import { sortProductsClientSide, convertSortParams } from '@/lib/utils/sortUtils';
 
 interface Product {
   _id: string;
@@ -153,22 +154,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       setLoading(true);
       try {
         // Convert sortBy to API format
-        let apiSortBy = sortBy;
-        let sortOrder = 'desc';
-        
-        if (sortBy === 'price-low') {
-          apiSortBy = 'price';
-          sortOrder = 'asc';
-        } else if (sortBy === 'price-high') {
-          apiSortBy = 'price';
-          sortOrder = 'desc';
-        } else if (sortBy === 'newest') {
-          apiSortBy = 'createdAt';
-          sortOrder = 'desc';
-        } else if (sortBy === 'popular') {
-          apiSortBy = 'popularity';
-          sortOrder = 'desc';
-        }
+        const { apiSortBy, sortOrder } = convertSortParams(sortBy);
 
         const queryParams = new URLSearchParams({
           minPrice: priceRange[0].toString(),
@@ -181,7 +167,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
-        console.log('[FILTER] Fetching products with URL:', apiUrl);
         const response = await fetch(apiUrl);
         
         if (!response.ok) {
@@ -207,24 +192,13 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
             });
           });
           
-          console.log('[FILTER] Filtered products before sorting:', filteredProducts.length);
-          console.log('[FILTER] Current sortBy value:', sortBy);
-          
           // Apply client-side sorting as fallback
-          const sortedProducts = sortProducts(filteredProducts, sortBy);
-          console.log('[FILTER] Final sorted products count:', sortedProducts.length);
-          console.log('[FILTER] Sample sorted products:', sortedProducts.slice(0, 3).map(p => ({
-            name: p.name,
-            price: p.price,
-            discountPrice: p.discountPrice,
-            createdAt: p.createdAt
-          })));
+          const sortedProducts = sortProductsClientSide(filteredProducts, sortBy);
           setProducts(sortedProducts);
         } else {
           throw new Error(result.message);
         }
       } catch (err) {
-        console.error('[TeamPage] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
@@ -248,44 +222,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         ? prev.filter((id: string) => id !== brandId)
         : [...prev, brandId]
     );
-  };
-
-  // Helper function to sort products
-  const sortProducts = (products: Product[], sortType: string) => {
-    console.log('[FILTER] Sorting products by:', sortType);
-    const sortedProducts = [...products];
-    
-    switch (sortType) {
-      case 'price-low':
-        return sortedProducts.sort((a, b) => {
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceA - priceB;
-        });
-      case 'price-high':
-        return sortedProducts.sort((a, b) => {
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceB - priceA;
-        });
-      case 'newest':
-        // Sort by createdAt if available, otherwise by price
-        return sortedProducts.sort((a, b) => {
-          if (a.createdAt && b.createdAt) {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          }
-          // Fallback to price sorting if createdAt is not available
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceB - priceA;
-        });
-      case 'popular':
-        // For now, return default order since we don't have popularity field
-        // Could be enhanced with orderCount or similar field in the future
-        return sortedProducts;
-      default:
-        return sortedProducts;
-    }
   };
 
   if (error) {

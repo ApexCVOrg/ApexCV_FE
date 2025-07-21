@@ -35,6 +35,7 @@ import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
+import { ApiProduct, ApiResponse } from '@/types';
 
 interface Product {
   _id: string;
@@ -64,24 +65,36 @@ const TABS = [
 // Hàm xác định đường dẫn ảnh
 function getImageSrc(filename: string, gender?: string, team?: string): string {
   if (!filename) return '/assets/images/placeholder.jpg';
-  if (filename.startsWith('/') || filename.startsWith('http')) return filename;
-  // Lib
+  
+  // Nếu đã là URL đầy đủ hoặc đường dẫn tuyệt đối
+  if (filename.startsWith('http') || filename.startsWith('/')) {
+    return filename;
+  }
+  
+  // Lib files
   const libFiles = [
     'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
     'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
   ];
-  if (libFiles.includes(filename)) return `/assets/images/lib/${filename}`;
+  if (libFiles.includes(filename)) {
+    return `/assets/images/lib/${filename}`;
+  }
+  
   // Products đặc biệt
   const productFiles = [
     'arsenal-kids-home-jersey-2024.jpg', 'arsenal-kids-tracksuit.jpg'
   ];
-  if (productFiles.includes(filename)) return `/assets/images/products/${filename}`;
+  if (productFiles.includes(filename)) {
+    return `/assets/images/products/${filename}`;
+  }
+  
   // Women/Men/Kids theo gender/team
   if (gender && team && gender !== 'uncategorized' && team !== 'uncategorized') {
     const genderFolder = gender.toLowerCase();
     const teamFolder = team.toLowerCase().replace(/ /g, '-');
     return `/assets/images/${genderFolder}/${teamFolder}/${filename}`;
   }
+  
   // Fallback về products
   return `/assets/images/products/${filename}`;
 }
@@ -90,25 +103,35 @@ function getImageSrc(filename: string, gender?: string, team?: string): string {
 function guessGenderAndTeam(product: Product): { gender?: string, team?: string } {
   let gender = undefined;
   let team = undefined;
+  
   // Ưu tiên lấy từ category nếu có
   if (product.categories && product.categories.length > 0) {
     const cat = product.categories[0];
-    // If your Category type has a gender field, use it directly, otherwise remove this check
-    // if ('gender' in cat) gender = cat.gender;
     team = cat.name;
   }
+  
   // Nếu không có, thử lấy từ tags
   if (!gender && product.tags) {
-    if (product.tags.some((t: string) => t.toLowerCase().includes('women'))) gender = 'women';
-    else if (product.tags.some((t: string) => t.toLowerCase().includes('men'))) gender = 'men';
-    else if (product.tags.some((t: string) => t.toLowerCase().includes('kids'))) gender = 'kids';
+    if (product.tags.some((t: string) => t.toLowerCase().includes('women'))) {
+      gender = 'women';
+    } else if (product.tags.some((t: string) => t.toLowerCase().includes('men'))) {
+      gender = 'men';
+    } else if (product.tags.some((t: string) => t.toLowerCase().includes('kids'))) {
+      gender = 'kids';
+    }
   }
+  
   // Nếu không có, thử lấy từ name
   if (!gender && product.name) {
-    if (product.name.toLowerCase().includes('women')) gender = 'women';
-    else if (product.name.toLowerCase().includes('men')) gender = 'men';
-    else if (product.name.toLowerCase().includes('kid')) gender = 'kids';
+    if (product.name.toLowerCase().includes('women')) {
+      gender = 'women';
+    } else if (product.name.toLowerCase().includes('men')) {
+      gender = 'men';
+    } else if (product.name.toLowerCase().includes('kid')) {
+      gender = 'kids';
+    }
   }
+  
   // Team từ tags nếu có
   if (!team && product.tags) {
     const teams = ['arsenal', 'bayern munich', 'real madrid', 'manchester united', 'juventus'];
@@ -119,6 +142,7 @@ function guessGenderAndTeam(product: Product): { gender?: string, team?: string 
       }
     }
   }
+  
   return { gender, team };
 }
 
@@ -223,8 +247,18 @@ export default function HomePage() {
       });
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       if (!response.ok) throw new Error('Failed to fetch products');
-      const result = await response.json();
+      const result: ApiResponse<ApiProduct[]> = await response.json();
       let filtered = result.data || [];
+      
+      // Debug: Log số lượng sản phẩm và một số sản phẩm mẫu
+      console.log('Fetched products count:', filtered.length);
+      if (filtered.length > 0) {
+        console.log('Sample product:', {
+          name: filtered[0].name,
+          images: filtered[0].images,
+          categories: filtered[0].categories
+        });
+      }
       
       // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
       if (searchQuery) {
@@ -254,14 +288,28 @@ export default function HomePage() {
         'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
       ];
       const isLib = (product: Product) => {
-        const img = product.images?.[0] || '';
-        const fileName = img.split('/').pop();
-        return libFileNames.includes(fileName || '');
+        if (!product.images || product.images.length === 0) return false;
+        const img = product.images[0];
+        if (!img) return false;
+        
+        // Xử lý an toàn khi lấy filename
+        let fileName = '';
+        if (img.includes('/')) {
+          fileName = img.split('/').pop() || '';
+        } else {
+          fileName = img;
+        }
+        
+        return libFileNames.includes(fileName);
       };
       const libFiltered = filtered.filter((p: Product) => isLib(p));
       setLibProducts(libFiltered);
       setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
       setProducts(prev => ({ ...prev, filtered }));
+      
+      // Debug: Log kết quả phân loại
+      console.log('Lib products count:', libFiltered.length);
+      console.log('Other products count:', filtered.filter((p: Product) => !isLib(p)).length);
     } catch (error) {
       setLibProducts([]);
       setOtherProducts([]);
@@ -280,25 +328,25 @@ export default function HomePage() {
       if (tabKey === 'topSelling') {
         // Top Selling: gọi API public, không cần token
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`);
-        const result = await response.json();
+        const result: ApiResponse<ApiProduct[]> = await response.json();
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
+        filtered = (Array.isArray(result.data) ? result.data : []).map((item: ApiProduct) => ({
           _id: item._id,
           name: item.name,
-          images: [item.image || ''],
+          images: [item.images?.[0] || ''],
           price: item.totalRevenue || 0,
           discountPrice: undefined,
           tags: [],
           label: '',
           brand: { _id: '', name: '' },
-          categories: [{ _id: '', name: item.category || 'Uncategorized' }],
+          categories: [{ _id: '', name: item.categories?.[0]?.name || 'Uncategorized' }],
           orderCount: item.totalQuantity || 0,
         }));
       } else {
         // Các tab còn lại lấy từ API products (không filter theo category, price, brand)
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
         if (!response.ok) throw new Error('Failed to fetch products');
-        const result = await response.json();
+        const result: ApiResponse<ApiProduct[]> = await response.json();
         filtered = result.data || [];
         
         if (tabKey === 'newArrivals') {
@@ -338,8 +386,19 @@ export default function HomePage() {
         'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
       ];
       const isLib = (product: Product) => {
-        const img = product.images?.[0] || '';
-        return libFileNames.includes(img);
+        if (!product.images || product.images.length === 0) return false;
+        const img = product.images[0];
+        if (!img) return false;
+        
+        // Xử lý an toàn khi lấy filename
+        let fileName = '';
+        if (img.includes('/')) {
+          fileName = img.split('/').pop() || '';
+        } else {
+          fileName = img;
+        }
+        
+        return libFileNames.includes(fileName);
       };
       if (tabKey === 'filtered') {
         setLibProducts(filtered.filter(isLib));
@@ -825,9 +884,15 @@ export default function HomePage() {
                   {otherProducts.slice(0, visibleCount).length > 0 ? otherProducts.slice(0, visibleCount).map((product, idx) => {
                     const { gender, team } = guessGenderAndTeam(product);
                     let imgSrc = '/assets/images/placeholder.jpg';
-                    if (product.images && product.images[0]) {
-                      imgSrc = getImageSrc(product.images[0], gender, team);
+                    
+                    // Cải thiện logic xử lý ảnh
+                    if (product.images && product.images.length > 0) {
+                      const firstImage = product.images[0];
+                      if (firstImage) {
+                        imgSrc = getImageSrc(firstImage, gender, team);
+                      }
                     }
+                    
                     return (
                       <motion.div
                         key={`other-${product._id}-${idx}`}

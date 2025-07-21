@@ -41,6 +41,7 @@ interface ProductCardProps {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  categoryPath?: string[]; // Thêm categoryPath
   onAddToCart?: () => void;
   onViewDetail?: () => void; // Click handler cho mở sidebar
   labels?: ProductLabel[];
@@ -61,6 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   tags,
   brand,
   categories,
+  categoryPath,
   onAddToCart,
   onViewDetail,
   labels,
@@ -394,7 +396,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   marginBottom: 1,
                 }}
               >
-                {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
+                {displayBrand} - {categories?.map(cat => cat.name).join(', ') || categoryPath?.join(' / ') || t('uncategorized')}
               </Typography>
 
               {/* Tags */}
@@ -619,7 +621,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Box>
         {/* Brand and categories */}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {displayBrand} - {categories?.map(cat => cat.name).join(', ') || t('uncategorized')}
+          {displayBrand} - {categories?.map(cat => cat.name).join(', ') || categoryPath?.join(' / ') || t('uncategorized')}
         </Typography>
         {/* Tags */}
         {(tags || []).length > 0 && (

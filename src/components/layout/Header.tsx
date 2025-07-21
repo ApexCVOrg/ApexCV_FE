@@ -252,8 +252,7 @@ const Header = () => {
         { title: tHeader('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
         { title: tHeader('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
         { title: tHeader('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
-        { title: tHeader('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
-        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
+        { title: tHeader('accessories.eyewear'), href: ROUTES.ACCESSORIES.EYEWEAR },
       ]
     },
     {

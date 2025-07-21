@@ -424,12 +424,32 @@ export default function ProductDetailPage() {
 
             {/* Thumbnail Images */}
             {product.images.length > 1 && (
-              <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 1, 
+                mt: 2, 
+                overflowX: 'auto',
+                pb: 1,
+                '&::-webkit-scrollbar': {
+                  height: 4,
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f1f1',
+                  borderRadius: 2,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#c1c1c1',
+                  borderRadius: 2,
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: '#a8a8a8',
+                },
+              }}>
                 {product.images.map((image, index) => (
                   <Box
                     key={index}
                     sx={{
-                      width: 80,
+                      minWidth: 80,
                       height: 80,
                       borderRadius: 1,
                       overflow: 'hidden',
@@ -439,6 +459,11 @@ export default function ProductDetailPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        borderColor: selectedImage === index ? '#1976d2' : '#ddd',
+                      },
                     }}
                     onClick={() => setSelectedImage(index)}
                   >
