@@ -13,6 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -21,20 +22,29 @@ export default function HoodiePage() {
     const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
-      // Fetch only men's products
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active&gender=men`);
+      // Fetch only men's products with sorting
+      const queryParams = new URLSearchParams({
+        status: 'active',
+        gender: 'men',
+        sortBy: apiSortBy,
+        sortOrder: sortOrder,
+      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`
+      );
       const data = await res.json();
       
       // Lọc sản phẩm hoodie cho men
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasHoodie = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('hoodie') || cat.toLowerCase().includes('hoodies')
+          const hasHoodie = item.categoryPath.some(
+            (cat: string) =>
+              cat.toLowerCase().includes('hoodie') || cat.toLowerCase().includes('hoodies')
           );
           if (hasHoodie) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
@@ -43,18 +53,18 @@ export default function HoodiePage() {
           );
           if (hasHoodieCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasHoodieTag = item.tags.some((tag: string) => 
+          const hasHoodieTag = item.tags.some((tag: string) =>
             tag.toLowerCase().includes('hoodie')
           );
           if (hasHoodieTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('hoodie')) return true;
-        
+
         return false;
       });
       
@@ -76,4 +86,4 @@ export default function HoodiePage() {
       emptyMessage="No hoodies found."
     />
   );
-} 
+}

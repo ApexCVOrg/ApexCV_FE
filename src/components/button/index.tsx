@@ -1,41 +1,44 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import { Box, Button, ButtonGroup } from '@mui/material';
 
-const tabs = ["CLUBS", "Football Jerseys", "Adicolor"];
+const tabs = ['CLUBS', 'Football Jerseys', 'Adicolor'];
 
 const TabButtons: React.FC = () => {
-  const [selected, setSelected] = useState<string>("CLUBS");
+  const [selected, setSelected] = useState<string>('CLUBS');
 
   return (
-    <div style={{ display: "flex", gap: "8px" }}>
-      {tabs.map((tab) => {
+    <ButtonGroup variant="outlined" sx={{ gap: 1 }}>
+      {tabs.map(tab => {
         const isSelected = tab === selected;
         return (
-          <button
+          <Button
             key={tab}
             onClick={() => setSelected(tab)}
-            style={{
-              backgroundColor: isSelected ? "#000" : "#fff",
-              color: isSelected ? "#fff" : "#000",
-              border: "1px solid #000",
-              padding: "8px 16px",
-              cursor: "pointer",
-              fontWeight: isSelected ? "600" : "400",
-              transition: "background-color 0.3s, color 0.3s",
+            variant={isSelected ? 'contained' : 'outlined'}
+            sx={{
+              backgroundColor: isSelected ? '#000' : 'transparent',
+              color: isSelected ? '#fff' : '#000',
+              borderColor: '#000',
+              '&:hover': {
+                backgroundColor: isSelected ? '#333' : 'rgba(0,0,0,0.04)',
+                borderColor: '#000',
+              },
+              fontWeight: isSelected ? '600' : '400',
             }}
           >
             {tab}
-          </button>
+          </Button>
         );
       })}
-    </div>
+    </ButtonGroup>
   );
 };
 
 const App: React.FC = () => {
   return (
-    <div style={{ padding: "20px" }}>
+    <Box sx={{ p: 2.5 }}>
       <TabButtons />
-    </div>
+    </Box>
   );
 };
 

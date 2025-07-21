@@ -45,7 +45,7 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
   // Tính tổng giá trị home cart
   const homeCartTotal = homeCartItems.reduce((total, item) => {
     const itemPrice = item.discountPrice || item.price;
-    return total + (itemPrice * item.quantity);
+    return total + itemPrice * item.quantity;
   }, 0);
 
   // Thêm sản phẩm vào home cart
@@ -56,9 +56,7 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setHomeCartItems(prev => {
-      const existingItemIndex = prev.findIndex(
-        existing => existing._id === newItem._id
-      );
+      const existingItemIndex = prev.findIndex(existing => existing._id === newItem._id);
 
       if (existingItemIndex >= 0) {
         // Cập nhật số lượng nếu sản phẩm đã tồn tại
@@ -80,9 +78,7 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
   // Cập nhật số lượng sản phẩm trong home cart
   const updateHomeCartItem = (itemId: string, quantity: number) => {
     setHomeCartItems(prev =>
-      prev.map(item =>
-        item._id === itemId ? { ...item, quantity } : item
-      )
+      prev.map(item => (item._id === itemId ? { ...item, quantity } : item))
     );
   };
 
@@ -122,9 +118,8 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
       // Xóa home cart sau khi đã chuyển thành công
       clearHomeCart();
       // Không đóng sidebar vì luôn mở
-    } catch (error) {
-      console.error('Error confirming home cart:', error);
-      throw error;
+    } catch {
+      throw new Error('Failed to confirm home cart');
     }
   };
 
@@ -142,11 +137,7 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
     homeCartTotal,
   };
 
-  return (
-    <HomeCartContext.Provider value={value}>
-      {children}
-    </HomeCartContext.Provider>
-  );
+  return <HomeCartContext.Provider value={value}>{children}</HomeCartContext.Provider>;
 };
 
 export const useHomeCartContext = () => {
@@ -155,4 +146,4 @@ export const useHomeCartContext = () => {
     throw new Error('useHomeCartContext must be used within HomeCartProvider');
   }
   return context;
-}; 
+};

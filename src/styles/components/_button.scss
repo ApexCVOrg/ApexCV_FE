@@ -7,7 +7,7 @@ $button-transition: all 0.3s ease;
 @mixin button-variant($bg-color, $text-color, $hover-bg) {
   background-color: $bg-color;
   color: $text-color;
-  
+
   &:hover {
     background-color: $hover-bg;
   }
@@ -27,49 +27,49 @@ $button-transition: all 0.3s ease;
   border-radius: $button-radius;
   transition: $button-transition;
   cursor: pointer;
-  
+
   // Variants
   &--primary {
     @include button-variant(#0070f3, white, darken(#0070f3, 10%));
   }
-  
+
   &--secondary {
     @include button-variant(#6b7280, white, darken(#6b7280, 10%));
   }
-  
+
   // Sizes
   &--small {
     @include button-size(0.25rem 0.5rem, 0.875rem);
   }
-  
+
   &--medium {
     @include button-size($button-padding, 1rem);
   }
-  
+
   &--large {
     @include button-size(0.75rem 1.5rem, 1.125rem);
   }
-  
+
   // States
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  
+
   // Icons
   &__icon {
     margin-right: 0.5rem;
-    
+
     &--right {
       margin-right: 0;
       margin-left: 0.5rem;
     }
   }
-  
+
   // Responsive
   @media (max-width: 768px) {
     &--large {
       @include button-size(0.5rem 1rem, 1rem);
     }
   }
-} 
+}

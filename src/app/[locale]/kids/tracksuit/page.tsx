@@ -13,6 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[];
   createdAt: string;
 }
 
@@ -26,21 +27,22 @@ export default function KidsTracksuitPage() {
         status: 'active',
         gender: 'kids',
         sortBy: apiSortBy,
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-      
+
       // Lọc sản phẩm tracksuit cho kids
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasTracksuit = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('tracksuit') || cat.toLowerCase().includes('tracksuits')
+          const hasTracksuit = item.categoryPath.some(
+            (cat: string) =>
+              cat.toLowerCase().includes('tracksuit') || cat.toLowerCase().includes('tracksuits')
           );
           if (hasTracksuit) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
@@ -49,18 +51,18 @@ export default function KidsTracksuitPage() {
           );
           if (hasTracksuitCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasTracksuitTag = item.tags.some((tag: string) => 
+          const hasTracksuitTag = item.tags.some((tag: string) =>
             tag.toLowerCase().includes('tracksuit')
           );
           if (hasTracksuitTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('tracksuit')) return true;
-        
+
         return false;
       });
       
@@ -82,4 +84,4 @@ export default function KidsTracksuitPage() {
       emptyMessage="No tracksuits found."
     />
   );
-} 
+}

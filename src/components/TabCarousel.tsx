@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, IconButton, useMediaQuery, useTheme } from '@mui/material';
+import { Box, IconButton, useTheme } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import type { Swiper as SwiperType } from 'swiper';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import { motion } from 'framer-motion';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
@@ -39,9 +40,9 @@ const CARD_HEIGHT = 450;
 
 const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef = useRef<any>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
 
   // Swiper breakpoints configuration
   const swiperBreakpoints = {
@@ -85,10 +86,10 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
       clickable: true,
       dynamicBullets: true,
     },
-    onSlideChange: (swiper: any) => {
+    onSlideChange: (swiper: SwiperType) => {
       setActiveIndex(swiper.realIndex);
     },
-    onSwiper: (swiper: any) => {
+    onSwiper: (swiper: SwiperType) => {
       swiperRef.current = swiper;
     },
     effect: 'coverflow',
@@ -106,14 +107,18 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
     const carouselContainer = document.querySelector('.tab-carousel-container');
     const handleMouseEnter = () => {
       if (carouselContainer) {
-        carouselContainer.addEventListener('wheel', (e) => {
-          e.preventDefault();
-        }, { passive: false });
+        carouselContainer.addEventListener(
+          'wheel',
+          e => {
+            e.preventDefault();
+          },
+          { passive: false }
+        );
       }
     };
     const handleMouseLeave = () => {
       if (carouselContainer) {
-        carouselContainer.removeEventListener('wheel', (e) => {
+        carouselContainer.removeEventListener('wheel', e => {
           e.preventDefault();
         });
       }
@@ -318,7 +323,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
                   brand={product.brand}
                   categories={product.categories}
                   labels={product.label ? [product.label as ProductLabel] : []}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  onAddToCart={() => {}}
                   onViewDetail={() => onProductClick?.(product._id, product)}
                   backgroundColor="#f8f9fa"
                   colors={3}
@@ -361,4 +366,4 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
   );
 };
 
-export default TabCarousel; 
+export default TabCarousel;

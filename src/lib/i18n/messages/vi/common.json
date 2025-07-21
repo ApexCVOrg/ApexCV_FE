@@ -8,6 +8,7 @@
   "productCard": {
     "sale": "Giảm giá",
     "addToCart": "Thêm vào giỏ",
+    "addToCartSuccess": "Đã thêm vào giỏ hàng!",
     "unknownBrand": "Thương hiệu không xác định",
     "uncategorized": "Chưa phân loại"
   },
@@ -690,7 +691,7 @@
       "title": "Nam",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
-      "short_trouser": "Quần short",    
+      "short_trouser": "Quần short",
       "jacket": "Áo khoác",
       "team_sneaker": "Giày thể thao theo đội"
     },

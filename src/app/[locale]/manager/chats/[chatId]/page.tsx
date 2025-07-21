@@ -95,28 +95,30 @@ const ChatDetailPage = () => {
     {
       id: '1',
       title: 'Chào hỏi',
-      content: 'Xin chào! Cảm ơn bạn đã liên hệ với NIDAS. Tôi có thể giúp gì cho bạn?'
+      content: 'Xin chào! Cảm ơn bạn đã liên hệ với NIDAS. Tôi có thể giúp gì cho bạn?',
     },
     {
       id: '2',
       title: 'Hỏi thông tin',
-      content: 'Bạn có thể cho tôi biết thêm thông tin về vấn đề này không?'
+      content: 'Bạn có thể cho tôi biết thêm thông tin về vấn đề này không?',
     },
     {
       id: '3',
       title: 'Chuyển tiếp',
-      content: 'Tôi sẽ chuyển thông tin này cho bộ phận chuyên môn và sẽ liên hệ lại với bạn sớm nhất.'
+      content:
+        'Tôi sẽ chuyển thông tin này cho bộ phận chuyên môn và sẽ liên hệ lại với bạn sớm nhất.',
     },
     {
       id: '4',
       title: 'Kết thúc',
-      content: 'Cảm ơn bạn đã liên hệ với NIDAS. Nếu cần hỗ trợ thêm, đừng ngần ngại liên hệ lại nhé!'
+      content:
+        'Cảm ơn bạn đã liên hệ với NIDAS. Nếu cần hỗ trợ thêm, đừng ngần ngại liên hệ lại nhé!',
     },
     {
       id: '5',
       title: 'Xin lỗi',
-      content: 'Xin lỗi vì sự bất tiện này. Chúng tôi đang xử lý và sẽ cập nhật cho bạn sớm nhất.'
-    }
+      content: 'Xin lỗi vì sự bất tiện này. Chúng tôi đang xử lý và sẽ cập nhật cho bạn sớm nhất.',
+    },
   ];
 
   // Fetch chat session details
@@ -132,7 +134,7 @@ const ChatDetailPage = () => {
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -169,12 +171,15 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (response.status === 404) {
         setError('Chat session không tồn tại hoặc đã bị xóa.');
@@ -214,14 +219,17 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content: messageContent }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: messageContent }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -250,13 +258,16 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`,
+        {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -264,12 +275,12 @@ const ChatDetailPage = () => {
 
       setSuccess('Chat session đã được đóng thành công!');
       setCloseDialogOpen(false);
-      
+
       // Update session status
       if (session) {
         setSession({ ...session, status: 'closed' });
       }
-      
+
       // Redirect after a delay
       setTimeout(() => {
         router.push('/manager/chats');
@@ -367,15 +378,15 @@ const ChatDetailPage = () => {
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Paper 
-        elevation={1} 
-        sx={{ 
-          p: 2, 
-          display: 'flex', 
-          alignItems: 'center', 
+      <Paper
+        elevation={1}
+        sx={{
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'space-between',
           borderBottom: '1px solid',
-          borderColor: 'divider'
+          borderColor: 'divider',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -391,12 +402,12 @@ const ChatDetailPage = () => {
             </Typography>
           </Box>
         </Box>
-        
+
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {session && (
             <Chip
               label={getStatusText(session.status)}
-              color={getStatusColor(session.status) as any}
+              color={getStatusColor(session.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
               size="small"
             />
           )}
@@ -438,9 +449,16 @@ const ChatDetailPage = () => {
                 {error}
               </Alert>
             )}
-            
+
             {loading ? (
-              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100%',
+                }}
+              >
                 <CircularProgress />
               </Box>
             ) : !Array.isArray(messages) || messages.length === 0 ? (
@@ -450,7 +468,7 @@ const ChatDetailPage = () => {
                 </Typography>
               </Box>
             ) : (
-              messages.map((message) => (
+              messages.map(message => (
                 <Box
                   key={message._id}
                   sx={{
@@ -476,14 +494,15 @@ const ChatDetailPage = () => {
                         borderRadius: 2,
                         borderBottomLeftRadius: message.sender === 'manager' ? 2 : 0,
                         borderBottomRightRadius: message.sender === 'manager' ? 0 : 2,
-                        boxShadow: message.sender === 'manager' 
-                          ? '0 2px 8px rgba(25, 118, 210, 0.3)' 
-                          : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        boxShadow:
+                          message.sender === 'manager'
+                            ? '0 2px 8px rgba(25, 118, 210, 0.3)'
+                            : '0 2px 8px rgba(0, 0, 0, 0.1)',
                       }}
                     >
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
+                      <Typography
+                        variant="body2"
+                        sx={{
                           wordBreak: 'break-word',
                           lineHeight: 1.5,
                           whiteSpace: 'pre-wrap',
@@ -492,10 +511,10 @@ const ChatDetailPage = () => {
                         {message.content}
                       </Typography>
                     </Paper>
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        mt: 0.5, 
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 0.5,
                         color: 'text.secondary',
                         fontSize: '0.75rem',
                         opacity: 0.7,
@@ -507,7 +526,7 @@ const ChatDetailPage = () => {
                 </Box>
               ))
             )}
-            <div ref={messagesEndRef} />
+            <Box ref={messagesEndRef} />
           </Box>
 
           {/* Input Area */}
@@ -527,7 +546,7 @@ const ChatDetailPage = () => {
                 maxRows={4}
                 placeholder="Nhập tin nhắn..."
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={e => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={sending || session?.status === 'closed'}
                 inputProps={{ maxLength: 1000 }}
@@ -584,12 +603,15 @@ const ChatDetailPage = () => {
             </Typography>
 
             {/* Quick Templates */}
-            <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+            >
               <TemplateIcon fontSize="small" />
               Mẫu tin nhắn nhanh
             </Typography>
             <List dense>
-              {quickTemplates.map((template) => (
+              {quickTemplates.map(template => (
                 <ListItem key={template.id} disablePadding>
                   <ListItemButton
                     onClick={() => insertTemplate(template)}
@@ -609,7 +631,10 @@ const ChatDetailPage = () => {
             <Divider sx={{ my: 2 }} />
 
             {/* Notes */}
-            <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography
+              variant="subtitle2"
+              sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+            >
               <NoteIcon fontSize="small" />
               Ghi chú nội bộ
             </Typography>
@@ -619,7 +644,7 @@ const ChatDetailPage = () => {
               fullWidth
               placeholder="Ghi chú về cuộc trò chuyện này..."
               value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              onChange={e => setNotes(e.target.value)}
               size="small"
               sx={{
                 '& .MuiOutlinedInput-root': {
@@ -648,21 +673,13 @@ const ChatDetailPage = () => {
       </Dialog>
 
       {/* Notifications */}
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={() => setError(null)}
-      >
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
         <Alert onClose={() => setError(null)} severity="error">
           {error}
         </Alert>
       </Snackbar>
 
-      <Snackbar
-        open={!!success}
-        autoHideDuration={4000}
-        onClose={() => setSuccess(null)}
-      >
+      <Snackbar open={!!success} autoHideDuration={4000} onClose={() => setSuccess(null)}>
         <Alert onClose={() => setSuccess(null)} severity="success">
           {success}
         </Alert>
@@ -671,4 +688,4 @@ const ChatDetailPage = () => {
   );
 };
 
-export default ChatDetailPage; 
+export default ChatDetailPage;

@@ -13,6 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -26,7 +27,7 @@ export default function JacketPage() {
         status: 'active',
         gender: 'men',
         sortBy: apiSortBy,
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
@@ -34,13 +35,14 @@ export default function JacketPage() {
       // Lọc sản phẩm jacket cho men
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
-          const hasJacket = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('jacket') || cat.toLowerCase().includes('jackets')
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
+          const hasJacket = item.categoryPath.some(
+            (cat: string) =>
+              cat.toLowerCase().includes('jacket') || cat.toLowerCase().includes('jackets')
           );
           if (hasJacket) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
@@ -49,18 +51,18 @@ export default function JacketPage() {
           );
           if (hasJacketCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasJacketTag = item.tags.some((tag: string) => 
+          const hasJacketTag = item.tags.some((tag: string) =>
             tag.toLowerCase().includes('jacket')
           );
           if (hasJacketTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('jacket')) return true;
-        
+
         return false;
       });
       
@@ -82,4 +84,4 @@ export default function JacketPage() {
       emptyMessage="No jackets found."
     />
   );
-} 
+}

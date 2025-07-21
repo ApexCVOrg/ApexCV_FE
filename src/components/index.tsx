@@ -1,1 +1,1 @@
-export { default as TabCarousel } from './TabCarousel'; 
+export { default as TabCarousel } from './TabCarousel';

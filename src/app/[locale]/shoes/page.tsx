@@ -21,24 +21,7 @@ interface Product {
   createdAt: string;
 }
 
-const categories = [
-  {
-    name: "Every Day Running",
-    icon: "🏃‍♂️"
-  },
-  {
-    name: "Run Energised",
-    icon: "⚡"
-  },
-  {
-    name: "Race to win",
-    icon: "🏅"
-  },
-  {
-    name: "Walking",
-    icon: "🚶"
-  }
-];
+
 
 export default function ShoesPage() {
   const [trendingShoes, setTrendingShoes] = useState<Product[]>([]);
@@ -81,25 +64,27 @@ export default function ShoesPage() {
   }, []);
 
   return (
-    <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh" }}>
-            {/* Hero Banner */}
-      <Box sx={{
-        width: '100vw',
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        py: 0,
-        mt: 10, // tăng margin top để tránh bị che bởi header
-        mx: 'calc(-50vw + 50%)',
-        background: '#fff'
-      }}>
+    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh' }}>
+      {/* Hero Banner */}
+      <Box
+        sx={{
+          width: '100vw',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          py: 0,
+          mt: 10, // tăng margin top để tránh bị che bởi header
+          mx: 'calc(-50vw + 50%)',
+          background: '#fff',
+        }}
+      >
         <Link href="/shoes/adizero" style={{ width: '100vw', display: 'block' }}>
-          <img 
+          <img
             src="https://res.cloudinary.com/dqmb4e2et/image/upload/v1752339174/s3_mca0rk.webp"
             alt="Banner"
-            style={{ 
+            style={{
               width: '100vw',
               height: 'auto',
               display: 'block',
@@ -107,7 +92,7 @@ export default function ShoesPage() {
               borderRadius: 0,
               boxShadow: 'none',
               margin: 0,
-              padding: 0
+              padding: 0,
             }}
           />
         </Link>
@@ -119,85 +104,102 @@ export default function ShoesPage() {
       {/* Featured Collection - Adidas Style */}
       <Box sx={{ bgcolor: '#fff', py: 8, mt: 6 }}>
         <Container maxWidth="lg">
-          <Typography variant="h3" sx={{ 
-            fontWeight: "bold", 
-            mb: 6, 
-            textAlign: "center",
-            color: '#111',
-            letterSpacing: 2,
-            textTransform: 'uppercase',
-            fontFamily: 'Arial Black, Arial, sans-serif'
-          }}>
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 'bold',
+              mb: 6,
+              textAlign: 'center',
+              color: '#111',
+              letterSpacing: 2,
+              textTransform: 'uppercase',
+              fontFamily: 'Arial Black, Arial, sans-serif',
+            }}
+          >
             Featured Collection
           </Typography>
           <Box display="flex" flexWrap="wrap" gap={4} justifyContent="center">
             {[
               {
                 name: 'Samba',
-                image: 'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752341091/Samba_OG_Shoes_Beige_IG6170_video_yfw3p0.webm',
+                image:
+                  'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752341091/Samba_OG_Shoes_Beige_IG6170_video_yfw3p0.webm',
                 desc: 'Classic street style. Timeless comfort.',
                 isVideo: true,
-                href: '/shoes/samba'
+                href: '/shoes/samba',
               },
               {
                 name: 'Gazelle',
-                image: 'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752341016/Gazelle_Indoor_Shoes_Red_JS1411_video_svlucy.webm',
+                image:
+                  'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752341016/Gazelle_Indoor_Shoes_Red_JS1411_video_svlucy.webm',
                 desc: 'Retro vibes. Modern edge.',
                 isVideo: true,
-                href: '/shoes/gazelle'
+                href: '/shoes/gazelle',
               },
               {
                 name: 'Spezial',
-                image: 'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752340906/Handball_Spezial_Shoes_Green_IG6192_video_skpsxq.webm',
+                image:
+                  'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752340906/Handball_Spezial_Shoes_Green_IG6192_video_skpsxq.webm',
                 desc: 'Heritage look. Everyday wear.',
                 isVideo: true,
-                href: '/shoes/spezial'
+                href: '/shoes/spezial',
               },
               {
                 name: 'Superstar',
-                image: 'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752340693/Giay_Superstar_Vintage_trang_JQ3254_video_ltzy3m.webm',
+                image:
+                  'https://res.cloudinary.com/dqmb4e2et/video/upload/v1752340693/Giay_Superstar_Vintage_trang_JQ3254_video_ltzy3m.webm',
                 desc: 'Iconic shell toe. Bold attitude.',
                 isVideo: true,
-                href: '/shoes/superstar'
-              }
-            ].map((item) => (
+                href: '/shoes/superstar',
+              },
+            ].map(item => (
               <Box key={item.name} flex="1 1 260px" maxWidth={320} minWidth={200}>
-                <Card sx={{
-                  bgcolor: '#fff',
-                  border: '2px solid #111',
-                  borderRadius: 4,
-                  boxShadow: 'none',
-                  transition: '0.3s',
-                  '&:hover': {
-                    bgcolor: '#111',
-                    color: '#fff',
-                    borderColor: '#fff',
-                  },
-                  textAlign: 'center',
-                  p: 2,
-                  minHeight: 420
-                }}>
-                  <Box sx={{
-                    width: '100%',
-                    height: 200,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 2,
-                    bgcolor: '#EBEDEE', // dùng màu nền mới
-                    borderRadius: 4 // giống Card
-                  }}>
+                <Card
+                  sx={{
+                    bgcolor: '#fff',
+                    border: '2px solid #111',
+                    borderRadius: 4,
+                    boxShadow: 'none',
+                    transition: '0.3s',
+                    '&:hover': {
+                      bgcolor: '#111',
+                      color: '#fff',
+                      borderColor: '#fff',
+                    },
+                    textAlign: 'center',
+                    p: 2,
+                    minHeight: 420,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: 200,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mb: 2,
+                      bgcolor: '#EBEDEE', // dùng màu nền mới
+                      borderRadius: 4, // giống Card
+                    }}
+                  >
                     {item.isVideo ? (
                       <video
                         src={item.image}
-                        style={{ maxWidth: '98%', maxHeight: 190, objectFit: 'contain', borderRadius: 4, background: '#EBEDEE' }}
+                        style={{
+                          maxWidth: '98%',
+                          maxHeight: 190,
+                          objectFit: 'contain',
+                          borderRadius: 4,
+                          background: '#EBEDEE',
+                        }}
                         autoPlay
                         loop
                         muted
                         playsInline
                       />
                     ) : (
-                      <img 
+                      <img
                         src={item.image}
                         alt={item.name}
                         style={{
@@ -207,25 +209,44 @@ export default function ShoesPage() {
                           objectFit: 'contain',
                           transition: 'filter 0.3s',
                           borderRadius: 4,
-                          background: '#EBEDEE'
+                          background: '#EBEDEE',
                         }}
                       />
                     )}
                   </Box>
-                  <Typography variant="h5" sx={{ fontWeight: 700, mb: 1, letterSpacing: 1, fontFamily: 'Arial Black, Arial, sans-serif' }}>{item.name}</Typography>
-                  <Typography variant="body2" sx={{ color: 'inherit', opacity: 0.8, mb: 2 }}>{item.desc}</Typography>
-                  <Button component={Link} href={item.href} variant="outlined" sx={{
-                    borderColor: '#111',
-                    color: '#111',
-                    fontWeight: 600,
-                    letterSpacing: 1,
-                    bgcolor: '#fff',
-                    '&:hover': {
-                      bgcolor: '#111',
-                      color: '#fff',
-                      borderColor: '#fff',
-                    }
-                  }}>Shop Now</Button>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontWeight: 700,
+                      mb: 1,
+                      letterSpacing: 1,
+                      fontFamily: 'Arial Black, Arial, sans-serif',
+                    }}
+                  >
+                    {item.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: 'inherit', opacity: 0.8, mb: 2 }}>
+                    {item.desc}
+                  </Typography>
+                  <Button
+                    component={Link}
+                    href={item.href}
+                    variant="outlined"
+                    sx={{
+                      borderColor: '#111',
+                      color: '#111',
+                      fontWeight: 600,
+                      letterSpacing: 1,
+                      bgcolor: '#fff',
+                      '&:hover': {
+                        bgcolor: '#111',
+                        color: '#fff',
+                        borderColor: '#fff',
+                      },
+                    }}
+                  >
+                    Shop Now
+                  </Button>
                 </Card>
               </Box>
             ))}
@@ -332,4 +353,4 @@ export default function ShoesPage() {
       </Box>
     </Box>
   );
-} 
+}

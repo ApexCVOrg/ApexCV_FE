@@ -5,12 +5,10 @@ import { useParams } from 'next/navigation';
 import {
   Box,
   Container,
-  Grid,
   Typography,
   Button,
   Chip,
   Rating,
-  Divider,
   Tabs,
   Tab,
   Card,
@@ -19,15 +17,10 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  Badge,
   Stack,
   Breadcrumbs,
   Link,
   Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -47,7 +40,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
-import FavoriteButton from '@/components/ui/FavoriteButton';
+// import FavoriteButton from '@/components/ui/FavoriteButton';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -80,7 +73,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
+    <Box
       role="tabpanel"
       hidden={value !== index}
       id={`product-tabpanel-${index}`}
@@ -88,7 +81,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+    </Box>
   );
 }
 
@@ -97,7 +90,7 @@ export default function ProductDetailPage() {
   const t = useTranslations('productDetail');
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
-  
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +107,7 @@ export default function ProductDetailPage() {
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const productId = params.id as string;
@@ -126,7 +119,7 @@ export default function ProductDetailPage() {
         const response = await api.get(`/products/${productId}`);
         const productData = response.data as { data: Product };
         setProduct(productData.data);
-        
+
         // Set default selections
         if (productData.data.colors?.length > 0) {
           setSelectedColor(productData.data.colors[0]);
@@ -134,8 +127,8 @@ export default function ProductDetailPage() {
         if (productData.data.sizes?.length > 0) {
           setSelectedSize(productData.data.sizes[0].size);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm');
+      } catch (err: unknown) {
+        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Không thể tải thông tin sản phẩm');
       } finally {
         setLoading(false);
       }
@@ -150,9 +143,7 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (autoScroll && product?.images && product.images.length > 1) {
       autoScrollRef.current = setInterval(() => {
-        setSelectedImage((prev) => 
-          prev < (product?.images?.length - 1) ? prev + 1 : 0
-        );
+        setSelectedImage(prev => (prev < product?.images?.length - 1 ? prev + 1 : 0));
       }, 3000);
     }
 
@@ -204,10 +195,10 @@ export default function ProductDetailPage() {
         message: t('addToCartSuccess'),
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || t('addToCartError'),
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('addToCartError'),
         severity: 'error',
       });
     }
@@ -235,21 +226,25 @@ export default function ProductDetailPage() {
   };
 
   const handlePrevImage = () => {
-    setSelectedImage(prev => prev > 0 ? prev - 1 : (product?.images.length || 1) - 1);
+    setSelectedImage(prev => (prev > 0 ? prev - 1 : (product?.images.length || 1) - 1));
   };
 
   const handleNextImage = () => {
-    setSelectedImage(prev => prev < (product?.images.length || 1) - 1 ? prev + 1 : 0);
+    setSelectedImage(prev => (prev < (product?.images.length || 1) - 1 ? prev + 1 : 0));
   };
 
   const getProductType = () => {
     if (!product) return 'clothing';
-    
+
     // Check category name
     const categoryName = product.categories[0]?.name?.toLowerCase() || '';
     const productName = product.name.toLowerCase();
-    
-    if (categoryName.includes('giày') || categoryName.includes('dép') || categoryName.includes('sneaker')) {
+
+    if (
+      categoryName.includes('giày') ||
+      categoryName.includes('dép') ||
+      categoryName.includes('sneaker')
+    ) {
       return 'shoes';
     } else if (categoryName.includes('quần') || productName.includes('quần')) {
       return 'pants';
@@ -285,7 +280,7 @@ export default function ProductDetailPage() {
   }
 
   const isDiscounted = product.discountPrice && product.discountPrice < product.price;
-  const discountPercentage = isDiscounted 
+  const discountPercentage = isDiscounted
     ? Math.round(((product.price - product.discountPrice!) / product.price) * 100)
     : 0;
 
@@ -296,7 +291,11 @@ export default function ProductDetailPage() {
         <Link href="/" color="inherit" underline="hover">
           Trang chủ
         </Link>
-        <Link href={`/${product.categories[0]?.name.toLowerCase()}`} color="inherit" underline="hover">
+        <Link
+          href={`/${product.categories[0]?.name.toLowerCase()}`}
+          color="inherit"
+          underline="hover"
+        >
           {product.categories[0]?.name}
         </Link>
         <Typography color="text.primary">{product.name}</Typography>
@@ -340,7 +339,7 @@ export default function ProductDetailPage() {
               {product.images.length > 1 && (
                 <>
                   <IconButton
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handlePrevImage();
                     }}
@@ -357,7 +356,7 @@ export default function ProductDetailPage() {
                     <ArrowBack />
                   </IconButton>
                   <IconButton
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       handleNextImage();
                     }}
@@ -398,7 +397,7 @@ export default function ProductDetailPage() {
                         bgcolor: selectedImage === index ? 'white' : 'rgba(255,255,255,0.5)',
                         cursor: 'pointer',
                       }}
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
                         setSelectedImage(index);
                       }}
@@ -454,7 +453,8 @@ export default function ProductDetailPage() {
                       borderRadius: 1,
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      border: selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
+                      border:
+                        selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
                       bgcolor: '#f8f9fa',
                       display: 'flex',
                       alignItems: 'center',
@@ -553,7 +553,7 @@ export default function ProductDetailPage() {
                   {t('colors')}:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {product.colors.map((color) => (
+                  {product.colors.map(color => (
                     <Box
                       key={color}
                       sx={{
@@ -598,10 +598,15 @@ export default function ProductDetailPage() {
             {/* Size Selection */}
             {getUniqueSizes().length > 0 && (
               <Box sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                  <Typography variant="h6">
-                    {t('sizes')}:
-                  </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6">{t('sizes')}:</Typography>
                   <Button
                     startIcon={<Info />}
                     onClick={() => setShowSizeGuide(true)}
@@ -610,17 +615,15 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexWrap: 'wrap', 
-                  gap: 2,
-                }}>
-                  {getUniqueSizes().map((size) => (
-                    <motion.div
-                      key={size}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                  }}
+                >
+                  {getUniqueSizes().map(size => (
+                    <motion.div key={size} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Box
                         sx={{
                           width: 60,
@@ -633,8 +636,11 @@ export default function ProductDetailPage() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          opacity: selectedColor ? 
-                            (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                          opacity: selectedColor
+                            ? getStock(selectedColor, size) === 0
+                              ? 0.5
+                              : 1
+                            : 1,
                         }}
                         onClick={() => setSelectedSize(size)}
                       >
@@ -658,10 +664,10 @@ export default function ProductDetailPage() {
             {selectedColor && selectedSize && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('colorSizeStock', { 
+                  {t('colorSizeStock', {
                     color: selectedColor,
-                    size: selectedSize, 
-                    stock: getStock(selectedColor, selectedSize)
+                    size: selectedSize,
+                    stock: getStock(selectedColor, selectedSize),
                   })}
                 </Typography>
               </Box>
@@ -677,7 +683,7 @@ export default function ProductDetailPage() {
                   <IconButton
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
-                    sx={{ 
+                    sx={{
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -689,9 +695,11 @@ export default function ProductDetailPage() {
                     {quantity}
                   </Typography>
                   <IconButton
-                    onClick={() => setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))}
+                    onClick={() =>
+                      setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))
+                    }
                     disabled={quantity >= getStock(selectedColor, selectedSize)}
-                    sx={{ 
+                    sx={{
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -765,13 +773,8 @@ export default function ProductDetailPage() {
                   {t('tags')}:
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {product.tags.map((tag) => (
-                    <Chip
-                      key={tag}
-                      label={tag}
-                      size="small"
-                      sx={{ mb: 1 }}
-                    />
+                  {product.tags.map(tag => (
+                    <Chip key={tag} label={tag} size="small" sx={{ mb: 1 }} />
                   ))}
                 </Stack>
               </Box>
@@ -782,7 +785,11 @@ export default function ProductDetailPage() {
 
       {/* Product Details Tabs */}
       <Box sx={{ mt: 6 }}>
-        <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
           <Tab label={t('description')} />
           <Tab label={t('specifications')} />
           <Tab label={t('reviews')} />
@@ -810,13 +817,15 @@ export default function ProductDetailPage() {
                       <strong>{t('brand')}:</strong> {product.brand.name}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('categories')}:</strong> {product.categories.map(cat => cat.name).join(', ')}
+                      <strong>{t('categories')}:</strong>{' '}
+                      {product.categories.map(cat => cat.name).join(', ')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('status')}:</strong> {product.status}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('createdAt')}:</strong> {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                      <strong>{t('createdAt')}:</strong>{' '}
+                      {new Date(product.createdAt).toLocaleDateString('vi-VN')}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -926,4 +935,4 @@ export default function ProductDetailPage() {
       </Snackbar>
     </Container>
   );
-} 
+}

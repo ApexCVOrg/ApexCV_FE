@@ -13,6 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[];
   createdAt: string;
 }
 
@@ -26,21 +27,22 @@ export default function KidsSmileyPage() {
         status: 'active',
         gender: 'kids',
         sortBy: apiSortBy,
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-      
+
       // Lọc sản phẩm smiley cho kids
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasSmiley = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('smiley') || cat.toLowerCase().includes('smileys')
+          const hasSmiley = item.categoryPath.some(
+            (cat: string) =>
+              cat.toLowerCase().includes('smiley') || cat.toLowerCase().includes('smileys')
           );
           if (hasSmiley) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
@@ -49,18 +51,18 @@ export default function KidsSmileyPage() {
           );
           if (hasSmileyCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasSmileyTag = item.tags.some((tag: string) => 
+          const hasSmileyTag = item.tags.some((tag: string) =>
             tag.toLowerCase().includes('smiley')
           );
           if (hasSmileyTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('smiley')) return true;
-        
+
         return false;
       });
       
@@ -82,4 +84,4 @@ export default function KidsSmileyPage() {
       emptyMessage="No smiley products found."
     />
   );
-} 
+}

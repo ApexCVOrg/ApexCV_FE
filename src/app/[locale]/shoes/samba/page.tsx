@@ -12,14 +12,31 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
 const TABS = [
-  { label: "SAMBA", value: "samba", image: "/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif" },
-  { label: "SUPERSTAR", value: "superstar", image: "/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif" },
-  { label: "GAZELLE", value: "gazelle", image: "/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif" },
-  { label: "SL 72", value: "sl-72", image: "/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif" }
+  {
+    label: 'SAMBA',
+    value: 'samba',
+    image: '/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif',
+  },
+  {
+    label: 'SUPERSTAR',
+    value: 'superstar',
+    image: '/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif',
+  },
+  {
+    label: 'GAZELLE',
+    value: 'gazelle',
+    image: '/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif',
+  },
+  {
+    label: 'SL 72',
+    value: 'sl-72',
+    image: '/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif',
+  },
 ];
 
 export default function SambaPage() {
@@ -31,41 +48,37 @@ export default function SambaPage() {
       const queryParams = new URLSearchParams({
         status: 'active',
         sortBy: apiSortBy,
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-      
+
       // Lọc sản phẩm samba
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasSamba = item.categoryPath.some((cat: string) => 
+          const hasSamba = item.categoryPath.some((cat: string) =>
             cat.toLowerCase().includes('samba')
           );
           if (hasSamba) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
-          const hasSambaCategory = categoryNames.some((name: string) => 
-            name.includes('samba')
-          );
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
+          const hasSambaCategory = categoryNames.some((name: string) => name.includes('samba'));
           if (hasSambaCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasSambaTag = item.tags.some((tag: string) => 
-            tag.toLowerCase().includes('samba')
-          );
+          const hasSambaTag = item.tags.some((tag: string) => tag.toLowerCase().includes('samba'));
           if (hasSambaTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('samba')) return true;
-        
+
         return false;
       });
       
@@ -88,4 +101,4 @@ export default function SambaPage() {
       tabs={TABS}
     />
   );
-} 
+}

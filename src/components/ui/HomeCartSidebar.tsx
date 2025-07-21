@@ -10,12 +10,8 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   TextField,
   Chip,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Alert,
   CircularProgress,
   FormControl,
   InputLabel,
@@ -35,21 +31,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/navigation';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
-import { useTheme } from '@mui/material/styles';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface CartItem {
-  _id: string;
-  productId: string;
-  name: string;
-  image: string;
-  price: number;
-  discountPrice?: number;
-  brand?: string;
-  size?: string;
-  color?: string;
-  quantity: number;
-}
 
 interface ProductInfo {
   _id: string;
@@ -65,18 +46,16 @@ interface ProductInfo {
 const HomeCartSidebar: React.FC = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const router = useRouter();
-  const { 
-    homeCartItems, 
+  const {
+    homeCartItems,
     homeCartItemCount,
-    updateHomeCartItem, 
-    removeFromHomeCart, 
+    updateHomeCartItem,
+    removeFromHomeCart,
     confirmHomeCart,
-    addToHomeCart
+    addToHomeCart,
   } = useHomeCartContext();
   const { loading: cartLoading } = useCartContext();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const theme = useTheme();
-  
+
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -86,7 +65,7 @@ const HomeCartSidebar: React.FC = () => {
   // Tính tổng giá trị giỏ hàng
   const totalPrice = homeCartItems.reduce((total, item) => {
     const itemPrice = item.discountPrice || item.price;
-    return total + (itemPrice * item.quantity);
+    return total + itemPrice * item.quantity;
   }, 0);
 
   // Cập nhật quantities khi cartItems thay đổi
@@ -117,8 +96,8 @@ const HomeCartSidebar: React.FC = () => {
     try {
       await confirmHomeCart();
       // router.push('/cart'); // Đừng chuyển trang sau khi xác nhận
-    } catch (error) {
-      console.error('Error confirming home cart:', error);
+    } catch {
+      // Handle error silently
     }
   };
 
@@ -177,19 +156,21 @@ const HomeCartSidebar: React.FC = () => {
     >
       <Box sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          mb: 2,
-          p: 1.5,
-          borderRadius: 2,
-          bgcolor: theme => theme.palette.background.default,
-          color: theme => theme.palette.text.primary,
-          border: theme => `1px solid ${theme.palette.divider}`,
-          boxShadow: theme => theme.shadows[1],
-          fontWeight: 600,
-          letterSpacing: 0.2,
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            mb: 2,
+            p: 1.5,
+            borderRadius: 2,
+            bgcolor: theme => theme.palette.background.default,
+            color: theme => theme.palette.text.primary,
+            border: theme => `1px solid ${theme.palette.divider}`,
+            boxShadow: theme => theme.shadows[1],
+            fontWeight: 600,
+            letterSpacing: 0.2,
+          }}
+        >
           <Badge badgeContent={homeCartItemCount} color="error" sx={{ mr: 1 }}>
             <ShoppingCartIcon sx={{ fontSize: 22, color: 'primary.main' }} />
           </Badge>
@@ -202,9 +183,9 @@ const HomeCartSidebar: React.FC = () => {
         <Slide direction="down" in={!!selectedProduct} mountOnEnter unmountOnExit>
           <Paper
             elevation={4}
-            sx={{ 
-              mb: 3, 
-              p: 3, 
+            sx={{
+              mb: 3,
+              p: 3,
               border: '2px solid #e3f2fd',
               borderRadius: 3,
               background: 'linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%)',
@@ -218,7 +199,7 @@ const HomeCartSidebar: React.FC = () => {
                 right: 0,
                 height: '4px',
                 background: 'linear-gradient(90deg, #667eea, #764ba2)',
-              }
+              },
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -226,37 +207,39 @@ const HomeCartSidebar: React.FC = () => {
                 <CheckCircleIcon sx={{ mr: 1, color: '#27ae60', fontSize: 20 }} />
                 Chọn thông tin sản phẩm
               </Typography>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={handleCloseProductSelection}
-                sx={{ 
+                sx={{
                   color: '#7f8c8d',
-                  '&:hover': { 
+                  '&:hover': {
                     background: 'rgba(127, 140, 141, 0.1)',
-                    color: '#2c3e50'
-                  }
+                    color: '#2c3e50',
+                  },
                 }}
               >
                 <CloseIcon />
               </IconButton>
             </Box>
-            
+
             <Box sx={{ display: 'flex', gap: 3, mb: 3 }}>
-              <Box sx={{ 
-                position: 'relative',
-                width: 80, 
-                height: 80, 
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  width: 80,
+                  height: 80,
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                }}
+              >
                 <img
                   src={selectedProduct?.image}
                   alt={selectedProduct?.name}
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover'
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
                   }}
                 />
               </Box>
@@ -269,8 +252,14 @@ const HomeCartSidebar: React.FC = () => {
                 </Typography>
                 <Typography variant="h6" color="primary" fontWeight={700}>
                   {selectedProduct?.discountPrice
-                    ? selectedProduct.discountPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-                    : selectedProduct?.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    ? selectedProduct.discountPrice.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      })
+                    : selectedProduct?.price.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      })}
                 </Typography>
               </Box>
             </Box>
@@ -281,7 +270,7 @@ const HomeCartSidebar: React.FC = () => {
                   <InputLabel sx={{ color: '#7f8c8d' }}>Kích thước</InputLabel>
                   <Select
                     value={selectedSize}
-                    onChange={(e) => setSelectedSize(e.target.value)}
+                    onChange={e => setSelectedSize(e.target.value)}
                     label="Kích thước"
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -297,7 +286,7 @@ const HomeCartSidebar: React.FC = () => {
                       },
                     }}
                   >
-                    {selectedProduct.sizes.map((size) => (
+                    {selectedProduct.sizes.map(size => (
                       <MenuItem key={size.size} value={size.size} disabled={size.stock === 0}>
                         {size.size} {size.stock === 0 ? '(Hết hàng)' : `(Còn ${size.stock})`}
                       </MenuItem>
@@ -305,13 +294,13 @@ const HomeCartSidebar: React.FC = () => {
                   </Select>
                 </FormControl>
               )}
-              
+
               {selectedProduct?.colors && selectedProduct.colors.length > 0 && (
                 <FormControl fullWidth>
                   <InputLabel sx={{ color: '#7f8c8d' }}>Màu sắc</InputLabel>
                   <Select
                     value={selectedColor}
-                    onChange={(e) => setSelectedColor(e.target.value)}
+                    onChange={e => setSelectedColor(e.target.value)}
                     label="Màu sắc"
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -327,7 +316,7 @@ const HomeCartSidebar: React.FC = () => {
                       },
                     }}
                   >
-                    {selectedProduct.colors.map((color) => (
+                    {selectedProduct.colors.map(color => (
                       <MenuItem key={color} value={color}>
                         {color}
                       </MenuItem>
@@ -335,12 +324,12 @@ const HomeCartSidebar: React.FC = () => {
                   </Select>
                 </FormControl>
               )}
-              
+
               <TextField
                 label="Số lượng"
                 type="number"
                 value={productQuantity}
-                onChange={(e) => setProductQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={e => setProductQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                 inputProps={{ min: 1 }}
                 fullWidth
                 sx={{
@@ -357,7 +346,7 @@ const HomeCartSidebar: React.FC = () => {
                   },
                 }}
               />
-              
+
               <Button
                 variant="contained"
                 fullWidth
@@ -379,7 +368,7 @@ const HomeCartSidebar: React.FC = () => {
                     background: '#e0e0e0',
                     color: '#9e9e9e',
                     boxShadow: 'none',
-                  }
+                  },
                 }}
               >
                 <ShoppingCartIcon sx={{ mr: 1 }} />
@@ -393,27 +382,36 @@ const HomeCartSidebar: React.FC = () => {
         <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
           {homeCartItems.length === 0 ? (
             <Fade in={true}>
-              <Box sx={{ 
-                textAlign: 'center', 
-                py: 6,
-                px: 3,
-                color: theme => theme.palette.text.disabled,
-                opacity: 0.85,
-              }}>
-                <Box sx={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: '50%',
-                  background: theme => theme.palette.action.hover,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mx: 'auto',
-                  mb: 2,
-                }}>
+              <Box
+                sx={{
+                  textAlign: 'center',
+                  py: 6,
+                  px: 3,
+                  color: theme => theme.palette.text.disabled,
+                  opacity: 0.85,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: '50%',
+                    background: theme => theme.palette.action.hover,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mx: 'auto',
+                    mb: 2,
+                  }}
+                >
                   <ShoppingCartIcon sx={{ fontSize: 32, color: 'inherit' }} />
                 </Box>
-                <Typography variant="subtitle2" color="inherit" gutterBottom sx={{ fontWeight: 600 }}>
+                <Typography
+                  variant="subtitle2"
+                  color="inherit"
+                  gutterBottom
+                  sx={{ fontWeight: 600 }}
+                >
                   Giỏ hàng trống
                 </Typography>
                 <Typography variant="caption" color="inherit" sx={{ maxWidth: 180, mx: 'auto' }}>
@@ -443,18 +441,24 @@ const HomeCartSidebar: React.FC = () => {
                     <ListItem sx={{ p: 1 }}>
                       <Box sx={{ display: 'flex', width: '100%', gap: 1 }}>
                         {/* Product Image */}
-                        <Box sx={{
-                          position: 'relative',
-                          width: 36,
-                          height: 36,
-                          borderRadius: 1,
-                          overflow: 'hidden',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                          flexShrink: 0,
-                          border: theme => `1px solid ${theme.palette.divider}`,
-                        }}>
+                        <Box
+                          sx={{
+                            position: 'relative',
+                            width: 36,
+                            height: 36,
+                            borderRadius: 1,
+                            overflow: 'hidden',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                            flexShrink: 0,
+                            border: theme => `1px solid ${theme.palette.divider}`,
+                          }}
+                        >
                           <img
-                            src={item.image ? `/assets/images/${item.image}` : '/assets/images/placeholder.jpg'}
+                            src={
+                              item.image
+                                ? `/assets/images/${item.image}`
+                                : '/assets/images/placeholder.jpg'
+                            }
                             alt={item.name}
                             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
@@ -463,45 +467,103 @@ const HomeCartSidebar: React.FC = () => {
                         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                           <Typography
                             variant="body2"
-                            sx={{ fontWeight: 700, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'text.primary', mb: 0.2 }}
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: 13,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              color: 'text.primary',
+                              mb: 0.2,
+                            }}
                           >
                             {item.name}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.2, fontSize: 11 }}>
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ mb: 0.2, fontSize: 11 }}
+                          >
                             {item.brand}
                           </Typography>
                           <Stack direction="row" spacing={0.3} sx={{ mb: 0.2 }}>
                             {item.size && (
-                              <Chip label={`Size: ${item.size}`} size="small" variant="outlined" sx={{ borderColor: 'primary.light', color: 'primary.main', fontWeight: 600, fontSize: 10, height: 18, px: 0.5, transition: 'border-color 0.2s, color 0.2s', '&:hover': { borderColor: 'primary.main', color: 'primary.dark' } }} />
+                              <Chip
+                                label={`Size: ${item.size}`}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  borderColor: 'primary.light',
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  fontSize: 10,
+                                  height: 18,
+                                  px: 0.5,
+                                  transition: 'border-color 0.2s, color 0.2s',
+                                  '&:hover': { borderColor: 'primary.main', color: 'primary.dark' },
+                                }}
+                              />
                             )}
                             {item.color && (
-                              <Chip label={`Màu: ${item.color}`} size="small" variant="outlined" sx={{ borderColor: 'primary.light', color: 'primary.main', fontWeight: 600, fontSize: 10, height: 18, px: 0.5, transition: 'border-color 0.2s, color 0.2s', '&:hover': { borderColor: 'primary.main', color: 'primary.dark' } }} />
+                              <Chip
+                                label={`Màu: ${item.color}`}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                  borderColor: 'primary.light',
+                                  color: 'primary.main',
+                                  fontWeight: 600,
+                                  fontSize: 10,
+                                  height: 18,
+                                  px: 0.5,
+                                  transition: 'border-color 0.2s, color 0.2s',
+                                  '&:hover': { borderColor: 'primary.main', color: 'primary.dark' },
+                                }}
+                              />
                             )}
                           </Stack>
-                          <Typography variant="body2" color="primary" fontWeight={700} sx={{ mb: 0.5, fontSize: 13 }}>
+                          <Typography
+                            variant="body2"
+                            color="primary"
+                            fontWeight={700}
+                            sx={{ mb: 0.5, fontSize: 13 }}
+                          >
                             {item.discountPrice
-                              ? item.discountPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-                              : item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                              ? item.discountPrice.toLocaleString('vi-VN', {
+                                  style: 'currency',
+                                  currency: 'VND',
+                                })
+                              : item.price.toLocaleString('vi-VN', {
+                                  style: 'currency',
+                                  currency: 'VND',
+                                })}
                           </Typography>
                           {/* Quantity Control */}
-                          <Box sx={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 1,
-                            background: '#f8f9fa',
-                            borderRadius: 2,
-                            p: 0.5,
-                            width: 'fit-content'
-                          }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1,
+                              background: '#f8f9fa',
+                              borderRadius: 2,
+                              p: 0.5,
+                              width: 'fit-content',
+                            }}
+                          >
                             <IconButton
                               size="small"
-                              onClick={() => handleQuantityChange(item._id, quantities[item._id] - 1)}
+                              onClick={() =>
+                                handleQuantityChange(item._id, quantities[item._id] - 1)
+                              }
                               disabled={quantities[item._id] <= 1}
-                              sx={{ 
+                              sx={{
                                 color: quantities[item._id] <= 1 ? '#bdc3c7' : '#667eea',
                                 '&:hover': {
-                                  background: quantities[item._id] <= 1 ? 'transparent' : 'rgba(102, 126, 234, 0.1)',
-                                }
+                                  background:
+                                    quantities[item._id] <= 1
+                                      ? 'transparent'
+                                      : 'rgba(102, 126, 234, 0.1)',
+                                },
                               }}
                             >
                               <RemoveIcon fontSize="small" />
@@ -509,36 +571,38 @@ const HomeCartSidebar: React.FC = () => {
                             <TextField
                               size="small"
                               value={quantities[item._id] || 1}
-                              onChange={(e) => {
+                              onChange={e => {
                                 const value = parseInt(e.target.value) || 1;
                                 handleQuantityChange(item._id, value);
                               }}
-                              inputProps={{ 
-                                min: 1, 
-                                style: { 
-                                  textAlign: 'center', 
+                              inputProps={{
+                                min: 1,
+                                style: {
+                                  textAlign: 'center',
                                   width: 40,
                                   fontWeight: 600,
-                                  color: '#2c3e50'
-                                } 
+                                  color: '#2c3e50',
+                                },
                               }}
-                              sx={{ 
+                              sx={{
                                 width: 60,
                                 '& .MuiOutlinedInput-root': {
                                   '& fieldset': { border: 'none' },
                                   background: 'white',
                                   borderRadius: 1,
-                                }
+                                },
                               }}
                             />
                             <IconButton
                               size="small"
-                              onClick={() => handleQuantityChange(item._id, quantities[item._id] + 1)}
-                              sx={{ 
+                              onClick={() =>
+                                handleQuantityChange(item._id, quantities[item._id] + 1)
+                              }
+                              sx={{
                                 color: '#667eea',
                                 '&:hover': {
                                   background: 'rgba(102, 126, 234, 0.1)',
-                                }
+                                },
                               }}
                             >
                               <AddIcon fontSize="small" />
@@ -555,7 +619,7 @@ const HomeCartSidebar: React.FC = () => {
                             '&:hover': {
                               background: 'rgba(231, 76, 60, 0.2)',
                             },
-                            alignSelf: 'flex-start'
+                            alignSelf: 'flex-start',
                           }}
                         >
                           <DeleteIcon fontSize="small" />
@@ -583,14 +647,19 @@ const HomeCartSidebar: React.FC = () => {
             }}
           >
             <Divider sx={{ mb: 2 }} />
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2,
-              px: 2
-            }}>
-              <Typography variant="body2" sx={{ fontWeight: 600, color: 'text.primary', fontSize: 14 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                mb: 2,
+                px: 2,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600, color: 'text.primary', fontSize: 14 }}
+              >
                 Tổng cộng:
               </Typography>
               <Typography variant="body1" color="primary" fontWeight={700} sx={{ fontSize: 15 }}>
@@ -623,7 +692,7 @@ const HomeCartSidebar: React.FC = () => {
                     background: theme => theme.palette.action.disabled,
                     color: theme => theme.palette.text.disabled,
                     boxShadow: 'none',
-                  }
+                  },
                 }}
               >
                 {cartLoading ? 'Đang xử lý...' : 'Xác nhận giỏ hàng'}
@@ -636,4 +705,4 @@ const HomeCartSidebar: React.FC = () => {
   );
 };
 
-export default HomeCartSidebar; 
+export default HomeCartSidebar;

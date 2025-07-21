@@ -25,7 +25,7 @@ interface AxiosRequest {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -61,9 +61,10 @@ api.interceptors.response.use(
           const currentPath = window.location.pathname;
           if (!currentPath.includes('/auth/login')) {
             const currentLocale = window.location.pathname.split('/')[1];
-            const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-              ? `/${currentLocale}/auth/login` 
-              : '/vi/auth/login';
+            const loginUrl =
+              currentLocale === 'en' || currentLocale === 'vi'
+                ? `/${currentLocale}/auth/login`
+                : '/vi/auth/login';
             window.location.href = loginUrl;
           }
           return Promise.reject(error);
@@ -88,9 +89,10 @@ api.interceptors.response.use(
         const currentPath = window.location.pathname;
         if (!currentPath.includes('/auth/login')) {
           const currentLocale = window.location.pathname.split('/')[1];
-          const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-            ? `/${currentLocale}/auth/login` 
-            : '/vi/auth/login';
+          const loginUrl =
+            currentLocale === 'en' || currentLocale === 'vi'
+              ? `/${currentLocale}/auth/login`
+              : '/vi/auth/login';
           window.location.href = loginUrl;
         }
         return Promise.reject(refreshError);
@@ -104,17 +106,15 @@ api.interceptors.response.use(
 /**
  * Gọi API backend để tạo link thanh toán VNPAY
  */
-export async function createVnpayPayment(data: any): Promise<string> {
+export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-  
-  // Loại bỏ /api từ baseURL nếu có để tránh duplicate
-  const cleanBaseURL = baseURL.replace(/\/api$/, '');
-  const apiUrl = `${cleanBaseURL}/api/payment/vnpay`;
-  
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+
+  const apiUrl = `${baseURL}/payment/vnpay`;
+
   console.log('[Frontend] Calling VNPAY API:', apiUrl);
   console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
-  
+
   const res = await fetch(apiUrl, {
     method: 'POST',
     headers: {
@@ -124,19 +124,18 @@ export async function createVnpayPayment(data: any): Promise<string> {
     body: JSON.stringify(data),
     credentials: 'include',
   });
-  
+
   console.log('[Frontend] Response status:', res.status);
-  
+
   if (!res.ok) {
     const errorText = await res.text();
     console.error('[Frontend] API Error:', errorText);
     throw new Error(`Tạo link thanh toán thất bại: ${res.status} - ${errorText}`);
   }
-  
+
   const json = await res.json();
   console.log('[Frontend] API Response:', json);
   return json.paymentUrl;
 }
-
 
 export default api;

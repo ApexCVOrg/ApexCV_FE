@@ -30,9 +30,9 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
 
     if (hasChildren) {
       return (
-        <Accordion 
-          key={category._id} 
-          sx={{ 
+        <Accordion
+          key={category._id}
+          sx={{
             boxShadow: 'none',
             '&:before': { display: 'none' },
             ml: level * 2,
@@ -51,8 +51,8 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
               control={
                 <Checkbox
                   checked={isSelected}
-                  onChange={(e) => onCategoryChange(category._id, e.target.checked)}
-                  onClick={(e) => e.stopPropagation()}
+                  onChange={e => onCategoryChange(category._id, e.target.checked)}
+                  onClick={e => e.stopPropagation()}
                   size="small"
                 />
               }
@@ -66,7 +66,7 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
           </AccordionSummary>
           <AccordionDetails sx={{ pt: 0, pb: 1 }}>
             <Box sx={{ ml: 2 }}>
-              {category.children?.map((child) => renderCategoryNode(child, level + 1))}
+              {category.children?.map(child => renderCategoryNode(child, level + 1))}
             </Box>
           </AccordionDetails>
         </Accordion>
@@ -79,26 +79,18 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
           control={
             <Checkbox
               checked={isSelected}
-              onChange={(e) => onCategoryChange(category._id, e.target.checked)}
+              onChange={e => onCategoryChange(category._id, e.target.checked)}
               size="small"
             />
           }
-          label={
-            <Typography variant="body2">
-              {category.name}
-            </Typography>
-          }
+          label={<Typography variant="body2">{category.name}</Typography>}
           sx={{ margin: 0 }}
         />
       </Box>
     );
   };
 
-  return (
-    <Box>
-      {categories.map((category) => renderCategoryNode(category))}
-    </Box>
-  );
+  return <Box>{categories.map(category => renderCategoryNode(category))}</Box>;
 };
 
-export default CategoryTreeFilter; 
+export default CategoryTreeFilter;

@@ -7,7 +7,7 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 const AuthSuccessPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -18,16 +18,16 @@ const AuthSuccessPage = () => {
 
         if (!token) {
           setError('Missing authentication token');
-          setLoading(false);
+          // setLoading(false);
           return;
         }
 
         // Lưu token vào localStorage
         localStorage.setItem('auth_token', token);
-        
+
         // Trigger authentication state refresh
         window.dispatchEvent(new Event('storage'));
-        
+
         // Also trigger a custom event for immediate update
         window.dispatchEvent(new CustomEvent('authTokenUpdated', { detail: { token } }));
 
@@ -35,7 +35,7 @@ const AuthSuccessPage = () => {
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
             },
           });
@@ -77,11 +77,10 @@ const AuthSuccessPage = () => {
             window.location.href = redirectPath;
           }
         }, 1000);
-
       } catch (err) {
         console.error('Auth success error:', err);
         setError('Authentication failed');
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
@@ -90,14 +89,16 @@ const AuthSuccessPage = () => {
 
   if (error) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '100vh',
-        gap: 2
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          gap: 2,
+        }}
+      >
         <Typography variant="h6" color="error">
           Authentication Error
         </Typography>
@@ -109,18 +110,18 @@ const AuthSuccessPage = () => {
   }
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'center', 
-      justifyContent: 'center', 
-      minHeight: '100vh',
-      gap: 2
-    }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        gap: 2,
+      }}
+    >
       <CircularProgress size={60} />
-      <Typography variant="h6">
-        Đang đăng nhập...
-      </Typography>
+      <Typography variant="h6">Đang đăng nhập...</Typography>
       <Typography variant="body2" color="text.secondary">
         Vui lòng chờ trong giây lát
       </Typography>
@@ -128,4 +129,4 @@ const AuthSuccessPage = () => {
   );
 };
 
-export default AuthSuccessPage; 
+export default AuthSuccessPage;

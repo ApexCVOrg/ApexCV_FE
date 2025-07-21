@@ -13,6 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[];
   createdAt: string;
 }
 
@@ -26,21 +27,22 @@ export default function KidsJerseyPage() {
         status: 'active',
         gender: 'kids',
         sortBy: apiSortBy,
-        sortOrder: sortOrder
+        sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-      
+
       // Lọc sản phẩm jersey cho kids
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
-          const hasJersey = item.categoryPath.some((cat: string) => 
-            cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('t-shirts')
+          const hasJersey = item.categoryPath.some(
+            (cat: string) =>
+              cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('t-shirts')
           );
           if (hasJersey) return true;
         }
-        
+
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
@@ -49,18 +51,18 @@ export default function KidsJerseyPage() {
           );
           if (hasJerseyCategory) return true;
         }
-        
+
         // Kiểm tra tags
         if (item.tags && Array.isArray(item.tags)) {
-          const hasJerseyTag = item.tags.some((tag: string) => 
+          const hasJerseyTag = item.tags.some((tag: string) =>
             tag.toLowerCase().includes('jersey')
           );
           if (hasJerseyTag) return true;
         }
-        
+
         // Kiểm tra trong name
         if (item.name.toLowerCase().includes('jersey')) return true;
-        
+
         return false;
       });
       
@@ -82,4 +84,4 @@ export default function KidsJerseyPage() {
       emptyMessage="No jerseys found."
     />
   );
-} 
+}

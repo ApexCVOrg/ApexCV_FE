@@ -22,8 +22,7 @@ import {
   Button,
   CircularProgress,
   Alert,
-  useTheme,
-  useMediaQuery,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -33,7 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslations } from 'next-intl';
+
 
 interface ChatSession {
   _id: string;
@@ -56,10 +55,7 @@ interface ChatSessionsResponse {
 
 const ChatSessionsPage = () => {
   const router = useRouter();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, getToken } = useAuth();
-  const t = useTranslations('manager.chats');
 
   // State
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -98,12 +94,15 @@ const ChatSessionsPage = () => {
         ...(statusFilter !== 'all' && { status: statusFilter }),
       });
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats?${queryParams}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?${queryParams}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -112,8 +111,8 @@ const ChatSessionsPage = () => {
       const data: ChatSessionsResponse = await response.json();
       setSessions(data.data);
       setTotal(data.total);
-    } catch (err) {
-      console.error('Error fetching chat sessions:', err);
+    } catch {
+      console.error('Error fetching chat sessions');
       setError('Không thể tải danh sách chat sessions. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -142,7 +141,7 @@ const ChatSessionsPage = () => {
   };
 
   // Handle status filter
-  const handleStatusFilterChange = (event: any) => {
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
     setStatusFilter(event.target.value);
     setPage(0);
   };
@@ -197,7 +196,9 @@ const ChatSessionsPage = () => {
   };
 
   // Helper function to extract message content
-  const getMessageContent = (message: string | { content: string; role?: string; createdAt?: string }) => {
+  const getMessageContent = (
+    message: string | { content: string; role?: string; createdAt?: string }
+  ) => {
     if (typeof message === 'string') {
       return message;
     }
@@ -247,13 +248,15 @@ const ChatSessionsPage = () => {
 
       {/* Filters and Search */}
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Box sx={{ 
-          display: 'flex', 
-          gap: 2, 
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
             {/* Search */}
             <TextField
@@ -270,11 +273,7 @@ const ChatSessionsPage = () => {
             {/* Status Filter */}
             <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel>Trạng thái</InputLabel>
-              <Select
-                value={statusFilter}
-                label="Trạng thái"
-                onChange={handleStatusFilterChange}
-              >
+              <Select value={statusFilter} label="Trạng thái" onChange={handleStatusFilterChange}>
                 <MenuItem value="all">Tất cả</MenuItem>
                 <MenuItem value="active">Đang hoạt động</MenuItem>
                 <MenuItem value="closed">Đã đóng</MenuItem>
@@ -332,7 +331,7 @@ const ChatSessionsPage = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                sessions.map((session) => (
+                sessions.map(session => (
                   <TableRow key={session._id} hover>
                     <TableCell>
                       <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
@@ -348,37 +347,35 @@ const ChatSessionsPage = () => {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          maxWidth: 200, 
-                          overflow: 'hidden', 
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          maxWidth: 200,
+                          overflow: 'hidden',
                           textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {getMessageContent(session.lastMessage)}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={session.messageCount} 
-                        size="small" 
-                        color="primary" 
+                      <Chip
+                        label={session.messageCount}
+                        size="small"
+                        color="primary"
                         variant="outlined"
                       />
                     </TableCell>
                     <TableCell>
                       <Chip
                         label={getStatusText(session.status)}
-                        color={getStatusColor(session.status) as any}
+                        color={getStatusColor(session.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                         size="small"
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2">
-                        {formatDate(session.updatedAt)}
-                      </Typography>
+                      <Typography variant="body2">{formatDate(session.updatedAt)}</Typography>
                     </TableCell>
                     <TableCell>
                       <Button
@@ -417,4 +414,4 @@ const ChatSessionsPage = () => {
   );
 };
 
-export default ChatSessionsPage; 
+export default ChatSessionsPage;

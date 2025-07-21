@@ -1,13 +1,23 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, CardContent, Button, CircularProgress, IconButton } from "@mui/material";
-import Image from "next/image";
-import ProductCard from "@/components/card";
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardMedia,
+  CardContent,
+  Button,
+  CircularProgress,
+  IconButton,
+} from '@mui/material';
+import Image from 'next/image';
+import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import Link from "next/link";
+import Link from 'next/link';
 
 interface Product {
   _id: string;
@@ -34,7 +44,6 @@ interface Product {
 }
 
 export default function WomenPage() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,34 +53,39 @@ export default function WomenPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = ['arsenal', 'juventus', 'bayern munich', 'real madrid', 'manchester united'];
-      const categoryNameLower = category.name.toLowerCase();
-      
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
-      
-      // Check parent category with optional chaining
-      const parentCategory = (category as any).parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
-    
-    // Default fallback
-    return 'arsenal';
-  };
+  // const getTeamNameFromProduct = (product: Product): string => {
+  //   // Find team category (usually has a parent category that is gender)
+  //   for (const category of product.categories) {
+  //     // Check if category name matches known teams
+  //     const teamNames = [
+  //       'arsenal',
+  //       'juventus',
+  //       'bayern munich',
+  //       'real madrid',
+  //       'manchester united',
+  //     ];
+  //     const categoryNameLower = category.name.toLowerCase();
+
+  //     for (const team of teamNames) {
+  //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
+  //         return team;
+  //       }
+  //     }
+
+  //     // Check parent category with optional chaining
+  //     const parentCategory = (category as any).parentCategory;
+  //     if (parentCategory) {
+  //       const parentNameLower = parentCategory.name.toLowerCase();
+  //       for (const team of teamNames) {
+  //         if (parentNameLower.includes(team) || parentNameLower === team) {
+  //           return team;
+  //       }
+  //     }
+  //   }
+
+  //   // Default fallback
+  //   return 'arsenal';
+  // };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -84,15 +98,15 @@ export default function WomenPage() {
         const result = await response.json();
         if (result.success) {
           const teamNames = [
-            "arsenal",
-            "real madrid",
-            "manchester united",
-            "bayern munich",
-            "juventus"
+            'arsenal',
+            'real madrid',
+            'manchester united',
+            'bayern munich',
+            'juventus',
           ];
           // Lọc sản phẩm thuộc 5 team lớn cho women
-          const teamProducts = (result.data || []).filter((p: any) =>
-            p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+          const teamProducts = (result.data || []).filter(
+            (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
           );
           setProducts(teamProducts);
           setDisplayedProducts(teamProducts.slice(0, productsPerPage));
@@ -117,15 +131,15 @@ export default function WomenPage() {
       const result = await response.json();
       if (result.success) {
         const teamNames = [
-          "arsenal",
-          "real madrid",
-          "manchester united",
-          "bayern munich",
-          "juventus"
+          'arsenal',
+          'real madrid',
+          'manchester united',
+          'bayern munich',
+          'juventus',
         ];
         // Lọc sản phẩm thuộc 5 team lớn cho women
-        const teamProducts = (result.data || []).filter((p: any) =>
-          p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+        const teamProducts = (result.data || []).filter(
+          (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
         );
         setProducts(teamProducts);
         setDisplayedProducts(teamProducts.slice(0, productsPerPage));
@@ -211,16 +225,16 @@ export default function WomenPage() {
               display: 'inline-block'
             }}
           >
-            <Typography 
-              variant="h1" 
-              component="h1" 
+            <Typography
+              variant="h1"
+              component="h1"
               sx={{
                 fontWeight: 'bold',
                 fontSize: { xs: '1.2rem', md: '1.6rem', lg: '2rem' },
                 lineHeight: 1,
                 letterSpacing: '-0.01em',
                 textTransform: 'uppercase',
-                margin: 0
+                margin: 0,
               }}
             >
               HOME KIT 25/26 CHICAS
@@ -239,14 +253,14 @@ export default function WomenPage() {
               display: 'inline-block'
             }}
           >
-            <Typography 
-              variant="h6" 
-              component="h2" 
+            <Typography
+              variant="h6"
+              component="h2"
               sx={{
                 fontWeight: 400,
                 fontSize: { xs: '0.75rem', md: '0.85rem', lg: '0.95rem' },
                 margin: 0,
-                letterSpacing: '0.01em'
+                letterSpacing: '0.01em',
               }}
             >
               Bộ sưu tập chính thức của các nữ cầu thủ
@@ -255,10 +269,10 @@ export default function WomenPage() {
 
           {/* CTA Button */}
           <Link href="/women/real-madrid" style={{ textDecoration: 'none' }}>
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               size="small"
-              sx={{ 
+              sx={{
                 bgcolor: 'white',
                 color: 'black',
                 px: { xs: 2, md: 2.5 },
@@ -273,9 +287,9 @@ export default function WomenPage() {
                   bgcolor: 'black',
                   color: 'white',
                   transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.3)',
                 },
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
               }}
             >
               Mua ngay
@@ -520,24 +534,24 @@ export default function WomenPage() {
                   <ArrowBackIosIcon />
                 </IconButton>
 
-                {/* Right Navigation Button */}
-                <IconButton
-                  onClick={handleCarouselNext}
-                  disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
-                  sx={{
-                    position: 'absolute',
-                    right: 0,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
-                    '&.Mui-disabled': { opacity: 0 }
-                  }}
-                >
-                  <ArrowForwardIosIcon />
-                </IconButton>
+              {/* Right Navigation Button */}
+              <IconButton
+                onClick={handleCarouselNext}
+                disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
+                sx={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  zIndex: 2,
+                  bgcolor: 'rgba(255,255,255,0.9)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+                  '&:hover': { bgcolor: 'white' },
+                  '&.Mui-disabled': { opacity: 0 },
+                }}
+              >
+                <ArrowForwardIosIcon />
+              </IconButton>
 
                 <Box
                   ref={carouselRef}
@@ -617,4 +631,4 @@ export default function WomenPage() {
       </Container>
     </>
   );
-} 
+}

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Paper, Typography, Box, useTheme, Button, CircularProgress } from "@mui/material";
+import { Paper, Typography, Box, useTheme, Button, CircularProgress } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { useTranslations } from "next-intl";
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SummaryCards from '@/components/dashboard/SummaryCards';
 import SalesChart from '@/components/dashboard/SalesChart';
@@ -45,7 +45,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const t = useTranslations("manager.dashboard");
+  const t = useTranslations('manager.dashboard');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const theme = useTheme();
   const router = useRouter();
@@ -96,15 +96,29 @@ export default function DashboardPage() {
   const transformBackendData = (backendData: any): DashboardData => {
     // Danh sách 12 tháng
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     // Map dữ liệu backend trả về
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const salesChartMap = new Map((backendData.salesChart || []).map((item: any) => [item.month, item]));
+     
+    const salesChartMap = new Map(
+      (backendData.salesChart || []).map((item: { month: string; revenue: number; orders: number }) => [item.month, item])
+    );
     // Fill đủ 12 tháng
     const fullSalesChart = months.map(month => {
-      const item = salesChartMap.get(month) as { month: string; revenue: number; orders: number } | undefined;
+      const item = salesChartMap.get(month) as
+        | { month: string; revenue: number; orders: number }
+        | undefined;
       return item && typeof item.revenue === 'number' && typeof item.orders === 'number'
         ? { month, revenue: item.revenue, orders: item.orders }
         : { month, revenue: 0, orders: 0 };
@@ -146,9 +160,10 @@ export default function DashboardPage() {
     if (!token) {
       // Get current locale from URL
       const currentLocale = window.location.pathname.split('/')[1];
-      const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-        ? `/${currentLocale}/auth/login` 
-        : '/vi/auth/login';
+      const loginUrl =
+        currentLocale === 'en' || currentLocale === 'vi'
+          ? `/${currentLocale}/auth/login`
+          : '/vi/auth/login';
       router.push(loginUrl);
       return;
     }
@@ -158,13 +173,16 @@ export default function DashboardPage() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/dashboard/summary`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/manager/dashboard/summary`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           if (response.status === 401) {
@@ -172,9 +190,10 @@ export default function DashboardPage() {
             localStorage.removeItem('auth_token');
             // Get current locale from URL
             const currentLocale = window.location.pathname.split('/')[1];
-            const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-              ? `/${currentLocale}/auth/login` 
-              : '/vi/auth/login';
+            const loginUrl =
+              currentLocale === 'en' || currentLocale === 'vi'
+                ? `/${currentLocale}/auth/login`
+                : '/vi/auth/login';
             router.push(loginUrl);
             return;
           }
@@ -182,7 +201,7 @@ export default function DashboardPage() {
         }
 
         const result = await response.json();
-        
+
         if (result.success && result.data) {
           const transformedData = transformBackendData(result.data);
           setDashboardData(transformedData);
@@ -206,9 +225,10 @@ export default function DashboardPage() {
     localStorage.removeItem('auth_token');
     // Get current locale from URL
     const currentLocale = window.location.pathname.split('/')[1];
-    const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-      ? `/${currentLocale}/auth/login` 
-      : '/vi/auth/login';
+    const loginUrl =
+      currentLocale === 'en' || currentLocale === 'vi'
+        ? `/${currentLocale}/auth/login`
+        : '/vi/auth/login';
     router.push(loginUrl);
   };
 
@@ -229,7 +249,9 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}
+      >
         <Typography color="error">{error}</Typography>
       </Box>
     );
@@ -253,14 +275,34 @@ export default function DashboardPage() {
         <Box sx={{ width: '100%', mb: 3 }}>
           <SummaryCards data={dashboardData!.summary} />
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, mb: 3, width: '100%', overflowX: 'hidden' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2,
+            mb: 3,
+            width: '100%',
+            overflowX: 'hidden',
+          }}
+        >
           <Box sx={{ flex: 1, minWidth: 0 }}>
             <SalesChart data={dashboardData!.salesChart} />
           </Box>
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2, width: '100%', mb: 3 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2,
+            width: '100%',
+            mb: 3,
+          }}
+        >
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
-            <OrderStats orderStatusData={dashboardData!.orderStats} totalOrders={dashboardData!.totalOrders} />
+            <OrderStats
+              orderStatusData={dashboardData!.orderStats}
+              totalOrders={dashboardData!.totalOrders}
+            />
           </Box>
           <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
             <TopProducts products={dashboardData!.topProducts} />
@@ -270,4 +312,3 @@ export default function DashboardPage() {
     </Box>
   );
 }
- 

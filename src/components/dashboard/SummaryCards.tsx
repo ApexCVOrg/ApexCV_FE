@@ -1,14 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Chip,
-  Grid,
-} from '@mui/material';
+import { Card, CardContent, Typography, Box, Chip, Grid } from '@mui/material';
 import TrendingUp from '@mui/icons-material/TrendingUp';
 import LocalShipping from '@mui/icons-material/LocalShipping';
 import Inventory from '@mui/icons-material/Inventory';
@@ -60,10 +53,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
     }}
   >
     <CardContent sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-        <Box sx={{ color, opacity: 0.8 }}>
-          {icon}
-        </Box>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}
+      >
+        <Box sx={{ color, opacity: 0.8 }}>{icon}</Box>
         {trend && (
           <Chip
             label={`${trend.isPositive ? '+' : ''}${trend.value}%`}
@@ -173,7 +166,7 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
     },
     {
       title: 'Top Selling Product',
-      value: 'Arsenal Men\'s Home Jersey 2024/25',
+      value: "Arsenal Men's Home Jersey 2024/25",
       icon: <EmojiEventsIcon sx={{ fontSize: 40, color: '#ffd700' }} />,
       color: '#ffd700',
       subtitle: '125 units sold this month',
@@ -193,7 +186,12 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
       color: '#4caf50',
       subtitle: '14 new reviews today',
       trend: { value: 4.8, isPositive: true },
-      extra: <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><StarIcon sx={{ color: '#FFD700', fontSize: 18 }} />4.7</Box>,
+      extra: (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+          <StarIcon sx={{ color: '#FFD700', fontSize: 18 }} />
+          4.7
+        </Box>
+      ),
     },
     {
       title: 'Returning Customers',
@@ -209,16 +207,7 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
     <Grid container spacing={3} alignItems="stretch">
       {cards.map((card, index) => (
         // @ts-expect-error: MUI Grid typing issue, item prop is valid
-        <Grid
-          item
-          key={index}
-          xs={12}
-          sm={6}
-          md={4}
-          lg={3}
-          xl={2}
-          sx={{ display: 'flex' }}
-        >
+        <Grid item key={index} xs={12} sm={6} md={4} lg={3} xl={2} sx={{ display: 'flex' }}>
           <Card
             sx={{
               width: '100%',
@@ -234,8 +223,23 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               boxShadow: 2,
             }}
           >
-            <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+            <CardContent
+              sx={{
+                p: 3,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  mb: 2,
+                }}
+              >
                 <Box sx={{ color: card.color, opacity: 0.8 }}>{card.icon}</Box>
                 {card.trend && (
                   <Chip
@@ -255,17 +259,30 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                sx={{ fontWeight: 600, fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: 0.5 }}
+                sx={{
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.5,
+                }}
               >
                 {card.title}
               </Typography>
               {card.subtitle && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: 'block' }}
+                >
                   {card.subtitle}
                 </Typography>
               )}
               {card.extra && (
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ mt: 1, display: 'block' }}
+                >
                   {card.extra}
                 </Typography>
               )}
@@ -275,4 +292,4 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
       ))}
     </Grid>
   );
-} 
+}

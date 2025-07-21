@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Box, Typography } from '@mui/material';
 import useTheme from '@/hooks/useTheme';
 
 interface PageTransitionOverlayProps {
@@ -21,8 +22,8 @@ const PageTransitionOverlay: React.FC<PageTransitionOverlayProps> = ({ show, fad
   }, [show, fadeType]);
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         position: 'fixed',
         zIndex: 2000,
         top: 0,
@@ -39,8 +40,8 @@ const PageTransitionOverlay: React.FC<PageTransitionOverlayProps> = ({ show, fad
       }}
       aria-hidden={!show}
     >
-      <span
-        style={{
+      <Typography
+        sx={{
           color: theme === 'dark' ? '#fff' : '#111',
           fontWeight: 900,
           fontSize: '3rem',
@@ -53,9 +54,9 @@ const PageTransitionOverlay: React.FC<PageTransitionOverlayProps> = ({ show, fad
         }}
       >
         NIDAS
-      </span>
-    </div>
+      </Typography>
+    </Box>
   );
 };
 
-export default PageTransitionOverlay; 
+export default PageTransitionOverlay;

@@ -39,7 +39,7 @@ class WebSocketService {
         return;
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://nidas-be.onrender.com';
       this.ws = new WebSocket(`${wsUrl}?token=${token}`);
 
       this.ws.onopen = () => {
@@ -48,7 +48,7 @@ class WebSocketService {
         this.connectionHandlers.forEach(handler => handler());
       };
 
-      this.ws.onmessage = (event) => {
+      this.ws.onmessage = event => {
         try {
           const message: WebSocketMessage = JSON.parse(event.data);
           this.handleMessage(message);
@@ -62,7 +62,7 @@ class WebSocketService {
         this.handleReconnect();
       };
 
-      this.ws.onerror = (error) => {
+      this.ws.onerror = error => {
         console.error('WebSocket error:', error);
       };
     } catch (error) {
@@ -74,7 +74,7 @@ class WebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(`Reconnecting to WebSocket... Attempt ${this.reconnectAttempts}`);
-      
+
       setTimeout(() => {
         this.connect();
       }, this.reconnectDelay * this.reconnectAttempts);
@@ -100,60 +100,82 @@ class WebSocketService {
   // Subscribe to chat messages
   subscribeToChat(chatId: string, handler: (message: WebSocketMessage) => void) {
     this.messageHandlers.set(chatId, handler);
-    
+
     // Send join message
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'join',
-        chatId
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'join',
+          chatId,
+        })
+      );
     }
   }
 
   // Unsubscribe from chat messages
   unsubscribeFromChat(chatId: string) {
     this.messageHandlers.delete(chatId);
-    
+
     // Send leave message
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'leave',
-        chatId
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'leave',
+          chatId,
+        })
+      );
     }
   }
 
   // Send message
-  sendMessage(chatId: string, content: string, role: 'user' | 'manager', attachments?: any[], messageType?: string) {
+  sendMessage(
+    chatId: string,
+    content: string,
+    role: 'user' | 'manager',
+    attachments?: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }>,
+    messageType?: string
+  ) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'message',
-        chatId,
-        content,
-        role,
-        timestamp: new Date(),
-        attachments,
-        messageType
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'message',
+          chatId,
+          content,
+          role,
+          timestamp: new Date(),
+          attachments,
+          messageType,
+        })
+      );
     }
   }
 
   // Mark messages as read
   markAsRead(chatId: string) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'read',
-        chatId
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'read',
+          chatId,
+        })
+      );
     }
   }
 
   // Request unread count
   requestUnreadCount() {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'unread_count'
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'unread_count',
+        })
+      );
     }
   }
 
@@ -169,11 +191,13 @@ class WebSocketService {
   // Send typing indicator
   sendTyping(chatId: string, isTyping: boolean) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'typing',
-        chatId,
-        isTyping
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'typing',
+          chatId,
+          isTyping,
+        })
+      );
     }
   }
 
@@ -203,4 +227,4 @@ class WebSocketService {
 // Create singleton instance
 const websocketService = new WebSocketService();
 
-export default websocketService; 
+export default websocketService;

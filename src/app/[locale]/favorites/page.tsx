@@ -26,13 +26,7 @@ export default function FavoritesPage() {
   const t = useTranslations('favorites');
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const {
-    favorites,
-    favoritesCount,
-    loading,
-    error,
-    clearAllFavorites,
-  } = useFavorites();
+  const { favorites, favoritesCount, loading, error, clearAllFavorites } = useFavorites();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -43,9 +37,10 @@ export default function FavoritesPage() {
     if (!isAuthenticated) {
       // Get current locale from URL
       const currentLocale = window.location.pathname.split('/')[1];
-      const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-        ? `/${currentLocale}/auth/login` 
-        : '/vi/auth/login';
+      const loginUrl =
+        currentLocale === 'en' || currentLocale === 'vi'
+          ? `/${currentLocale}/auth/login`
+          : '/vi/auth/login';
       router.push(loginUrl);
     }
   }, [isAuthenticated, router]);
@@ -81,7 +76,7 @@ export default function FavoritesPage() {
             </Typography>
           )}
         </Box>
-        
+
         {favoritesCount > 0 && (
           <Tooltip title={t('clearAllTooltip')}>
             <Button
@@ -142,8 +137,19 @@ export default function FavoritesPage() {
 
       {/* Favorites Grid */}
       {!loading && favoritesCount > 0 && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(4, 1fr)' }, gap: 3 }}>
-          {favorites.map((product) => (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)',
+              lg: 'repeat(4, 1fr)',
+            },
+            gap: 3,
+          }}
+        >
+          {favorites.map(product => (
             <Box key={product._id}>
               <ProductCard
                 _id={product._id}
@@ -166,9 +172,7 @@ export default function FavoritesPage() {
       <Dialog open={clearDialogOpen} onClose={() => setClearDialogOpen(false)}>
         <DialogTitle>{t('clearAllConfirmTitle')}</DialogTitle>
         <DialogContent>
-          <Typography>
-            {t('clearAllConfirmMessage', { count: favoritesCount })}
-          </Typography>
+          <Typography>{t('clearAllConfirmMessage', { count: favoritesCount })}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setClearDialogOpen(false)} disabled={clearing}>
@@ -187,4 +191,4 @@ export default function FavoritesPage() {
       </Dialog>
     </Container>
   );
-} 
+}

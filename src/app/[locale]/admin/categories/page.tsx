@@ -1,6 +1,6 @@
-"use client";
-import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+'use client';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Paper,
@@ -27,22 +27,18 @@ import {
   Select,
   MenuItem,
   Pagination,
-} from "@mui/material";
-import { useTranslations } from "next-intl";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import {
-  API_ENDPOINTS,
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "@/lib/constants/constants";
-import api from "@/services/api";
-import { Category } from "@/types/components/category";
+} from '@mui/material';
+import { useTranslations } from 'next-intl';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/lib/constants/constants';
+import api from '@/services/api';
+import { Category } from '@/types/components/category';
 
-type CategoryStatus = "active" | "inactive";
+type CategoryStatus = 'active' | 'inactive';
 
 interface CategoryFormData {
   name: string;
@@ -55,7 +51,7 @@ type ParentCategory = { _id: string; name: string };
 
 export default function CategoriesPage() {
   const router = useRouter();
-  const t = useTranslations("admin.categories");
+  const t = useTranslations('admin.categories');
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
@@ -69,24 +65,24 @@ export default function CategoriesPage() {
   const [totalCategories, setTotalCategories] = useState(0);
 
   // Search and filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
   const [formData, setFormData] = useState<CategoryFormData>({
-    name: "",
-    description: "",
-    status: "active",
-    parentCategory: "",
+    name: '',
+    description: '',
+    status: 'active',
+    parentCategory: '',
   });
 
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
   // Search and filter function
   const filterCategories = () => {
@@ -94,14 +90,16 @@ export default function CategoriesPage() {
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(category =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (category.description && category.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      filtered = filtered.filter(
+        category =>
+          category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (category.description &&
+            category.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     // Filter by status
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter(category => category.status === statusFilter);
     }
 
@@ -112,13 +110,13 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     filterCategories();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm, statusFilter, categories]);
 
   // Clear all filters
   const clearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("all");
+    setSearchTerm('');
+    setStatusFilter('all');
   };
 
   // Fetch categories with pagination
@@ -126,7 +124,7 @@ export default function CategoriesPage() {
     try {
       setLoading(true);
       const response = await api.get<Category[]>(API_ENDPOINTS.ADMIN.CATEGORIES, {
-        params: { page, limit }
+        params: { page, limit },
       });
       setCategories(response.data);
       setTotalCategories(response.data.length);
@@ -140,13 +138,13 @@ export default function CategoriesPage() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
+    const token = localStorage.getItem('auth_token');
     if (!token) {
-      router.push("/login");
+      router.push('/login');
     } else {
       fetchCategories();
     }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router, page, limit]);
 
   // Handle page change
@@ -159,7 +157,7 @@ export default function CategoriesPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -173,17 +171,18 @@ export default function CategoriesPage() {
         name: category.name,
         description: category.description,
         status: category.status,
-        parentCategory: typeof category.parentCategory === 'object' && category.parentCategory !== null
-          ? (category.parentCategory as ParentCategory)._id
-          : "",
+        parentCategory:
+          typeof category.parentCategory === 'object' && category.parentCategory !== null
+            ? (category.parentCategory as ParentCategory)._id
+            : '',
       });
     } else {
       setSelectedCategory(null);
       setFormData({
-        name: "",
-        description: "",
-        status: "active",
-        parentCategory: "",
+        name: '',
+        description: '',
+        status: 'active',
+        parentCategory: '',
       });
     }
     setOpenDialog(true);
@@ -193,10 +192,10 @@ export default function CategoriesPage() {
     setOpenDialog(false);
     setSelectedCategory(null);
     setFormData({
-      name: "",
-      description: "",
-      status: "active",
-      parentCategory: "",
+      name: '',
+      description: '',
+      status: 'active',
+      parentCategory: '',
     });
   };
 
@@ -204,14 +203,11 @@ export default function CategoriesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      selectedCategory &&
-      formData.parentCategory === selectedCategory._id
-    ) {
+    if (selectedCategory && formData.parentCategory === selectedCategory._id) {
       setSnackbar({
         open: true,
-        message: t("error.cannotSelectSelfAsParent"),
-        severity: "error",
+        message: t('error.cannotSelectSelfAsParent'),
+        severity: 'error',
       });
       return;
     }
@@ -220,7 +216,7 @@ export default function CategoriesPage() {
       const url = selectedCategory
         ? `${API_ENDPOINTS.ADMIN.CATEGORIES}/${selectedCategory._id}`
         : API_ENDPOINTS.ADMIN.CATEGORIES;
-      const method = selectedCategory ? "put" : "post";
+      const method = selectedCategory ? 'put' : 'post';
 
       await api[method](url, formData);
 
@@ -229,7 +225,7 @@ export default function CategoriesPage() {
         message: selectedCategory
           ? SUCCESS_MESSAGES.MANAGER.CATEGORY_UPDATED
           : SUCCESS_MESSAGES.MANAGER.CATEGORY_CREATED,
-        severity: "success",
+        severity: 'success',
       });
 
       handleCloseDialog();
@@ -238,14 +234,14 @@ export default function CategoriesPage() {
       setSnackbar({
         open: true,
         message: ERROR_MESSAGES.MANAGER.INVALID_CATEGORY_DATA,
-        severity: "error",
+        severity: 'error',
       });
     }
   };
 
   // Delete category
   const handleDelete = async (id: string) => {
-    if (!window.confirm(t("deleteConfirm"))) return;
+    if (!window.confirm(t('deleteConfirm'))) return;
 
     try {
       await api.delete(`${API_ENDPOINTS.ADMIN.CATEGORIES}/${id}`);
@@ -253,7 +249,7 @@ export default function CategoriesPage() {
       setSnackbar({
         open: true,
         message: SUCCESS_MESSAGES.MANAGER.CATEGORY_DELETED,
-        severity: "success",
+        severity: 'success',
       });
 
       fetchCategories();
@@ -261,23 +257,25 @@ export default function CategoriesPage() {
       setSnackbar({
         open: true,
         message: ERROR_MESSAGES.MANAGER.INVALID_CATEGORY_DATA,
-        severity: "error",
+        severity: 'error',
       });
     }
   };
 
   return (
     <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} sx={{ flexWrap: 'wrap' }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        sx={{ flexWrap: 'wrap' }}
+      >
         <Typography variant="h4" component="h1" fontWeight="bold">
-          {t("title")}
+          {t('title')}
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          {t("addNew")}
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+          {t('addNew')}
         </Button>
       </Stack>
 
@@ -293,9 +291,9 @@ export default function CategoriesPage() {
           {/* Search Bar */}
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
-              placeholder={t("search.searchCategories")}
+              placeholder={t('search.searchCategories')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               sx={{ flexGrow: 1 }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
@@ -305,31 +303,44 @@ export default function CategoriesPage() {
               variant="outlined"
               startIcon={<ClearIcon />}
               onClick={clearFilters}
-              disabled={!searchTerm && statusFilter === "all"}
+              disabled={!searchTerm && statusFilter === 'all'}
             >
-              {t("search.clearFilters")}
+              {t('search.clearFilters')}
             </Button>
           </Box>
 
           {/* Filter Row */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', width: '100%', overflowX: 'auto' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              width: '100%',
+              overflowX: 'auto',
+            }}
+          >
             <FormControl sx={{ minWidth: 120 }}>
               <InputLabel>Status</InputLabel>
               <Select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={e => setStatusFilter(e.target.value)}
                 label="Status"
               >
-                <MenuItem value="all">{t("search.allStatus")}</MenuItem>
-                <MenuItem value="active">{t("status.active")}</MenuItem>
-                <MenuItem value="inactive">{t("status.inactive")}</MenuItem>
+                <MenuItem value="all">{t('search.allStatus')}</MenuItem>
+                <MenuItem value="active">{t('status.active')}</MenuItem>
+                <MenuItem value="inactive">{t('status.inactive')}</MenuItem>
               </Select>
             </FormControl>
 
             {/* Results Count */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
               <Typography variant="body2" color="text.secondary">
-                {t("search.resultsCount", { filtered: filteredCategories.length, total: totalCategories, itemType: t("search.categories") })}
+                {t('search.resultsCount', {
+                  filtered: filteredCategories.length,
+                  total: totalCategories,
+                  itemType: t('search.categories'),
+                })}
               </Typography>
             </Box>
           </Box>
@@ -340,36 +351,34 @@ export default function CategoriesPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t("name")}</TableCell>
-              <TableCell>{t("description")}</TableCell>
-              <TableCell>{t("parentCategory")}</TableCell>
-              <TableCell>{t("statusLabel")}</TableCell>
-              <TableCell>{t("createdAt")}</TableCell>
-              <TableCell align="right">{t("actions")}</TableCell>
+              <TableCell>{t('name')}</TableCell>
+              <TableCell>{t('description')}</TableCell>
+              <TableCell>{t('parentCategory')}</TableCell>
+              <TableCell>{t('statusLabel')}</TableCell>
+              <TableCell>{t('createdAt')}</TableCell>
+              <TableCell align="right">{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} align="center">
-                  {t("loading")}
+                  {t('loading')}
                 </TableCell>
               </TableRow>
             ) : categories.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} align="center">
-                  {t("noCategories")}
+                  {t('noCategories')}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredCategories.map((category) => (
+              filteredCategories.map(category => (
                 <TableRow key={typeof category._id === 'string' ? category._id : ''}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.description}</TableCell>
                   <TableCell>
-                    {category.parentCategory
-                      ? category.parentCategory.name
-                      : '-'}
+                    {category.parentCategory ? category.parentCategory.name : '-'}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -378,7 +387,9 @@ export default function CategoriesPage() {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{category.createdAt ? new Date(category.createdAt).toLocaleDateString() : '-'}</TableCell>
+                  <TableCell>
+                    {category.createdAt ? new Date(category.createdAt).toLocaleDateString() : '-'}
+                  </TableCell>
                   <TableCell align="right">
                     <IconButton
                       size="small"
@@ -389,7 +400,9 @@ export default function CategoriesPage() {
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleDelete(typeof category._id === 'string' ? category._id : '')}
+                      onClick={() =>
+                        handleDelete(typeof category._id === 'string' ? category._id : '')
+                      }
                       color="error"
                     >
                       <DeleteIcon />
@@ -418,13 +431,13 @@ export default function CategoriesPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedCategory ? t("editCategory") : t("addCategory")}</DialogTitle>
+        <DialogTitle>{selectedCategory ? t('editCategory') : t('addCategory')}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <Stack spacing={3}>
               <TextField
                 name="name"
-                label={t("name")}
+                label={t('name')}
                 value={formData.name}
                 onChange={handleInputChange}
                 required
@@ -433,7 +446,7 @@ export default function CategoriesPage() {
 
               <TextField
                 name="description"
-                label={t("description")}
+                label={t('description')}
                 value={formData.description}
                 onChange={handleInputChange}
                 multiline
@@ -443,20 +456,22 @@ export default function CategoriesPage() {
 
               <TextField
                 name="parentCategory"
-                label={t("parentCategory")}
-                value={formData.parentCategory || ""}
+                label={t('parentCategory')}
+                value={formData.parentCategory || ''}
                 onChange={handleInputChange}
                 select
                 SelectProps={{ native: true }}
                 fullWidth
               >
-                <option value="">{t("none")}</option>
+                <option value="">{t('none')}</option>
                 {categories
                   .filter(cat => {
                     // Chỉ lấy các category không có parentCategory hoặc parentCategory là null/undefined
-                    return !cat.parentCategory || 
-                           (typeof cat.parentCategory === 'string' && cat.parentCategory === '') ||
-                           (typeof cat.parentCategory === 'object' && cat.parentCategory === null);
+                    return (
+                      !cat.parentCategory ||
+                      (typeof cat.parentCategory === 'string' && cat.parentCategory === '') ||
+                      (typeof cat.parentCategory === 'object' && cat.parentCategory === null)
+                    );
                   })
                   .map(parentCat => (
                     <option key={parentCat._id} value={parentCat._id}>
@@ -467,22 +482,22 @@ export default function CategoriesPage() {
 
               <TextField
                 name="status"
-                label={t("statusLabel")}
+                label={t('statusLabel')}
                 value={formData.status}
                 onChange={handleInputChange}
                 select
                 SelectProps={{ native: true }}
                 fullWidth
               >
-                <option value="active">{t("status.active")}</option>
-                <option value="inactive">{t("status.inactive")}</option>
+                <option value="active">{t('status.active')}</option>
+                <option value="inactive">{t('status.inactive')}</option>
               </TextField>
             </Stack>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>{t("cancel")}</Button>
+            <Button onClick={handleCloseDialog}>{t('cancel')}</Button>
             <Button type="submit" variant="contained">
-              {selectedCategory ? t("update") : t("create")}
+              {selectedCategory ? t('update') : t('create')}
             </Button>
           </DialogActions>
         </form>
@@ -497,7 +512,7 @@ export default function CategoriesPage() {
         <Alert
           onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbar.message}
         </Alert>
