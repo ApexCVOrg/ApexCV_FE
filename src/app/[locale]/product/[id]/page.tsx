@@ -237,7 +237,7 @@ export default function ProductDetailPage() {
     if (!product) return 'clothing';
 
     // Check category name
-    const categoryName = product.categories[0]?.name?.toLowerCase() || '';
+    const categoryName = product.categories?.[0]?.name?.toLowerCase() || '';
     const productName = product.name.toLowerCase();
 
     if (
@@ -292,11 +292,11 @@ export default function ProductDetailPage() {
           Trang chủ
         </Link>
         <Link
-          href={`/${product.categories[0]?.name.toLowerCase()}`}
+          href={`/${product.categories?.[0]?.name?.toLowerCase() || 'products'}`}
           color="inherit"
           underline="hover"
         >
-          {product.categories[0]?.name}
+          {product.categories?.[0]?.name || 'Products'}
         </Link>
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
@@ -539,10 +539,10 @@ export default function ProductDetailPage() {
             {/* Brand & Categories */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t('brand')}: <strong>{product.brand.name}</strong>
+                {t('brand')}: <strong>{product.brand?.name || 'Unknown Brand'}</strong>
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t('categories')}: {product.categories.map(cat => cat.name).join(', ')}
+                {t('categories')}: {product.categories?.map(cat => cat.name).join(', ') || 'No categories'}
               </Typography>
             </Box>
 
@@ -814,11 +814,11 @@ export default function ProductDetailPage() {
                       <strong>{t('productName')}:</strong> {product.name}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('brand')}:</strong> {product.brand.name}
+                      <strong>{t('brand')}:</strong> {product.brand?.name || 'Unknown Brand'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('categories')}:</strong>{' '}
-                      {product.categories.map(cat => cat.name).join(', ')}
+                      {product.categories?.map(cat => cat.name).join(', ') || 'No categories'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('status')}:</strong> {product.status}
@@ -842,7 +842,7 @@ export default function ProductDetailPage() {
                       <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('colors')}:</strong> {product.colors.join(', ')}
+                      <strong>{t('colors')}:</strong> {product.colors?.join(', ') || 'No colors'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5

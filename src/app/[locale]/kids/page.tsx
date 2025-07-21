@@ -16,6 +16,7 @@ import { HeroBanner } from '@/components/banner';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -49,40 +50,50 @@ export default function KidsPage() {
   const carouselRef = useRef<HTMLDivElement>(null);
 
   // Function to get team name from product categories
-  // const getTeamNameFromProduct = (product: Product): string => {
-  //   // Find team category (usually has a parent category that is gender)
-  //   for (const category of product.categories) {
-  //     // Check if category name matches known teams
-  //     const teamNames = [
-  //       'arsenal',
-  //       'juventus',
-  //       'bayern munich',
-  //       'real madrid',
-  //       'manchester united',
-  //     ];
-  //     const categoryNameLower = category.name.toLowerCase();
+  const getTeamNameFromProduct = (product: Product): string => {
+    // Find team category (usually has a parent category that is gender)
+    for (const category of product.categories) {
+      // Check if category name matches known teams
+      const teamNames = [
+        'arsenal',
+        'juventus',
+        'bayern munich',
+        'real madrid',
+        'manchester united',
+      ];
+      const categoryNameLower = category.name.toLowerCase();
 
-  //     for (const team of teamNames) {
-  //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
-  //         return team;
-  //       }
-  //     }
+      for (const team of teamNames) {
+        if (categoryNameLower.includes(team) || categoryNameLower === team) {
+          return team;
+        }
+      }
 
-  //     // Check parent category with optional chaining
-  //     const parentCategory = category.parentCategory;
-  //     if (parentCategory) {
-  //       const parentNameLower = parentCategory.name.toLowerCase();
-  //       for (const team of teamNames) {
-  //         if (parentNameLower.includes(team) || parentNameLower === team) {
-  //           return team;
-  //         }
-  //       }
-  //     }
-  //   }
+      // Check parent category with optional chaining
+      const parentCategory = category.parentCategory;
+      if (parentCategory) {
+        const parentNameLower = parentCategory.name.toLowerCase();
+        for (const team of teamNames) {
+          if (parentNameLower.includes(team) || parentNameLower === team) {
+            return team;
+          }
+        }
+      }
+    }
 
-  //   // Default fallback
-  //   return 'arsenal';
-  // };
+    // Default fallback - try to find any team in categories
+    for (const category of product.categories) {
+      const categoryNameLower = category.name.toLowerCase();
+      if (categoryNameLower.includes('arsenal')) return 'arsenal';
+      if (categoryNameLower.includes('juventus')) return 'juventus';
+      if (categoryNameLower.includes('bayern')) return 'bayern munich';
+      if (categoryNameLower.includes('madrid')) return 'real madrid';
+      if (categoryNameLower.includes('manchester')) return 'manchester united';
+    }
+
+    // Final fallback
+    return 'arsenal';
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -90,16 +101,35 @@ export default function KidsPage() {
       setError(null);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
-
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const result = await response.json();
-        
         if (result.success) {
-          setProducts(result.data || []);
-          setDisplayedProducts((result.data || []).slice(0, productsPerPage));
+          const teamNames = [
+            'arsenal',
+            'real madrid',
+            'manchester united',
+            'bayern munich',
+            'juventus',
+          ];
+          // Lọc sản phẩm thuộc 5 team lớn cho kids
+          const teamProducts = (result.data || []).filter(
+            (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+          );
+          
+          console.log('Kids page debug:', {
+            totalProducts: result.data?.length || 0,
+            teamProductsCount: teamProducts.length,
+            teamProducts: teamProducts.map((p: Product) => ({
+              name: p.name,
+              categories: p.categories?.map((c: { _id: string; name: string; parentCategory?: { _id: string; name: string; parentCategory?: { _id: string; name: string } } }) => c.name),
+              images: p.images
+            }))
+          });
+          
+          setProducts(teamProducts);
+          setDisplayedProducts(teamProducts.slice(0, productsPerPage));
         } else {
           throw new Error(result.message || 'API returned unsuccessful response');
         }
@@ -131,8 +161,21 @@ export default function KidsPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const { addToCart } = useCartContext();
+  
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1
+      });
+      // Show success message
+      console.log('Đã thêm vào giỏ hàng!');
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      // Show error message
+      console.error('Thêm vào giỏ hàng thất bại!');
+    }
   };
 
   const handleCarouselPrev = () => {
@@ -471,14 +514,14 @@ export default function KidsPage() {
                         image={
                           product.images?.[0]
                             ? `/assets/images/kids/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
-                            : '/assets/images/placeholder.jpg'
+                            : '/assets/images/kids/arsenal/Arsenal_Shirt.avif'
                         }
                         price={product.price || 0}
                         discountPrice={product.discountPrice}
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

@@ -31,6 +31,8 @@ import TabCarousel from '@/components/TabCarousel';
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
+import { useCartContext } from '@/context/CartContext';
+import { useToast } from '@/components/ui/Toast';
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 import { ApiProduct, ApiResponse } from '@/types';
@@ -170,7 +172,8 @@ export default function HomePage() {
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
-  // const { addToCart } = useCartContext();
+  const { addToCart } = useCartContext();
+  const { showToast } = useToast();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
   // const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
@@ -626,7 +629,20 @@ export default function HomePage() {
                     labels={product.label ? [product.label as string] : []}
                     allCategories={categories}
                     allBrands={brands}
-                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                    onAddToCart={async () => {
+                      try {
+                        await addToCart({
+                          productId: product._id,
+                          quantity: 1
+                        });
+                        // Show success message
+                        showToast('Đã thêm vào giỏ hàng!', 'success');
+                      } catch (error) {
+                        console.error('Add to cart error:', error);
+                        // Show error message
+                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
+                      }
+                    }}
                     backgroundColor="#f8f9fa"
                     colors={3}
                     onViewDetail={() => handleProductCardClick(product._id, product)}
@@ -947,7 +963,20 @@ export default function HomePage() {
                             labels={product.label ? [product.label as string] : []}
                             allCategories={categories}
                             allBrands={brands}
-                            onAddToCart={() => console.log('Add to cart:', product._id)}
+                            onAddToCart={async () => {
+                      try {
+                        await addToCart({
+                          productId: product._id,
+                          quantity: 1
+                        });
+                        // Show success message
+                        showToast('Đã thêm vào giỏ hàng!', 'success');
+                      } catch (error) {
+                        console.error('Add to cart error:', error);
+                        // Show error message
+                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
+                      }
+                    }}
                             backgroundColor="#f8f9fa"
                             colors={3}
                             sx={{ height: '100%' }}
