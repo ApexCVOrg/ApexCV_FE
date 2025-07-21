@@ -3,7 +3,6 @@ import {
   Box,
   Typography,
   Card,
-  CardActionArea,
   CardContent,
   Container,
   Button,
@@ -37,24 +36,7 @@ const featuredProducts = [
   },
 ];
 
-const categories = [
-  {
-    name: 'Every Day Running',
-    icon: '🏃‍♂️',
-  },
-  {
-    name: 'Run Energised',
-    icon: '⚡',
-  },
-  {
-    name: 'Race to win',
-    icon: '🏅',
-  },
-  {
-    name: 'Walking',
-    icon: '🚶',
-  },
-];
+
 
 export default function ShoesPage() {
   return (

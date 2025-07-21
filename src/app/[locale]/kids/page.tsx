@@ -10,10 +10,9 @@ import {
   CircularProgress,
   IconButton,
 } from '@mui/material';
-import Image from 'next/image';
 import ProductCard from '@/components/card';
 import { HeroBanner } from '@/components/banner';
-import RefreshIcon from '@mui/icons-material/Refresh';
+// import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
@@ -53,40 +52,40 @@ export default function KidsPage() {
   console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
 
   // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = [
-        'arsenal',
-        'juventus',
-        'bayern munich',
-        'real madrid',
-        'manchester united',
-      ];
-      const categoryNameLower = category.name.toLowerCase();
+  // const getTeamNameFromProduct = (product: Product): string => {
+  //   // Find team category (usually has a parent category that is gender)
+  //   for (const category of product.categories) {
+  //     // Check if category name matches known teams
+  //     const teamNames = [
+  //       'arsenal',
+  //       'juventus',
+  //       'bayern munich',
+  //       'real madrid',
+  //       'manchester united',
+  //     ];
+  //     const categoryNameLower = category.name.toLowerCase();
 
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
+  //     for (const team of teamNames) {
+  //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
+  //         return team;
+  //       }
+  //     }
 
-      // Check parent category with optional chaining
-      const parentCategory = category.parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
+  //     // Check parent category with optional chaining
+  //     const parentCategory = category.parentCategory;
+  //     if (parentCategory) {
+  //       const parentNameLower = parentCategory.name.toLowerCase();
+  //       for (const team of teamNames) {
+  //         if (parentNameLower.includes(team) || parentNameLower === team) {
+  //           return team;
+  //         }
+  //       }
+  //     }
+  //   }
 
-    // Default fallback
-    return 'arsenal';
-  };
+  //   // Default fallback
+  //   return 'arsenal';
+  // };
 
   useEffect(() => {
     const fetchProducts = async () => {

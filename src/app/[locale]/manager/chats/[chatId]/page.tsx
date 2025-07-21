@@ -407,7 +407,7 @@ const ChatDetailPage = () => {
           {session && (
             <Chip
               label={getStatusText(session.status)}
-              color={getStatusColor(session.status) as any}
+              color={getStatusColor(session.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
               size="small"
             />
           )}

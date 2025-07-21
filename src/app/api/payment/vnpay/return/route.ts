@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[Frontend API] VNPAY return error:', error);
     return NextResponse.json(
-      { error: 'Xác thực returnUrl thất bại', detail: (error as any)?.message },
+      { error: 'Xác thực returnUrl thất bại', detail: (error as { message?: string })?.message },
       { status: 400 }
     );
   }

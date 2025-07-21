@@ -44,7 +44,7 @@ export default function WomenJerseyPage() {
       const data = await res.json();
 
       // Lọc sản phẩm jersey cho nữ
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasJersey = item.categoryPath.some(
@@ -56,7 +56,7 @@ export default function WomenJerseyPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasJerseyCategory = categoryNames.some(
             (name: string) => name.includes('jersey') || name.includes('t-shirts')
           );

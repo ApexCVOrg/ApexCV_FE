@@ -22,7 +22,7 @@ import {
   Button,
   CircularProgress,
   Alert,
-  useTheme,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -112,7 +112,7 @@ const ChatSessionsPage = () => {
       const data: ChatSessionsResponse = await response.json();
       setSessions(data.data);
       setTotal(data.total);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error fetching chat sessions:', err);
       setError('Không thể tải danh sách chat sessions. Vui lòng thử lại.');
     } finally {
@@ -142,7 +142,7 @@ const ChatSessionsPage = () => {
   };
 
   // Handle status filter
-  const handleStatusFilterChange = (event: any) => {
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
     setStatusFilter(event.target.value);
     setPage(0);
   };
@@ -371,7 +371,7 @@ const ChatSessionsPage = () => {
                     <TableCell>
                       <Chip
                         label={getStatusText(session.status)}
-                        color={getStatusColor(session.status) as any}
+                        color={getStatusColor(session.status) as 'success' | 'default' | 'warning'}
                         size="small"
                       />
                     </TableCell>

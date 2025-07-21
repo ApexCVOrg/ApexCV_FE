@@ -110,9 +110,9 @@ export default function DashboardPage() {
       'December',
     ];
     // Map dữ liệu backend trả về
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const salesChartMap = new Map(
-      (backendData.salesChart || []).map((item: any) => [item.month, item])
+      (backendData.salesChart || []).map((item: { month: string; revenue: number; orders: number }) => [item.month, item])
     );
     // Fill đủ 12 tháng
     const fullSalesChart = months.map(month => {

@@ -10,11 +10,11 @@ import {
   TextField,
   IconButton,
   Paper,
-  Divider,
   Fade,
   Tooltip,
   Button,
   Chip,
+  Alert,
 } from '@mui/material';
 import {
   Send as SendIcon,
@@ -26,8 +26,8 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useRouter } from 'next/navigation';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import websocketService from '@/services/websocket';
@@ -70,7 +70,7 @@ interface ApiResponse<T> {
 }
 
 export default function MessagesPage() {
-  const { isAuthenticated, getToken } = useAuth();
+  const { getToken } = useAuth();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -90,7 +90,7 @@ export default function MessagesPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  // const router = useRouter();
 
   // Lắng nghe mở/đóng sidebar layout manager
   useEffect(() => {
@@ -127,7 +127,7 @@ export default function MessagesPage() {
         data.data?.forEach((session: ChatSession) => {
           checkManagerJoined(session.chatId);
         });
-      } catch (err) {
+      } catch {
         setError('Không thể tải danh sách chat.');
       } finally {
         setLoadingSessions(false);
@@ -164,7 +164,7 @@ export default function MessagesPage() {
         if (hasRealManagerMessage) {
           setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
         }
-      } catch (err) {
+      } catch {
         setError('Không thể tải tin nhắn.');
         setMessages([]);
       } finally {
@@ -205,8 +205,8 @@ export default function MessagesPage() {
           );
           const data = await response.json();
           setSessions(data.data || []);
-        } catch (err) {
-          console.error('Error refreshing sessions:', err);
+        } catch {
+          console.error('Error refreshing sessions');
         }
       };
       refreshSessions();
@@ -296,7 +296,7 @@ export default function MessagesPage() {
   }, [selectedChat, getToken]);
 
   // Upload files to server
-  const uploadFiles = async (files: File[]): Promise<any[]> => {
+  const uploadFiles = async (files: File[]): Promise<unknown[]> => {
     try {
       const token = getToken();
       if (!token) {
@@ -321,10 +321,16 @@ export default function MessagesPage() {
       }
 
       const data = await response.json();
-      return data.data.files;
-    } catch (error) {
-      console.error('Error uploading files:', error);
-      throw error;
+      return data.data.files as Array<{
+        filename: string;
+        originalName: string;
+        mimetype: string;
+        size: number;
+        url: string;
+      }>;
+    } catch {
+      console.error('Error uploading files');
+      throw new Error('Failed to upload files');
     }
   };
 
@@ -345,6 +351,7 @@ export default function MessagesPage() {
     if ((!inputMessage.trim() && selectedFiles.length === 0) || !selectedChat || sending) return;
     setSending(true);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let uploadedFiles: any[] = [];
 
     // Upload files if any
@@ -352,8 +359,8 @@ export default function MessagesPage() {
       try {
         setUploadingFiles(true);
         uploadedFiles = await uploadFiles(selectedFiles);
-      } catch (error) {
-        console.error('Failed to upload files:', error);
+      } catch {
+        console.error('Failed to upload files');
         setError('Không thể upload file.');
         return;
       } finally {
@@ -421,10 +428,10 @@ export default function MessagesPage() {
 
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
-    } catch (err) {
-      setError('Không thể gửi tin nhắn.');
-      setInputMessage(messageContent);
-    } finally {
+          } catch {
+        setError('Không thể gửi tin nhắn.');
+        setInputMessage(messageContent);
+      } finally {
       setSending(false);
     }
   };
@@ -455,7 +462,7 @@ export default function MessagesPage() {
 
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
-    } catch (err) {
+    } catch {
       setError('Không thể bắt đầu chat.');
     }
   };
@@ -512,7 +519,7 @@ export default function MessagesPage() {
         const refreshData = await refreshResponse.json();
         setSessions(refreshData.data || []);
       }
-    } catch (err) {
+    } catch {
       setError('Không thể kết thúc phiên chat.');
     }
   };
@@ -570,8 +577,8 @@ export default function MessagesPage() {
           // For now, keeping it as is, assuming fetchMessages is sufficient.
         }
       }
-    } catch (error) {
-      console.error('Error joining chat:', error);
+    } catch {
+      console.error('Error joining chat');
       setError('Không thể tham gia chat');
     } finally {
       setJoinLoading(null);
@@ -601,8 +608,8 @@ export default function MessagesPage() {
           setManagerJoined(prev => new Set(prev).add(chatId));
         }
       }
-    } catch (error) {
-      console.error('Error checking manager status:', error);
+    } catch {
+      console.error('Error checking manager status');
     }
   };
 
@@ -651,6 +658,13 @@ export default function MessagesPage() {
           >
             Đoạn chat
           </Typography>
+          
+          {/* Error Display */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2, fontSize: '0.875rem' }}>
+              {error}
+            </Alert>
+          )}
           {loadingSessions ? (
             <CircularProgress />
           ) : (

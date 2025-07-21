@@ -132,7 +132,13 @@ class WebSocketService {
     chatId: string,
     content: string,
     role: 'user' | 'manager',
-    attachments?: any[],
+    attachments?: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }>,
     messageType?: string
   ) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {

@@ -15,7 +15,6 @@ import {
   Button,
   Tabs,
   Tab,
-  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
@@ -32,7 +31,6 @@ import TabCarousel from '@/components/TabCarousel';
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
-import { useCartContext } from '@/context/CartContext';
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 
@@ -400,8 +398,8 @@ export default function HomePage() {
   useEffect(() => {
     setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: 5 }));
     // Chỉ reset startIndex nếu có nhiều hơn 3 sản phẩm
-    const key = TABS[tab].key;
-    const tabProducts = products[key] || [];
+    // const key = TABS[tab].key;
+    // const tabProducts = products[key] || [];
     // if (tabProducts.length > 3) {
     //   setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
     // }
@@ -416,7 +414,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchFilteredProducts();
     fetchTabProducts(TABS[tab].key);
-  }, []); // Empty dependency array
+  }, [fetchFilteredProducts, fetchTabProducts, tab]);
 
   // Fetch tabbed products khi đổi tab
   useEffect(() => {

@@ -38,8 +38,8 @@ export default function MenShortsPage() {
     if (!data.success) throw new Error(data.message || 'Failed to fetch products');
     const teamNames = ['arsenal', 'real madrid', 'manchester united', 'bayern munich', 'juventus'];
     const shorts = (data.data || []).filter(
-      (p: any) =>
-        (p.categories || []).some((c: any) => c.name.toLowerCase() === 'shorts') &&
+      (p: Product) =>
+        (p.categories || []).some((c: { _id: string; name: string }) => c.name.toLowerCase() === 'shorts') &&
         p.categories?.[1] &&
         teamNames.includes(p.categories[1].name.toLowerCase())
     );
