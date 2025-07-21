@@ -1198,11 +1198,35 @@ export default function RegisterPage() {
               fullWidth
               startIcon={<Image src="/google-icon.svg" alt="Google" width={24} height={24} style={{ marginRight: 8 }} />}
               onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
-              sx={{ mb: 2 }}
+              sx={{ 
+                mb: 2,
+                borderRadius: 0,
+                borderColor: 'black',
+                color: 'black',
+                '&:hover': { 
+                  borderColor: 'black', 
+                  bgcolor: 'grey.50' 
+                },
+              }}
             >
               {t('continueWithGoogle')}
             </Button>
-            <Button fullWidth variant="outlined" startIcon={<Facebook />} onClick={() => {}} sx={{ mb: 2 }}>
+            <Button 
+              fullWidth 
+              variant="outlined" 
+              startIcon={<Facebook />} 
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
+              sx={{ 
+                mb: 2,
+                borderRadius: 0,
+                borderColor: 'black',
+                color: 'black',
+                '&:hover': { 
+                  borderColor: 'black', 
+                  bgcolor: 'grey.50' 
+                },
+              }}
+            >
               {t('continueWithFacebook')}
             </Button>
           </Box>
