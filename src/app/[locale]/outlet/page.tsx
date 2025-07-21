@@ -60,11 +60,11 @@ export default function OutletPage() {
       try {
         const queryParams = new URLSearchParams({
           category: OUTLET_CATEGORY_ID,
-          sortBy: sortBy
+          sortBy: sortBy,
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        
+
         // Handle different API response structures
         if (data.success && data.data) {
           setProducts(Array.isArray(data.data) ? data.data : []);
@@ -108,7 +108,7 @@ export default function OutletPage() {
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Sort By</InputLabel>
-            <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+            <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="priceAsc">Price: Low to High</MenuItem>
               <MenuItem value="priceDesc">Price: High to Low</MenuItem>
@@ -121,23 +121,25 @@ export default function OutletPage() {
           <Typography>{t('loading')}</Typography>
         ) : (
           <Box className="product-grid">
-            {Array.isArray(products) && products.map((product) => (
-              <Box key={product._id} className="product-card">
-                <ProductCard
-                  productId={product._id}
-                  name={product.name}
-                  image={product.images[0]}
-                  price={product.price}
-                  discountPrice={product.discountPrice}
-                  tags={product.tags}
-                  brand={product.brand}
-                  categories={product.categories}
-                  sizes={product.sizes}
-                  // @ts-expect-error colors prop expects number, but product.colors is string[]
-                  colors={product.colors}
-                />
-              </Box>
-            ))}
+            {Array.isArray(products) &&
+              products.map(product => (
+                <Box key={product._id} className="product-card">
+                  <ProductCard
+                    _id={product._id}
+                    productId={product._id}
+                    name={product.name}
+                    image={product.images[0]}
+                    price={product.price}
+                    discountPrice={product.discountPrice}
+                    tags={product.tags}
+                    brand={product.brand}
+                    categories={product.categories}
+                    sizes={product.sizes}
+                    // @ts-expect-error colors prop expects number, but product.colors is string[]
+                    colors={product.colors}
+                  />
+                </Box>
+              ))}
           </Box>
         )}
       </Box>

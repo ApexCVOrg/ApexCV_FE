@@ -2,15 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  CircularProgress,
-} from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, Alert, CircularProgress } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { styled } from '@mui/material/styles';
 import LockIcon from '@mui/icons-material/Lock';
@@ -104,12 +96,12 @@ export default function ChangePasswordPage() {
         `${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`,
         {
           currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword
+          newPassword: formData.newPassword,
         },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-          }
+            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+          },
         }
       );
 
@@ -120,7 +112,7 @@ export default function ChangePasswordPage() {
         setFormData({
           currentPassword: '',
           newPassword: '',
-          confirmPassword: ''
+          confirmPassword: '',
         });
         // Redirect after 2 seconds
         setTimeout(() => {
@@ -144,9 +136,7 @@ export default function ChangePasswordPage() {
           <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
             {t('changePassword')}
           </Typography>
-          <Typography color="text.secondary">
-            {t('changePasswordDescription')}
-          </Typography>
+          <Typography color="text.secondary">{t('changePasswordDescription')}</Typography>
         </Box>
 
         {error && (
@@ -234,21 +224,12 @@ export default function ChangePasswordPage() {
             >
               {t('cancel')}
             </StyledButton>
-            <StyledButton
-              type="submit"
-              variant="contained"
-              fullWidth
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                t('changePassword')
-              )}
+            <StyledButton type="submit" variant="contained" fullWidth disabled={loading}>
+              {loading ? <CircularProgress size={24} color="inherit" /> : t('changePassword')}
             </StyledButton>
           </Box>
         </form>
       </StyledPaper>
     </Box>
   );
-} 
+}

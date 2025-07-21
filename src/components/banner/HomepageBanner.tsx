@@ -1,7 +1,7 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 
-const BANNER_URL = 'https://150698241.v2.pressablecdn.com/shoes-store/wp-content/uploads/sites/179/2021/03/slider-image.png';
+const BANNER_URL = '/assets/images/banner/Web-Banner-GIF-Generic.webp';
 
 const HomepageBanner: React.FC<{ scrollY?: number }> = ({ scrollY = 0 }) => {
   // Banner height (px)
@@ -27,9 +27,9 @@ const HomepageBanner: React.FC<{ scrollY?: number }> = ({ scrollY = 0 }) => {
         opacity,
         transform: `translateY(-${translateY}px)`,
         filter: `blur(${blur}px)`,
-        transition: 'opacity 0.6s cubic-bezier(.4,1.2,.6,1), transform 0.6s cubic-bezier(.4,1.2,.6,1), filter 0.6s cubic-bezier(.4,1.2,.6,1)',
+        transition:
+          'opacity 0.6s cubic-bezier(.4,1.2,.6,1), transform 0.6s cubic-bezier(.4,1.2,.6,1), filter 0.6s cubic-bezier(.4,1.2,.6,1)',
       }}
-      
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -57,4 +57,4 @@ const HomepageBanner: React.FC<{ scrollY?: number }> = ({ scrollY = 0 }) => {
   );
 };
 
-export default HomepageBanner; 
+export default HomepageBanner;

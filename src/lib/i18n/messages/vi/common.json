@@ -8,6 +8,7 @@
   "productCard": {
     "sale": "Giảm giá",
     "addToCart": "Thêm vào giỏ",
+    "addToCartSuccess": "Đã thêm vào giỏ hàng!",
     "unknownBrand": "Thương hiệu không xác định",
     "uncategorized": "Chưa phân loại"
   },
@@ -94,7 +95,7 @@
       "users": "Người Dùng",
       "customers": "Khách Hàng",
       "settings": "Cài Đặt",
-      "chat": "Chat",
+      "chat": "Tin Nhắn",
       "logout": "Đăng Xuất"
     },
     "categories": {
@@ -632,6 +633,8 @@
     "loginButton": "Đăng nhập",
     "loginWithGoogle": "Đăng nhập với Google",
     "loginWithFacebook": "Đăng nhập với Facebook",
+    "profile": "Hồ sơ",
+    "logout": "Đăng xuất",
     "errors": {
       "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng.",
       "usernameRequired": "Vui lòng nhập tên đăng nhập.",
@@ -686,39 +689,37 @@
   "header": {
     "men": {
       "title": "Nam",
-      "thun_polo": "Áo Thun & Polo",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
-      "sportset": "Bộ đồ thể thao",
-      "trousers": "Quần",
-      "tight_pants": "Quần bó",
       "short_trouser": "Quần short",
-      "sportswear": "Đồ thể thao",
       "jacket": "Áo khoác",
-      "basic": "Cơ bản",
-      "tracksuits": "Bộ thể thao"
+      "team_sneaker": "Giày thể thao theo đội"
     },
     "women": {
       "title": "Nữ",
-      "thun_croptop": "Thun & Croptop",
-      "sweatshirt": "Áo nỉ",
-      "sports_bra": "Áo ngực thể thao",
       "jersey": "Áo Jersey",
       "hoodie": "Áo Hoodie",
       "jacket": "Áo khoác",
-      "trousers": "Quần",
       "short_trouser": "Quần short",
-      "leggings": "Leggings",
-      "dress": "Đầm",
-      "skirt": "Chân váy",
-      "sportswear": "Đồ thể thao",
-      "basic": "Cơ bản",
-      "tracksuits": "Bộ thể thao"
+      "team_sneaker": "Giày thể thao theo đội"
     },
     "kids": {
       "title": "Trẻ em",
-      "clothes_boys": "Quần áo bé trai",
-      "clothes_girls": "Quần áo bé gái"
+      "jersey": "Áo Jersey",
+      "tracksuits": "Đồ bộ thể thao",
+      "smiley": "Bộ Sưu Tập Smiley"
+    },
+    "shoes": {
+      "title": "Giày",
+      "samba": "Samba",
+      "gazelle": "Gazelle",
+      "campus": "Campus",
+      "spezial": "Spezial",
+      "superstar": "Superstar",
+      "sl72": "SL 72",
+      "adizero": "Adizero",
+      "air_force": "Air Force",
+      "air_max": "Air Max"
     },
     "accessories": {
       "title": "Phụ kiện",

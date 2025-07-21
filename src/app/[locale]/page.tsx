@@ -17,23 +17,23 @@ import {
   Tab,
   IconButton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
+import SearchIcon from '@mui/icons-material/Search';
+import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
+import { motion } from 'framer-motion';
+// import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+// import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import TabCarousel from '@/components/TabCarousel';
+
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
-import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
+// import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import TabCarousel from '@/components/TabCarousel';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 
 interface Product {
@@ -67,14 +67,16 @@ function getImageSrc(filename: string, gender?: string, team?: string): string {
   if (filename.startsWith('/') || filename.startsWith('http')) return filename;
   // Lib
   const libFiles = [
-    'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
-    'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+    'nike-span-2.png',
+    'nike-air-force-1-high.png',
+    'nike-air-force.png',
+    'air-max-90.png',
+    'air-max-excee-.png',
+    'air-max-270.png',
   ];
   if (libFiles.includes(filename)) return `/assets/images/lib/${filename}`;
   // Products đặc biệt
-  const productFiles = [
-    'arsenal-kids-home-jersey-2024.jpg', 'arsenal-kids-tracksuit.jpg'
-  ];
+  const productFiles = ['arsenal-kids-home-jersey-2024.jpg', 'arsenal-kids-tracksuit.jpg'];
   if (productFiles.includes(filename)) return `/assets/images/products/${filename}`;
   // Women/Men/Kids theo gender/team
   if (gender && team && gender !== 'uncategorized' && team !== 'uncategorized') {
@@ -87,7 +89,7 @@ function getImageSrc(filename: string, gender?: string, team?: string): string {
 }
 
 // Hàm đoán gender và team từ category, tags, name
-function guessGenderAndTeam(product: Product): { gender?: string, team?: string } {
+function guessGenderAndTeam(product: Product): { gender?: string; team?: string } {
   let gender = undefined;
   let team = undefined;
   // Ưu tiên lấy từ category nếu có
@@ -133,8 +135,9 @@ export default function HomePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDetailSidebarOpen, setIsProductDetailSidebarOpen] = useState(false);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
   useAuth();
@@ -147,11 +150,11 @@ export default function HomePage() {
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
-  const { addToCart } = useCartContext();
+  // const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
-  const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
+  // const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
-  const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
+  // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
@@ -175,7 +178,12 @@ export default function HomePage() {
           categoriesRes.json(),
           brandsRes.json(),
         ]);
-        if (categoriesData && Array.isArray(categoriesData) && categoriesData.length > 0 && categoriesData[0].children !== undefined) {
+        if (
+          categoriesData &&
+          Array.isArray(categoriesData) &&
+          categoriesData.length > 0 &&
+          categoriesData[0].children !== undefined
+        ) {
           setCategoryTree(categoriesData);
           // Flatten the tree for backward compatibility
           const flattenCategories = (cats: CategoryTree[]): Category[] => {
@@ -224,33 +232,43 @@ export default function HomePage() {
       if (!response.ok) throw new Error('Failed to fetch products');
       const result = await response.json();
       let filtered = result.data || [];
-      
+
       // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
       if (searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter((product: Product) => {
           const nameMatch = product.name?.toLowerCase().includes(q);
-          const catMatch = (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
-            cat.name?.toLowerCase().includes(q) ||
-            cat.parentCategory?.name?.toLowerCase().includes(q)
+          const catMatch = (product.categories || []).some(
+            (cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
+              cat.name?.toLowerCase().includes(q) ||
+              cat.parentCategory?.name?.toLowerCase().includes(q)
           );
           return nameMatch || catMatch;
         });
       }
-      
+
       // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
-      filtered = (Array.isArray(filtered) ? filtered : []).filter((product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+      filtered = (Array.isArray(filtered) ? filtered : []).filter(
+        (product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
       // Lọc theo category (nếu có chọn)
       if (selectedCategories.length > 0) {
         filtered = filtered.filter((product: Product) =>
-          (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
+          (product.categories || []).some(
+            (cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
+              selectedCategories.includes(cat._id)
+          )
         );
       }
-      
+
       // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
       const libFileNames = [
-        'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
-        'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+        'nike-span-2.png',
+        'nike-air-force-1-high.png',
+        'nike-air-force.png',
+        'air-max-90.png',
+        'air-max-excee-.png',
+        'air-max-270.png',
       ];
       const isLib = (product: Product) => {
         const img = product.images?.[0] || '';
@@ -261,7 +279,6 @@ export default function HomePage() {
       setLibProducts(libFiltered);
       setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
       setProducts(prev => ({ ...prev, filtered }));
-      console.log('libProducts:', libFiltered);
     } catch (error) {
       setLibProducts([]);
       setOtherProducts([]);
@@ -274,24 +291,27 @@ export default function HomePage() {
 
   // Fetch products for tabs (independent of filters)
   const fetchTabProducts = useCallback(async (tabKey: string) => {
+    console.log('Fetching products for tab:', tabKey);
     try {
       let filtered: Product[] = [];
       if (tabKey === 'topSelling') {
         // Top Selling: gọi API public, không cần token
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`);
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`
+        );
         const result = await response.json();
-        console.log('Top Selling API response:', response, result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
           _id: item._id,
           name: item.name,
-          images: [item.image],
+          images: [item.image || ''],
           price: item.totalRevenue || 0,
           discountPrice: undefined,
           tags: [],
           label: '',
           brand: { _id: '', name: '' },
           categories: [{ _id: '', name: item.category || 'Uncategorized' }],
+          orderCount: item.totalQuantity || 0,
         }));
       } else {
         // Các tab còn lại lấy từ API products (không filter theo category, price, brand)
@@ -299,18 +319,22 @@ export default function HomePage() {
         if (!response.ok) throw new Error('Failed to fetch products');
         const result = await response.json();
         filtered = result.data || [];
-        
+
         if (tabKey === 'newArrivals') {
           filtered = filtered.filter((product: Product) => {
             const labels = Array.isArray(product.label) ? product.label : [product.label];
-            return labels?.some((l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new');
+            return labels?.some(
+              (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
+            );
           });
         } else if (tabKey === 'deals') {
           filtered = filtered.filter((product: Product) => product.discountPrice != null);
         } else if (tabKey === 'featured') {
           filtered = filtered.filter((product: Product) => {
             const labels = Array.isArray(product.label) ? product.label : [product.label];
-            return labels?.some((l: string) => ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase()));
+            return labels?.some((l: string) =>
+              ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase())
+            );
           });
         } else if (tabKey === 'trending') {
           // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
@@ -318,23 +342,34 @@ export default function HomePage() {
           filtered = filtered
             .filter((product: Product) => {
               const labels = Array.isArray(product.label) ? product.label : [product.label];
-              return labels?.some((l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new');
+              return labels?.some(
+                (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
+              );
             })
             .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
         }
       }
       // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
-      filtered = (Array.isArray(filtered) ? filtered : []).filter((product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+      filtered = (Array.isArray(filtered) ? filtered : []).filter(
+        (product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]
+      );
       // Lọc theo category (nếu có chọn)
       if (selectedCategories.length > 0) {
         filtered = filtered.filter((product: Product) =>
-          (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
+          (product.categories || []).some(
+            (cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
+              selectedCategories.includes(cat._id)
+          )
         );
       }
       // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
       const libFileNames = [
-        'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
-        'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+        'nike-span-2.png',
+        'nike-air-force-1-high.png',
+        'nike-air-force.png',
+        'air-max-90.png',
+        'air-max-excee-.png',
+        'air-max-270.png',
       ];
       const isLib = (product: Product) => {
         const img = product.images?.[0] || '';
@@ -344,12 +379,13 @@ export default function HomePage() {
         setLibProducts(filtered.filter(isLib));
         setOtherProducts(filtered.filter(p => !isLib(p)));
       }
+      console.log(`Products for ${tabKey}:`, filtered.length, filtered);
       setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
+      console.error('Error fetching products for tab:', tabKey, error);
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
       setLibProducts([]);
       setOtherProducts([]);
-      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
@@ -366,9 +402,9 @@ export default function HomePage() {
     // Chỉ reset startIndex nếu có nhiều hơn 3 sản phẩm
     const key = TABS[tab].key;
     const tabProducts = products[key] || [];
-    if (tabProducts.length > 3) {
-      setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
-    }
+    // if (tabProducts.length > 3) {
+    //   setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
+    // }
   }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery, products]);
 
   // Fetch filtered products when filters change
@@ -402,19 +438,33 @@ export default function HomePage() {
     );
   };
 
+  const handleProductCardClick = (productId: string, product?: Product) => {
+    setSelectedProductId(productId);
+    setSelectedProduct(product || null);
+    setIsProductDetailSidebarOpen(true);
+  };
+
+  const handleCloseProductDetailSidebar = () => {
+    setIsProductDetailSidebarOpen(false);
+    setSelectedProductId(null);
+    setSelectedProduct(null);
+  };
+
   return (
     <>
       {/* Banner luôn hiển thị ở đầu trang, fade out + trượt lên khi cuộn */}
       <HomepageBanner scrollY={scrollY} />
       {/* HÀNG SẢN PHẨM LIB NGAY DƯỚI BANNER */}
       {libProducts.length > 0 && (
-        <Box sx={{
-          maxWidth: 1200,
-          mx: 'auto',
-          width: '100%',
-          mt: 2,
-          mb: 4,
-        }}>
+        <Box
+          sx={{
+            maxWidth: 1200,
+            mx: 'auto',
+            width: '100%',
+            mt: 2,
+            mb: 4,
+          }}
+        >
           <Box
             sx={{
               width: '100%',
@@ -479,7 +529,8 @@ export default function HomePage() {
                   padding: 0,
                   background: 'none',
                   border: 'none',
-                }}>{`
+                }}
+              >{`
 ⠀⠀⢀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣤⡤⠖⠚⠁
 ⠀⣰⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ ⣀⣠⣤⣴⣶⡿⠿⠛⠉⠀⠀⠀⠀⠀
 ⢰⣿⣿⣧⣀⣀⣀⣀⣀⣤⣴⣶⣶⣿⣿⣿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -494,7 +545,8 @@ export default function HomePage() {
             color="text.secondary"
             sx={{ mb: 4, textAlign: 'center', maxWidth: 700, mx: 'auto' }}
           >
-            Khám phá các mẫu giày Nike Air Max hot nhất, thiết kế thời thượng, hiệu năng vượt trội. Được yêu thích bởi sneakerhead toàn cầu!
+            Khám phá các mẫu giày Nike Air Max hot nhất, thiết kế thời thượng, hiệu năng vượt trội.
+            Được yêu thích bởi sneakerhead toàn cầu!
           </Typography>
           {/* Chia thành 2 hàng, mỗi hàng 3 sản phẩm */}
           {[0, 1].map(rowIdx => (
@@ -507,12 +559,12 @@ export default function HomePage() {
                 mb: rowIdx === 0 ? 6 : 2, // tăng khoảng cách giữa 2 hàng
               }}
             >
-              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
+              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map(product => {
                 // Luôn lấy đúng ảnh lib
                 const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
                 return (
                   <ProductCard
-                    key={product._id}
+                    key={`lib-${product._id}-${rowIdx}-${product.images?.[0] || 'no-image'}`}
                     productId={product._id}
                     name={product.name}
                     image={imgSrc}
@@ -528,6 +580,7 @@ export default function HomePage() {
                     onAddToCart={() => console.log('Add to cart:', product._id)}
                     backgroundColor="#f8f9fa"
                     colors={3}
+                    onViewDetail={() => handleProductCardClick(product._id, product)}
                   />
                 );
               })}
@@ -536,14 +589,15 @@ export default function HomePage() {
         </Box>
       )}
       {/* PHẦN CÒN LẠI GIỮ NGUYÊN */}
-      <Box 
-        sx={{ 
+      <Box
+        sx={{
           width: '100%',
           px: 0,
           py: { xs: 2, md: 4 },
           position: 'relative',
           zIndex: 1,
-          marginRight: { md: '380px' }, // Để chừa chỗ cho sidebar bên phải
+          marginRight: { md: isProductDetailSidebarOpen ? '400px' : '0px' }, // Để chừa chỗ cho sidebar bên phải
+          transition: 'margin-right 0.3s ease',
         }}
       >
         <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
@@ -554,52 +608,52 @@ export default function HomePage() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
-            <Box 
-              sx={{ 
-                mb: isLargeScreen ? 6 : 4, 
+            <Box
+              sx={{
+                mb: isLargeScreen ? 6 : 4,
                 textAlign: 'center',
                 '@media screen and (width: 1440px) and (height: 1920px)': {
                   marginBottom: '4rem',
-                }
+                },
               }}
             >
-              <Typography 
-                variant="h3" 
-                fontWeight={900} 
+              <Typography
+                variant="h3"
+                fontWeight={900}
                 gutterBottom
                 sx={{
                   '@media screen and (width: 1440px) and (height: 1920px)': {
                     fontSize: '3.5rem',
                     lineHeight: 1.1,
                     marginBottom: '1.5rem',
-                  }
+                  },
                 }}
               >
                 Discover Your Style
               </Typography>
-              <Typography 
-                variant="h6" 
+              <Typography
+                variant="h6"
                 color="text.secondary"
                 sx={{
                   '@media screen and (width: 1440px) and (height: 1920px)': {
                     fontSize: '1.5rem',
                     lineHeight: 1.4,
-                  }
+                  },
                 }}
               >
                 Shop the latest trends, best sellers, and exclusive deals
               </Typography>
             </Box>
           </motion.div>
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              flexDirection: { xs: 'column', md: 'row' }, 
-              gap: { xs: 2, md: 4 }, 
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              gap: { xs: 2, md: 4 },
               alignItems: 'flex-start',
               '@media screen and (width: 1440px) and (height: 1920px)': {
                 gap: '3rem',
-              }
+              },
             }}
           >
             {/* Sidebar Filter */}
@@ -610,40 +664,42 @@ export default function HomePage() {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
               style={{ width: '100%' }}
             >
-              <Box 
-                sx={{ 
-                  width: { xs: '100%', md: isLargeScreen ? 320 : 220 }, 
-                  flexShrink: 0, 
-                  mb: { xs: 4, md: 0 }, 
+              <Box
+                sx={{
+                  width: { xs: '100%', md: isLargeScreen ? 320 : 220 },
+                  flexShrink: 0,
+                  mb: { xs: 4, md: 0 },
                   px: { xs: 0, md: 1 },
                   ml: { md: -20 },
                   '@media screen and (width: 1440px) and (height: 1920px)': {
                     width: '320px',
                     padding: '0 1rem',
-                  }
+                  },
                 }}
               >
                 <Box sx={{ position: 'sticky', top: 20 }}>
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
+                  <Typography
+                    variant="h6"
+                    sx={{
                       mb: 2,
                       '@media screen and (width: 1440px) and (height: 1920px)': {
                         fontSize: '1.8rem',
                         marginBottom: '1.5rem',
-                      }
+                      },
                     }}
                   >
                     Filters
                   </Typography>
-                  
+
                   {/* Search */}
                   <TextField
                     fullWidth
                     placeholder="Search products..."
                     value={searchQuery}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                    sx={{ 
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSearchQuery(e.target.value)
+                    }
+                    sx={{
                       mb: 3,
                       '@media screen and (width: 1440px) and (height: 1920px)': {
                         marginBottom: '2rem',
@@ -651,8 +707,8 @@ export default function HomePage() {
                           fontSize: '1.1rem',
                           padding: '1rem 1.5rem',
                           borderRadius: '12px',
-                        }
-                      }
+                        },
+                      },
                     }}
                     InputProps={{
                       startAdornment: (
@@ -662,17 +718,17 @@ export default function HomePage() {
                       ),
                     }}
                   />
-                  
+
                   {/* Price Range */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography 
-                      variant="subtitle1" 
-                      sx={{ 
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
                         mb: 1,
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
-                        }
+                        },
                       }}
                     >
                       Price Range
@@ -695,30 +751,36 @@ export default function HomePage() {
                           },
                           '& .MuiSlider-rail': {
                             height: '6px',
-                          }
-                        }
+                          },
+                        },
                       }}
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                       <Typography variant="body2">
-                        {priceRange[0].toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        {priceRange[0].toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })}
                       </Typography>
                       <Typography variant="body2">
-                        {priceRange[1].toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        {priceRange[1].toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })}
                       </Typography>
                     </Box>
                   </Box>
 
                   {/* Categories */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography 
-                      variant="subtitle1" 
-                      sx={{ 
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
                         mb: 1,
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
-                        }
+                        },
                       }}
                     >
                       Categories
@@ -732,32 +794,34 @@ export default function HomePage() {
 
                   {/* Brands */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography 
-                      variant="subtitle1" 
-                      sx={{ 
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
                         mb: 1,
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
-                        }
+                        },
                       }}
                     >
                       Brands
                     </Typography>
                     <FormGroup>
-                      {brands.map((brand) => (
+                      {brands.map(brand => (
                         <FormControlLabel
                           key={brand._id}
                           control={
                             <Checkbox
                               checked={selectedBrands.includes(brand._id)}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleBrandChange(e, brand._id)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                handleBrandChange(e, brand._id)
+                              }
                               sx={{
                                 '@media screen and (width: 1440px) and (height: 1920px)': {
                                   '& .MuiSvgIcon-root': {
                                     fontSize: '1.5rem',
-                                  }
-                                }
+                                  },
+                                },
                               }}
                             />
                           }
@@ -766,7 +830,7 @@ export default function HomePage() {
                             '@media screen and (width: 1440px) and (height: 1920px)': {
                               fontSize: '1.1rem',
                               marginBottom: '0.5rem',
-                            }
+                            },
                           }}
                         />
                       ))}
@@ -789,14 +853,13 @@ export default function HomePage() {
                   <CircularProgress size={60} />
                 </Box>
               ) : (
-                <Box 
+                <Box
                   className="product-grid"
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: {
-                      xs: '1fr',
-                      sm: '1fr 1fr',
-                      md: '1fr 1fr 1fr 1fr',
+                      xs: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
                     },
                     gap: 3,
                     p: 2,
@@ -804,72 +867,55 @@ export default function HomePage() {
                       gridTemplateColumns: 'repeat(3, 1fr)',
                       gap: '2rem',
                       padding: '2rem 0',
-                    }
+                    },
                   }}
                 >
-                  {otherProducts.slice(0, visibleCount).length > 0 ? otherProducts.slice(0, visibleCount).map((product, idx) => {
-                    const { gender, team } = guessGenderAndTeam(product);
-                    let imgSrc = '/assets/images/placeholder.jpg';
-                    if (product.images && product.images[0]) {
-                      imgSrc = getImageSrc(product.images[0], gender, team);
-                    }
-                    return (
-                      <motion.div
-                        key={product._id}
-                        initial={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: idx * 0.07 }}
-                        style={{ display: 'flex', height: '100%' }}
-                      >
-                        <ProductCard
-                          productId={product._id}
-                          name={product.name}
-                          image={imgSrc}
-                          price={product.price}
-                          discountPrice={product.discountPrice}
-                          tags={product.tags}
-                          brand={product.brand}
-                          categories={product.categories}
-                          // @ts-expect-error: Product label may be string, not ProductLabel
-                          labels={product.label ? [product.label as string] : []}
-                          allCategories={categories}
-                          allBrands={brands}
-                          onAddToCart={async () => {
-                            await addToCart({
-                              productId: product._id,
-                              quantity: 1,
-                              // size, color nếu có
-                            });
-                            setSnackbarOpen(true);
-                          }}
-                          backgroundColor="#f8f9fa"
-                          colors={3}
-                          addToCartButtonProps={{
-                            variant: 'contained',
-                            sx: {
-                              borderRadius: 0,
-                              fontWeight: 700,
-                              bgcolor: 'black',
-                              color: 'white',
-                              py: 1.5,
-                              textTransform: 'uppercase',
-                              '&:hover': { bgcolor: 'gray.800' },
-                            },
-                            startIcon: <ShoppingCartIcon />,
-                          }}
-                          sx={{ height: '100%' }}
-                        />
-                      </motion.div>
-                    );
-                  }) : (
+                  {otherProducts.slice(0, visibleCount).length > 0 ? (
+                    otherProducts.slice(0, visibleCount).map((product, idx) => {
+                      const { gender, team } = guessGenderAndTeam(product);
+                      let imgSrc = '/assets/images/placeholder.jpg';
+                      if (product.images && product.images[0]) {
+                        imgSrc = getImageSrc(product.images[0], gender, team);
+                      }
+                      return (
+                        <motion.div
+                          key={`other-${product._id}-${idx}-${product.images?.[0] || 'no-image'}`}
+                          initial={{ opacity: 0, y: 40 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: idx * 0.07 }}
+                          style={{ display: 'flex', height: '100%' }}
+                        >
+                          <ProductCard
+                            productId={product._id}
+                            name={product.name}
+                            image={imgSrc}
+                            price={product.price}
+                            discountPrice={product.discountPrice}
+                            tags={product.tags}
+                            brand={product.brand}
+                            categories={product.categories}
+                            // @ts-expect-error: Product label may be string, not ProductLabel
+                            labels={product.label ? [product.label as string] : []}
+                            allCategories={categories}
+                            allBrands={brands}
+                            onAddToCart={() => console.log('Add to cart:', product._id)}
+                            backgroundColor="#f8f9fa"
+                            colors={3}
+                            sx={{ height: '100%' }}
+                            onViewDetail={() => handleProductCardClick(product._id, product)}
+                          />
+                        </motion.div>
+                      );
+                    })
+                  ) : (
                     <Box sx={{ textAlign: 'center', py: 4, gridColumn: '1/-1' }}>
-                      <Typography 
-                        variant="h6" 
+                      <Typography
+                        variant="h6"
                         color="text.secondary"
                         sx={{
                           '@media screen and (width: 1440px) and (height: 1920px)': {
                             fontSize: '1.5rem',
-                          }
+                          },
                         }}
                       >
                         No products found. Try adjusting your filters.
@@ -900,9 +946,18 @@ export default function HomePage() {
                 </Box>
               )}
               {/* Tabs section moved below the product grid */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 6, display: 'flex', justifyContent: 'center' }}>
-                <Tabs 
-                  value={tab} 
+              <Box
+                sx={{
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                  mb: 3,
+                  mt: 6,
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <Tabs
+                  value={tab}
                   onChange={(e: React.SyntheticEvent, newValue: number) => setTab(newValue)}
                   variant="standard"
                   sx={{
@@ -920,15 +975,15 @@ export default function HomePage() {
                         fontSize: '1.2rem',
                         padding: '1rem 2rem',
                         minHeight: '60px',
-                      }
-                    }
+                      },
+                    },
                   }}
                   centered
                 >
                   {TABS.map((tabItem, index) => (
-                    <Tab 
-                      key={index} 
-                      label={tabItem.label} 
+                    <Tab
+                      key={index}
+                      label={tabItem.label}
                       sx={{
                         textTransform: 'none',
                         fontWeight: 600,
@@ -937,11 +992,12 @@ export default function HomePage() {
                   ))}
                 </Tabs>
               </Box>
-              
+
               {/* TabCarousel Component */}
               <Box sx={{ mt: 4 }}>
-                <TabCarousel 
+                <TabCarousel
                   products={products[TABS[tab].key] || []}
+                  onProductClick={handleProductCardClick}
                 />
               </Box>
             </motion.div>
@@ -958,6 +1014,31 @@ export default function HomePage() {
           Product added to cart!
         </Box>
       </Snackbar>
+
+      {/* Product Detail Sidebar */}
+      <ProductDetailSidebar
+        productId={selectedProductId}
+        product={selectedProduct}
+        isOpen={isProductDetailSidebarOpen}
+        onClose={handleCloseProductDetailSidebar}
+      />
+
+      {/* Overlay for Product Detail Sidebar */}
+      {isProductDetailSidebarOpen && (
+        <Box
+          onClick={handleCloseProductDetailSidebar}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.3)',
+            zIndex: 1200,
+            cursor: 'pointer',
+          }}
+        />
+      )}
     </>
   );
 }

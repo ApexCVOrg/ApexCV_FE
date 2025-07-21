@@ -29,8 +29,8 @@ interface Product {
   price: number;
   discountPrice?: number;
   tags: string[];
-  categories: { 
-    _id: string; 
+  categories: {
+    _id: string;
     name: string;
     parentCategory?: {
       _id: string;
@@ -50,8 +50,8 @@ interface Product {
 interface Category {
   _id: string;
   name: string;
-  parentCategory?: { 
-    _id: string; 
+  parentCategory?: {
+    _id: string;
     name: string;
     parentCategory?: {
       _id: string;
@@ -87,46 +87,51 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
     const fetchInitialData = async () => {
       try {
         // Fetch categories with gender filter
-        const categoriesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories?gender=${gender.toLowerCase()}`);
+        const categoriesRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/categories?gender=${gender.toLowerCase()}`
+        );
         const brandsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`);
-        
+
         const [categoriesData, brandsData] = await Promise.all([
           categoriesRes.json(),
           brandsRes.json(),
         ]);
 
         // Find the gender category (Men/Women/Kids)
-        const genderCategory = categoriesData.find((cat: Category) => 
-          cat.name.toLowerCase() === gender.toLowerCase() && !cat.parentCategory
+        const genderCategory = categoriesData.find(
+          (cat: Category) => cat.name.toLowerCase() === gender.toLowerCase() && !cat.parentCategory
         );
 
         if (genderCategory) {
           // Find the team category under the gender category
-          const teamCategory = categoriesData.find((cat: Category) => 
-            cat.name === teamName && 
-            cat.parentCategory?._id === genderCategory._id
+          const teamCategory = categoriesData.find(
+            (cat: Category) =>
+              cat.name === teamName && cat.parentCategory?._id === genderCategory._id
           );
 
           if (teamCategory) {
             // Get all product type categories under the team
-            const productTypeCategories = categoriesData.filter((cat: Category) => 
-              cat.parentCategory?._id === teamCategory._id
+            const productTypeCategories = categoriesData.filter(
+              (cat: Category) => cat.parentCategory?._id === teamCategory._id
             );
 
             // Set selected categories to include both team and its product types
-            setSelectedCategories([teamCategory._id, ...productTypeCategories.map((cat: Category) => cat._id)]);
+            setSelectedCategories([
+              teamCategory._id,
+              ...productTypeCategories.map((cat: Category) => cat._id),
+            ]);
 
             // Filter categories to only show those related to this team and gender
             const filteredCategories = categoriesData.filter((cat: Category) => {
               // Include the gender category
               if (cat._id === genderCategory._id) return true;
-              
+
               // Include the team category
               if (cat._id === teamCategory._id) return true;
-              
+
               // Include product type categories under the team
               if (cat.parentCategory?._id === teamCategory._id) return true;
-              
+
               return false;
             });
 
@@ -152,18 +157,38 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
     const fetchFilteredProducts = async () => {
       setLoading(true);
       try {
+        // Convert sortBy to API format
+        let apiSortBy = sortBy;
+        let sortOrder = 'desc';
+
+        if (sortBy === 'price-low') {
+          apiSortBy = 'price';
+          sortOrder = 'asc';
+        } else if (sortBy === 'price-high') {
+          apiSortBy = 'price';
+          sortOrder = 'desc';
+        } else if (sortBy === 'newest') {
+          apiSortBy = 'createdAt';
+          sortOrder = 'desc';
+        } else if (sortBy === 'popular') {
+          apiSortBy = 'popularity';
+          sortOrder = 'desc';
+        }
+
         const queryParams = new URLSearchParams({
           minPrice: priceRange[0].toString(),
           maxPrice: priceRange[1].toString(),
-          sortBy,
+          sortBy: apiSortBy,
+          sortOrder: sortOrder,
           ...(selectedCategories.length > 0 && { categories: selectedCategories.join(',') }),
           ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
-          gender: gender.toLowerCase()
+          gender: gender.toLowerCase(),
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+        console.log('[FILTER] Fetching products with URL:', apiUrl);
         const response = await fetch(apiUrl);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch products: ${response.status}`);
         }
@@ -176,18 +201,33 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
             return product.categories.some(cat => {
               // Check if the category itself is the team
               if (cat.name === teamName) return true;
-              
+
               // Check if the category's parent is the team
               if (cat.parentCategory?.name === teamName) return true;
-              
+
               // Check if the category's grandparent is the team
               if (cat.parentCategory?.parentCategory?.name === teamName) return true;
-              
+
               return false;
             });
           });
-          
-          setProducts(filteredProducts);
+
+          console.log('[FILTER] Filtered products before sorting:', filteredProducts.length);
+          console.log('[FILTER] Current sortBy value:', sortBy);
+
+          // Apply client-side sorting as fallback
+          const sortedProducts = sortProducts(filteredProducts, sortBy);
+          console.log('[FILTER] Final sorted products count:', sortedProducts.length);
+          console.log(
+            '[FILTER] Sample sorted products:',
+            sortedProducts.slice(0, 3).map(p => ({
+              name: p.name,
+              price: p.price,
+              discountPrice: p.discountPrice,
+              createdAt: p.createdAt,
+            }))
+          );
+          setProducts(sortedProducts);
         } else {
           throw new Error(result.message);
         }
@@ -203,36 +243,51 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
   }, [priceRange, selectedCategories, selectedBrands, sortBy, gender, teamName]);
 
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev: string[]) => 
-      prev.includes(categoryId) 
+    setSelectedCategories((prev: string[]) =>
+      prev.includes(categoryId)
         ? prev.filter((id: string) => id !== categoryId)
         : [...prev, categoryId]
     );
   };
 
   const handleBrandChange = (brandId: string) => {
-    setSelectedBrands((prev: string[]) => 
-      prev.includes(brandId) 
-        ? prev.filter((id: string) => id !== brandId)
-        : [...prev, brandId]
+    setSelectedBrands((prev: string[]) =>
+      prev.includes(brandId) ? prev.filter((id: string) => id !== brandId) : [...prev, brandId]
     );
   };
 
-  // Thêm hàm sort helper
+  // Helper function to sort products
   const sortProducts = (products: Product[], sortType: string) => {
     console.log('[FILTER] Sorting products by:', sortType);
     const sortedProducts = [...products];
-    
+
     switch (sortType) {
       case 'price-low':
-        return sortedProducts.sort((a, b) => (a.discountPrice || a.price) - (b.discountPrice || b.price));
+        return sortedProducts.sort((a, b) => {
+          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
+          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
+          return priceA - priceB;
+        });
       case 'price-high':
-        return sortedProducts.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+        return sortedProducts.sort((a, b) => {
+          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
+          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
+          return priceB - priceA;
+        });
       case 'newest':
-        // Tạm thời sắp xếp theo giá mới nhất vì chưa có createdAt
-        return sortedProducts.sort((a, b) => (b.discountPrice || b.price) - (a.discountPrice || a.price));
+        // Sort by createdAt if available, otherwise by price
+        return sortedProducts.sort((a, b) => {
+          if (a.createdAt && b.createdAt) {
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          }
+          // Fallback to price sorting if createdAt is not available
+          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
+          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
+          return priceB - priceA;
+        });
       case 'popular':
-        // Tạm thời trả về thứ tự mặc định vì chưa có trường đánh giá popularity
+        // For now, return default order since we don't have popularity field
+        // Could be enhanced with orderCount or similar field in the future
         return sortedProducts;
       default:
         return sortedProducts;
@@ -241,7 +296,9 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}
+      >
         <Typography color="error">{error}</Typography>
       </Box>
     );
@@ -249,79 +306,25 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
 
   return (
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <Container maxWidth={false} sx={{ 
-        py: 4, 
-        px: { xs: 2, sm: 3, md: 4 },
-        maxWidth: '1600px',
-        width: '100%'
-      }}>
+      <Container
+        maxWidth={false}
+        sx={{
+          py: 4,
+          px: { xs: 2, sm: 3, md: 4 },
+          maxWidth: '1600px',
+          width: '100%',
+        }}
+      >
         {/* Sort and Filter Bar */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6">{products.length} Products</Typography>
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl sx={{ minWidth: 200, mr: { xs: 3, sm: 6, md: 8 } }}>
             <InputLabel>Sort By</InputLabel>
-            <Select 
-              value={sortBy} 
-              label="Sort By" 
-              onChange={async (e) => {
-                const value = e.target.value;
-                setSortBy(value);
-                setLoading(true);
-                try {
-                  const queryParams = new URLSearchParams({
-                    minPrice: priceRange[0].toString(),
-                    maxPrice: priceRange[1].toString(),
-                    sortBy: value === 'price-low' ? 'asc' : value === 'price-high' ? 'desc' : value,
-                    ...(selectedCategories.length > 0 && { categories: selectedCategories.filter(Boolean).join(',') }),
-                    ...(selectedBrands.length > 0 && { brand: selectedBrands.filter(Boolean).join(',') }),
-                    gender: gender.toLowerCase()
-                  });
-
-                  console.log('[FILTER] Selected categories before filter:', selectedCategories);
-                  console.log('[FILTER] Selected categories after filter:', selectedCategories.filter(Boolean));
-                  
-                  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
-                  console.log('[FILTER] Sorting products with URL:', apiUrl);
-                  console.log('[FILTER] Sort value:', value);
-                  console.log('[FILTER] Sort value sent to API:', value === 'price-low' ? 'asc' : value === 'price-high' ? 'desc' : value);
-                  console.log('[FILTER] Query params:', Object.fromEntries(queryParams.entries()));
-                  
-                  const response = await fetch(apiUrl);
-                  
-                  if (!response.ok) {
-                    throw new Error(`Failed to fetch products: ${response.status}`);
-                  }
-
-                  const result = await response.json();
-                  console.log('[FILTER] API Response:', result);
-                  
-                  if (result.success) {
-                    // Filter products to ensure they match the team
-                    let filteredProducts = result.data.filter((product: Product) => {
-                      return product.categories.some(cat => {
-                        if (cat.name === teamName) return true;
-                        if (cat.parentCategory?.name === teamName) return true;
-                        if (cat.parentCategory?.parentCategory?.name === teamName) return true;
-                        return false;
-                      });
-                    });
-
-                    // Sort products client-side để đảm bảo đúng thứ tự
-                    filteredProducts = sortProducts(filteredProducts, value);
-                    
-                    console.log('[FILTER] Filtered products count:', filteredProducts.length);
-                    console.log('[FILTER] First few products:', filteredProducts.slice(0, 3).map((p: Product) => ({
-                      name: p.name,
-                      price: p.price
-                    })));
-                    setProducts(filteredProducts);
-                  }
-                } catch (err) {
-                  console.error('[FILTER] Error:', err);
-                  setError(err instanceof Error ? err.message : 'Failed to fetch products');
-                } finally {
-                  setLoading(false);
-                }
+            <Select
+              value={sortBy}
+              label="Sort By"
+              onChange={e => {
+                setSortBy(e.target.value);
               }}
             >
               <MenuItem value="newest">Newest</MenuItem>
@@ -333,7 +336,14 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '50vh',
+            }}
+          >
             <CircularProgress />
           </Box>
         ) : (
@@ -348,23 +358,27 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
               },
               gap: { xs: 2, sm: 3 },
               width: '100%',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
-            {products.map((product) => (
-              <Box 
+            {products.map(product => (
+              <Box
                 key={product._id}
                 sx={{
                   width: '100%',
                   display: 'flex',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
                 }}
               >
                 <ProductCard
                   _id={product._id}
                   productId={product._id}
                   name={product.name || 'Unnamed Product'}
-                  image={product.images?.[0] ? `/assets/images/${gender}/${teamName.toLowerCase()}/${product.images[0]}` : '/assets/images/placeholder.jpg'}
+                  image={
+                    product.images?.[0]
+                      ? `/assets/images/${gender}/${teamName.toLowerCase()}/${product.images[0]}`
+                      : '/assets/images/placeholder.jpg'
+                  }
                   price={product.price || 0}
                   discountPrice={product.discountPrice}
                   tags={product.tags || []}
@@ -385,7 +399,9 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           <DialogTitle>Filter & Sort</DialogTitle>
           <DialogContent>
             <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" gutterBottom>Price Range</Typography>
+              <Typography variant="h6" gutterBottom>
+                Price Range
+              </Typography>
               <Slider
                 value={priceRange}
                 onChange={(_, newValue) => setPriceRange(newValue as number[])}
@@ -393,24 +409,22 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                 min={0}
                 max={10000000}
                 step={100000}
-                valueLabelFormat={(value) => `${value.toLocaleString('vi-VN')} VND`}
+                valueLabelFormat={value => `${value.toLocaleString('vi-VN')} VND`}
               />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
-                <Typography variant="body2">
-                  {priceRange[0].toLocaleString('vi-VN')} VND
-                </Typography>
-                <Typography variant="body2">
-                  {priceRange[1].toLocaleString('vi-VN')} VND
-                </Typography>
+                <Typography variant="body2">{priceRange[0].toLocaleString('vi-VN')} VND</Typography>
+                <Typography variant="body2">{priceRange[1].toLocaleString('vi-VN')} VND</Typography>
               </Box>
             </Box>
 
             <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" gutterBottom>Categories</Typography>
+              <Typography variant="h6" gutterBottom>
+                Categories
+              </Typography>
               <FormGroup>
                 {categories
                   .filter(cat => !cat.parentCategory) // Only show gender categories
-                  .map((genderCat) => (
+                  .map(genderCat => (
                     <Box key={genderCat._id}>
                       <FormControlLabel
                         control={
@@ -424,7 +438,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                       {/* Show teams under this gender */}
                       {categories
                         .filter(cat => cat.parentCategory?._id === genderCat._id)
-                        .map((teamCat) => (
+                        .map(teamCat => (
                           <Box key={teamCat._id} sx={{ ml: 2 }}>
                             <FormControlLabel
                               control={
@@ -438,7 +452,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                             {/* Show product types under this team */}
                             {categories
                               .filter(cat => cat.parentCategory?._id === teamCat._id)
-                              .map((productTypeCat) => (
+                              .map(productTypeCat => (
                                 <Box key={productTypeCat._id} sx={{ ml: 4 }}>
                                   <FormControlLabel
                                     control={
@@ -459,9 +473,11 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
             </Box>
 
             <Box sx={{ mt: 4 }}>
-              <Typography variant="h6" gutterBottom>Brands</Typography>
+              <Typography variant="h6" gutterBottom>
+                Brands
+              </Typography>
               <FormGroup>
-                {brands.map((brand) => (
+                {brands.map(brand => (
                   <FormControlLabel
                     key={brand._id}
                     control={
@@ -478,13 +494,17 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setFilterDialogOpen(false)}>Close</Button>
-            <Button onClick={() => {
-              setSelectedCategories([]);
-              setSelectedBrands([]);
-              setPriceRange([0, 10000000]);
-              setSortBy('newest');
-              setFilterDialogOpen(false);
-            }}>Reset Filters</Button>
+            <Button
+              onClick={() => {
+                setSelectedCategories([]);
+                setSelectedBrands([]);
+                setPriceRange([0, 10000000]);
+                setSortBy('newest');
+                setFilterDialogOpen(false);
+              }}
+            >
+              Reset Filters
+            </Button>
           </DialogActions>
         </Dialog>
       </Container>

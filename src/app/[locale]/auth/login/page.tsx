@@ -195,7 +195,13 @@ export default function LoginForm() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`${provider} login clicked`);
+    if (provider === 'Google') {
+      // Redirect to Google OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    } else if (provider === 'Facebook') {
+      // Redirect to Facebook OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+    }
   };
 
   return (
@@ -345,9 +351,7 @@ export default function LoginForm() {
             {/* Error */}
             {error && (
               <Box sx={{ bgcolor: 'error.main', p: 2, borderRadius: 1, textAlign: 'center' }}>
-                <Typography sx={{ color: 'white', fontWeight: 500 }}>
-                  {error}
-                </Typography>
+                <Typography sx={{ color: 'white', fontWeight: 500 }}>{error}</Typography>
               </Box>
             )}
             {/* Ban Dialog */}
@@ -355,7 +359,9 @@ export default function LoginForm() {
               <DialogTitle>{t('errors.bannedTitle') || 'Tài khoản bị khóa'}</DialogTitle>
               <DialogContent>
                 <Typography>{t('errors.banned') || 'Tài khoản của bạn đã bị khóa.'}</Typography>
-                <Typography color="error" sx={{ mt: 2 }}>{banReason}</Typography>
+                <Typography color="error" sx={{ mt: 2 }}>
+                  {banReason}
+                </Typography>
               </DialogContent>
               <DialogActions>
                 <Button onClick={() => setBanDialogOpen(false)} color="primary" autoFocus>

@@ -1,11 +1,13 @@
 # Chức Năng Add to Cart - Hướng Dẫn Sử Dụng
 
 ## Tổng Quan
+
 Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện và cách làm tương tự như Shopee. Người dùng có thể thêm sản phẩm vào giỏ hàng, chọn size/color, và quản lý giỏ hàng.
 
 ## Các Tính Năng Đã Implement
 
 ### 1. Backend API
+
 - **GET /api/carts/user** - Lấy giỏ hàng của user hiện tại
 - **POST /api/carts/add** - Thêm sản phẩm vào giỏ hàng
 - **PUT /api/carts/update/:itemId** - Cập nhật số lượng sản phẩm
@@ -13,6 +15,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 - **DELETE /api/carts/clear** - Xóa toàn bộ giỏ hàng
 
 ### 2. Frontend Components
+
 - **CartService** (`/src/services/cart.ts`) - Service để gọi API cart
 - **CartContext** (`/src/context/CartContext.tsx`) - Context để quản lý state giỏ hàng
 - **ProductCard** (đã cập nhật) - Component hiển thị sản phẩm với nút Add to Cart
@@ -22,6 +25,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 ### 3. Tính Năng Chính
 
 #### Add to Cart
+
 - Khi click nút "Thêm vào giỏ", hệ thống sẽ:
   - Kiểm tra user đã đăng nhập chưa
   - Nếu có size/color, hiển thị dialog để chọn
@@ -29,6 +33,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
   - Hiển thị thông báo thành công/thất bại
 
 #### Cart Management
+
 - Hiển thị danh sách sản phẩm trong giỏ hàng
 - Cho phép thay đổi số lượng
 - Cho phép xóa từng sản phẩm
@@ -36,6 +41,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 - Xóa toàn bộ giỏ hàng
 
 #### UI/UX Features
+
 - Badge hiển thị số lượng sản phẩm trên icon giỏ hàng
 - Dialog chọn size/color khi cần thiết
 - Snackbar thông báo kết quả
@@ -45,6 +51,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 ## Cách Sử Dụng
 
 ### 1. Thêm Sản Phẩm Vào Giỏ Hàng
+
 1. Duyệt sản phẩm trên trang chủ hoặc các trang danh mục
 2. Click nút "Thêm vào giỏ" trên ProductCard
 3. Nếu sản phẩm có size/color, chọn trong dialog
@@ -52,11 +59,13 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 5. Click "Thêm vào giỏ" để hoàn tất
 
 ### 2. Xem Giỏ Hàng
+
 1. Click icon giỏ hàng trên header
 2. Hoặc truy cập `/cart` trực tiếp
 3. Xem danh sách sản phẩm đã thêm
 
 ### 3. Quản Lý Giỏ Hàng
+
 - Thay đổi số lượng: Sử dụng nút +/- hoặc nhập trực tiếp
 - Xóa sản phẩm: Click icon thùng rác
 - Xóa toàn bộ: Click "Xóa giỏ hàng"
@@ -64,6 +73,7 @@ Chức năng Add to Cart đã được implement hoàn chỉnh với giao diện
 ## Cấu Trúc Code
 
 ### Backend
+
 ```
 ApexCV_BE/src/
 ├── models/Cart.ts          # Model giỏ hàng
@@ -72,6 +82,7 @@ ApexCV_BE/src/
 ```
 
 ### Frontend
+
 ```
 ApexCV_FE/src/
 ├── services/cart.ts        # Service gọi API cart
@@ -84,11 +95,13 @@ ApexCV_FE/src/
 ## API Endpoints
 
 ### Authentication Required
+
 Tất cả API cart đều yêu cầu user đăng nhập (JWT token trong header Authorization).
 
 ### Request/Response Examples
 
 #### Add to Cart
+
 ```javascript
 POST /api/carts/add
 {
@@ -100,6 +113,7 @@ POST /api/carts/add
 ```
 
 #### Get Cart
+
 ```javascript
 GET /api/carts/user
 Response: {
@@ -142,6 +156,7 @@ Response: {
 ## Hướng Dẫn Phát Triển
 
 ### Thêm Tính Năng Mới
+
 1. Cập nhật Cart model nếu cần
 2. Thêm API endpoint trong routes/carts.ts
 3. Cập nhật CartService
@@ -149,6 +164,7 @@ Response: {
 5. Cập nhật UI components
 
 ### Testing
+
 - Test API endpoints với Postman/Insomnia
 - Test UI flow với browser dev tools
 - Test error scenarios
@@ -157,13 +173,15 @@ Response: {
 ## Troubleshooting
 
 ### Lỗi Thường Gặp
+
 1. **401 Unauthorized**: Kiểm tra JWT token
 2. **404 Not Found**: Kiểm tra product ID
 3. **400 Bad Request**: Kiểm tra request body
 4. **500 Server Error**: Kiểm tra database connection
 
 ### Debug
+
 - Sử dụng browser dev tools để xem network requests
 - Kiểm tra console logs
 - Kiểm tra localStorage cho token
-- Kiểm tra database cho cart data 
+- Kiểm tra database cho cart data

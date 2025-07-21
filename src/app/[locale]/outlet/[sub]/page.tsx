@@ -39,11 +39,11 @@ export default function OutletSubCategoryPage() {
       try {
         const queryParams = new URLSearchParams({
           category: `${OUTLET_CATEGORY_ID},${subId}`,
-          sortBy: sortBy
+          sortBy: sortBy,
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        
+
         // Handle different API response structures
         if (data.success && data.data) {
           setProducts(Array.isArray(data.data) ? data.data : []);
@@ -72,7 +72,7 @@ export default function OutletSubCategoryPage() {
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+          <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
             <MenuItem value="newest">Newest</MenuItem>
             <MenuItem value="price-low">Price: Low to High</MenuItem>
             <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -85,21 +85,23 @@ export default function OutletSubCategoryPage() {
         <Typography>Đang tải sản phẩm...</Typography>
       ) : (
         <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
-          {Array.isArray(products) && products.map((product) => (
-            <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
-              <ProductCard
-                productId={product._id}
-                name={product.name}
-                image={product.images[0]}
-                price={product.price}
-                discountPrice={product.discountPrice}
-                tags={product.tags}
-                brand={product.brand}
-                categories={product.categories}
-                onAddToCart={() => console.log('Add to cart:', product._id)}
-              />
-            </Box>
-          ))}
+          {Array.isArray(products) &&
+            products.map(product => (
+              <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
+                <ProductCard
+                  _id={product._id}
+                  productId={product._id}
+                  name={product.name}
+                  image={product.images[0]}
+                  price={product.price}
+                  discountPrice={product.discountPrice}
+                  tags={product.tags}
+                  brand={product.brand}
+                  categories={product.categories}
+                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                />
+              </Box>
+            ))}
         </Box>
       )}
     </Box>

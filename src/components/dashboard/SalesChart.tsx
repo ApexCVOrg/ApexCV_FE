@@ -1,12 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-} from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   LineChart,
@@ -69,7 +64,16 @@ export default function SalesChart({ data }: SalesChartProps) {
   };
 
   return (
-    <Card sx={{ height: '100%', minHeight: 400, borderRadius: 4, boxShadow: 4, maxWidth: 1235, width: '100%' }}>
+    <Card
+      sx={{
+        height: '100%',
+        minHeight: 400,
+        borderRadius: 4,
+        boxShadow: 4,
+        maxWidth: 1235,
+        width: '100%',
+      }}
+    >
       <CardContent sx={{ p: 3 }}>
         <Typography
           variant="h6"
@@ -82,16 +86,11 @@ export default function SalesChart({ data }: SalesChartProps) {
         >
           Monthly Revenue Trend
         </Typography>
-        
+
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis
-              dataKey="month"
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-              axisLine={false}
-            />
+            <XAxis dataKey="month" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
             <YAxis
               tickFormatter={formatCurrency}
               tick={{ fontSize: 12 }}
@@ -116,7 +115,7 @@ export default function SalesChart({ data }: SalesChartProps) {
             />
           </AreaChart>
         </ResponsiveContainer>
-        
+
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{ width: 12, height: 12, bgcolor: '#2196f3', borderRadius: '50%' }} />
@@ -134,4 +133,4 @@ export default function SalesChart({ data }: SalesChartProps) {
       </CardContent>
     </Card>
   );
-} 
+}
