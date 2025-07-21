@@ -34,9 +34,15 @@ export default function HoodiePage() {
     }
 
     try {
-      // Fetch only men's products
+      // Fetch only men's products with sorting
+      const queryParams = new URLSearchParams({
+        status: 'active',
+        gender: 'men',
+        sortBy: apiSortBy,
+        sortOrder: sortOrder,
+      });
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/products?status=active&gender=men`
+        `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`
       );
       const data = await res.json();
 
