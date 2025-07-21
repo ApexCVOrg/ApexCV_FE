@@ -26,13 +26,9 @@
     "@types/lodash": "^4.17.20",
     "@types/mongoose": "^5.11.96",
     "antd": "^5.25.2",
-    "apexcv-fe": "file:",
     "axios": "^1.9.0",
-<<<<<<< HEAD
     "cloudinary": "^2.7.0",
-=======
     "framer-motion": "^12.23.3",
->>>>>>> 2d0fe673e97f5b8663bd88318b0079de102633d4
     "gsap": "^3.13.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
