@@ -6,8 +6,20 @@ import ProductCard from "@/components/card";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
 
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  discountPrice?: number;
+  createdAt?: string;
+  tags?: string[];
+  brand?: { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
+  images?: string[];
+}
+
 export default function AdizeroPage() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
 
