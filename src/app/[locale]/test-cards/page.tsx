@@ -38,6 +38,7 @@ const TestCardsPage = () => {
       {images.map((img, idx) => (
         <ProductCard
           key={img}
+          _id={img}
           productId={img}
           name={sampleNames[idx]}
           image={imageBase + img}

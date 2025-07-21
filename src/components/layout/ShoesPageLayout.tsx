@@ -216,6 +216,7 @@ export default function ShoesPageLayout({
                   }}
                 >
                   <ProductCard
+                    _id={product._id}
                     productId={product._id}
                     name={product.name}
                     image={(() => {

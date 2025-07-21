@@ -580,14 +580,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
           sx={{
             mt: 'auto',
             width: '100%',
-            bgcolor: addToCartButtonProps?.sx?.bgcolor || '#111a2f',
-            color: addToCartButtonProps?.sx?.color || '#fff',
-            fontWeight: addToCartButtonProps?.sx?.fontWeight || 700,
-            borderRadius: addToCartButtonProps?.sx?.borderRadius || 2,
-            py: addToCartButtonProps?.sx?.py || 1,
-            textTransform: addToCartButtonProps?.sx?.textTransform || 'none',
-            '&:hover': addToCartButtonProps?.sx?.['&:hover'] || { bgcolor: '#222c4c' },
-            ...addToCartButtonProps?.sx,
+            bgcolor: (addToCartButtonProps?.sx as any)?.bgcolor || '#111a2f',
+            color: (addToCartButtonProps?.sx as any)?.color || '#fff',
+            fontWeight: (addToCartButtonProps?.sx as any)?.fontWeight || 700,
+            borderRadius: (addToCartButtonProps?.sx as any)?.borderRadius || 2,
+            py: (addToCartButtonProps?.sx as any)?.py || 1,
+            textTransform: (addToCartButtonProps?.sx as any)?.textTransform || 'none',
+            '&:hover': (addToCartButtonProps?.sx as any)?.['&:hover'] || { bgcolor: '#222c4c' },
+            ...(addToCartButtonProps?.sx as any),
           }}
           {...addToCartButtonProps}
         >

@@ -459,6 +459,7 @@ export default function HomePage() {
                 return (
                   <ProductCard
                     key={product._id}
+                    _id={product._id}
                     productId={product._id}
                     name={product.name}
                     image={imgSrc}
@@ -768,6 +769,7 @@ export default function HomePage() {
                         style={{ display: 'flex', height: '100%' }}
                       >
                         <ProductCard
+                          _id={product._id}
                           productId={product._id}
                           name={product.name}
                           image={imgSrc}
@@ -952,6 +954,7 @@ export default function HomePage() {
                                 style={{ minWidth: 320, flex: '0 0 auto' }}
                               >
                                 <ProductCard
+                                  _id={product._id}
                                   productId={product._id}
                                   name={product.name}
                                   image={imgSrc}

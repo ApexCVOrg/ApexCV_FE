@@ -152,6 +152,7 @@ export default function AdizeroPage() {
                 }}
               >
                 <ProductCard
+                  _id={product._id}
                   productId={product._id}
                   name={product.name}
                   image={product.images?.[0] || "/assets/images/placeholder.jpg"}
