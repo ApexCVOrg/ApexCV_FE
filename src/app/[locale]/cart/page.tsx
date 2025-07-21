@@ -1,7 +1,7 @@
 
 /* eslint-disable */
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -21,6 +21,7 @@ import {
   MenuItem,
   Paper,
   Tooltip,
+  Checkbox,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -70,6 +71,12 @@ export default function CartPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const t = useTranslations("cartPage");
   const { isAuthenticated, getCurrentUser } = useAuth();
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (cart?.cartItems) {
+      setSelectedItems(new Set(cart.cartItems.map((item: any) => item._id)));
+    }
+  }, [cart]);
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -283,6 +290,12 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!cart || cart.cartItems.length === 0) return;
+    // Lọc ra các sản phẩm được chọn
+    const selectedCartItems = cart.cartItems.filter((item: any) => selectedItems.has(item._id));
+    if (selectedCartItems.length === 0) {
+      alert("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán");
+      return;
+    }
     
     // Kiểm tra user đã đăng nhập chưa
     if (!isAuthenticated) {
@@ -291,7 +304,7 @@ export default function CartPage() {
     }
     
     // Kiểm tra tất cả items đã chọn size và màu chưa
-    const itemsWithoutSizeOrColor = cart.cartItems.filter(item => {
+    const itemsWithoutSizeOrColor = selectedCartItems.filter(item => {
       const cartItem = item as CartItemWithId;
       return !cartItem.size || !cartItem.color;
     });
@@ -372,15 +385,14 @@ export default function CartPage() {
 
       // Tạo dữ liệu VNPAY theo đúng format
       const vnpayData = {
-        vnp_Amount: total, // VNPAY yêu cầu số tiền nhân 100
-        vnp_IpAddr: '127.0.0.1', // IP của client
+        vnp_Amount: selectedCartItems.reduce((sum, item) => sum + getDiscountedPrice(item as CartItemWithId) * item.quantity, 0),
+        vnp_IpAddr: '127.0.0.1',
         vnp_ReturnUrl: `${window.location.origin}/payment/vnpay-return`,
-        vnp_TxnRef: `ORDER_${Date.now()}`, // Mã giao dịch duy nhất
-        vnp_OrderInfo: `Thanh toan don hang ${Date.now()}`, // Thông tin đơn hàng
-        vnp_ExpireDate: Math.floor((Date.now() + 15 * 60 * 1000) / 1000), // Hết hạn sau 15 phút (timestamp)
-        vnp_CreateDate: Math.floor(Date.now() / 1000), // Ngày tạo (timestamp)
-        // Dữ liệu đơn hàng để lưu vào session
-        orderItems: cart.cartItems.map(item => ({
+        vnp_TxnRef: `ORDER_${Date.now()}`,
+        vnp_OrderInfo: `Thanh toan don hang ${Date.now()}`,
+        vnp_ExpireDate: Math.floor((Date.now() + 15 * 60 * 1000) / 1000),
+        vnp_CreateDate: Math.floor(Date.now() / 1000),
+        orderItems: selectedCartItems.map(item => ({
           product: item.product._id,
           name: item.product.name,
           quantity: item.quantity,
@@ -389,7 +401,7 @@ export default function CartPage() {
             color: item.color || 'Default',
             quantity: item.quantity,
           }],
-          price: item.product.discountPrice || item.product.price,
+          price: getDiscountedPrice(item as CartItemWithId),
         })),
         shippingAddress: {
           fullName: defaultAddress.recipientName || userProfile.fullName,
@@ -397,14 +409,14 @@ export default function CartPage() {
           street: defaultAddress.street,
           city: defaultAddress.city,
           state: defaultAddress.state,
-          postalCode: defaultAddress.addressNumber, // Map addressNumber to postalCode
+          postalCode: defaultAddress.addressNumber,
           country: defaultAddress.country,
         },
         paymentMethod: 'VNPAY',
-        totalPrice: total,
+        totalPrice: selectedCartItems.reduce((sum, item) => sum + getDiscountedPrice(item as CartItemWithId) * item.quantity, 0),
         taxPrice: 0,
         shippingPrice: 0,
-        user: currentUser.id, // Thêm user ID để backend có thể lấy thông tin
+        user: currentUser.id,
       };
 
       console.log('VNPAY data:', vnpayData);
@@ -440,6 +452,13 @@ export default function CartPage() {
 
   // Kiểm tra xem có items nào chưa chọn size hoặc màu không
   const hasIncompleteItems = cart.cartItems.some(item => {
+    const cartItem = item as CartItemWithId;
+    return !cartItem.size || !cartItem.color;
+  });
+
+  // Thay vì kiểm tra toàn bộ cart, chỉ kiểm tra các sản phẩm được chọn
+  const selectedCartItems = cart.cartItems.filter((item: any) => selectedItems.has(item._id));
+  const hasIncompleteSelectedItems = selectedCartItems.some(item => {
     const cartItem = item as CartItemWithId;
     return !cartItem.size || !cartItem.color;
   });
@@ -497,6 +516,28 @@ export default function CartPage() {
     }
   };
 
+  // Hàm chọn/bỏ chọn 1 sản phẩm
+  const handleSelectItem = (cartItemId: string) => {
+    setSelectedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(cartItemId)) {
+        newSet.delete(cartItemId);
+      } else {
+        newSet.add(cartItemId);
+      }
+      return newSet;
+    });
+  };
+
+  // Hàm chọn/bỏ chọn tất cả
+  const handleSelectAll = () => {
+    if (selectedItems.size === cart.cartItems.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(cart.cartItems.map((item: any) => item._id)));
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ textAlign: "center", mb: 4 }}>
@@ -529,6 +570,18 @@ export default function CartPage() {
         {/* Danh sách sản phẩm */}
         <Box sx={{ flex: { md: 2 } }}>
           <Stack spacing={3}>
+            {/* Chọn tất cả */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <Checkbox
+                checked={selectedItems.size === cart.cartItems.length}
+                indeterminate={selectedItems.size > 0 && selectedItems.size < cart.cartItems.length}
+                onChange={handleSelectAll}
+                sx={{ p: 0, mr: 1 }}
+              />
+              <Typography variant="body1" sx={{ fontWeight: 700, color: "black" }}>
+                Chọn tất cả
+              </Typography>
+            </Box>
             {cart.cartItems.map((item) => {
               const cartItem = item as CartItemWithId;
               const isUpdating = updatingItems.has(cartItem._id);
@@ -551,6 +604,14 @@ export default function CartPage() {
                     minHeight: 240,
                   }}
                 >
+                  {/* Checkbox chọn sản phẩm */}
+                  <Box sx={{ position: "absolute", top: 8, left: 8, zIndex: 2 }}>
+                    <Checkbox
+                      checked={selectedItems.has(cartItem._id)}
+                      onChange={() => handleSelectItem(cartItem._id)}
+                      sx={{ p: 0 }}
+                    />
+                  </Box>
                   {isUpdating && (
                     <Box
                       sx={{
@@ -940,7 +1001,7 @@ export default function CartPage() {
             </Typography>
 
             {/* Warning về items chưa hoàn thành */}
-            {hasIncompleteItems && (
+            {hasIncompleteSelectedItems && selectedItems.size > 0 && (
               <Alert 
                 severity="warning" 
                 sx={{ 
@@ -954,11 +1015,11 @@ export default function CartPage() {
                 }}
               >
                 {(() => {
-                  const incompleteCount = cart.cartItems.filter(item => {
+                  const incompleteCount = selectedCartItems.filter(item => {
                     const cartItem = item as CartItemWithId;
                     return !cartItem.size || !cartItem.color;
                   }).length;
-                  return `${incompleteCount} sản phẩm chưa chọn size hoặc màu. Vui lòng hoàn thành trước khi thanh toán.`;
+                  return `${incompleteCount} sản phẩm được chọn chưa chọn size hoặc màu. Vui lòng hoàn thành trước khi thanh toán.`;
                 })()}
               </Alert>
             )}
@@ -1024,7 +1085,7 @@ export default function CartPage() {
 
             <Stack spacing={2} sx={{ mt: 4 }}>
               <Tooltip 
-                title={hasIncompleteItems ? "Vui lòng chọn size và màu cho tất cả sản phẩm trước khi thanh toán" : ""}
+                title={hasIncompleteSelectedItems ? "Vui lòng chọn size và màu cho các sản phẩm được chọn trước khi thanh toán" : ""}
                 placement="top"
               >
                 <span>
@@ -1033,7 +1094,7 @@ export default function CartPage() {
                     fullWidth
                     size="large"
                     onClick={handleCheckout}
-                    disabled={isProcessingPayment || hasIncompleteItems}
+                    disabled={isProcessingPayment || hasIncompleteSelectedItems || selectedItems.size === 0}
                     sx={{
                       ...buttonStyle,
                       bgcolor: "black",
