@@ -78,6 +78,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
   const displayLabels = labels?.filter(l => l !== 'sale') || [];
+  
+
 
   // Kiểm tra xem có phải ảnh trong lib không
   const isLibImage = image.includes('/assets/images/lib/');

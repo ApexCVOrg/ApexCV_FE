@@ -1,9 +1,12 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress } from "@mui/material";
-import Image from "next/image";
+import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress, IconButton } from "@mui/material";
 import ProductCard from "@/components/card";
 import { useCartContext } from '@/context/CartContext';
+import { HeroBanner } from "@/components/banner";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import Link from "next/link";
 
 interface Product {
   _id: string;
@@ -39,36 +42,6 @@ export default function KidsPage() {
 
   // Debug environment variables
   console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
-
-  // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = ['arsenal', 'juventus', 'bayern munich', 'real madrid', 'manchester united'];
-      const categoryNameLower = category.name.toLowerCase();
-      
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
-      
-      // Check parent category with optional chaining
-      const parentCategory = category.parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
-    
-    // Default fallback
-    return 'arsenal';
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -136,6 +109,14 @@ export default function KidsPage() {
     }
   };
 
+  const handleCarouselPrev = () => {
+    setCarouselIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleCarouselNext = () => {
+    setCarouselIndex((prev) => Math.min(prev + 1, Math.ceil(products.length / 4) - 1));
+  };
+
   if (error) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
@@ -147,98 +128,14 @@ export default function KidsPage() {
   return (
     <>
       {/* Hero Banner */}
-      <Box
-        sx={{
-          position: 'relative',
-          width: '100vw',
-          left: '50%',
-          right: '50%',
-          marginLeft: '-50vw',
-          marginRight: '-50vw',
-          minHeight: { xs: '60vh', md: '80vh', lg: '90vh' },
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Image
-          src="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
-          alt="Kids' Football Collection"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-        <Box
-          sx={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6) 100%)',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: { xs: 4, md: 8, lg: 12 },
-          }}
-        >
-          <Typography 
-            variant="h1" 
-            component="h1" 
-            sx={{
-              color: 'white',
-              fontWeight: 'bold',
-              fontSize: { xs: '3rem', md: '5rem', lg: '6.5rem' },
-              lineHeight: 0.9,
-              textShadow: '3px 3px 6px rgba(0,0,0,0.7)',
-              mb: 3,
-              maxWidth: '800px',
-              letterSpacing: '-0.02em'
-            }}
-          >
-            NIDAS KIDS
-          </Typography>
-          <Typography 
-            variant="h3" 
-            component="h2" 
-            sx={{
-              color: 'white',
-              fontWeight: 300,
-              fontSize: { xs: '1.4rem', md: '2rem', lg: '2.5rem' },
-              textShadow: '2px 2px 4px rgba(0,0,0,0.7)',
-              mb: 5,
-              maxWidth: '600px',
-              opacity: 0.95
-            }}
-          >
-            Chính thức và đẳng cấp
-          </Typography>
-          <Button 
-            variant="contained" 
-            size="large"
-            sx={{ 
-              bgcolor: 'white',
-              color: 'black',
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              borderRadius: 0,
-              '&:hover': {
-                bgcolor: 'rgba(255,255,255,0.9)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(0,0,0,0.3)'
-              },
-              transition: 'all 0.3s ease'
-            }}
-          >
-            Khám phá ngay
-          </Button>
-        </Box>
-      </Box>
+      <HeroBanner
+        imageSrc="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
+        imageAlt="ADIDAS SMILEY Banner"
+        title="ADIDAS | SMILEY"
+        subtitle="Share true joy with your smile."
+        ctaText="Shop Now"
+        ctaLink="/shop"
+      />
       <Container maxWidth="xl" disableGutters>
         {/* Categories Section */}
         <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
@@ -268,85 +165,86 @@ export default function KidsPage() {
             </Typography>
             <Box sx={{ 
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
+              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
               gap: { xs: 3, md: 3 },
               mt: 4,
-              maxWidth: '1200px',
+              maxWidth: '800px',
               mx: 'auto'
             }}>
               {[
-                { name: 'Áo đấu', image: '/assets/images/kids/arsenal/Arsenal_Shirt.avif', description: 'Chính thức và đẳng cấp' },
-                { name: 'Tracksuit', image: '/assets/images/kids/arsenal/Arsenal_Tracksuit.png', description: 'Thoải mái vận động' }
+                { name: 'Áo đấu', image: '/assets/images/kids/arsenal/Arsenal_Shirt.avif', description: 'Chính thức và đẳng cấp', href: '/kids/jersey' },
+                { name: 'Tracksuit', image: '/assets/images/kids/arsenal/Arsenal_Tracksuit.png', description: 'Thoải mái vận động', href: '/kids/tracksuit' }
               ].map((category) => (
-                <Card 
-                  key={category.name} 
-                  sx={{ 
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                    maxWidth: '360px',
-                    mx: 'auto',
-                    '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
-                    }
-                  }}
-                >
-                  <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
-                    <CardMedia
-                      component="img"
-                      image={category.image}
-                      alt={category.name}
-                      sx={{
-                        height: { xs: 240, sm: 280, md: 320 },
-                        objectFit: 'cover',
-                        width: '100%',
-                        transition: 'transform 0.4s ease',
-                        filter: 'brightness(0.95)',
-                        '&:hover': {
-                          transform: 'scale(1.05)',
-                          filter: 'brightness(1)'
-                        }
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-                        color: 'white',
-                        p: { xs: 2, md: 3 },
-                        textAlign: 'center'
-                      }}
-                    >
-                      <Typography 
-                        variant="h5" 
-                        sx={{ 
-                          fontWeight: 'bold', 
-                          mb: 1,
-                          fontSize: { xs: '1.5rem', md: '1.75rem' },
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
+                  <Card 
+                    sx={{ 
+                      height: '100%',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      maxWidth: '360px',
+                      mx: 'auto',
+                      '&:hover': {
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
+                      }
+                    }}
+                  >
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+                      <CardMedia
+                        component="img"
+                        image={category.image}
+                        alt={category.name}
+                        sx={{
+                          height: { xs: 240, sm: 280, md: 320 },
+                          objectFit: 'cover',
+                          width: '100%',
+                          transition: 'transform 0.4s ease',
+                          filter: 'brightness(0.95)',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            filter: 'brightness(1)'
+                          }
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                          color: 'white',
+                          p: { xs: 2, md: 3 },
+                          textAlign: 'center'
                         }}
                       >
-                        {category.name}
-                      </Typography>
-                      <Typography 
-                        variant="body1" 
-                        sx={{ 
-                          opacity: 0.95,
-                          fontSize: { xs: '0.9rem', md: '1rem' },
-                          textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                        }}
-                      >
-                        {category.description}
-                      </Typography>
+                        <Typography 
+                          variant="h5" 
+                          sx={{ 
+                            fontWeight: 'bold', 
+                            mb: 1,
+                            fontSize: { xs: '1.5rem', md: '1.75rem' },
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                          }}
+                        >
+                          {category.name}
+                        </Typography>
+                        <Typography 
+                          variant="body1" 
+                          sx={{ 
+                            opacity: 0.95,
+                            fontSize: { xs: '0.9rem', md: '1rem' },
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                          }}
+                        >
+                          {category.description}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </Card>
+                  </Card>
+                </Link>
               ))}
             </Box>
           </Container>
@@ -454,54 +352,86 @@ export default function KidsPage() {
             )}
             {!loading && !error && products.length > 0 && (
               <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+                {/* Left Navigation Button */}
+                <IconButton
+                  onClick={handleCarouselPrev}
+                  disabled={carouselIndex === 0}
+                  sx={{
+                    position: 'absolute',
+                    left: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    bgcolor: 'rgba(255,255,255,0.9)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+                    '&:hover': { bgcolor: 'white' },
+                    '&.Mui-disabled': { opacity: 0 }
+                  }}
+                >
+                  <ArrowBackIosIcon />
+                </IconButton>
+
+                {/* Right Navigation Button */}
+                <IconButton
+                  onClick={handleCarouselNext}
+                  disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
+                  sx={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                    bgcolor: 'rgba(255,255,255,0.9)',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+                    '&:hover': { bgcolor: 'white' },
+                    '&.Mui-disabled': { opacity: 0 }
+                  }}
+                >
+                  <ArrowForwardIosIcon />
+                </IconButton>
+
                 <Box
                   ref={carouselRef}
                   sx={{
                     display: 'flex',
                     gap: { xs: 2, sm: 3, md: 4 },
                     transition: 'transform 0.5s ease-in-out',
-                    transform: `translateX(-${carouselIndex * (100 / 4)}%)`,
-                    width: `${Math.max(products.length, 4) * 25}%`
+                    transform: `translateX(-${carouselIndex * 280 * 4}px)`,
+                    width: `${Math.max(products.length, 4) * 280}px`,
                   }}
                 >
                   {products.map((product) => (
-                    <Box 
+                    <Box
                       key={product._id}
                       sx={{
-                        minWidth: { xs: '240px', sm: '260px', md: '280px' },
-                        maxWidth: { xs: '260px', sm: '280px', md: '300px' },
+                        minWidth: 280,
+                        maxWidth: 280,
                         flex: '0 0 auto',
                         display: 'flex',
                         justifyContent: 'center',
                         '&:hover': {
                           transform: 'translateY(-8px)',
                           transition: 'all 0.3s ease',
-                          zIndex: 1
-                        }
+                          zIndex: 1,
+                        },
                       }}
                     >
-                      <Box sx={{ 
-                        width: '100%',
-                        maxWidth: 280,
-                        margin: '0 auto'
-                      }}>
-                        <ProductCard
-                          _id={product._id}
-                          productId={product._id}
-                          name={product.name || 'Unnamed Product'}
-                          image={
-                            product.images?.[0] 
-                              ? `/assets/images/kids/${getTeamNameFromProduct(product)}/${product.images[0]}` 
-                              : '/assets/images/placeholder.jpg'
-                          }
-                          price={product.price || 0}
-                          discountPrice={product.discountPrice}
-                          tags={product.tags || []}
-                          brand={product.brand || { _id: '', name: 'Unknown Brand' }}
-                          categories={product.categories || []}
-                          onAddToCart={() => handleAddToCart(product)}
-                        />
-                      </Box>
+                      <ProductCard
+                        _id={product._id}
+                        productId={product._id}
+                        name={product.name || 'Unnamed Product'}
+                        image={
+                          product.images?.[0]
+                            ? `/assets/images/kids/${product.categories?.[1]?.name.toLowerCase()}/${product.images[0]}`
+                            : '/assets/images/placeholder.jpg'
+                        }
+                        price={product.price || 0}
+                        discountPrice={product.discountPrice}
+                        tags={product.tags || []}
+                        brand={product.brand || { _id: '', name: 'Unknown Brand' }}
+                        categories={product.categories || []}
+                        onAddToCart={() => handleAddToCart(product)}
+                      />
                     </Box>
                   ))}
                 </Box>
@@ -513,19 +443,19 @@ export default function KidsPage() {
                   gap: 2, 
                   mt: 4 
                 }}>
-                  {Array.from({ length: 5 }).map((_, index) => (
+                  {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
                     <Box
                       key={index}
-                      onClick={() => setCarouselIndex(Math.min(index * Math.floor((products.length - 4) / 4), products.length - 4))}
+                      onClick={() => setCarouselIndex(index)}
                       sx={{
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: Math.floor(carouselIndex / Math.floor((products.length - 4) / 4)) === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
                           transform: 'scale(1.2)'
                         }
                       }}

@@ -44,6 +44,7 @@ import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
 import HistoryIcon from '@mui/icons-material/History';
+import HeaderMenuShoes from './HeaderMenuShoes';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -83,9 +84,13 @@ const Header = () => {
   const [mounted, setMounted] = useState(false);
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
+  // Thêm state cho mega menu shoes
+  const [anchorElShoes, setAnchorElShoes] = useState<null | HTMLElement>(null);
+  const openShoesMenu = Boolean(anchorElShoes);
+  const [showShoesMenu, setShowShoesMenu] = useState(false);
+  const [hideHeader, setHideHeader] = useState(false);
   const [scrollY, setScrollY] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [hideHeader, setHideHeader] = useState(false);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -198,48 +203,48 @@ const Header = () => {
 
   const NAV_LINKS = [
     {
+      title: tHeader('shoes.title'),
+      href: ROUTES.SHOES.ROOT,
+      submenu: [
+        { title: tHeader('shoes.samba'), href: ROUTES.SHOES.SAMBA },
+        { title: tHeader('shoes.gazelle'), href: ROUTES.SHOES.GAZELLE },
+        { title: tHeader('shoes.sl72'), href: ROUTES.SHOES.SL_72 },
+        { title: tHeader('shoes.superstar'), href: ROUTES.SHOES.SUPERSTAR },
+        { title: tHeader('shoes.spezial'), href: ROUTES.SHOES.SPEZIAL },
+        { title: tHeader('shoes.adizero'), href: ROUTES.SHOES.ADIZERO },
+        { title: tHeader('shoes.air_force'), href: ROUTES.SHOES.AIR_FORCE },
+        { title: tHeader('shoes.air_max'), href: ROUTES.SHOES.AIR_MAX },
+      ]
+    },
+    {
       title: tHeader('men.title'),
       href: ROUTES.MEN.ROOT,
       submenu: [
-        { title: tHeader('men.thun_polo'), href: ROUTES.MEN.THUN_POLO },
         { title: tHeader('men.jersey'), href: ROUTES.MEN.JERSEY },
         { title: tHeader('men.hoodie'), href: ROUTES.MEN.HOODIE },
-        { title: tHeader('men.sportset'), href: ROUTES.MEN.SPORTSET },
-        { title: tHeader('men.trousers'), href: ROUTES.MEN.TROUSERS },
-        { title: tHeader('men.tight_pants'), href: ROUTES.MEN.TIGHT_PANTS },
         { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
-        { title: tHeader('men.sportswear'), href: ROUTES.MEN.SPORTSWEAR },
         { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
-        { title: tHeader('men.basic'), href: ROUTES.MEN.BASIC },
-        { title: tHeader('men.tracksuits'), href: ROUTES.MEN.TRACKSUITS }
+        { title: tHeader('men.team_sneaker'), href: ROUTES.MEN.TEAM_SNEAKER },
       ]
     },
     {
       title: tHeader('women.title'),
       href: ROUTES.WOMEN.ROOT,
       submenu: [
-        { title: tHeader('women.thun_croptop'), href: ROUTES.WOMEN.THUN_CROPTOP },
-        { title: tHeader('women.sweatshirt'), href: ROUTES.WOMEN.SWEATSHIRT },
-        { title: tHeader('women.sports_bra'), href: ROUTES.WOMEN.SPORTS_BRA },
         { title: tHeader('women.jersey'), href: ROUTES.WOMEN.JERSEY },
         { title: tHeader('women.hoodie'), href: ROUTES.WOMEN.HOODIE },
         { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
-        { title: tHeader('women.trousers'), href: ROUTES.WOMEN.TROUSERS },
         { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
-        { title: tHeader('women.leggings'), href: ROUTES.WOMEN.LEGGINGS },
-        { title: tHeader('women.dress'), href: ROUTES.WOMEN.DRESS },
-        { title: tHeader('women.skirt'), href: ROUTES.WOMEN.SKIRT },
-        { title: tHeader('women.sportswear'), href: ROUTES.WOMEN.SPORTSWEAR },
-        { title: tHeader('women.basic'), href: ROUTES.WOMEN.BASIC },
-        { title: tHeader('women.tracksuits'), href: ROUTES.WOMEN.TRACKSUITS }
+        { title: tHeader('women.team_sneaker'), href: ROUTES.WOMEN.TEAM_SNEAKER },
       ]
     },
     {
       title: tHeader('kids.title'),
       href: ROUTES.KIDS.ROOT,
       submenu: [
-        { title: tHeader('kids.clothes_boys'), href: ROUTES.KIDS.CLOTHES_BOYS },
-        { title: tHeader('kids.clothes_girls'), href: ROUTES.KIDS.CLOTHES_GIRLS }
+        { title: tHeader('kids.jersey'), href: ROUTES.KIDS.JERSEY },
+        { title: tHeader('kids.tracksuits'), href: ROUTES.KIDS.TRACKSUITS },
+        { title: tHeader('kids.smiley'), href: ROUTES.KIDS.SMILEY },
       ]
     },
     {
@@ -433,147 +438,173 @@ const Header = () => {
               }}
             >
               <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', minWidth: 0 }}>
-                {NAV_LINKS.map(({ title, href, submenu }, i) => (
-                  <Box 
-                    key={title} 
-                    sx={{ 
-                      position: 'relative',
-                      '&:hover': {
-                        '& .MuiPopover-root': {
-                          pointerEvents: 'auto',
-                        }
-                      }
-                    }}
-                    onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
-                  >
-                    <Button
-                      color="inherit"
-                      onClick={() => handleMenuClick(i, href as string)}
-                      sx={{
-                        fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
-                        fontSize: '1rem',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        position: 'relative',
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '3px',
-                          backgroundColor: 'black',
-                          transform: 'scaleX(0)',
-                          transition: 'transform 0.3s ease',
-                          transformOrigin: 'bottom',
-                        },
-                        '&:hover': {
-                          backgroundColor: 'transparent',
-                          '&::after': {
-                            transform: 'scaleX(1)',
-                          },
-                        },
-                      }}
+                {NAV_LINKS.map(({ title, href, submenu }, i) => {
+                  return i === 0 ? (
+                    <Box
+                      key={title}
+                      sx={{ position: 'relative', display: 'inline-block' }}
+                      onMouseEnter={() => setShowShoesMenu(true)}
+                      onMouseLeave={() => setShowShoesMenu(false)}
                     >
-                      {title}
-                    </Button>
-
-                    {submenu && (
-                      <Popover
-                        open={openMenuIndex === i}
-                        anchorEl={anchorElMenu}
-                        onClose={handleMenuClose}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'left',
-                        }}
-                        PaperProps={{
-                          sx: {
-                            left: 0,
-                            right: 0,
-                            width: 'auto',
-                            maxWidth: 1200,
-                            maxHeight: 400,
-                            overflowY: 'auto',
-                            borderRadius: 0,
-                            boxShadow: 2,
-                            px: 0,
-                            mt: 0,
-                          }
-                        }}
+                      <Button
+                        color="inherit"
+                        onClick={() => handleMenuClick(i, href as string)}
                         sx={{
-                          pointerEvents: 'none',
-                          '& .MuiPopover-paper': {
-                            pointerEvents: 'auto',
-                          },
-                        }}
-                        slotProps={{
-                          paper: {
-                            onMouseEnter: () => setAnchorElMenu(anchorElMenu),
-                            onMouseLeave: handleMenuClose,
+                          fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                          fontSize: '1rem',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
                           }
                         }}
                       >
-                        {href === ROUTES.OUTLET.ROOT ? (
-                          <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
-                            {(submenu as OutletSubmenu).map((group) =>
-                              'children' in group ? (
-                                <Box key={group.title}>
-                                  <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
-                                  {group.children.map((item) => (
+                        {title}
+                      </Button>
+                      {showShoesMenu && (
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            left: 0,
+                            top: '100%',
+                            zIndex: 2000,
+                            mt: 0,
+                          }}
+                        >
+                          <HeaderMenuShoes />
+                        </Box>
+                      )}
+                    </Box>
+                  ) : (
+                    <Box 
+                      key={title} 
+                      sx={{ 
+                        position: 'relative',
+                        '&:hover': {
+                          '& .MuiPopover-root': {
+                            pointerEvents: 'auto',
+                          }
+                        }
+                      }}
+                      onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                      onMouseLeave={handleMenuClose}
+                    >
+                      <Button
+                        color="inherit"
+                        onClick={() => handleMenuClick(i, href as string)}
+                        sx={{
+                          fontWeight: pathname.startsWith(href as string) ? 'bold' : 'normal',
+                          fontSize: '1rem',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                          position: 'relative',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            bottom: 0,
+                          }
+                        }}
+                      >
+                        {title}
+                      </Button>
+                      {submenu && (
+                        <Popover
+                          open={openMenuIndex === i}
+                          anchorEl={anchorElMenu}
+                          onClose={handleMenuClose}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left',
+                          }}
+                          PaperProps={{
+                            sx: {
+                              left: 0,
+                              right: 0,
+                              width: '100vw',
+                              maxWidth: 'none',
+                              borderRadius: 0,
+                              boxShadow: 2,
+                              px: 0,
+                              mt: 0,
+                            }
+                          }}
+                          sx={{
+                            pointerEvents: 'none',
+                            '& .MuiPopover-paper': {
+                              pointerEvents: 'auto',
+                            },
+                          }}
+                          slotProps={{
+                            paper: {
+                              onMouseEnter: () => setAnchorElMenu(anchorElMenu),
+                              onMouseLeave: handleMenuClose,
+                            }
+                          }}
+                        >
+                          {href === ROUTES.OUTLET.ROOT ? (
+                            <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
+                              {(submenu as OutletSubmenu).map((group) =>
+                                'children' in group ? (
+                                  <Box key={group.title}>
+                                    <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
+                                    {group.children.map((item) => (
+                                      <MenuItem
+                                        key={item.title}
+                                        component={Link}
+                                        href={item.href}
+                                        onClick={handleMenuClose}
+                                        sx={{ minWidth: 180 }}
+                                      >
+                                        {item.title}
+                                      </MenuItem>
+                                    ))}
+                                  </Box>
+                                ) : (
+                                  <Box key={group.title}>
                                     <MenuItem
-                                      key={item.title}
                                       component={Link}
-                                      href={item.href}
+                                      href={group.href}
                                       onClick={handleMenuClose}
                                       sx={{ minWidth: 180 }}
                                     >
-                                      {item.title}
+                                      {group.title}
                                     </MenuItem>
-                                  ))}
-                                </Box>
-                              ) : (
-                                <Box key={group.title}>
+                                  </Box>
+                                )
+                              )}
+                            </Box>
+                          ) : (
+                            <Box sx={{ p: 1 }}>
+                              {submenu
+                                .filter((item): item is OutletSubmenuItem => 'href' in item)
+                                .map((item) => (
                                   <MenuItem
+                                    key={item.title}
                                     component={Link}
-                                    href={group.href}
+                                    href={item.href}
                                     onClick={handleMenuClose}
-                                    sx={{ minWidth: 180 }}
+                                    sx={{
+                                      textTransform: 'capitalize',
+                                      minWidth: 200,
+                                    }}
                                   >
-                                    {group.title}
+                                    {item.title}
                                   </MenuItem>
-                                </Box>
-                              )
-                            )}
-                          </Box>
-                        ) : (
-                          <Box sx={{ p: 1 }}>
-                            {submenu
-                              .filter((item): item is OutletSubmenuItem => 'href' in item)
-                              .map((item) => (
-                                <MenuItem
-                                  key={item.title}
-                                  component={Link}
-                                  href={item.href}
-                                  onClick={handleMenuClose}
-                                  sx={{
-                                    textTransform: 'capitalize',
-                                    minWidth: 200,
-                                  }}
-                                >
-                                  {item.title}
-                                </MenuItem>
-                              ))}
-                          </Box>
-                        )}
-                      </Popover>
-                    )}
-                  </Box>
-                ))}
+                                ))}
+                            </Box>
+                          )}
+                        </Popover>
+                      )}
+                    </Box>
+                  );
+                })}
               </Stack>
             </Box>
           )}

@@ -70,6 +70,8 @@ export default function CartPage() {
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
+  const [voucherError, setVoucherError] = useState<{ [cartItemId: string]: string}>({});
+  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string}>({});
   const { isAuthenticated, getCurrentUser } = useAuth();
 
   // Common styles matching login form
@@ -501,6 +503,7 @@ export default function CartPage() {
         }));
         if (data.freeShipping) setIsFreeShipping(true);
         else setIsFreeShipping(false);
+        setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
         setCouponError(data.message || "Coupon không hợp lệ");
         console.log('Coupon error details:', data);
@@ -823,6 +826,16 @@ export default function CartPage() {
                                 if (appliedCoupon.code === 'FREESHIP') setIsFreeShipping(false);
                                 delete newV[cartItem._id];
                                 return newV;
+                              });
+                              setVoucherError(prev => {
+                                const newErr = { ...prev };
+                                delete newErr[cartItem._id];
+                                return newErr;
+                              });
+                              setVoucherInputs(prev => {
+                                const newInputs = { ...prev };
+                                delete newInputs[cartItem._id];
+                                return newInputs;
                               });
                             }}
                           />

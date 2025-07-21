@@ -120,6 +120,7 @@ export default function OutletPage() {
             {Array.isArray(products) && products.map((product) => (
               <Box key={product._id} className="product-card">
                 <ProductCard
+                  _id={product._id}
                   productId={product._id}
                   name={product.name}
                   image={product.images[0]}
