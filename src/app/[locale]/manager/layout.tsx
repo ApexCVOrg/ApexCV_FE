@@ -40,7 +40,8 @@ import HomeIcon from "@mui/icons-material/Home";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-
+import ChatIcon from "@mui/icons-material/Chat";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = typeof LANGUAGES[number];
@@ -74,8 +75,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
         setLanguage(getCurrentLanguage());
     }, [pathname, getCurrentLanguage]);
 
+    useEffect(() => {
+        const handleOpenSidebar = () => setMobileOpen(true);
+        window.addEventListener('open-manager-sidebar', handleOpenSidebar);
+        return () => window.removeEventListener('open-manager-sidebar', handleOpenSidebar);
+    }, []);
+
     const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
+        setMobileOpen((prev) => {
+            if (prev) {
+                window.dispatchEvent(new CustomEvent('close-manager-sidebar'));
+            }
+            return !prev;
+        });
     };
 
     const handleSidebarToggle = () => {
@@ -121,6 +133,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         { icon: <CategoryIcon />, text: t("categories"), href: ROUTES.MANAGER.CATEGORIES },
         { icon: <LocalShippingIcon />, text: t("orders"), href: ROUTES.MANAGER.ORDERS },
         { icon: <PeopleIcon />, text: t("customers"), href: ROUTES.MANAGER.CUSTOMERS },
+        { icon: <ChatIcon />, text: t("chat"), href: ROUTES.MANAGER.CHAT },
         { icon: <SettingsIcon />, text: t("settings"), href: ROUTES.MANAGER.SETTINGS },
     ];
 
@@ -247,6 +260,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 >
                     <Toolbar sx={{ px: { xs: 2, sm: 3 }, minHeight: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {/* Nút back chỉ hiện ở trang messages */}
+                            {pathname?.includes('/manager/messages') && (
+                                <IconButton onClick={() => router.back()} sx={{ mr: 1 }}>
+                                    <ArrowBackIcon />
+                                </IconButton>
+                            )}
                             <IconButton
                                 color="inherit"
                                 aria-label="open drawer"

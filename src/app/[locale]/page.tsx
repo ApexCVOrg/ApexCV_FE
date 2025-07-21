@@ -17,19 +17,22 @@ import {
   Tab,
   IconButton,
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
+import SearchIcon from '@mui/icons-material/Search';
+import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
+import { motion, AnimatePresence } from 'framer-motion';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import TabCarousel from '@/components/TabCarousel';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 
@@ -131,6 +134,8 @@ export default function HomePage() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDetailSidebarOpen, setIsProductDetailSidebarOpen] = useState(false);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
   useAuth();
@@ -139,7 +144,9 @@ export default function HomePage() {
   // State for pagination (load more)
   const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
   const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
@@ -203,41 +210,97 @@ export default function HomePage() {
     fetchInitialData();
   }, []);
 
-  // Fetch products for the active tab and current filters
-  const fetchProducts = useCallback(async (tabKey: string) => {
+  // Fetch filtered products (for main grid)
+  const fetchFilteredProducts = useCallback(async () => {
     setLoading(true);
+    try {
+      const queryParams = new URLSearchParams({
+        minPrice: priceRange[0].toString(),
+        maxPrice: priceRange[1].toString(),
+        ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+        ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+        ...(searchQuery ? { search: searchQuery } : {}),
+      });
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const result = await response.json();
+      let filtered = result.data || [];
+      
+      // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        filtered = filtered.filter((product: Product) => {
+          const nameMatch = product.name?.toLowerCase().includes(q);
+          const catMatch = (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
+            cat.name?.toLowerCase().includes(q) ||
+            cat.parentCategory?.name?.toLowerCase().includes(q)
+          );
+          return nameMatch || catMatch;
+        });
+      }
+      
+      // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
+      filtered = (Array.isArray(filtered) ? filtered : []).filter((product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]);
+      // Lọc theo category (nếu có chọn)
+      if (selectedCategories.length > 0) {
+        filtered = filtered.filter((product: Product) =>
+          (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) => selectedCategories.includes(cat._id))
+        );
+      }
+      
+      // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
+      const libFileNames = [
+        'nike-span-2.png', 'nike-air-force-1-high.png', 'nike-air-force.png',
+        'air-max-90.png', 'air-max-excee-.png', 'air-max-270.png'
+      ];
+      const isLib = (product: Product) => {
+        const img = product.images?.[0] || '';
+        const fileName = img.split('/').pop();
+        return libFileNames.includes(fileName || '');
+      };
+      const libFiltered = filtered.filter((p: Product) => isLib(p));
+      setLibProducts(libFiltered);
+      setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
+      setProducts(prev => ({ ...prev, filtered }));
+    } catch (error) {
+      setLibProducts([]);
+      setOtherProducts([]);
+      setProducts(prev => ({ ...prev, filtered: [] }));
+      console.error('Error fetching filtered products:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
+
+  // Fetch products for tabs (independent of filters)
+  const fetchTabProducts = useCallback(async (tabKey: string) => {
+    console.log('Fetching products for tab:', tabKey);
     try {
       let filtered: Product[] = [];
       if (tabKey === 'topSelling') {
         // Top Selling: gọi API public, không cần token
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`);
         const result = await response.json();
-        console.log('Top Selling API response:', response, result);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
           _id: item._id,
           name: item.name,
-          images: [item.image],
+          images: [item.image || ''],
           price: item.totalRevenue || 0,
           discountPrice: undefined,
           tags: [],
           label: '',
           brand: { _id: '', name: '' },
           categories: [{ _id: '', name: item.category || 'Uncategorized' }],
+          orderCount: item.totalQuantity || 0,
         }));
       } else {
-        // Các tab còn lại lấy từ API products (có thể filter theo category, price, brand)
-        const queryParams = new URLSearchParams({
-          minPrice: priceRange[0].toString(),
-          maxPrice: priceRange[1].toString(),
-          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
-          ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
-          ...(tabKey === 'filtered' && searchQuery ? { search: searchQuery } : {}),
-        });
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+        // Các tab còn lại lấy từ API products (không filter theo category, price, brand)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
         if (!response.ok) throw new Error('Failed to fetch products');
         const result = await response.json();
         filtered = result.data || [];
+        
         if (tabKey === 'newArrivals') {
           filtered = filtered.filter((product: Product) => {
             const labels = Array.isArray(product.label) ? product.label : [product.label];
@@ -259,19 +322,6 @@ export default function HomePage() {
               return labels?.some((l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new');
             })
             .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
-        } else if (tabKey === 'filtered') {
-          // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
-          if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            filtered = filtered.filter((product: Product) => {
-              const nameMatch = product.name?.toLowerCase().includes(q);
-              const catMatch = (product.categories || []).some((cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
-                cat.name?.toLowerCase().includes(q) ||
-                cat.parentCategory?.name?.toLowerCase().includes(q)
-              );
-              return nameMatch || catMatch;
-            });
-          }
         }
       }
       // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
@@ -295,39 +345,50 @@ export default function HomePage() {
         setLibProducts(filtered.filter(isLib));
         setOtherProducts(filtered.filter(p => !isLib(p)));
       }
+      console.log(`Products for ${tabKey}:`, filtered.length, filtered);
       setProducts(prev => ({ ...prev, [tabKey]: filtered }));
     } catch (error) {
+      console.error('Error fetching products for tab:', tabKey, error);
       setProducts(prev => ({ ...prev, [tabKey]: [] }));
       setLibProducts([]);
       setOtherProducts([]);
-      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
-  }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
+  }, []);
 
   // Reset visibleCount khi filter/search thay đổi
   useEffect(() => {
     setVisibleCount(6);
   }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
 
-  // Reset visible count khi đổi tab hoặc filter
+  // Reset visible count khi đổi tab
   useEffect(() => {
     setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: 5 }));
-    setTabStartIndex(prev => ({ ...prev, [TABS[tab].key]: 0 }));
-  }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery]);
+    // Chỉ reset startIndex nếu có nhiều hơn 3 sản phẩm
+    const key = TABS[tab].key;
+    const tabProducts = products[key] || [];
+    if (tabProducts.length > 3) {
+      setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
+    }
+  }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery, products]);
 
-  // Fetch products when tab or filters change
+  // Fetch filtered products when filters change
   useEffect(() => {
-    // Luôn fetch sản phẩm filter riêng
-    fetchProducts('filtered');
-  }, [priceRange, selectedCategories, selectedBrands, searchQuery, fetchProducts]);
+    fetchFilteredProducts();
+  }, [fetchFilteredProducts]);
+
+  // Fetch initial data (chỉ chạy 1 lần khi component mount)
+  useEffect(() => {
+    fetchFilteredProducts();
+    fetchTabProducts(TABS[tab].key);
+  }, []); // Empty dependency array
 
   // Fetch tabbed products khi đổi tab
   useEffect(() => {
     const tabKey = TABS[tab].key;
-    fetchProducts(tabKey);
-  }, [tab, fetchProducts]);
+    fetchTabProducts(tabKey);
+  }, [tab, fetchTabProducts]);
 
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
@@ -341,6 +402,18 @@ export default function HomePage() {
     setSelectedBrands(prev =>
       event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId)
     );
+  };
+
+  const handleProductCardClick = (productId: string, product?: Product) => {
+    setSelectedProductId(productId);
+    setSelectedProduct(product || null);
+    setIsProductDetailSidebarOpen(true);
+  };
+
+  const handleCloseProductDetailSidebar = () => {
+    setIsProductDetailSidebarOpen(false);
+    setSelectedProductId(null);
+    setSelectedProduct(null);
   };
 
   return (
@@ -382,7 +455,6 @@ export default function HomePage() {
             >
               NIKE
             </Typography>
-
             {/* Just Do It ở góc dưới phải */}
             <Typography
               variant="h1"
@@ -399,7 +471,6 @@ export default function HomePage() {
             >
               Just Do It
             </Typography>
-
             {/* Logo swoosh ở giữa */}
             <Box
               sx={{
@@ -450,15 +521,12 @@ export default function HomePage() {
                 mb: rowIdx === 0 ? 6 : 2, // tăng khoảng cách giữa 2 hàng
               }}
             >
-              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
-                const { gender, team } = guessGenderAndTeam(product);
-                let imgSrc = '/assets/images/placeholder.jpg';
-                if (product.images && product.images[0]) {
-                  imgSrc = getImageSrc(product.images[0], gender, team);
-                }
-                return (
-                  <ProductCard
-                    key={product._id}
+                                {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product) => {
+                    // Luôn lấy đúng ảnh lib
+                    const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
+                    return (
+                      <ProductCard
+                        key={`lib-${product._id}-${rowIdx}`}
                     productId={product._id}
                     name={product.name}
                     image={imgSrc}
@@ -474,6 +542,7 @@ export default function HomePage() {
                     onAddToCart={() => console.log('Add to cart:', product._id)}
                     backgroundColor="#f8f9fa"
                     colors={3}
+                    onViewDetail={() => handleProductCardClick(product._id, product)}
                   />
                 );
               })}
@@ -482,16 +551,17 @@ export default function HomePage() {
         </Box>
       )}
       {/* PHẦN CÒN LẠI GIỮ NGUYÊN */}
-      <Box 
-        sx={{ 
-          width: '100%',
-          px: 0,
-          py: { xs: 2, md: 4 },
-          position: 'relative',
-          zIndex: 1,
-          marginRight: { md: '380px' }, // Để chừa chỗ cho sidebar bên phải
-        }}
-      >
+              <Box 
+          sx={{ 
+            width: '100%',
+            px: 0,
+            py: { xs: 2, md: 4 },
+            position: 'relative',
+            zIndex: 1,
+            marginRight: { md: isProductDetailSidebarOpen ? '400px' : '0px' }, // Để chừa chỗ cho sidebar bên phải
+            transition: 'margin-right 0.3s ease',
+          }}
+        >
         <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
           {/* Hero Section, Discover... */}
           <motion.div
@@ -740,9 +810,8 @@ export default function HomePage() {
                   sx={{
                     display: 'grid',
                     gridTemplateColumns: {
-                      xs: '1fr',
-                      sm: '1fr 1fr',
-                      md: '1fr 1fr 1fr 1fr',
+                      xs: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
                     },
                     gap: 3,
                     p: 2,
@@ -761,7 +830,7 @@ export default function HomePage() {
                     }
                     return (
                       <motion.div
-                        key={product._id}
+                        key={`other-${product._id}-${idx}`}
                         initial={{ opacity: 0, y: 40 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: idx * 0.07 }}
@@ -780,30 +849,11 @@ export default function HomePage() {
                           labels={product.label ? [product.label as string] : []}
                           allCategories={categories}
                           allBrands={brands}
-                          onAddToCart={async () => {
-                            await addToCart({
-                              productId: product._id,
-                              quantity: 1,
-                              // size, color nếu có
-                            });
-                            setSnackbarOpen(true);
-                          }}
+                          onAddToCart={() => console.log('Add to cart:', product._id)}
                           backgroundColor="#f8f9fa"
                           colors={3}
-                          addToCartButtonProps={{
-                            variant: 'contained',
-                            sx: {
-                              borderRadius: 0,
-                              fontWeight: 700,
-                              bgcolor: 'black',
-                              color: 'white',
-                              py: 1.5,
-                              textTransform: 'uppercase',
-                              '&:hover': { bgcolor: 'gray.800' },
-                            },
-                            startIcon: <ShoppingCartIcon />,
-                          }}
                           sx={{ height: '100%' }}
+                          onViewDetail={() => handleProductCardClick(product._id, product)}
                         />
                       </motion.div>
                     );
@@ -883,135 +933,13 @@ export default function HomePage() {
                   ))}
                 </Tabs>
               </Box>
-              {/* Tabbed Products Row (each tab = 1 row, horizontal scroll) */}
-              <Box sx={{ position: 'relative', width: '100%', mb: 4, display: 'flex', alignItems: 'center' }}>
-                <IconButton
-                  sx={{ position: 'absolute', left: -40, zIndex: 2, bgcolor: '#fff', boxShadow: 1, '&:hover': { bgcolor: '#f5f5f5' } }}
-                  onClick={() => {
-                    const key = TABS[tab].key;
-                    setTabSlideDirection('left');
-                    setTabStartIndex(prev => {
-                      const current = prev[key] || 0;
-                      return { ...prev, [key]: Math.max(0, current - 3) };
-                    });
-                  }}
-                  disabled={(tabStartIndex[TABS[tab].key] || 0) === 0}
-                >
-                  <ArrowBackIosNewIcon />
-                </IconButton>
-                <Box
-                  id="tabbed-product-row"
-                  className="tabbed-product-row"
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    overflowX: 'hidden',
-                    overflowY: 'hidden',
-                    alignItems: 'stretch',
-                    gap: 1,
-                    py: 2,
-                    width: '100%',
-                    maxWidth: 1400,
-                    mx: 'auto',
-                    scrollBehavior: 'smooth',
-                    px: 0,
-                    pb: 4,
-                    '@media screen and (width: 1440px) and (height: 1920px)': {
-                      gap: '2rem',
-                      padding: '2rem 0',
-                      maxWidth: 1600,
-                    }
-                  }}
-                >
-                  {(() => {
-                    const key = TABS[tab].key;
-                    const start = tabStartIndex[key] || 0;
-                    const tabProducts = products[key] || [];
-                    const visible = tabProducts.slice(start, start + 3);
-                    if (visible.length > 0) {
-                      return (
-                        <AnimatePresence initial={false} custom={tabSlideDirection}>
-                          {visible.map((product) => {
-                            const { gender, team } = guessGenderAndTeam(product);
-                            let imgSrc = '/assets/images/placeholder.jpg';
-                            if (product.images && product.images[0]) {
-                              imgSrc = getImageSrc(product.images[0], gender, team);
-                            }
-                            return (
-                              <motion.div
-                                key={product._id}
-                                initial={tabSlideDirection === 'right'
-                                  ? { x: 100, opacity: 0 }
-                                  : { x: -100, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={tabSlideDirection === 'right'
-                                  ? { x: -100, opacity: 0 }
-                                  : { x: 100, opacity: 0 }}
-                                transition={{ duration: 0.4, ease: 'easeInOut' }}
-                                style={{ minWidth: 320, flex: '0 0 auto' }}
-                              >
-                                <ProductCard
-                                  productId={product._id}
-                                  name={product.name}
-                                  image={imgSrc}
-                                  price={product.price}
-                                  discountPrice={product.discountPrice}
-                                  tags={product.tags}
-                                  brand={product.brand}
-                                  categories={product.categories}
-                                  // @ts-expect-error: Product label may be string, not ProductLabel
-                                  labels={product.label ? [product.label as string] : []}
-                                  allCategories={categories}
-                                  allBrands={brands}
-                                  onAddToCart={() => console.log('Add to cart:', product._id)}
-                                  backgroundColor="#f8f9fa"
-                                  colors={3}
-                                />
-                              </motion.div>
-                            );
-                          })}
-                        </AnimatePresence>
-                      );
-                    } else {
-                      return (
-                        <Box sx={{ textAlign: 'center', py: 4, minWidth: 10000 }}>
-                          <Typography 
-                            variant="h6" 
-                            color="text.secondary"
-                            sx={{
-                              '@media screen and (width: 1440px) and (height: 1920px)': {
-                                fontSize: '1.5rem',
-                              }
-                            }}
-                          >
-                            No products found in this tab.
-                          </Typography>
-                        </Box>
-                      );
-                    }
-                  })()}
-                </Box>
-                <IconButton
-                  sx={{ position: 'absolute', right: -40, zIndex: 2, bgcolor: '#fff', boxShadow: 1, '&:hover': { bgcolor: '#f5f5f5' } }}
-                  onClick={() => {
-                    const key = TABS[tab].key;
-                    setTabSlideDirection('right');
-                    setTabStartIndex(prev => {
-                      const current = prev[key] || 0;
-                      const tabProducts = products[key] || [];
-                      return { ...prev, [key]: Math.min(current + 3, Math.max(0, tabProducts.length - 3)) };
-                    });
-                  }}
-                  disabled={(() => {
-                    const key = TABS[tab].key;
-                    const current = tabStartIndex[key] || 0;
-                    const tabProducts = products[key] || [];
-                    return current + 3 >= tabProducts.length;
-                  })()}
-                >
-                  <ArrowForwardIosIcon />
-                </IconButton>
+              
+              {/* TabCarousel Component */}
+              <Box sx={{ mt: 4 }}>
+                <TabCarousel 
+                  products={products[TABS[tab].key] || []}
+                  onProductClick={handleProductCardClick}
+                />
               </Box>
             </motion.div>
           </Box>
@@ -1027,6 +955,31 @@ export default function HomePage() {
           Product added to cart!
         </Box>
       </Snackbar>
+
+      {/* Product Detail Sidebar */}
+      <ProductDetailSidebar
+        productId={selectedProductId}
+        product={selectedProduct}
+        isOpen={isProductDetailSidebarOpen}
+        onClose={handleCloseProductDetailSidebar}
+      />
+
+      {/* Overlay for Product Detail Sidebar */}
+      {isProductDetailSidebarOpen && (
+        <Box
+          onClick={handleCloseProductDetailSidebar}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.3)',
+            zIndex: 1200,
+            cursor: 'pointer',
+          }}
+        />
+      )}
     </>
   );
 }

@@ -69,6 +69,7 @@ const Header = () => {
   const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const { cartItemCount } = useCartContext();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
@@ -91,10 +92,36 @@ const Header = () => {
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
+
+  // --- NEW HEADER SHOW/HIDE LOGIC ---
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentY = window.scrollY;
+          setScrollY(currentY);
+          if (currentY < bannerHeight) {
+            setHideHeader(false); // Always show header above banner
+          } else {
+            if (currentY > lastY) {
+              setHideHeader(true); // Scrolling down, hide
+            } else if (currentY < lastY) {
+              setHideHeader(false); // Scrolling up, show
+            }
+          }
+          lastY = currentY;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [bannerHeight]);
 
   const getCurrentLanguage = useCallback((): Language => {
     const pathParts = pathname?.split('/') || [];
@@ -113,6 +140,10 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    // Check authentication status
+    const authStatus = isAuthenticated();
+    setIsUserAuthenticated(authStatus);
+    
     const user = getCurrentUser() as User | null;
     if (user) {
       setUserRole(user.role);
@@ -139,7 +170,7 @@ const Header = () => {
         setUserRole(null);
       }
     }
-  }, [pathname, getCurrentUser]);
+  }, [pathname, getCurrentUser, isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -617,7 +648,7 @@ const Header = () => {
             </IconButton>
 
             {/* Mobile menu button */}
-            {isAuthenticated ? (
+            {isUserAuthenticated ? (
               <Box sx={{ position: 'relative' }}>
                 <IconButton
                   onClick={handleClickProfile}
@@ -651,6 +682,13 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
+                          {/* Thêm menu coupon */}
+        <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
+          <ListItemIcon>
+            <span role="img" aria-label="coupon">🎟️</span>
+          </ListItemIcon>
+          Coupon
+        </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" />

@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardMedia,
@@ -16,10 +17,15 @@ import {
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StarIcon from '@mui/icons-material/Star';
+import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useAuthContext } from '@/context/AuthContext';
+import { useCartContext } from '@/context/CartContext';
+import api from '@/services/api';
+import { useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -36,6 +42,7 @@ interface ProductCardProps {
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   onAddToCart?: () => void;
+  onViewDetail?: () => void; // Click handler cho mở sidebar
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
   allBrands?: { _id: string; name: string }[];
@@ -55,6 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   onAddToCart,
+  onViewDetail,
   labels,
   allCategories,
   allBrands,
@@ -64,21 +72,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
   addToCartButtonProps,
 }) => {
   const t = useTranslations('productCard');
-  const { token } = useAuthContext();
+  const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
   const isDiscounted = discountPrice !== undefined && discountPrice < price;
   const displayLabels = labels?.filter(l => l !== 'sale') || [];
   
-  // State for snackbar
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error' | 'warning' | 'info';
-  }>({
-    open: false,
-    message: '',
-    severity: 'info',
-  });
+
 
   // Kiểm tra xem có phải ảnh trong lib không
   const isLibImage = image.includes('/assets/images/lib/');
@@ -106,8 +105,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Debug logs
   if (typeof window !== 'undefined') {
-    console.log('ProductCard tags:', tags);
-    console.log('ProductCard allCategories:', allCategories);
   }
 
   // Hiển thị brand đúng tên
@@ -122,7 +119,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   }
   if (!displayBrand) displayBrand = t('unknownBrand');
 
-  const handleAddToCartClick = () => {
+  const handleCardClick = () => {
+    if (onViewDetail) {
+      onViewDetail(); // Mở sidebar
+    }
+  };
+
+  const handleViewDetailButton = () => {
+    router.push(`/product/${productId}`); // Chuyển đến trang detail
+  };
+
+  const handleAddToCartClick = async () => {
     if (!token) {
       setSnackbar({
         open: true,
@@ -131,15 +138,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
       });
       return;
     }
-    
-    // Gọi callback onAddToCart
-    if (onAddToCart) {
-      onAddToCart();
+    try {
+      await api.post('/carts/add', { productId });
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
     }
   };
 
   const handleCloseSnackbar = () => {
     setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const { token } = useAuthContext();
+  const { refreshCart } = useCartContext();
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+
+  const handleAddToCart = async () => {
+    if (!token) {
+      setSnackbar({ open: true, message: t('loginToViewCart') || 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng', severity: 'warning' });
+      return;
+    }
+    try {
+      await api.post('/carts/add', { productId });
+      await refreshCart(); // Refresh cart state
+      setSnackbar({ open: true, message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!', severity: 'success' });
+    } catch {
+      setSnackbar({ open: true, message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!', severity: 'error' });
+    }
   };
 
   // Nếu là ảnh lib, render card style hiện tại với animation
@@ -154,6 +180,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       >
         <Card 
           ref={cardRef}
+          onClick={handleCardClick}
           sx={{ 
             borderRadius: '24px',
             background: backgroundColor,
@@ -173,6 +200,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             flexDirection: 'column',
             alignItems: 'center',
             transition: 'box-shadow 0.3s',
+            cursor: 'pointer',
             '&:hover': {
               boxShadow: '0 8px 32px 0 rgba(0,0,0,0.16)',
               '.cart-btn': {
@@ -195,6 +223,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               zIndex: 3,
               pointerEvents: 'auto',
             }}
+            onClick={(e) => e.stopPropagation()}
           >
             <FavoriteButton
               productId={productId}
@@ -222,7 +251,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={image}
               alt={name}
@@ -400,50 +428,90 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </CardContent>
           </Box>
 
-          {/* Icon giỏ hàng ẩn, hover card mới hiện ra */}
-          <IconButton
+                    {/* 2 Icon buttons ẩn, hover card mới hiện ra */}
+          <Box
             className="cart-btn"
             sx={{
               position: 'absolute',
               bottom: 20,
               left: '50%',
               transform: 'translateX(-50%) translateY(20px)',
-              background: '#1976d2',
-              color: '#fff',
-              width: 48,
-              height: 48,
               zIndex: 3,
-              boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
               opacity: 0,
               pointerEvents: 'none',
               transition: 'opacity 0.3s, transform 0.4s cubic-bezier(.4,2,.6,1)',
-              '&:hover': {
-                background: '#1565c0',
-              },
+              display: 'flex',
+              gap: 1,
             }}
-            onClick={onAddToCart}
           >
-            <ShoppingCartIcon sx={{ fontSize: 28 }} />
-          </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetailButton();
+              }}
+              sx={{
+                bgcolor: 'white',
+                color: '#1976d2',
+                border: '2px solid #1976d2',
+                width: 48,
+                height: 48,
+                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                '&:hover': { 
+                  bgcolor: '#1976d2', 
+                  color: 'white',
+                  borderColor: '#1976d2'
+                },
+              }}
+            >
+              <SearchIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
+              sx={{
+                bgcolor: '#1976d2',
+                color: '#fff',
+                width: 48,
+                height: 48,
+                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                '&:hover': {
+                  bgcolor: '#1565c0',
+                },
+              }}
+            >
+              <ShoppingCartIcon sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Box>
         </Card>
+        <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </motion.div>
     );
   }
 
   // Nếu không phải ảnh lib, render card style đơn giản
   return (
-    <Card sx={{
-      maxWidth: 320,
-      borderRadius: 4,
-      boxShadow: 2,
-      p: 1.5,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      background: '#fff',
-      transition: 'box-shadow 0.2s',
-      '&:hover': { boxShadow: 6 },
-    }}>
+    <Card 
+      onClick={handleCardClick}
+      sx={{
+        maxWidth: 320,
+        borderRadius: 4,
+        boxShadow: 2,
+        p: 1.5,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: '#fff',
+        transition: 'box-shadow 0.2s',
+        cursor: 'pointer',
+        '&:hover': { boxShadow: 6 },
+      }}
+    >
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
         <Box
           sx={{
@@ -472,6 +540,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             right: 12,
             zIndex: 3,
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           <FavoriteButton
             productId={productId}
@@ -573,27 +642,60 @@ const ProductCard: React.FC<ProductCardProps> = ({
             })}
           </Stack>
         )}
-        <Button
-          variant={addToCartButtonProps?.variant || 'contained'}
-          startIcon={addToCartButtonProps?.startIcon || <ShoppingCartIcon />}
-          onClick={onAddToCart}
-          sx={{
-            mt: 'auto',
-            width: '100%',
-            bgcolor: (addToCartButtonProps?.sx as any)?.bgcolor || '#111a2f',
-            color: (addToCartButtonProps?.sx as any)?.color || '#fff',
-            fontWeight: (addToCartButtonProps?.sx as any)?.fontWeight || 700,
-            borderRadius: (addToCartButtonProps?.sx as any)?.borderRadius || 2,
-            py: (addToCartButtonProps?.sx as any)?.py || 1,
-            textTransform: (addToCartButtonProps?.sx as any)?.textTransform || 'none',
-            '&:hover': (addToCartButtonProps?.sx as any)?.['&:hover'] || { bgcolor: '#222c4c' },
-            ...addToCartButtonProps?.sx,
-          }}
-          {...addToCartButtonProps}
-        >
-          {addToCartButtonProps?.children || t('addToCart')}
-        </Button>
+        <Stack direction="row" spacing={1} sx={{ mt: 'auto', width: '100%' }}>
+          <Button
+            variant="outlined"
+            fullWidth
+            onClick={(e) => {
+              e.stopPropagation();
+              handleViewDetailButton();
+            }}
+            sx={{
+              bgcolor: 'white',
+              color: '#111a2f',
+              borderColor: '#111a2f',
+              fontWeight: 700,
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              '&:hover': { 
+                bgcolor: '#111a2f', 
+                color: 'white',
+                borderColor: '#111a2f'
+              },
+            }}
+          >
+            View Detail
+          </Button>
+          <Button
+            variant="contained"
+            fullWidth
+            startIcon={<ShoppingCartIcon />}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAddToCart();
+            }}
+            sx={{
+              bgcolor: '#111a2f',
+              color: '#fff',
+              fontWeight: 700,
+              borderRadius: 2,
+              py: 1,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#222c4c' },
+              ...addToCartButtonProps?.sx,
+            }}
+            {...addToCartButtonProps}
+          >
+            {addToCartButtonProps?.children || t('addToCart')}
+          </Button>
+        </Stack>
       </CardContent>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 };

@@ -41,7 +41,12 @@ export default function FavoritesPage() {
   React.useEffect(() => {
     setMounted(true);
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      // Get current locale from URL
+      const currentLocale = window.location.pathname.split('/')[1];
+      const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+        ? `/${currentLocale}/auth/login` 
+        : '/vi/auth/login';
+      router.push(loginUrl);
     }
   }, [isAuthenticated, router]);
 
@@ -141,6 +146,7 @@ export default function FavoritesPage() {
           {favorites.map((product) => (
             <Box key={product._id}>
               <ProductCard
+                _id={product._id}
                 productId={product._id}
                 name={product.name}
                 image={product.images[0] || '/assets/images/placeholder.jpg'}

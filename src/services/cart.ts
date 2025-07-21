@@ -43,6 +43,7 @@ class CartService {
 
   // Cập nhật số lượng, size, color sản phẩm trong giỏ hàng
   async updateCartItem(cartItemId: string, quantity?: number, size?: string, color?: string): Promise<Cart> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {};
     if (quantity !== undefined) body.quantity = quantity;
     if (size !== undefined) body.size = size;

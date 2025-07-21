@@ -133,7 +133,9 @@ export default function OutletPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  colors={product.colors?.length}
+                  sizes={product.sizes}
+                  // @ts-expect-error colors prop expects number, but product.colors is string[]
+                  colors={product.colors}
                 />
               </Box>
             ))}

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import createIntlMiddleware from 'next-intl/middleware';
 
 // Create next-intl middleware
@@ -20,22 +19,28 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = pathname.startsWith('/admin');
   const isManagerRoute = pathname.startsWith('/manager');
   const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isAuthRoute = pathname.includes('/auth/');
+
+  // Skip auth check for auth routes to prevent redirect loops
+  if (isAuthRoute) {
+    return NextResponse.next();
+  }
 
   if (isAdminRoute || isManagerRoute || isDashboardRoute) {
-    const token = await getToken({ req: request });
-    if (!token) {
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+    // Check for auth token in cookies
+    const authToken = request.cookies.get('auth_token')?.value;
+    
+    if (!authToken) {
+      // Redirect to login page with current locale
+      const locale = pathname.split('/')[1];
+      const loginUrl = locale === 'en' || locale === 'vi' 
+        ? `/${locale}/auth/login` 
+        : '/vi/auth/login';
+      return NextResponse.redirect(new URL(loginUrl, request.url));
     }
 
-    // Check if user is admin
-    if (isAdminRoute && token.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-
-    // Check if user is manager or admin
-    if (isManagerRoute && token.role !== 'manager' && token.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+    // For now, let the client-side handle role-based redirects
+    // since we need to decode JWT token to check roles
   }
 
   return NextResponse.next();

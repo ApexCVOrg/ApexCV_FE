@@ -144,7 +144,12 @@ export default function DashboardPage() {
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (!token) {
-      router.push('/auth/login');
+      // Get current locale from URL
+      const currentLocale = window.location.pathname.split('/')[1];
+      const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+        ? `/${currentLocale}/auth/login` 
+        : '/vi/auth/login';
+      router.push(loginUrl);
       return;
     }
 
@@ -165,7 +170,12 @@ export default function DashboardPage() {
           if (response.status === 401) {
             // Token expired or invalid
             localStorage.removeItem('auth_token');
-            router.push('/auth/login');
+            // Get current locale from URL
+            const currentLocale = window.location.pathname.split('/')[1];
+            const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+              ? `/${currentLocale}/auth/login` 
+              : '/vi/auth/login';
+            router.push(loginUrl);
             return;
           }
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -194,7 +204,12 @@ export default function DashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
-    router.push('/auth/login');
+    // Get current locale from URL
+    const currentLocale = window.location.pathname.split('/')[1];
+    const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+      ? `/${currentLocale}/auth/login` 
+      : '/vi/auth/login';
+    router.push(loginUrl);
   };
 
   if (loading) {
