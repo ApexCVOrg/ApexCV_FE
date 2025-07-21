@@ -75,11 +75,11 @@ export default function VnpayReturnPage() {
         const res = await fetch(`/api/payment/vnpay/return?${query}`);
         const json = await res.json();
         setDetail(json.result || json.error || json);
-
+        
         // Kiểm tra response code từ VNPay
         const responseCode = searchParams.get('vnp_ResponseCode');
         console.log('VNPay Response Code:', responseCode);
-
+        
         if (json.status === 'success' && json.result?.isSuccess) {
           setStatus('success');
           if (json.order) {
@@ -105,15 +105,11 @@ export default function VnpayReturnPage() {
           } else if (responseCode === '51') {
             setMessage('Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư');
           } else if (responseCode === '65') {
-            setMessage(
-              'Giao dịch không thành công do: Tài khoản của quý khách đã vượt quá hạn mức cho phép'
-            );
+            setMessage('Giao dịch không thành công do: Tài khoản của quý khách đã vượt quá hạn mức cho phép');
           } else if (responseCode === '75') {
             setMessage('Giao dịch không thành công do: Ngân hàng thanh toán đang bảo trì');
           } else if (responseCode === '79') {
-            setMessage(
-              'Giao dịch không thành công do: Khách hàng nhập sai mật khẩu thanh toán quá số lần quy định'
-            );
+            setMessage('Giao dịch không thành công do: Khách hàng nhập sai mật khẩu thanh toán quá số lần quy định');
           } else if (responseCode === '99') {
             setMessage('Giao dịch không thành công do: Lỗi khác');
           } else {
