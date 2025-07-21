@@ -158,13 +158,12 @@ export default function HomePage() {
    
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
-  // const { addToCart } = useCartContext();
+  const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
   // const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
   // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const { addToCart } = useCartContext();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -424,7 +423,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchFilteredProducts();
     fetchTabProducts(TABS[tab].key);
-  }, []); // Empty dependency array
+  }, [fetchFilteredProducts, fetchTabProducts, tab]);
 
   // Fetch tabbed products khi đổi tab
   useEffect(() => {

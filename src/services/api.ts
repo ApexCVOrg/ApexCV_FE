@@ -25,7 +25,7 @@ interface AxiosRequest {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -106,13 +106,13 @@ api.interceptors.response.use(
 /**
  * Gọi API backend để tạo link thanh toán VNPAY
  */
-export async function createVnpayPayment(data: any): Promise<string> {
+export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com';
 
   // Loại bỏ /api từ baseURL nếu có để tránh duplicate
   const cleanBaseURL = baseURL.replace(/\/api$/, '');
-  const apiUrl = `${cleanBaseURL}/api/payment/vnpay`;
+  const apiUrl = `${cleanBaseURL}/payment/vnpay`;
 
   console.log('[Frontend] Calling VNPAY API:', apiUrl);
   console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));

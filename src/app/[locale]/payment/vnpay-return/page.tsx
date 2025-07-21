@@ -1,17 +1,15 @@
-/* eslint-disable */
-"use client"
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { 
-  CircularProgress, 
-  Container, 
-  Paper, 
-  Typography, 
-  Alert, 
-  Button, 
-  Box, 
-  Divider, 
-  Stack, 
+'use client';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import {
+  CircularProgress,
+  Container,
+  Paper,
+  Typography,
+  Alert,
+  Button,
+  Box,
+  Stack,
   Chip,
   Card,
   CardContent,
@@ -62,7 +60,6 @@ export default function VnpayReturnPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'pending' | 'success' | 'fail'>('pending');
-  const [detail, setDetail] = useState<any>(null);
   const [message, setMessage] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
@@ -75,7 +72,6 @@ export default function VnpayReturnPage() {
       try {
         const res = await fetch(`/api/payment/vnpay/return?${query}`);
         const json = await res.json();
-        setDetail(json.result || json.error || json);
 
         // Kiểm tra response code từ VNPay
         const responseCode = searchParams.get('vnp_ResponseCode');

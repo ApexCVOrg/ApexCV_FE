@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -6,12 +6,10 @@ import { useParams } from 'next/navigation';
 import {
   Box,
   Container,
-  Grid,
   Typography,
   Button,
   Chip,
   Rating,
-  Divider,
   Tabs,
   Tab,
   Card,
@@ -20,20 +18,19 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  Badge,
   Stack,
   Breadcrumbs,
   Link,
   Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
+  //Dialog,
+  //DialogTitle,
+  //DialogContent,
+  //DialogActions,
   Avatar,
 } from '@mui/material';
 import {
   ShoppingCart,
-  Favorite,
+  //Favorite,
   Share,
   Star,
   LocalShipping,
@@ -49,7 +46,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
-import FavoriteButton from '@/components/ui/FavoriteButton';
+// import FavoriteButton from '@/components/ui/FavoriteButton';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -128,7 +125,6 @@ export default function ProductDetailPage() {
   const [reviews, setReviews] = useState<Review[]>([]); // State để lưu reviews
   const [averageRating, setAverageRating] = useState(0);
   const [ratingCount, setRatingCount] = useState(0);
-  const [autoScroll, setAutoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const productId = params.id as string;
@@ -148,8 +144,8 @@ export default function ProductDetailPage() {
         if (productData.data.sizes?.length > 0) {
           setSelectedSize(productData.data.sizes[0].size);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm');
+      } catch (err: unknown) {
+        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Không thể tải thông tin sản phẩm');
       } finally {
         setLoading(false);
       }
@@ -183,7 +179,7 @@ export default function ProductDetailPage() {
 
   // Auto scroll images
   useEffect(() => {
-    if (autoScroll && product?.images && product.images.length > 1) {
+    if (product?.images && product.images.length > 1) {
       autoScrollRef.current = setInterval(() => {
         setSelectedImage(prev => (prev < product?.images?.length - 1 ? prev + 1 : 0));
       }, 3000);
@@ -194,7 +190,7 @@ export default function ProductDetailPage() {
         clearInterval(autoScrollRef.current);
       }
     };
-  }, [autoScroll, product?.images]);
+  }, [product?.images]);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -237,10 +233,10 @@ export default function ProductDetailPage() {
         message: t('addToCartSuccess'),
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || t('addToCartError'),
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('addToCartError'),
         severity: 'error',
       });
     }
@@ -745,7 +741,7 @@ export default function ProductDetailPage() {
               >
                 {t('addToCart')}
               </Button>
-              <FavoriteButton productId={product._id} />
+              {/* FavoriteButton productId={product._id} /> */}
               <IconButton
                 sx={{
                   border: '1px solid #ddd',

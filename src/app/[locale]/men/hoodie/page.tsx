@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -33,14 +34,20 @@ export default function HoodiePage() {
     }
 
     try {
-      // Fetch only men's products
+      // Fetch only men's products with sorting
+      const queryParams = new URLSearchParams({
+        status: 'active',
+        gender: 'men',
+        sortBy: apiSortBy,
+        sortOrder: sortOrder,
+      });
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/products?status=active&gender=men`
+        `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`
       );
       const data = await res.json();
 
       // Lọc sản phẩm hoodie cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasHoodie = item.categoryPath.some(
@@ -52,7 +59,7 @@ export default function HoodiePage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasHoodieCategory = categoryNames.some(
             (name: string) => name.includes('hoodie') || name.includes('hoodies')
           );

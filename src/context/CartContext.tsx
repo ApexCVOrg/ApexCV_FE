@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cartService, Cart, CartItem, AddToCartRequest } from '@/services/cart';
 import { useAuthContext } from './AuthContext';
@@ -34,7 +34,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartItemCount = cart?.cartItems.reduce((total, item) => total + item.quantity, 0) || 0;
 
   // Lấy giỏ hàng từ server
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!token) {
       setCart(null);
       return;
@@ -52,7 +52,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Thêm sản phẩm vào giỏ hàng
   const addToCart = async (data: AddToCartRequest) => {
@@ -140,7 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setCart(null);
     }
-  }, [token]);
+  }, [token, fetchCart]);
 
   const value: CartContextProps = {
     cart,

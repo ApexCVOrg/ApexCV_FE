@@ -34,7 +34,6 @@ interface Product {
 }
 
 export default function WomenPage() {
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,40 +46,39 @@ export default function WomenPage() {
   console.log('[WomenPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
 
   // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = [
-        'arsenal',
-        'juventus',
-        'bayern munich',
-        'real madrid',
-        'manchester united',
-      ];
-      const categoryNameLower = category.name.toLowerCase();
+  // const getTeamNameFromProduct = (product: Product): string => {
+  //   // Find team category (usually has a parent category that is gender)
+  //   for (const category of product.categories) {
+  //     // Check if category name matches known teams
+  //     const teamNames = [
+  //       'arsenal',
+  //       'juventus',
+  //       'bayern munich',
+  //       'real madrid',
+  //       'manchester united',
+  //     ];
+  //     const categoryNameLower = category.name.toLowerCase();
 
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
+  //     for (const team of teamNames) {
+  //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
+  //         return team;
+  //       }
+  //     }
 
-      // Check parent category with optional chaining
-      const parentCategory = (category as any).parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
+  //     // Check parent category with optional chaining
+  //     const parentCategory = (category as any).parentCategory;
+  //     if (parentCategory) {
+  //       const parentNameLower = parentCategory.name.toLowerCase();
+  //       for (const team of teamNames) {
+  //         if (parentNameLower.includes(team) || parentNameLower === team) {
+  //           return team;
+  //       }
+  //     }
+  //   }
 
-    // Default fallback
-    return 'arsenal';
-  };
+  //   // Default fallback
+  //   return 'arsenal';
+  // };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -101,7 +99,7 @@ export default function WomenPage() {
           ];
           // Lọc sản phẩm thuộc 5 team lớn cho women
           const teamProducts = (result.data || []).filter(
-            (p: any) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+            (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
           );
           console.log('[WomenPage] Total products:', result.data?.length);
           console.log('[WomenPage] Team products:', teamProducts.length);
@@ -137,7 +135,7 @@ export default function WomenPage() {
         ];
         // Lọc sản phẩm thuộc 5 team lớn cho women
         const teamProducts = (result.data || []).filter(
-          (p: any) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+          (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
         );
         setProducts(teamProducts);
         setDisplayedProducts(teamProducts.slice(0, productsPerPage));

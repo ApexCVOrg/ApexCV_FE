@@ -1,16 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Container,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
-import Link from 'next/link';
-import ProductCard from '@/components/card';
+import React from 'react';
 import ShoesPageLayout from '@/components/layout/ShoesPageLayout';
 
 interface Product {
@@ -23,6 +12,7 @@ interface Product {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt?: string;
 }
 
@@ -60,11 +50,11 @@ export default function GazellePage() {
       const desiredPath = ['Shoes', 'Adidas', 'Gazelle'];
 
       // Thử nhiều cách filter khác nhau
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Cách 1: Kiểm tra nếu categoryPath là array
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const isMatch = desiredPath.every(
-            (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+            (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
           );
           if (isMatch) return true;
         }
@@ -78,7 +68,7 @@ export default function GazellePage() {
 
         // Cách 3: Kiểm tra nếu có field khác chứa category info
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           if (categoryNames.includes('gazelle')) return true;
         }
 
@@ -91,15 +81,15 @@ export default function GazellePage() {
       // Sort products based on sortBy
       switch (sortBy) {
         case 'price-low':
-          return filtered.sort((a: any, b: any) => a.price - b.price);
+          return filtered.sort((a: Product, b: Product) => a.price - b.price);
         case 'price-high':
-          return filtered.sort((a: any, b: any) => b.price - a.price);
+          return filtered.sort((a: Product, b: Product) => b.price - a.price);
         case 'popular':
-          return filtered.sort((a: any, b: any) => (b.tags?.length || 0) - (a.tags?.length || 0));
+          return filtered.sort((a: Product, b: Product) => (b.tags?.length || 0) - (a.tags?.length || 0));
         case 'newest':
         default:
           return filtered.sort(
-            (a: any, b: any) =>
+            (a: Product, b: Product) =>
               new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
           );
       }
@@ -112,7 +102,7 @@ export default function GazellePage() {
   return (
     <ShoesPageLayout
       pageTitle="ADIDAS GAZELLE"
-      pageDescription="Discover the iconic Gazelle collection"
+      pageDescription="Discover the classic Gazelle collection"
       category="Gazelle"
       fetchProducts={fetchProducts}
       emptyMessage="No Gazelle products found"

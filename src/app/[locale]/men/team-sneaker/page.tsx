@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -44,7 +45,7 @@ export default function TeamSneakerPage() {
       const data = await res.json();
 
       // Lọc sản phẩm team sneaker cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Loại trừ Nike Span 2
         if (
           item.name.toLowerCase().includes('nike span 2') ||
@@ -66,7 +67,7 @@ export default function TeamSneakerPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasSneakerCategory = categoryNames.some(
             (name: string) =>
               name.includes('sneaker') || name.includes('shoes') || name.includes('team-sneaker')

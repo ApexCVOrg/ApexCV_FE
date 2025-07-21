@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -44,9 +45,9 @@ export default function WomenShortsPage() {
       const data = await res.json();
 
       // Lọc sản phẩm shorts cho nữ
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasShorts = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('shorts') || cat.toLowerCase().includes('short')
@@ -56,7 +57,7 @@ export default function WomenShortsPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasShortsCategory = categoryNames.some(
             (name: string) => name.includes('shorts') || name.includes('short')
           );

@@ -7,7 +7,7 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 const AuthSuccessPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ const AuthSuccessPage = () => {
 
         if (!token) {
           setError('Missing authentication token');
-          setLoading(false);
+          // setLoading(false);
           return;
         }
 
@@ -80,7 +80,7 @@ const AuthSuccessPage = () => {
       } catch (err) {
         console.error('Auth success error:', err);
         setError('Authentication failed');
-        setLoading(false);
+        // setLoading(false);
       }
     };
 

@@ -38,9 +38,9 @@ export default function MenJerseyPage() {
     if (!data.success) throw new Error(data.message || 'Failed to fetch products');
     const teamNames = ['arsenal', 'real madrid', 'manchester united', 'bayern munich', 'juventus'];
     const jerseys = (data.data || []).filter(
-      (p: any) =>
+      (p: Product) =>
         (p.categories || []).some(
-          (c: any) => c.name.toLowerCase() === 't-shirts' || c.name.toLowerCase() === 'jersey'
+          (c: { _id: string; name: string }) => c.name.toLowerCase() === 't-shirts' || c.name.toLowerCase() === 'jersey'
         ) &&
         p.categories?.[1] &&
         teamNames.includes(p.categories[1].name.toLowerCase())

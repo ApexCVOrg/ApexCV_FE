@@ -22,6 +22,7 @@ interface Product {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  categoryPath?: string[];
 }
 
 export default function AdizeroPage() {
@@ -36,29 +37,29 @@ export default function AdizeroPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
         const data = await res.json();
 
-        // Lọc sản phẩm theo categoryPath mong muốn
-        const desiredPath = ['Shoes', 'Adidas', 'Adizero'];
+              // Lọc sản phẩm theo categoryPath mong muốn
+      const desiredPath = ['Shoes', 'Adidas', 'Adizero'];
 
-        // Thử nhiều cách filter khác nhau
-        const filtered = (data.data || []).filter((item: any) => {
+      // Thử nhiều cách filter khác nhau
+      const filtered = (data.data || []).filter((item: Product) => {
           // Cách 1: Kiểm tra nếu categoryPath là array
-          if (Array.isArray(item.categoryPath)) {
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
             const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+              (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) return true;
           }
 
           // Cách 2: Kiểm tra nếu categoryPath là string
-          if (typeof item.categoryPath === 'string') {
-            const pathString = item.categoryPath.toLowerCase();
+          if (item.categoryPath && typeof item.categoryPath === 'string') {
+            const pathString = (item.categoryPath as string).toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
           }
 
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('adizero')) return true;
           }
 

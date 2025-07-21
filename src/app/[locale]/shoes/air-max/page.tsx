@@ -24,6 +24,19 @@ interface Product {
   categories?: { _id: string; name: string }[];
 }
 
+interface ApiProduct {
+  _id: string;
+  name: string;
+  description?: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  tags?: string[];
+  brand?: string | { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
+}
+
 export default function AirMaxPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,20 +58,20 @@ export default function AirMaxPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
         const data = await res.json();
         const desiredPath = ['Shoes', 'Nike', 'Air Max'];
-        const filtered = (data.data || []).filter((item: any) => {
-          if (Array.isArray(item.categoryPath)) {
+        const filtered = (data.data || []).filter((item: ApiProduct) => {
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
             const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+              (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) return true;
           }
-          if (typeof item.categoryPath === 'string') {
+          if (item.categoryPath && typeof item.categoryPath === 'string') {
             const pathString = item.categoryPath.toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
           }
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('air max') || categoryNames.includes('airmax')) return true;
           }
           if (

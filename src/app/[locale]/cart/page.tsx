@@ -322,6 +322,7 @@ export default function CartPage() {
 
       if (!token) {
         alert('Token không tồn tại, vui lòng đăng nhập lại');
+        setIsProcessingPayment(false);
         return;
       }
 
@@ -351,11 +352,13 @@ export default function CartPage() {
       } catch (error) {
         console.error('Error decoding token:', error);
         alert('Token không hợp lệ, vui lòng đăng nhập lại');
+        setIsProcessingPayment(false);
         return;
       }
 
       if (!currentUser || !currentUser.id) {
         alert('Không thể lấy thông tin người dùng từ token');
+        setIsProcessingPayment(false);
         return;
       }
 
@@ -369,6 +372,7 @@ export default function CartPage() {
         console.error('Error fetching user profile:', error);
         console.error('Error details:', error);
         alert('Không thể lấy thông tin profile');
+        setIsProcessingPayment(false);
         return;
       }
 
@@ -378,6 +382,7 @@ export default function CartPage() {
 
       if (!defaultAddress) {
         alert('Vui lòng thêm địa chỉ giao hàng trong profile');
+        setIsProcessingPayment(false);
         return;
       }
 
@@ -429,6 +434,7 @@ export default function CartPage() {
     } catch (error) {
       console.error('Payment error:', error);
       alert('Có lỗi xảy ra khi tạo thanh toán');
+      setIsProcessingPayment(false);
     } finally {
       setIsProcessingPayment(false);
     }
@@ -486,12 +492,9 @@ export default function CartPage() {
     setApplyingCouponId(cartItem._id);
     setCouponError(prev => ({ ...prev, [cartItem._id]: '' }));
     try {
-      const res = await fetch("http://localhost:5000/api/coupon/apply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { "Authorization": `Bearer ${token}` } : {})
-        },
+              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com'}/coupon/apply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           couponCode: code,
           productId: cartItem.product?._id || '',

@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -44,9 +45,9 @@ export default function WomenHoodiePage() {
       const data = await res.json();
 
       // Lọc sản phẩm hoodie cho nữ
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasHoodie = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('hoodie') || cat.toLowerCase().includes('hoodies')
@@ -56,7 +57,7 @@ export default function WomenHoodiePage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasHoodieCategory = categoryNames.some(
             (name: string) => name.includes('hoodie') || name.includes('hoodies')
           );

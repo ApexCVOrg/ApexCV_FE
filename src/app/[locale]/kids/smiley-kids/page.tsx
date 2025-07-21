@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[];
   createdAt: string;
 }
 
@@ -44,7 +45,7 @@ export default function KidsSmileyPage() {
       const data = await res.json();
 
       // Lọc sản phẩm smiley cho kids
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasSmiley = item.categoryPath.some(
@@ -56,7 +57,7 @@ export default function KidsSmileyPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasSmileyCategory = categoryNames.some(
             (name: string) => name.includes('smiley') || name.includes('smileys')
           );
