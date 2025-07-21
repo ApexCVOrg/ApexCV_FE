@@ -2,18 +2,7 @@
 import React from "react";
 import AccessoriesPageLayout from "@/components/layout/AccessoriesPageLayout";
 
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  categoryPath?: string[];
-  createdAt: string;
-}
+
 
 interface ApiProduct {
   _id: string;
@@ -42,7 +31,7 @@ const TABS = [
 export default function HatsPage() {
   const fetchProducts = async (sortBy: string, gender?: string) => {
     try {
-      let queryParams = new URLSearchParams();
+      const queryParams = new URLSearchParams();
       queryParams.append('status', 'active');
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
@@ -111,7 +100,7 @@ export default function HatsPage() {
       });
 
       // Apply sorting
-      let sorted = [...filtered];
+      const sorted = [...filtered];
       switch (sortBy) {
         case 'price-low':
           sorted.sort((a, b) => a.price - b.price);
@@ -139,7 +128,6 @@ export default function HatsPage() {
   return (
     <AccessoriesPageLayout
       pageTitle="ACCESSORIES HATS"
-      pageDescription="Discover the iconic hats collection. Classic design meets modern comfort."
       category="Hats"
       fetchProducts={fetchProducts}
       emptyMessage="No hats found."

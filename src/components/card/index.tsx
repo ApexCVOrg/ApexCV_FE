@@ -43,7 +43,6 @@ interface ProductCardProps {
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
   categoryPath?: string[]; // Thêm categoryPath
-  onAddToCart?: () => void;
   onViewDetail?: () => void; // Click handler cho mở sidebar
   labels?: ProductLabel[];
   allCategories?: CategoryLike[];
@@ -63,7 +62,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   brand,
   categories,
   categoryPath,
-  onAddToCart,
   onViewDetail,
   labels,
   allCategories,

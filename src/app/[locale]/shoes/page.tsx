@@ -1,9 +1,9 @@
 'use client';
 
 import React from "react";
-import { Box, Typography, Card, CardActionArea, CardContent, Container, Button } from "@mui/material";
+import { Box, Typography, Card, Container, Button } from "@mui/material";
 import Link from "next/link";
-import { ArrowForward, Star, TrendingUp, LocalShipping } from "@mui/icons-material";
+import { Star, TrendingUp, LocalShipping } from "@mui/icons-material";
 import ProductCard from "@/components/card";
 import { useState, useEffect } from "react";
 import api from "@/services/api";
@@ -53,7 +53,7 @@ export default function ShoesPage() {
 
         // Get first 6 trending shoes
         setTrendingShoes(shoesProducts.slice(0, 6));
-      } catch (error) {
+      } catch {
         // Error handling without console.log
       } finally {
         setLoading(false);
@@ -273,7 +273,7 @@ export default function ShoesPage() {
               mx: 'auto',
               fontSize: '1.1rem'
             }}>
-              Discover the most popular styles that everyone's talking about
+              Discover the most popular styles that everyone&apos;s talking about
             </Typography>
           </Box>
           

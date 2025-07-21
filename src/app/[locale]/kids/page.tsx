@@ -16,7 +16,6 @@ import { HeroBanner } from '@/components/banner';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
-import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -49,51 +48,7 @@ export default function KidsPage() {
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = [
-        'arsenal',
-        'juventus',
-        'bayern munich',
-        'real madrid',
-        'manchester united',
-      ];
-      const categoryNameLower = category.name.toLowerCase();
 
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
-
-      // Check parent category with optional chaining
-      const parentCategory = category.parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
-
-    // Default fallback - try to find any team in categories
-    for (const category of product.categories) {
-      const categoryNameLower = category.name.toLowerCase();
-      if (categoryNameLower.includes('arsenal')) return 'arsenal';
-      if (categoryNameLower.includes('juventus')) return 'juventus';
-      if (categoryNameLower.includes('bayern')) return 'bayern munich';
-      if (categoryNameLower.includes('madrid')) return 'real madrid';
-      if (categoryNameLower.includes('manchester')) return 'manchester united';
-    }
-
-    // Final fallback
-    return 'arsenal';
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -161,22 +116,7 @@ export default function KidsPage() {
     }
   };
 
-  const { addToCart } = useCartContext();
-  
-  const handleAddToCart = async (product: Product) => {
-    try {
-      await addToCart({
-        productId: product._id,
-        quantity: 1
-      });
-      // Show success message
-      console.log('Đã thêm vào giỏ hàng!');
-    } catch (error) {
-      console.error('Add to cart error:', error);
-      // Show error message
-      console.error('Thêm vào giỏ hàng thất bại!');
-    }
-  };
+
 
   const handleCarouselPrev = () => {
     setCarouselIndex(prev => Math.max(prev - 1, 0));
@@ -521,7 +461,6 @@ export default function KidsPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

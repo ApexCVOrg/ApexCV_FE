@@ -2,18 +2,7 @@
 import React from "react";
 import AccessoriesPageLayout from "@/components/layout/AccessoriesPageLayout";
 
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  categoryPath?: string[];
-  createdAt: string;
-}
+
 
 interface ApiProduct {
   _id: string;
@@ -42,7 +31,7 @@ const TABS = [
 export default function SocksPage() {
   const fetchProducts = async (sortBy: string, gender?: string) => {
     try {
-      let queryParams = new URLSearchParams();
+      const queryParams = new URLSearchParams();
       queryParams.append('status', 'active');
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
@@ -104,7 +93,7 @@ export default function SocksPage() {
       });
 
       // Apply sorting
-      let sorted = [...filtered];
+      const sorted = [...filtered];
       switch (sortBy) {
         case 'price-low':
           sorted.sort((a, b) => a.price - b.price);
@@ -132,7 +121,6 @@ export default function SocksPage() {
   return (
     <AccessoriesPageLayout
       pageTitle="ACCESSORIES SOCKS"
-      pageDescription="Discover the iconic socks collection. Classic design meets modern comfort."
       category="Socks"
       fetchProducts={fetchProducts}
       emptyMessage="No socks found."

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Box, Container, Typography, Grid, CircularProgress, FormControl, InputLabel, Select, MenuItem, Link } from "@mui/material";
+import { Box, Container, Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem, Link } from "@mui/material";
 import ProductCard from "@/components/card";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useLocale } from 'next-intl';
@@ -18,26 +18,10 @@ interface Product {
   createdAt: string;
 }
 
-interface ApiProduct {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  categoryPath?: string[];
-  createdAt: string;
-}
 
-interface ApiResponse {
-  data: ApiProduct[];
-}
 
 interface AccessoriesPageLayoutProps {
   pageTitle: string;
-  pageDescription: string;
   category: string;
   bannerImage?: string;
   bannerAlt?: string;
@@ -48,7 +32,6 @@ interface AccessoriesPageLayoutProps {
 
 export default function AccessoriesPageLayout({
   pageTitle,
-  pageDescription,
   category,
   bannerImage = "https://res.cloudinary.com/dqmb4e2et/image/upload/v1753088737/45356_sn4l7p.webp",
   bannerAlt = "Accessories Collection Banner",
@@ -301,7 +284,6 @@ export default function AccessoriesPageLayout({
                   brand={product.brand}
                   categories={product.categories}
                   categoryPath={product.categoryPath}
-                  onAddToCart={() => console.log('Add to cart:', product.name)}
                 />
               </Box>
             ))}

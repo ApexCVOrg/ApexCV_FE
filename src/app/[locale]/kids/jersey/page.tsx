@@ -2,7 +2,7 @@
 import React from "react";
 import GenderPageLayout from "@/components/layout/GenderPageLayout";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
-import { ApiProduct, ApiResponse } from '@/types';
+import { ApiProduct } from '@/types';
 
 interface Product {
   _id: string;
@@ -13,7 +13,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
-  categoryPath?: string[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -31,14 +31,14 @@ export default function KidsJerseyPage() {
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-
+      
       // Lọc sản phẩm jersey cho kids
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasJersey = item.categoryPath.some(
             (cat: string) =>
-              cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('t-shirts')
+              cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('jerseys')
           );
           if (hasJersey) return true;
         }
@@ -47,7 +47,7 @@ export default function KidsJerseyPage() {
         if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasJerseyCategory = categoryNames.some((name: string) => 
-            name.includes('jersey') || name.includes('t-shirts')
+            name.includes('jersey') || name.includes('jerseys')
           );
           if (hasJerseyCategory) return true;
         }
@@ -70,7 +70,7 @@ export default function KidsJerseyPage() {
       const sorted = sortProductsClientSide(filtered, sortBy);
       
       return sorted;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to fetch products');
     }
   };

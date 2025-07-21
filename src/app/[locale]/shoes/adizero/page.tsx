@@ -4,23 +4,10 @@ import { Box, Typography, Container, FormControl, InputLabel, Select, MenuItem }
 import Link from "next/link";
 import ProductCard from "@/components/card";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
-import { ApiProduct, ApiResponse } from '@/types';
-
-interface Product {
-  _id: string;
-  name: string;
-  description?: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags?: string[];
-  brand?: string | { _id: string; name: string };
-  categories?: { _id: string; name: string }[];
-  createdAt?: string;
-}
+import { ApiProduct } from '@/types';
 
 export default function AdizeroPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
 
@@ -74,7 +61,7 @@ export default function AdizeroPage() {
         // Client-side sorting as fallback if API sorting doesn't work
         const sorted = sortProductsClientSide(filtered, sortBy);
         setProducts(sorted);
-      } catch (e) {
+      } catch {
         setProducts([]);
       } finally {
         setLoading(false);
@@ -259,7 +246,6 @@ export default function AdizeroPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => {}}
                 />
               </Box>
             ))

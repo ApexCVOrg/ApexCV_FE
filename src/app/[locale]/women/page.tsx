@@ -7,7 +7,6 @@ import {
   Box,
   Card,
   CardMedia,
-  CardContent,
   Button,
   CircularProgress,
   IconButton,
@@ -16,9 +15,7 @@ import Image from 'next/image';
 import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import Link from 'next/link';
-import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -154,22 +151,7 @@ export default function WomenPage() {
     }
   };
 
-  const { addToCart } = useCartContext();
-  
-  const handleAddToCart = async (product: Product) => {
-    try {
-      await addToCart({
-        productId: product._id,
-        quantity: 1
-      });
-      // Show success message
-      console.log('Đã thêm vào giỏ hàng!');
-    } catch (error) {
-      console.error('Add to cart error:', error);
-      // Show error message
-      console.error('Thêm vào giỏ hàng thất bại!');
-    }
-  };
+
 
   const handleCarouselPrev = () => {
     setCarouselIndex(prev => Math.max(0, prev - 1));
@@ -607,7 +589,6 @@ export default function WomenPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

@@ -16,7 +16,6 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartContext } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useFavorites } from '@/hooks/useFavorites';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 
 interface ProductDetailSidebarProps {
@@ -67,7 +66,6 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
   const { addToCart } = useCartContext();
   const { getToken } = useAuth();
-  const { isFavorite } = useFavorites();
 
   useEffect(() => {
     if (!productId) {
@@ -157,7 +155,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     }
   };
 
-  const handleToggleFavorite = (isFavorite: boolean) => {
+  const handleToggleFavorite = () => {
     // FavoriteButton sẽ tự xử lý việc toggle favorite
   };
 
@@ -523,7 +521,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                             '@/services/favorites'
                           );
                           await favoritesService.toggleFavorite(product._id);
-                          handleToggleFavorite(!isFavorite(product._id));
+                          handleToggleFavorite();
                                 } catch {
           // Handle error silently
         }

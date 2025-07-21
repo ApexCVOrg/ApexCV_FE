@@ -1,4 +1,16 @@
-export const sortProductsClientSide = (products: any[], sortType: string) => {
+interface Product {
+  _id: string;
+  name: string;
+  price: number;
+  discountPrice?: number;
+  createdAt?: string;
+  tags?: string[];
+  brand?: { _id: string; name: string };
+  categories?: { _id: string; name: string }[];
+  images?: string[];
+}
+
+export const sortProductsClientSide = (products: Product[], sortType: string) => {
   const sorted = [...products];
   
   switch (sortType) {

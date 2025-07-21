@@ -2,23 +2,10 @@
 import React from "react";
 import GenderPageLayout from "@/components/layout/GenderPageLayout";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
-import { ApiProduct, ApiResponse } from '@/types';
-
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  categoryPath?: string[] | string;
-  createdAt: string;
-}
+import { ApiProduct } from '@/types';
 
 export default function WomenHoodiePage() {
-  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
+  const fetchProducts = async (sortBy: string) => {
     const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
@@ -69,8 +56,21 @@ export default function WomenHoodiePage() {
       // Client-side sorting as fallback if API sorting doesn't work
       const sorted = sortProductsClientSide(filtered, sortBy);
       
-      return sorted;
-    } catch (error) {
+      // Convert to match the expected Product interface
+      const converted = sorted.map((item) => ({
+        _id: item._id,
+        name: item.name,
+        images: item.images || [],
+        price: item.price,
+        discountPrice: item.discountPrice,
+        tags: item.tags || [],
+        brand: item.brand || { _id: '', name: 'Unknown Brand' },
+        categories: item.categories || [],
+        createdAt: item.createdAt || new Date().toISOString(),
+      }));
+      
+      return converted;
+    } catch {
       throw new Error('Failed to fetch products');
     }
   };

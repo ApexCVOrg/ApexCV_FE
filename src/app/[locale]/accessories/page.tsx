@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress, IconButton } from "@mui/material";
-import Image from "next/image";
+
 import ProductCard from "@/components/card";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -67,7 +67,7 @@ export default function AccessoriesPage() {
             
             // Kiểm tra categories array
             if (p.categories && Array.isArray(p.categories)) {
-              const categoryNames = p.categories.map((cat: any) => cat.name.toLowerCase());
+              const categoryNames = p.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
               return categoryNames.some((name: string) => 
                 name.includes('accessories') || name.includes('accessory')
               );
@@ -116,9 +116,7 @@ export default function AccessoriesPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
-  };
+
 
   const handleCarouselNext = () => {
     const maxIndex = Math.max(0, products.length - 4);
@@ -555,7 +553,6 @@ export default function AccessoriesPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
                       />
                     </Box>
                   ))}

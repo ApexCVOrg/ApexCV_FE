@@ -5,12 +5,10 @@ import { useParams } from 'next/navigation';
 import {
   Box,
   Container,
-  Grid,
   Typography,
   Button,
   Chip,
   Rating,
-  Divider,
   Tabs,
   Tab,
   Card,
@@ -19,15 +17,10 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  Badge,
   Stack,
   Breadcrumbs,
   Link,
   Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -47,7 +40,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
-import FavoriteButton from '@/components/ui/FavoriteButton';
+
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -114,7 +107,7 @@ export default function ProductDetailPage() {
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const productId = params.id as string;
@@ -134,8 +127,9 @@ export default function ProductDetailPage() {
         if (productData.data.sizes?.length > 0) {
           setSelectedSize(productData.data.sizes[0].size);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm');
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        setError(error.response?.data?.message || 'Không thể tải thông tin sản phẩm');
       } finally {
         setLoading(false);
       }
@@ -204,10 +198,11 @@ export default function ProductDetailPage() {
         message: t('addToCartSuccess'),
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || t('addToCartError'),
+        message: error.response?.data?.message || t('addToCartError'),
         severity: 'error',
       });
     }

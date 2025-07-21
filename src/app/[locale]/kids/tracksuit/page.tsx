@@ -2,7 +2,7 @@
 import React from "react";
 import GenderPageLayout from "@/components/layout/GenderPageLayout";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
-import { ApiProduct, ApiResponse } from '@/types';
+import { ApiProduct } from '@/types';
 
 interface Product {
   _id: string;
@@ -70,7 +70,7 @@ export default function KidsTracksuitPage() {
       const sorted = sortProductsClientSide(filtered, sortBy);
       
       return sorted;
-    } catch (error) {
+    } catch {
       throw new Error('Failed to fetch products');
     }
   };

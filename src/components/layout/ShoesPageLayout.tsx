@@ -318,7 +318,6 @@ export default function ShoesPageLayout({
                     tags={product.tags || []}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories || []}
-                    onAddToCart={() => {}}
                   />
                 </Box>
               ))}
