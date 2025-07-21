@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cartService, Cart, CartItem, AddToCartRequest } from '@/services/cart';
 import { useAuthContext } from './AuthContext';
@@ -34,24 +34,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const cartItemCount = cart?.cartItems.reduce((total, item) => total + item.quantity, 0) || 0;
 
   // Lấy giỏ hàng từ server
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (!token) {
+      console.log('No token, setting cart to null');
       setCart(null);
       return;
     }
 
     try {
+      console.log('Fetching cart with token:', token.substring(0, 20) + '...');
       setLoading(true);
       setError(null);
       const cartData = await cartService.getCart();
+      console.log('Cart data received:', cartData);
       setCart(cartData);
     } catch (err) {
+      console.error('Error fetching cart:', err);
       setError('Không thể tải giỏ hàng');
       setCart(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
   // Thêm sản phẩm vào giỏ hàng
   const addToCart = async (data: AddToCartRequest) => {

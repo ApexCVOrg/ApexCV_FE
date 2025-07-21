@@ -6,6 +6,7 @@ import { Box, Container } from '@mui/material';
 import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { HomeCartProvider } from '@/context/HomeCartContext';
+import { ToastProvider } from '@/components/ui/Toast';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { messages } from '@/lib/i18n/messages';
 import { hasLocale } from 'next-intl';
@@ -38,7 +39,9 @@ export default async function LocaleLayout({
         <AuthProvider>
           <CartProvider>
             <HomeCartProvider>
-              <ClientLayout locale={locale}>{children}</ClientLayout>
+              <ToastProvider>
+                <ClientLayout locale={locale}>{children}</ClientLayout>
+              </ToastProvider>
             </HomeCartProvider>
           </CartProvider>
         </AuthProvider>

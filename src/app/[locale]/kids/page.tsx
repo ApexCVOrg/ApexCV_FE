@@ -16,6 +16,7 @@ import { HeroBanner } from '@/components/banner';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -143,8 +144,21 @@ export default function KidsPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const { addToCart } = useCartContext();
+  
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1
+      });
+      // Show success message
+      console.log('Đã thêm vào giỏ hàng!');
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      // Show error message
+      console.error('Thêm vào giỏ hàng thất bại!');
+    }
   };
 
   const handleCarouselPrev = () => {
@@ -490,7 +504,7 @@ export default function KidsPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

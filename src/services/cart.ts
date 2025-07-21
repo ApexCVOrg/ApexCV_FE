@@ -31,7 +31,9 @@ export interface AddToCartRequest {
 class CartService {
   // Lấy giỏ hàng của user hiện tại
   async getCart(): Promise<Cart> {
+    console.log('Calling cart API: /carts/user');
     const response = await api.get('/carts/user');
+    console.log('Cart API response:', response.data);
     return response.data as Cart;
   }
 
