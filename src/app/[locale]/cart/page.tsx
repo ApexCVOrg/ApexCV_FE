@@ -61,6 +61,7 @@ export default function CartPage() {
   const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext();
   const { token } = useAuthContext();
   const router = useRouter();
+  const t = useTranslations('cartPage');
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [couponInputs, setCouponInputs] = useState<{ [cartItemId: string]: string }>({});
   const [appliedCoupons, setAppliedCoupons] = useState<{
@@ -71,7 +72,9 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState<string>('');
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const t = useTranslations('cartPage');
+  const [isFreeShipping, setIsFreeShipping] = useState(false);
+  const [voucherError, setVoucherError] = useState<{ [cartItemId: string]: string}>({});
+  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string}>({});
   const { isAuthenticated, getCurrentUser } = useAuth();
 
   // Common styles matching login form
@@ -449,9 +452,9 @@ export default function CartPage() {
     }, 0);
   };
 
-  const subtotal = calculateSubtotal();
-  const shipping = 0;
-  const total = subtotal + shipping;
+  const subtotal = calculateSubtotal()
+  const shipping = isFreeShipping ? 0 : 25000
+  const total = subtotal + shipping
 
   // Kiểm tra xem có items nào chưa chọn size hoặc màu không
   const hasIncompleteItems = cart.cartItems.some(item => {
@@ -485,9 +488,12 @@ export default function CartPage() {
     setApplyingCouponId(cartItem._id);
     setCouponError('');
     try {
-      const res = await fetch('http://localhost:5000/api/coupon/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("http://localhost:5000/api/coupon/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           couponCode: code,
           productId: cartItem.product?._id || '',
@@ -506,6 +512,9 @@ export default function CartPage() {
             message: data.message,
           },
         }));
+        if (data.freeShipping) setIsFreeShipping(true);
+        else setIsFreeShipping(false);
+        setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
         setCouponError(data.message || 'Coupon không hợp lệ');
         console.log('Coupon error details:', data);
@@ -552,10 +561,13 @@ export default function CartPage() {
             {cart.cartItems.map(item => {
               const cartItem = item as CartItemWithId;
               const isUpdating = updatingItems.has(cartItem._id);
-              const price = cartItem.product
-                ? cartItem.product?.discountPrice || cartItem.product?.price
-                : 0;
-              const originalPrice = cartItem.product?.price || 0;
+              // Đảm bảo chỉ khai báo biến một lần
+              let price = 0;
+              let originalPrice = 0;
+              if (cartItem.product) {
+                price = cartItem.product.discountPrice || cartItem.product.price;
+                originalPrice = cartItem.product.price;
+              }
               const discountedPrice = getDiscountedPrice(cartItem);
               const appliedCoupon = appliedCoupons[cartItem._id];
               return (
@@ -605,9 +617,9 @@ export default function CartPage() {
                       <CardMedia
                         component="img"
                         height="120"
-                        image={cartItem.product?.images?.[0] || '/assets/images/placeholder.jpg'}
-                        alt={cartItem.product?.name || 'Product'}
-                        sx={{ objectFit: 'contain', borderRadius: 0 }}
+                        image={cartItem.product ? cartItem.product.images[0] || "/assets/images/placeholder.jpg" : "/assets/images/placeholder.jpg"}
+                        alt={cartItem.product ? cartItem.product.name : 'Sản phẩm đã bị xóa'}
+                        sx={{ objectFit: "contain", borderRadius: 0 }}
                       />
                     </Box>
                   </Box>
@@ -637,9 +649,9 @@ export default function CartPage() {
                             letterSpacing: '0.02em',
                           }}
                         >
-                          {cartItem.product?.name || 'Product Name Unavailable'}
+                          {cartItem.product ? cartItem.product.name : 'Sản phẩm đã bị xóa'}
                         </Typography>
-                        {cartItem.product?.brand && (
+                        {cartItem.product && cartItem.product.brand && (
                           <Typography
                             variant="body2"
                             sx={{
@@ -657,15 +669,9 @@ export default function CartPage() {
 
                         <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                           {/* Size */}
-                          {cartItem.product?.sizes && cartItem.product?.sizes.length > 0 ? (
-                            <FormControl
-                              size="small"
-                              sx={{ minWidth: 90, ...blackBorderStyle }}
-                              disabled={isUpdating}
-                            >
-                              <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
-                                {t('size')}
-                              </InputLabel>
+                          {cartItem.product && cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
+                            <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
+                              <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("size")}</InputLabel>
                               <Select
                                 value={cartItem.size || ''}
                                 label={t('size')}
@@ -715,16 +721,9 @@ export default function CartPage() {
                           )}
 
                           {/* Color */}
-                          {cartItem.product?.sizes &&
-                          cartItem.product?.sizes.some(sz => 'color' in sz && sz.color) ? (
-                            <FormControl
-                              size="small"
-                              sx={{ minWidth: 90, ...blackBorderStyle }}
-                              disabled={isUpdating}
-                            >
-                              <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
-                                {t('color')}
-                              </InputLabel>
+                          {cartItem.product && cartItem.product.sizes && cartItem.product.sizes.some((sz) => "color" in sz && sz.color) ? (
+                            <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
+                              <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("color")}</InputLabel>
                               <Select
                                 value={cartItem.color || ''}
                                 label={t('color')}
@@ -798,13 +797,9 @@ export default function CartPage() {
                           </Alert>
                         )}
                         {/* Hiển thị tồn kho ngoài dropdown */}
-                        {cartItem.size && cartItem.color && cartItem.product?.sizes && (
-                          <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{ mt: 1, fontWeight: 600 }}
-                          >
-                            {t('stockLeft', {
+                        {cartItem.size && cartItem.color && cartItem.product && cartItem.product.sizes && (
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
+                            {t("stockLeft", {
                               stock:
                                 cartItem.product?.sizes?.find(
                                   (sz: ProductSize) =>
@@ -832,8 +827,8 @@ export default function CartPage() {
                       </IconButton>
                     </Box>
 
-                    {/* Voucher input */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                    {/* Coupon input */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       <TextField
                         size="small"
                         label="Coupon"
@@ -878,8 +873,20 @@ export default function CartPage() {
                             onDelete={() => {
                               setAppliedCoupons(v => {
                                 const newV = { ...v };
+                                // Nếu xóa voucher FREESHIP thì reset free shipping
+                                if (appliedCoupon.code === 'FREESHIP') setIsFreeShipping(false);
                                 delete newV[cartItem._id];
                                 return newV;
+                              });
+                              setVoucherError(prev => {
+                                const newErr = { ...prev };
+                                delete newErr[cartItem._id];
+                                return newErr;
+                              });
+                              setVoucherInputs(prev => {
+                                const newInputs = { ...prev };
+                                delete newInputs[cartItem._id];
+                                return newInputs;
                               });
                             }}
                           />
@@ -944,13 +951,9 @@ export default function CartPage() {
                     </Box>
                     {/* Controls số lượng */}
                     {(() => {
-                      const maxQuantity =
-                        cartItem.product?.sizes?.find(
-                          (sz: ProductSize) =>
-                            sz.size === cartItem.size &&
-                            'color' in sz &&
-                            sz.color === cartItem.color
-                        )?.stock ?? 1;
+                      const maxQuantity = cartItem.product && (cartItem.product.sizes?.find(
+                        (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
+                      )?.stock ?? 1);
                       return (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconButton

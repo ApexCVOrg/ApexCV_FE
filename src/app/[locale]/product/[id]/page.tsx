@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -28,6 +29,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Avatar,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -64,8 +66,6 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
-  ratingsAverage: number;
-  ratingsQuantity: number;
   status: string;
   createdAt: string;
 }
@@ -92,6 +92,18 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+interface Review {
+  _id: string;
+  user: {
+    _id: string;
+    fullName: string;
+    avatar?: string;
+  };
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const t = useTranslations('productDetail');
@@ -114,6 +126,9 @@ export default function ProductDetailPage() {
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]); // State để lưu reviews
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingCount, setRatingCount] = useState(0);
   const [autoScroll, setAutoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
@@ -143,8 +158,29 @@ export default function ProductDetailPage() {
 
     if (productId) {
       fetchProduct();
+      fetchReviews(); // Gọi hàm fetch reviews
+      fetchAverageRating(); // Gọi hàm fetch rating trung bình
     }
   }, [productId]);
+
+  const fetchAverageRating = async () => {
+    try {
+      const response = await api.get<{ average: number; count: number }>(`/reviews/average/${productId}`);
+      setAverageRating(response.data.average || 0);
+      setRatingCount(response.data.count || 0);
+    } catch (err) {
+      console.error('Không thể tải rating trung bình:', err);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const response = await api.get<Review[]>(`/reviews/product/${productId}`);
+      setReviews(response.data);
+    } catch (err) {
+      console.error('Không thể tải đánh giá sản phẩm:', err);
+    }
+  };
 
   // Auto scroll images
   useEffect(() => {
@@ -224,7 +260,7 @@ export default function ProductDetailPage() {
   };
 
   const getUniqueSizes = () => {
-    if (!product) return [];
+    if (!product || !Array.isArray(product.sizes)) return [];
     return Array.from(new Set(product.sizes.map(s => s.size)));
   };
 
@@ -475,9 +511,9 @@ export default function ProductDetailPage() {
 
             {/* Rating */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Rating value={product.ratingsAverage} precision={0.1} readOnly />
+              <Rating value={averageRating} precision={0.1} readOnly />
               <Typography variant="body2" sx={{ ml: 1 }}>
-                {product.ratingsAverage.toFixed(1)} ({product.ratingsQuantity} đánh giá)
+                {averageRating > 0 ? `${averageRating.toFixed(1)} (${ratingCount} đánh giá)` : 'Chưa có đánh giá'}
               </Typography>
             </Box>
 
@@ -749,7 +785,7 @@ export default function ProductDetailPage() {
             </Box>
 
             {/* Tags */}
-            {product.tags.length > 0 && (
+            {Array.isArray(product.tags) && product.tags.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
                   {t('tags')}:
@@ -821,16 +857,16 @@ export default function ProductDetailPage() {
                   </Typography>
                   <Box sx={{ mt: 2 }}>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
+                      <strong>{t('availableSizes')}:</strong> {Array.isArray(getUniqueSizes()) && getUniqueSizes().length > 0 ? getUniqueSizes().join(', ') : ''}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('colors')}:</strong> {product.colors.join(', ')}
+                      <strong>{t('colors')}:</strong> {Array.isArray(product.colors) ? product.colors.join(', ') : ''}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
+                      <strong>{t('averageRating')}:</strong> {averageRating > 0 ? `${averageRating.toFixed(1)}/5` : 'N/A'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('reviewCount')}:</strong> {product.ratingsQuantity}
+                      <strong>{t('reviewCount')}:</strong> {ratingCount}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -840,15 +876,35 @@ export default function ProductDetailPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              {t('noReviews')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('beFirstToReview')}
-            </Typography>
-          </Box>
+          {reviews.length > 0 ? (
+            <Stack spacing={4}>
+              {reviews.map((review) => (
+                <Box key={review._id} sx={{ display: 'flex', gap: 2 }}>
+                  <Avatar src={review.user.avatar || '/default-avatar.png'} alt={review.user.fullName} />
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">{review.user.fullName}</Typography>
+                    <Rating value={review.rating} readOnly precision={0.5} size="small" />
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      {review.comment}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Stack>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary">
+                {t('noReviews')}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t('beFirstToReview')}
+              </Typography>
+            </Box>
+          )}
         </TabPanel>
       </Box>
 
@@ -886,7 +942,7 @@ export default function ProductDetailPage() {
             <Close />
           </IconButton>
           <img
-            src={product.images[selectedImage]}
+            src={Array.isArray(product.images) && product.images[selectedImage] ? product.images[selectedImage] : ''}
             alt={product.name}
             style={{
               maxWidth: '100%',

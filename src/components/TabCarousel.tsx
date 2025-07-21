@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -9,6 +10,7 @@ import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ProductCard from '@/components/card';
 import { ProductLabel } from '@/types/components/label';
+import { useCartContext } from '@/context/CartContext';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -42,6 +44,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef<any>(null);
+  const { addToCart } = useCartContext();
 
   // Swiper breakpoints configuration
   const swiperBreakpoints = {

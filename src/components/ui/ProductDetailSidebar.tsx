@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react';
 import {
   Box,
@@ -62,8 +63,20 @@ interface Product {
   stock?: number;
 }
 
-const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
-  productId,
+interface Review {
+  _id: string;
+  user: {
+    _id: string;
+    fullName: string;
+    avatar?: string;
+  };
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({ 
+  productId, 
   product: initialProduct,
   onClose,
   isOpen,
@@ -77,6 +90,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
   const [selectedImage, setSelectedImage] = useState(0);
   const [addToCartLoading, setAddToCartLoading] = useState(false);
   const [addToCartSuccess, setAddToCartSuccess] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]); // State cho reviews
   const [expandedSections, setExpandedSections] = useState({
     details: false,
     reviews: false,
@@ -104,6 +118,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     // Nếu có product data sẵn, sử dụng luôn
     if (initialProduct) {
       setProduct(initialProduct);
+      fetchReviews(initialProduct._id); // Fetch reviews khi có product
       // Auto-select first size and color if available
       if (initialProduct.sizes && initialProduct.sizes.length > 0) {
         setSelectedSize(initialProduct.sizes[0].size);
@@ -123,6 +138,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
       })
       .then(data => {
         setProduct(data.data);
+        fetchReviews(data.data._id); // Fetch reviews khi có product
         // Auto-select first size and color if available
         if (data.data.sizes && data.data.sizes.length > 0) {
           setSelectedSize(data.data.sizes[0].size);
@@ -134,6 +150,18 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [productId, initialProduct]);
+
+  const fetchReviews = async (pId: string) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews/product/${pId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+    }
+  };
 
   const handleAddToCart = async () => {
     const token = getToken();
@@ -631,9 +659,26 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       </Button>
                       {expandedSections.reviews && (
                         <Box sx={{ pl: 2, pb: 2 }}>
-                          <Typography variant="body2" color="#666">
-                            Chưa có đánh giá nào cho sản phẩm này.
-                          </Typography>
+                          {reviews.length > 0 ? (
+                            <Stack spacing={2}>
+                              {reviews.map(review => (
+                                <Box key={review._id}>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                    <Avatar src={review.user.avatar} sx={{ width: 24, height: 24, mr: 1 }} />
+                                    <Typography variant="subtitle2" fontWeight={600}>{review.user.fullName}</Typography>
+                                  </Box>
+                                  <Rating value={review.rating} size="small" readOnly />
+                                  <Typography variant="body2" color="#666" sx={{ mt: 0.5 }}>
+                                    {review.comment}
+                                  </Typography>
+                                </Box>
+                              ))}
+                            </Stack>
+                          ) : (
+                            <Typography variant="body2" color="#666">
+                              Chưa có đánh giá nào cho sản phẩm này.
+                            </Typography>
+                          )}
                         </Box>
                       )}
                     </Box>

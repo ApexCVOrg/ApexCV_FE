@@ -21,6 +21,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import ProductCard from '@/components/card';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -82,6 +83,8 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
   const [sortBy, setSortBy] = useState('newest');
   const [filterDialogOpen, setFilterDialogOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const { addToCart } = useCartContext();
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -384,7 +387,18 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                   tags={product.tags || []}
                   brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                   categories={product.categories || []}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  onAddToCart={async () => {
+                    try {
+                      await addToCart({
+                        productId: product._id,
+                        quantity: 1,
+                      });
+                      // Có thể thêm snackbar thông báo thành công ở đây
+                    } catch (error) {
+                      console.error('Error adding to cart:', error);
+                      // Có thể thêm snackbar thông báo lỗi ở đây
+                    }
+                  }}
                 />
               </Box>
             ))}

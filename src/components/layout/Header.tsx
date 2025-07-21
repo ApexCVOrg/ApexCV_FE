@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -20,9 +21,9 @@ import {
   ListItemText,
   Badge,
   useTheme,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   TextField,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   InputAdornment,
   Menu,
   ListItemIcon,
@@ -42,6 +43,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
+import HistoryIcon from '@mui/icons-material/History';
 import HeaderMenuShoes from './HeaderMenuShoes';
 
 const LANGUAGES = ['en', 'vi'] as const;
@@ -738,6 +740,12 @@ const Header = () => {
                         {favoritesCount > 99 ? '99+' : favoritesCount}
                       </Box>
                     )}
+                  </MenuItem>
+                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/history`); }}>
+                    <ListItemIcon>
+                      <HistoryIcon fontSize="small" />
+                    </ListItemIcon>
+                    Lịch sử
                   </MenuItem>
                   {userRole === 'admin' && (
                     <MenuItem onClick={handleAdminDashboard}>

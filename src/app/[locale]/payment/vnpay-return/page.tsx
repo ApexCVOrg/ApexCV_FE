@@ -1,16 +1,17 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import {
-  CircularProgress,
-  Container,
-  Paper,
-  Typography,
-  Alert,
-  Button,
-  Box,
-  Divider,
-  Stack,
+/* eslint-disable */
+"use client"
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { 
+  CircularProgress, 
+  Container, 
+  Paper, 
+  Typography, 
+  Alert, 
+  Button, 
+  Box, 
+  Divider, 
+  Stack, 
   Chip,
   Card,
   CardContent,

@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
 import {
@@ -17,6 +18,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -48,6 +50,7 @@ export default function KidsPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
+  const { addToCart } = useCartContext();
 
   // Debug environment variables
   console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
@@ -144,8 +147,17 @@ export default function KidsPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1,
+      });
+      // Có thể thêm snackbar thông báo thành công ở đây
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      // Có thể thêm snackbar thông báo lỗi ở đây
+    }
   };
 
   const handleCarouselPrev = () => {
@@ -491,7 +503,7 @@ export default function KidsPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

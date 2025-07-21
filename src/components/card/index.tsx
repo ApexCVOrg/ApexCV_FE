@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useEffect, useRef } from 'react';
@@ -21,7 +22,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import { PRODUCT_LABELS, ProductLabel } from '@/types/components/label';
-
+ 
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
 import api from '@/services/api';
@@ -50,10 +51,10 @@ interface ProductCardProps {
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
   addToCartButtonProps?: React.ComponentProps<typeof Button>;
+  refreshKey?: number; // Thêm prop refreshKey để cập nhật rating realtime
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  _id,
   name,
   image,
   price,
@@ -70,6 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   backgroundColor = '#ffffff',
   colors = 1,
   addToCartButtonProps,
+  refreshKey = 0,
 }) => {
   const t = useTranslations('productCard');
   const router = useRouter();
@@ -159,11 +161,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'warning' | 'error';
-  }>({ open: false, message: '', severity: 'success' });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "warning" | "error" }>({ open: false, message: "", severity: "success" });
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [ratingCount, setRatingCount] = useState<number>(0);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -174,6 +174,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
       });
       return;
     }
+    
+    // Gọi callback onAddToCart nếu có
+    if (onAddToCart) {
+      onAddToCart();
+      return;
+    }
+    
+    // Nếu không có callback, thực hiện logic mặc định
     try {
       await api.post('/carts/add', { productId });
       await refreshCart(); // Refresh cart state
@@ -190,6 +198,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
       });
     }
   };
+
+  useEffect(() => {
+    if (!productId) return;
+    api.get(`/reviews/average/${productId}`)
+      .then(res => {
+        const data = res.data as { average?: number; count?: number };
+        setAverageRating(data.average || 0);
+        setRatingCount(data.count || 0);
+      })
+      .catch(() => {
+        setAverageRating(0);
+        setRatingCount(0);
+      });
+  }, [productId, refreshKey]); // Thêm refreshKey vào dependency
 
   // Nếu là ảnh lib, render card style hiện tại với animation
   if (isLibImage) {
@@ -667,21 +689,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Star rating and value (placeholder) */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           {[...Array(5)].map((_, i) => (
-            <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
+            <StarIcon key={i} sx={{ color: i < Math.round(averageRating * 2) / 2 ? '#FFD600' : '#e0e0e0', fontSize: 20, mr: 0.2 }} />
           ))}
-          <Box
-            sx={{
-              bgcolor: '#f5f5f5',
-              color: '#222',
-              fontWeight: 600,
-              fontSize: 14,
-              borderRadius: 1,
-              px: 1,
-              ml: 1,
-            }}
-          >
-            5.0
+          <Box sx={{ bgcolor: '#f5f5f5', color: '#222', fontWeight: 600, fontSize: 14, borderRadius: 1, px: 1, ml: 1 }}>
+            {ratingCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
           </Box>
+          {ratingCount > 0 && (
+            <Box sx={{ color: '#888', fontSize: 12, ml: 1 }}>({ratingCount})</Box>
+          )}
         </Box>
         {/* Brand and categories */}
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>

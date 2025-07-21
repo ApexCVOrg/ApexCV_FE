@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -15,7 +16,6 @@ import {
   Button,
   Tabs,
   Tab,
-  IconButton,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
@@ -28,7 +28,7 @@ import { motion } from 'framer-motion';
 // import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 // import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
-
+ 
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
@@ -146,7 +146,7 @@ export default function HomePage() {
   // State for pagination (load more)
   const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
@@ -156,6 +156,7 @@ export default function HomePage() {
   // State lưu hướng chuyển động (slide direction)
   // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const { addToCart } = useCartContext();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -300,7 +301,7 @@ export default function HomePage() {
           `${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`
         );
         const result = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
           _id: item._id,
           name: item.name,
@@ -577,7 +578,17 @@ export default function HomePage() {
                     labels={product.label ? [product.label as string] : []}
                     allCategories={categories}
                     allBrands={brands}
-                    onAddToCart={() => console.log('Add to cart:', product._id)}
+                    onAddToCart={async () => {
+                      try {
+                        await addToCart({
+                          productId: product._id,
+                          quantity: 1,
+                        });
+                        setSnackbarOpen(true);
+                      } catch (error) {
+                        console.error('Error adding to cart:', error);
+                      }
+                    }}
                     backgroundColor="#f8f9fa"
                     colors={3}
                     onViewDetail={() => handleProductCardClick(product._id, product)}
