@@ -26,9 +26,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   const pathname = usePathname();
   const prevPath = useRef<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const auth = useAuth();
-  const currentUser = auth.getCurrentUser ? auth.getCurrentUser() : null;
-  const userId = currentUser?.id ? String(currentUser.id) : (currentUser?.email || 'guest-guest');
 
   useEffect(() => {
     if (prevPath.current !== null && prevPath.current !== pathname) {

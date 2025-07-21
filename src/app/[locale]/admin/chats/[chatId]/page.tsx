@@ -299,7 +299,7 @@ const ChatDetailPage = () => {
       fetchChatSession();
       fetchMessages();
     }
-  }, [chatId, isAuthenticated, getToken]);
+  }, [chatId, isAuthenticated, getToken, fetchChatSession, fetchMessages]);
 
   // Handle key press
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -396,7 +396,7 @@ const ChatDetailPage = () => {
           {session && (
             <Chip
               label={getStatusText(session.status)}
-              color={getStatusColor(session.status) as any}
+              color={getStatusColor(session.status) as 'success' | 'default' | 'warning'}
               size="small"
             />
           )}

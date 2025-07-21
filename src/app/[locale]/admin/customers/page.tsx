@@ -346,8 +346,8 @@ export default function CustomersPage() {
       setSnackbar({ open: true, message: `User banned successfully`, severity: "success" });
       handleCloseBanDialog();
       fetchUsers();
-    } catch (err: any) {
-      setSnackbar({ open: true, message: err?.response?.data?.message || "Failed to ban user", severity: "error" });
+    } catch (err: unknown) {
+      setSnackbar({ open: true, message: (err as any)?.response?.data?.message || "Failed to ban user", severity: "error" });
     }
   };
   // Gọi API mở user
@@ -356,8 +356,8 @@ export default function CustomersPage() {
       await api.patch(`${API_ENDPOINTS.ADMIN.USERS}/${user._id}/status`, { status: "active" });
       setSnackbar({ open: true, message: `User unlocked successfully`, severity: "success" });
       fetchUsers();
-    } catch (err: any) {
-      setSnackbar({ open: true, message: err?.response?.data?.message || "Failed to unlock user", severity: "error" });
+    } catch (err: unknown) {
+      setSnackbar({ open: true, message: (err as any)?.response?.data?.message || "Failed to unlock user", severity: "error" });
     }
   };
 

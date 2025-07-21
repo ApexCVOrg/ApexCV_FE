@@ -24,16 +24,16 @@ import { buildCategoryTree } from '@/lib/utils/categoryUtils';
 import { useAuth } from '@/hooks/useAuth';
 import ProductCard from '@/components/card';
 import HomepageBanner from '@/components/banner/HomepageBanner';
-import { motion, AnimatePresence } from 'framer-motion';
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { motion } from 'framer-motion';
+// import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+// import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
-import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
+// import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 
 interface Product {
@@ -148,11 +148,11 @@ export default function HomePage() {
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
-  const { addToCart } = useCartContext();
+  // const { addToCart } = useCartContext();
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
-  const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
+  // const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
-  const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
+  // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
@@ -368,9 +368,9 @@ export default function HomePage() {
     // Chỉ reset startIndex nếu có nhiều hơn 3 sản phẩm
     const key = TABS[tab].key;
     const tabProducts = products[key] || [];
-    if (tabProducts.length > 3) {
-      setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
-    }
+    // if (tabProducts.length > 3) {
+    //   setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
+    // }
   }, [tab, priceRange, selectedCategories, selectedBrands, searchQuery, products]);
 
   // Fetch filtered products when filters change

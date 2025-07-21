@@ -70,7 +70,7 @@ export default function CouponsPage() {
   };
   const handleCloseDialog = () => { setOpenDialog(false); setEditCoupon(null); setForm(defaultForm); };
 
-  const handleFormChange = (field: keyof Coupon) => (e: any) => {
+  const handleFormChange = (field: keyof Coupon) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
@@ -161,7 +161,7 @@ export default function CouponsPage() {
                 <TableCell>
                   <Chip
                     label={coupon.isActive ? t("active") : t("expired")}
-                    color={coupon.isActive ? 'success' : 'default'}
+                    color={coupon.isActive ? 'success' : 'default' as const}
                     size="small"
                   />
                 </TableCell>

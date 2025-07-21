@@ -57,9 +57,9 @@ interface ChatSessionsResponse {
 const ChatSessionsPage = () => {
   const router = useRouter();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, getToken } = useAuth();
-  const t = useTranslations('manager.chats');
+  // const t = useTranslations('manager.chats');
 
   // State
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -123,10 +123,10 @@ const ChatSessionsPage = () => {
   // Fetch data on mount and when dependencies change
   useEffect(() => {
     fetchChatSessions();
-  }, [page, rowsPerPage, searchTerm, statusFilter, isAuthenticated, getToken]);
+  }, [page, rowsPerPage, searchTerm, statusFilter, isAuthenticated, getToken, fetchChatSessions]);
 
   // Handle pagination
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 

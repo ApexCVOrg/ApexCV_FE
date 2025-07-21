@@ -12,7 +12,7 @@ import {
   TableRow,
   Paper,
   TablePagination,
-  TextField,
+  // TextField,
   Select,
   MenuItem,
   InputLabel,
@@ -45,7 +45,7 @@ export default function AuditLogPage() {
   const [error, setError] = useState("");
   const [action, setAction] = useState("");
   const [adminId, setAdminId] = useState("");
-  const [admins, setAdmins] = useState<any[]>([]);
+  const [admins, setAdmins] = useState<unknown[]>([]);
 
   // Lấy danh sách admin để filter (có thể tối ưu sau)
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function AuditLogPage() {
       } else {
         setError(data.message || "Lỗi khi tải audit log");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("Lỗi khi tải audit log");
     } finally {
       setLoading(false);
@@ -163,12 +163,12 @@ export default function AuditLogPage() {
                 {logs.map((log) => (
                   <TableRow key={log._id} hover>
                     <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
-                    <TableCell>{log.action}</TableCell>
-                    <TableCell>{log.target}</TableCell>
-                    <TableCell>{log.detail}</TableCell>
-                    <TableCell>{log.ip}</TableCell>
-                    <TableCell sx={{ maxWidth: 120, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{log.userAgent}</TableCell>
-                    <TableCell>{log.adminId?.username || log.adminId?.email || log.adminId}</TableCell>
+                    <TableCell>{(log as any).action}</TableCell>
+                    <TableCell>{(log as any).target}</TableCell>
+                    <TableCell>{(log as any).detail}</TableCell>
+                    <TableCell>{(log as any).ip}</TableCell>
+                    <TableCell sx={{ maxWidth: 120, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{(log as any).userAgent}</TableCell>
+                    <TableCell>{(log as any).adminId?.username || (log as any).adminId?.email || (log as any).adminId}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
