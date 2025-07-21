@@ -1599,7 +1599,7 @@ const ChatBox: React.FC = () => {
                                   e.currentTarget.style.display = 'none';
                                 }}
                                 onLoad={() => {
-                                  console.log('Image loaded successfully:', attachment.url);
+                                  // Image loaded
                                 }}
                               />
                             ) : (

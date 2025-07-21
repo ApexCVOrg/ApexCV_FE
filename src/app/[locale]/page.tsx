@@ -208,9 +208,9 @@ export default function HomePage() {
           setCategoryTree(buildCategoryTree(categoriesData));
         }
         setBrands(brandsData);
-      } catch (error) {
-        console.error('Error fetching categories or brands:', error);
-      }
+          } catch {
+      // Handle error silently
+    }
     };
     fetchInitialData();
   }, []);

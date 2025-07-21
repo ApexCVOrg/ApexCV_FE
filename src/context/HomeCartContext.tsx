@@ -118,9 +118,8 @@ export const HomeCartProvider = ({ children }: { children: ReactNode }) => {
       // Xóa home cart sau khi đã chuyển thành công
       clearHomeCart();
       // Không đóng sidebar vì luôn mở
-    } catch (error) {
-      console.error('Error confirming home cart:', error);
-      throw error;
+    } catch {
+      throw new Error('Failed to confirm home cart');
     }
   };
 

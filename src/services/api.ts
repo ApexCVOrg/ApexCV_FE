@@ -25,7 +25,7 @@ interface AxiosRequest {
 }
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -108,7 +108,7 @@ api.interceptors.response.use(
  */
 export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
 
   // Loại bỏ /api từ baseURL nếu có để tránh duplicate
   const cleanBaseURL = baseURL.replace(/\/api$/, '');

@@ -156,8 +156,7 @@ const Header = () => {
           );
           const payload = JSON.parse(jsonPayload);
           setUserRole(payload.role);
-        } catch (e) {
-          console.error('Error decoding token:', e);
+        } catch {
           setUserRole(null);
         }
       } else {

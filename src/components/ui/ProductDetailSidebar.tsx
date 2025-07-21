@@ -159,7 +159,6 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
   const handleToggleFavorite = (isFavorite: boolean) => {
     // FavoriteButton sẽ tự xử lý việc toggle favorite
-    console.log('Favorite toggled:', isFavorite);
   };
 
   const isAddToCartDisabled = () => {
@@ -515,7 +514,6 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         const token = getToken();
                         if (!token) {
                           // Redirect to login or show login modal
-                          console.log('Please login to add to wishlist');
                           return;
                         }
 
@@ -526,9 +524,9 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           );
                           await favoritesService.toggleFavorite(product._id);
                           handleToggleFavorite(!isFavorite(product._id));
-                        } catch (error) {
-                          console.error('Error toggling favorite:', error);
-                        }
+                                } catch {
+          // Handle error silently
+        }
                       }}
                       sx={{
                         display: 'flex',

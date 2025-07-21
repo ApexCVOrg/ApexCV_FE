@@ -5,10 +5,10 @@ const path = require('path');
 
 // URLs cần thay thế
 const URL_REPLACEMENTS = {
-  'http://localhost:5000': 'https://apexcv-be.onrender.com',
-  'ws://localhost:5000': 'wss://apexcv-be.onrender.com',
-  'ws://localhost:3001': 'wss://apexcv-be.onrender.com',
-  'http://localhost:3000': 'https://apex-cv-fe-git-main-nidas-projects-e8bff2a3.vercel.app'
+  'http://localhost:5000': 'https://nidas-be.onrender.com',
+  'ws://localhost:5000': 'wss://nidas-be.onrender.com',
+  'ws://localhost:3001': 'wss://nidas-be.onrender.com',
+      'http://localhost:3000': 'https://nidas-fe.vercel.app'
 };
 
 // Thư mục cần kiểm tra

@@ -87,7 +87,7 @@ export default function AirForcePage() {
               (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) {
-              console.log('✅ Matched by categoryPath array:', item.name);
+              // Matched by categoryPath array
               return true;
             }
           }
@@ -97,7 +97,7 @@ export default function AirForcePage() {
             const pathString = item.categoryPath.toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) {
-              console.log('✅ Matched by categoryPath string:', item.name);
+              // Matched by categoryPath string
               return true;
             }
           }
@@ -106,7 +106,7 @@ export default function AirForcePage() {
           if (item.categories && Array.isArray(item.categories)) {
             const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('air force') || categoryNames.includes('airforce')) {
-              console.log('✅ Matched by categories array:', item.name);
+              // Matched by categories array
               return true;
             }
           }
@@ -116,7 +116,7 @@ export default function AirForcePage() {
             item.name.toLowerCase().includes('air force') ||
             item.name.toLowerCase().includes('airforce')
           ) {
-            console.log('✅ Matched by name:', item.name);
+            // Matched by name
             return true;
           }
 

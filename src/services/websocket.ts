@@ -39,7 +39,7 @@ class WebSocketService {
         return;
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://apexcv-be.onrender.com';
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://nidas-be.onrender.com';
       this.ws = new WebSocket(`${wsUrl}?token=${token}`);
 
       this.ws.onopen = () => {

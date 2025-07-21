@@ -46,7 +46,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const cartData = await cartService.getCart();
       setCart(cartData);
     } catch (err) {
-      console.error('Error fetching cart:', err);
       setError('Không thể tải giỏ hàng');
       setCart(null);
     } finally {
@@ -67,7 +66,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const updatedCart = await cartService.addToCart(data);
       setCart(updatedCart);
     } catch (err) {
-      console.error('Error adding to cart:', err);
       setError('Không thể thêm sản phẩm vào giỏ hàng');
       throw err;
     } finally {
@@ -88,7 +86,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const updatedCart = await cartService.updateCartItem(cartItemId, quantity, size, color);
       setCart(updatedCart);
     } catch (err) {
-      console.error('Error updating cart item:', err);
       setError('Không thể cập nhật giỏ hàng');
       throw err;
     } finally {
@@ -104,7 +101,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const updatedCart = await cartService.removeFromCart(cartItemId);
       setCart(updatedCart);
     } catch (err) {
-      console.error('Error removing from cart:', err);
       setError('Không thể xóa sản phẩm khỏi giỏ hàng');
       throw err;
     } finally {
@@ -120,7 +116,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       await cartService.clearCart();
       setCart(null);
     } catch (err) {
-      console.error('Error clearing cart:', err);
       setError('Không thể xóa giỏ hàng');
       throw err;
     } finally {

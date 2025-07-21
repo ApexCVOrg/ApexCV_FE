@@ -14,14 +14,14 @@ const nextConfig = {
       'upload.wikimedia.org',
       'dothethao.net.vn',
       'res.cloudinary.com',
-      'apex-cv-fe-git-main-nidas-projects-e8bff2a3.vercel.app',
+      'nidas-fe.vercel.app',
     ],
   },
   async rewrites() {
     return [
       {
         source: '/api/payment/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://apexcv-be.onrender.com'}/api/payment/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com'}/api/payment/:path*`,
       },
     ];
   },

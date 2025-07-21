@@ -47,9 +47,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     try {
       await toggleFavorite(productId);
       onToggle?.(!favorite);
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      // Toast notification có thể được thêm ở đây
+    } catch {
+      // Handle error silently
     } finally {
       setIsLoading(false);
     }
