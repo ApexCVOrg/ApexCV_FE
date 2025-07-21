@@ -1,12 +1,12 @@
 /* eslint-disable */
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Divider, 
-  Button, 
-  Chip, 
-  Stack, 
+import {
+  Box,
+  Typography,
+  Divider,
+  Button,
+  Chip,
+  Stack,
   CircularProgress,
   IconButton,
   FormControl,
@@ -78,8 +78,8 @@ interface Review {
 const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({ 
   productId, 
   product: initialProduct,
-  onClose, 
-  isOpen 
+  onClose,
+  isOpen,
 }) => {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(false);
@@ -107,14 +107,14 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
       setProduct(null);
       return;
     }
-    
+
     setLoading(true);
     setError(null);
     setSelectedSize('');
     setSelectedColor('');
     setQuantity(1);
     setSelectedImage(0);
-    
+
     // Nếu có product data sẵn, sử dụng luôn
     if (initialProduct) {
       setProduct(initialProduct);
@@ -129,7 +129,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
       setLoading(false);
       return;
     }
-    
+
     // Nếu không có product data, gọi API (fallback)
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`)
       .then(res => {
@@ -187,7 +187,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     try {
       setAddToCartLoading(true);
       setError(null);
-      
+
       await addToCart({
         productId: product._id,
         quantity,
@@ -224,7 +224,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -252,20 +252,29 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
         >
           <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {/* Header */}
-            <Box sx={{ 
-              p: 3, 
-              borderBottom: '1px solid #f0f0f0',
-              background: '#fff',
-            }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+            <Box
+              sx={{
+                p: 3,
+                borderBottom: '1px solid #f0f0f0',
+                background: '#fff',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  mb: 2,
+                }}
+              >
                 <Typography variant="h5" fontWeight={700} color="#1a1a1a">
                   Detail Product
                 </Typography>
-                <IconButton 
+                <IconButton
                   onClick={onClose}
-                  sx={{ 
+                  sx={{
                     color: '#666',
-                    '&:hover': { color: '#1a1a1a' }
+                    '&:hover': { color: '#1a1a1a' },
                   }}
                 >
                   <CloseIcon />
@@ -279,7 +288,14 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
             {/* Content */}
             <Box sx={{ flex: 1, overflow: 'auto' }}>
               {loading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '50vh',
+                  }}
+                >
                   <CircularProgress size={60} />
                 </Box>
               ) : error ? (
@@ -290,18 +306,20 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                 <Box sx={{ p: 3 }}>
                   {/* Image Gallery */}
                   <Box sx={{ mb: 3 }}>
-                    <Box sx={{ 
-                      position: 'relative',
-                      width: '100%',
-                      height: 300,
-                      borderRadius: 2,
-                      overflow: 'hidden',
-                      mb: 2,
-                      background: '#f8f9fa',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
+                    <Box
+                      sx={{
+                        position: 'relative',
+                        width: '100%',
+                        height: 300,
+                        borderRadius: 2,
+                        overflow: 'hidden',
+                        mb: 2,
+                        background: '#f8f9fa',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
                       <img
                         src={product.images?.[selectedImage] || '/assets/images/placeholder.jpg'}
                         alt={product.name}
@@ -312,7 +330,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         }}
                       />
                     </Box>
-                    
+
                     {/* Thumbnail Images */}
                     {product.images && product.images.length > 1 && (
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
@@ -326,7 +344,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                               borderRadius: 1,
                               overflow: 'hidden',
                               cursor: 'pointer',
-                              border: selectedImage === idx ? '2px solid #1976d2' : '1px solid #e0e0e0',
+                              border:
+                                selectedImage === idx ? '2px solid #1976d2' : '1px solid #e0e0e0',
                               opacity: selectedImage === idx ? 1 : 0.7,
                               transition: 'all 0.2s',
                               '&:hover': { opacity: 1 },
@@ -352,22 +371,22 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                     <Typography variant="h5" fontWeight={700} color="#1a1a1a" gutterBottom>
                       {product.name}
                     </Typography>
-                    
+
                     {/* Tags */}
                     {product.tags && product.tags.length > 0 && (
                       <Box sx={{ mb: 2 }}>
                         <Stack direction="row" spacing={1}>
                           {product.tags.slice(0, 2).map((tag, idx) => (
-                            <Chip 
-                              key={idx} 
-                              label={tag} 
-                              size="small" 
+                            <Chip
+                              key={idx}
+                              label={tag}
+                              size="small"
                               variant="outlined"
-                              sx={{ 
+                              sx={{
                                 bgcolor: '#f5f5f5',
                                 borderColor: '#e0e0e0',
                                 color: '#666',
-                                fontWeight: 500
+                                fontWeight: 500,
                               }}
                             />
                           ))}
@@ -376,21 +395,37 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                     )}
 
                     {/* Price */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        mb: 3,
+                      }}
+                    >
                       <Typography variant="h4" fontWeight={700} color="#1976d2">
                         {product.discountPrice
-                          ? product.discountPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
-                          : product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                          ? product.discountPrice.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })
+                          : product.price.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })}
                       </Typography>
                       {product.discountPrice && (
-                        <Typography 
-                          variant="h6" 
-                          sx={{ 
+                        <Typography
+                          variant="h6"
+                          sx={{
                             textDecoration: 'line-through',
-                            color: '#999'
+                            color: '#999',
                           }}
                         >
-                          {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                          {product.price.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
                         </Typography>
                       )}
                     </Box>
@@ -399,7 +434,14 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                   {/* Color Selection */}
                   {product.colors && product.colors.length > 0 && (
                     <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          mb: 1,
+                        }}
+                      >
                         <Typography variant="subtitle1" fontWeight={600} color="#1a1a1a">
                           COLOR:
                         </Typography>
@@ -408,7 +450,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        {product.colors.map((color) => (
+                        {product.colors.map(color => (
                           <Box
                             key={color}
                             onClick={() => setSelectedColor(color)}
@@ -416,7 +458,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                               width: 32,
                               height: 32,
                               borderRadius: '50%',
-                              border: selectedColor === color ? '2px solid #1976d2' : '2px solid #e0e0e0',
+                              border:
+                                selectedColor === color ? '2px solid #1976d2' : '2px solid #e0e0e0',
                               cursor: 'pointer',
                               bgcolor: color.toLowerCase(),
                               transition: 'all 0.2s',
@@ -433,20 +476,27 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                   {/* Size Selection */}
                   {product.sizes && product.sizes.length > 0 && (
                     <Box sx={{ mb: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          mb: 1,
+                        }}
+                      >
                         <Typography variant="subtitle1" fontWeight={600} color="#1a1a1a">
                           SIZE: {selectedSize && `US ${selectedSize} (Only One Left)`}
                         </Typography>
-                        <Typography 
-                          variant="body2" 
-                          color="#1976d2" 
+                        <Typography
+                          variant="body2"
+                          color="#1976d2"
                           sx={{ cursor: 'pointer', textDecoration: 'underline' }}
                         >
                           Size Chart
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-                        {product.sizes.map((size) => (
+                        {product.sizes.map(size => (
                           <Button
                             key={size.size}
                             variant={selectedSize === size.size ? 'contained' : 'outlined'}
@@ -482,7 +532,9 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       size="large"
                       onClick={handleAddToCart}
                       disabled={isAddToCartDisabled() || addToCartLoading}
-                      startIcon={addToCartLoading ? <CircularProgress size={20} /> : <ShoppingCartIcon />}
+                      startIcon={
+                        addToCartLoading ? <CircularProgress size={20} /> : <ShoppingCartIcon />
+                      }
                       sx={{
                         bgcolor: '#1976d2',
                         color: '#fff',
@@ -498,18 +550,18 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         '&:disabled': {
                           bgcolor: '#e0e0e0',
                           color: '#999',
-                        }
+                        },
                       }}
                     >
                       {addToCartSuccess ? 'Đã thêm vào giỏ!' : 'Add to chart'}
                     </Button>
-                    
+
                     <Box
-                      onClick={async (e) => {
+                      onClick={async e => {
                         e.stopPropagation();
                         // Directly call the favorite toggle logic
                         if (!product) return;
-                        
+
                         const token = getToken();
                         if (!token) {
                           // Redirect to login or show login modal
@@ -519,7 +571,9 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
                         try {
                           // Import and use the favorites service directly
-                          const { default: favoritesService } = await import('@/services/favorites');
+                          const { default: favoritesService } = await import(
+                            '@/services/favorites'
+                          );
                           await favoritesService.toggleFavorite(product._id);
                           handleToggleFavorite(!isFavorite(product._id));
                         } catch (error) {
@@ -541,7 +595,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         '&:hover': {
                           borderColor: '#1565c0',
                           bgcolor: 'rgba(25, 118, 210, 0.04)',
-                        }
+                        },
                       }}
                     >
                       <FavoriteButton
@@ -571,7 +625,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           color: '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
-                          '&:hover': { bgcolor: 'transparent' }
+                          '&:hover': { bgcolor: 'transparent' },
                         }}
                         endIcon={expandedSections.details ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       >
@@ -597,7 +651,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           color: '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
-                          '&:hover': { bgcolor: 'transparent' }
+                          '&:hover': { bgcolor: 'transparent' },
                         }}
                         endIcon={expandedSections.reviews ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       >
@@ -640,16 +694,19 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           color: '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
-                          '&:hover': { bgcolor: 'transparent' }
+                          '&:hover': { bgcolor: 'transparent' },
                         }}
-                        endIcon={expandedSections.shipping ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                        endIcon={
+                          expandedSections.shipping ? <ExpandLessIcon /> : <ExpandMoreIcon />
+                        }
                       >
                         SHIPPING & RETURN:
                       </Button>
                       {expandedSections.shipping && (
                         <Box sx={{ pl: 2, pb: 2 }}>
                           <Typography variant="body2" color="#666">
-                            Miễn phí vận chuyển cho đơn hàng trên 500k. Chính sách đổi trả trong 30 ngày.
+                            Miễn phí vận chuyển cho đơn hàng trên 500k. Chính sách đổi trả trong 30
+                            ngày.
                           </Typography>
                         </Box>
                       )}
@@ -666,7 +723,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           color: '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
-                          '&:hover': { bgcolor: 'transparent' }
+                          '&:hover': { bgcolor: 'transparent' },
                         }}
                         endIcon={expandedSections.care ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                       >
@@ -706,4 +763,4 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
   );
 };
 
-export default ProductDetailSidebar; 
+export default ProductDetailSidebar;

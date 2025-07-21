@@ -29,13 +29,12 @@ export async function middleware(request: NextRequest) {
   if (isAdminRoute || isManagerRoute || isDashboardRoute) {
     // Check for auth token in cookies
     const authToken = request.cookies.get('auth_token')?.value;
-    
+
     if (!authToken) {
       // Redirect to login page with current locale
       const locale = pathname.split('/')[1];
-      const loginUrl = locale === 'en' || locale === 'vi' 
-        ? `/${locale}/auth/login` 
-        : '/vi/auth/login';
+      const loginUrl =
+        locale === 'en' || locale === 'vi' ? `/${locale}/auth/login` : '/vi/auth/login';
       return NextResponse.redirect(new URL(loginUrl, request.url));
     }
 

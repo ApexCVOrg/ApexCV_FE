@@ -1,5 +1,5 @@
-"use client";
-import React, { useState, useEffect, useRef } from "react";
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -10,17 +10,17 @@ import {
   TextField,
   IconButton,
   Paper,
-  Divider,
+  // Divider,
   Fade,
   Tooltip,
   Button,
   Chip,
-} from "@mui/material";
-import { Send as SendIcon, Menu as MenuIcon, PlayArrow as PlayIcon } from "@mui/icons-material";
-import { useAuth } from "@/hooks/useAuth";
+} from '@mui/material';
+import { Send as SendIcon, Menu as MenuIcon, PlayArrow as PlayIcon } from '@mui/icons-material';
+import { useAuth } from '@/hooks/useAuth';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/navigation';
 
 interface ChatSession {
@@ -30,7 +30,7 @@ interface ChatSession {
   userName: string;
   lastMessage: string | { content: string };
   messageCount: number;
-  status: "open" | "closed" | "pending";
+  status: 'open' | 'closed' | 'pending';
   createdAt: string;
   updatedAt: string;
 }
@@ -38,7 +38,7 @@ interface ChatSession {
 interface Message {
   _id: string;
   content: string;
-  role: "user" | "manager" | "bot";
+  role: 'user' | 'manager' | 'bot';
   timestamp: string;
   senderName?: string;
   isBotMessage?: boolean; // Flag to identify bot messages
@@ -57,7 +57,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [inputMessage, setInputMessage] = useState("");
+  const [inputMessage, setInputMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [managerJoined, setManagerJoined] = useState<Set<string>>(new Set());
@@ -71,11 +71,11 @@ export default function MessagesPage() {
   useEffect(() => {
     const handleOpen = () => setSidebarManagerOpen(true);
     const handleClose = () => setSidebarManagerOpen(false);
-    window.addEventListener("open-manager-sidebar", handleOpen);
-    window.addEventListener("close-manager-sidebar", handleClose);
+    window.addEventListener('open-manager-sidebar', handleOpen);
+    window.addEventListener('close-manager-sidebar', handleClose);
     return () => {
-      window.removeEventListener("open-manager-sidebar", handleOpen);
-      window.removeEventListener("close-manager-sidebar", handleClose);
+      window.removeEventListener('open-manager-sidebar', handleOpen);
+      window.removeEventListener('close-manager-sidebar', handleClose);
     };
   }, []);
 
@@ -86,16 +86,19 @@ export default function MessagesPage() {
       setError(null);
       try {
         const token = getToken();
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
         const data = await response.json();
         setSessions(data.data || []);
       } catch (err) {
-        setError("Không thể tải danh sách chat.");
+        setError('Không thể tải danh sách chat.');
       } finally {
         setLoadingSessions(false);
       }
@@ -111,25 +114,28 @@ export default function MessagesPage() {
       setError(null);
       try {
         const token = getToken();
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
         const data = await response.json();
         const messagesData = Array.isArray(data.data) ? data.data : [];
         setMessages(messagesData);
-        
+
         // Check if manager has already joined this chat (real manager, not bot)
-        const hasRealManagerMessage = messagesData.some((msg: Message) => 
-          msg.role === 'manager' && !msg.isBotMessage
+        const hasRealManagerMessage = messagesData.some(
+          (msg: Message) => msg.role === 'manager' && !msg.isBotMessage
         );
         if (hasRealManagerMessage) {
           setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
         }
       } catch (err) {
-        setError("Không thể tải tin nhắn.");
+        setError('Không thể tải tin nhắn.');
         setMessages([]);
       } finally {
         setLoadingMessages(false);
@@ -140,7 +146,7 @@ export default function MessagesPage() {
 
   // Auto scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   // Gửi tin nhắn
@@ -148,25 +154,28 @@ export default function MessagesPage() {
     if (!inputMessage.trim() || !selectedChat) return;
     setSending(true);
     const messageContent = inputMessage.trim();
-    setInputMessage("");
+    setInputMessage('');
     try {
       const token = getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: messageContent }),
-      });
-      if (!response.ok) throw new Error("Send failed");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: messageContent }),
+        }
+      );
+      if (!response.ok) throw new Error('Send failed');
       const result: ApiResponse<Message> = await response.json();
-      setMessages((prev) => [...prev, result.data]);
-      
+      setMessages(prev => [...prev, result.data]);
+
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
     } catch (err) {
-      setError("Không thể gửi tin nhắn.");
+      setError('Không thể gửi tin nhắn.');
       setInputMessage(messageContent);
     } finally {
       setSending(false);
@@ -176,35 +185,39 @@ export default function MessagesPage() {
   // Bắt đầu chat (manager tham gia)
   const startChat = async () => {
     if (!selectedChat) return;
-    
-    const welcomeMessage = "Xin chào! Tôi là nhân viên hỗ trợ của NIDAS. Tôi sẽ hỗ trợ bạn ngay bây giờ. Bạn cần hỗ trợ gì ạ?";
-    
+
+    const welcomeMessage =
+      'Xin chào! Tôi là nhân viên hỗ trợ của NIDAS. Tôi sẽ hỗ trợ bạn ngay bây giờ. Bạn cần hỗ trợ gì ạ?';
+
     try {
       const token = getToken();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: welcomeMessage }),
-      });
-      if (!response.ok) throw new Error("Send failed");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: welcomeMessage }),
+        }
+      );
+      if (!response.ok) throw new Error('Send failed');
       const result: ApiResponse<Message> = await response.json();
-      setMessages((prev) => [...prev, result.data]);
-      
+      setMessages(prev => [...prev, result.data]);
+
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
     } catch (err) {
-      setError("Không thể bắt đầu chat.");
+      setError('Không thể bắt đầu chat.');
     }
   };
 
   // Helper lấy nội dung lastMessage
   const getLastMessage = (msg: string | { content: string }): string => {
-    if (typeof msg === "string") return msg;
-    if (msg && typeof msg === "object" && "content" in msg) return msg.content;
-    return "";
+    if (typeof msg === 'string') return msg;
+    if (msg && typeof msg === 'object' && 'content' in msg) return msg.content;
+    return '';
   };
 
   // Check if chat needs manager intervention (only bot messages)
@@ -214,19 +227,19 @@ export default function MessagesPage() {
 
   // Gửi event để mở sidebar layout manager
   const openManagerSidebar = () => {
-    window.dispatchEvent(new CustomEvent("open-manager-sidebar"));
+    window.dispatchEvent(new CustomEvent('open-manager-sidebar'));
   };
 
   return (
     <Box
       sx={{
-        position: "fixed",
+        position: 'fixed',
         top: 64, // offset đúng với AppBar height
         left: 0,
-        width: "100vw",
-        height: "calc(100vh - 64px)",
-        bgcolor: "#18191a",
-        display: "flex",
+        width: '100vw',
+        height: 'calc(100vh - 64px)',
+        bgcolor: '#18191a',
+        display: 'flex',
         zIndex: 1200,
       }}
     >
@@ -235,35 +248,38 @@ export default function MessagesPage() {
         <Box
           sx={{
             width: 360,
-            bgcolor: "#23272f",
-            color: "#fff",
+            bgcolor: '#23272f',
+            color: '#fff',
             p: 2,
-            overflowY: "auto",
-            borderRight: "1.5px solid #23272f",
+            overflowY: 'auto',
+            borderRight: '1.5px solid #23272f',
             boxShadow: 3,
-            display: "flex",
-            flexDirection: "column",
-            position: "relative",
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
           }}
         >
           {/* Nút 3 gạch dọc */}
           {isMobile && (
             <IconButton
               onClick={openManagerSidebar}
-              sx={{ position: "absolute", top: 8, left: 8, zIndex: 10, color: '#fff' }}
+              sx={{ position: 'absolute', top: 8, left: 8, zIndex: 10, color: '#fff' }}
             >
               <MenuIcon fontSize="medium" />
             </IconButton>
           )}
           {/* XÓA nút back ở đây */}
-          <Typography variant="h6" sx={{ mb: 2, fontWeight: 700, letterSpacing: 1, pl: isMobile ? 5 : 0 }}>
+          <Typography
+            variant="h6"
+            sx={{ mb: 2, fontWeight: 700, letterSpacing: 1, pl: isMobile ? 5 : 0 }}
+          >
             Đoạn chat
           </Typography>
           {loadingSessions ? (
             <CircularProgress />
           ) : (
             <List sx={{ p: 0, m: 0 }}>
-              {sessions.map((chat) => (
+              {sessions.map(chat => (
                 <Fade in key={chat.chatId}>
                   <ListItemButton
                     selected={selectedChat?.chatId === chat.chatId}
@@ -271,27 +287,40 @@ export default function MessagesPage() {
                     sx={{
                       borderRadius: 2,
                       mb: 1,
-                      alignItems: "flex-start",
-                      transition: "background 0.2s",
-                      bgcolor: selectedChat?.chatId === chat.chatId ? "#31343b" : "transparent",
-                      '&:hover': { bgcolor: "#2a2d34" },
+                      alignItems: 'flex-start',
+                      transition: 'background 0.2s',
+                      bgcolor: selectedChat?.chatId === chat.chatId ? '#31343b' : 'transparent',
+                      '&:hover': { bgcolor: '#2a2d34' },
                     }}
                   >
-                    <Avatar sx={{ mr: 2, mt: 0.5, width: 44, height: 44, fontWeight: 700, bgcolor: '#1976d2' }}>{chat.userName?.[0]}</Avatar>
+                    <Avatar
+                      sx={{
+                        mr: 2,
+                        mt: 0.5,
+                        width: 44,
+                        height: 44,
+                        fontWeight: 700,
+                        bgcolor: '#1976d2',
+                      }}
+                    >
+                      {chat.userName?.[0]}
+                    </Avatar>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                        <Typography fontWeight={700} noWrap>{chat.userName}</Typography>
+                        <Typography fontWeight={700} noWrap>
+                          {chat.userName}
+                        </Typography>
                         {needsManagerIntervention(chat) && (
-                          <Chip 
-                            label="Cần hỗ trợ" 
-                            size="small" 
-                            color="warning" 
-                            sx={{ 
-                              height: 20, 
+                          <Chip
+                            label="Cần hỗ trợ"
+                            size="small"
+                            color="warning"
+                            sx={{
+                              height: 20,
                               fontSize: '0.7rem',
                               bgcolor: '#ff9800',
-                              color: '#fff'
-                            }} 
+                              color: '#fff',
+                            }}
                           />
                         )}
                       </Box>
@@ -299,7 +328,10 @@ export default function MessagesPage() {
                         {getLastMessage(chat.lastMessage)}
                       </Typography>
                       <Typography variant="caption" color="#888">
-                        {new Date(chat.updatedAt).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(chat.updatedAt).toLocaleTimeString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </Typography>
                     </Box>
                   </ListItemButton>
@@ -313,23 +345,41 @@ export default function MessagesPage() {
       <Box
         sx={{
           flex: 1,
-          bgcolor: "#18191a",
-          color: "#fff",
+          bgcolor: '#18191a',
+          color: '#fff',
           p: 0,
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           minWidth: 0,
         }}
       >
         {selectedChat ? (
           <>
             {/* Header */}
-            <Box sx={{ px: 4, py: 3, display: "flex", alignItems: "center", gap: 2, borderBottom: "1.5px solid #23272f", minHeight: 80 }}>
-              <Avatar sx={{ width: 48, height: 48, fontWeight: 700, bgcolor: '#1976d2' }}>{selectedChat.userName?.[0]}</Avatar>
+            <Box
+              sx={{
+                px: 4,
+                py: 3,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                borderBottom: '1.5px solid #23272f',
+                minHeight: 80,
+              }}
+            >
+              <Avatar sx={{ width: 48, height: 48, fontWeight: 700, bgcolor: '#1976d2' }}>
+                {selectedChat.userName?.[0]}
+              </Avatar>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={700}>{selectedChat.userName}</Typography>
+                <Typography variant="h6" fontWeight={700}>
+                  {selectedChat.userName}
+                </Typography>
                 {needsManagerIntervention(selectedChat) && (
-                  <Typography variant="caption" color="#ff9800" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <Typography
+                    variant="caption"
+                    color="#ff9800"
+                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                  >
                     ⚠️ Chưa có nhân viên hỗ trợ
                   </Typography>
                 )}
@@ -339,11 +389,11 @@ export default function MessagesPage() {
             <Box
               sx={{
                 flex: 1,
-                overflowY: "auto",
+                overflowY: 'auto',
                 px: 4,
                 py: 3,
-                display: "flex",
-                flexDirection: "column",
+                display: 'flex',
+                flexDirection: 'column',
                 gap: 1.5,
                 '::-webkit-scrollbar': { width: 0 },
               }}
@@ -354,41 +404,63 @@ export default function MessagesPage() {
                 <Typography color="#b0b3b8">Chưa có tin nhắn nào</Typography>
               ) : (
                 <>
-                  {messages.map((msg) => (
+                  {messages.map(msg => (
                     <Box
                       key={msg._id}
                       sx={{
-                        display: "flex",
-                        justifyContent: msg.role === "manager" ? "flex-end" : "flex-start",
+                        display: 'flex',
+                        justifyContent: msg.role === 'manager' ? 'flex-end' : 'flex-start',
                       }}
                     >
-                      <Tooltip title={msg.senderName || (msg.role === "bot" ? "Bot" : "")} placement="left" arrow disableInteractive>
+                      <Tooltip
+                        title={msg.senderName || (msg.role === 'bot' ? 'Bot' : '')}
+                        placement="left"
+                        arrow
+                        disableInteractive
+                      >
                         <Paper
                           elevation={0}
                           sx={{
                             p: 1.5,
-                            backgroundColor: msg.role === "manager" ? "#1976d2" : 
-                                           msg.role === "bot" ? "#4caf50" : "#23272f",
-                            color: "#fff",
+                            backgroundColor:
+                              msg.role === 'manager'
+                                ? '#1976d2'
+                                : msg.role === 'bot'
+                                  ? '#4caf50'
+                                  : '#23272f',
+                            color: '#fff',
                             borderRadius: 3,
-                            maxWidth: "60%",
+                            maxWidth: '60%',
                             minWidth: 60,
-                            boxShadow: msg.role === "manager" ? "0 2px 8px rgba(25, 118, 210, 0.15)" : 
-                                       msg.role === "bot" ? "0 2px 8px rgba(76, 175, 80, 0.15)" : "0 2px 8px rgba(0,0,0,0.08)",
-                            fontSize: "1rem",
+                            boxShadow:
+                              msg.role === 'manager'
+                                ? '0 2px 8px rgba(25, 118, 210, 0.15)'
+                                : msg.role === 'bot'
+                                  ? '0 2px 8px rgba(76, 175, 80, 0.15)'
+                                  : '0 2px 8px rgba(0,0,0,0.08)',
+                            fontSize: '1rem',
                           }}
                         >
-                          <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", fontSize: "1rem" }}>
-                            {msg.role === "bot" ? `Bot: ${msg.content}` : msg.content}
+                          <Typography
+                            variant="body2"
+                            sx={{ whiteSpace: 'pre-wrap', fontSize: '1rem' }}
+                          >
+                            {msg.role === 'bot' ? `Bot: ${msg.content}` : msg.content}
                           </Typography>
                         </Paper>
                       </Tooltip>
-                      <Typography variant="caption" sx={{ ml: 1, alignSelf: "flex-end", color: "#b0b3b8" }}>
-                        {new Date(msg.timestamp).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}
+                      <Typography
+                        variant="caption"
+                        sx={{ ml: 1, alignSelf: 'flex-end', color: '#b0b3b8' }}
+                      >
+                        {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </Typography>
                     </Box>
                   ))}
-                  
+
                   {/* Start Chat Button - chỉ hiện khi chưa có manager tham gia */}
                   {needsManagerIntervention(selectedChat) && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
@@ -415,39 +487,57 @@ export default function MessagesPage() {
                   )}
                 </>
               )}
-              <div ref={messagesEndRef} />
+              <Box ref={messagesEndRef} />
             </Box>
             {/* Input */}
-            <Box sx={{ px: 4, py: 2, borderTop: "1.5px solid #23272f", display: "flex", gap: 1, alignItems: "flex-end", bgcolor: "#23272f" }}>
+            <Box
+              sx={{
+                px: 4,
+                py: 2,
+                borderTop: '1.5px solid #23272f',
+                display: 'flex',
+                gap: 1,
+                alignItems: 'flex-end',
+                bgcolor: '#23272f',
+              }}
+            >
               <TextField
                 fullWidth
                 multiline
                 maxRows={4}
                 placeholder="Nhập tin nhắn..."
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={e => setInputMessage(e.target.value)}
                 disabled={sending}
                 inputProps={{ maxLength: 1000 }}
                 sx={{
-                  bgcolor: "#23272f",
+                  bgcolor: '#23272f',
                   borderRadius: 2,
-                  input: { color: "#fff" },
-                  textarea: { color: "#fff" },
+                  input: { color: '#fff' },
+                  textarea: { color: '#fff' },
                   '& .MuiOutlinedInput-root': { border: 'none' },
                 }}
               />
               <IconButton
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || sending}
-                sx={{ bgcolor: "#1976d2", color: "#fff", borderRadius: 2, height: 44, width: 44, ml: 1, boxShadow: 2 }}
+                sx={{
+                  bgcolor: '#1976d2',
+                  color: '#fff',
+                  borderRadius: 2,
+                  height: 44,
+                  width: 44,
+                  ml: 1,
+                  boxShadow: 2,
+                }}
               >
                 <SendIcon />
               </IconButton>
             </Box>
           </>
         ) : (
-        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Typography color="#b0b3b8" sx={{ fontSize: 22, fontWeight: 500, textAlign: "center" }}>
+          <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Typography color="#b0b3b8" sx={{ fontSize: 22, fontWeight: 500, textAlign: 'center' }}>
               Chọn một đoạn chat để xem nội dung
             </Typography>
           </Box>
@@ -455,4 +545,4 @@ export default function MessagesPage() {
       </Box>
     </Box>
   );
-} 
+}

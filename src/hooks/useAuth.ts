@@ -46,7 +46,14 @@ const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
 // Add return type for useAuth hook
 interface UseAuthReturn {
   login: (email: string, password: string) => Promise<any>;
-  register: (email: string, password: string, fullName: string, username: string, phone: string, addresses: Address[]) => Promise<any>;
+  register: (
+    email: string,
+    password: string,
+    fullName: string,
+    username: string,
+    phone: string,
+    addresses: Address[]
+  ) => Promise<any>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;

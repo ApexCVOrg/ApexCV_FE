@@ -3,22 +3,22 @@
 
 const testAutoLogout = () => {
   console.log('Testing auto logout functionality...');
-  
+
   // Set last activity to 14 minutes ago (should trigger warning)
-  const fourteenMinutesAgo = Date.now() - (14 * 60 * 1000);
+  const fourteenMinutesAgo = Date.now() - 14 * 60 * 1000;
   localStorage.setItem('last_activity', fourteenMinutesAgo.toString());
-  
+
   // Simulate user activity
   const simulateActivity = () => {
     localStorage.setItem('last_activity', Date.now().toString());
     console.log('Activity simulated, timer reset');
   };
-  
+
   // Test functions
   window.testAutoLogout = {
     simulateActivity,
     setInactiveTime: (minutes: number) => {
-      const timeAgo = Date.now() - (minutes * 60 * 1000);
+      const timeAgo = Date.now() - minutes * 60 * 1000;
       localStorage.setItem('last_activity', timeAgo.toString());
       console.log(`Set inactive time to ${minutes} minutes ago`);
     },
@@ -32,9 +32,9 @@ const testAutoLogout = () => {
       }
       console.log('No activity recorded');
       return null;
-    }
+    },
   };
-  
+
   console.log('Test functions available:');
   console.log('- window.testAutoLogout.simulateActivity()');
   console.log('- window.testAutoLogout.setInactiveTime(minutes)');
@@ -42,4 +42,4 @@ const testAutoLogout = () => {
 };
 
 // Run test
-testAutoLogout(); 
+testAutoLogout();

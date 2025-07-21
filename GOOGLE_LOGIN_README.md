@@ -7,6 +7,7 @@
 ## 🔧 Thay đổi chính
 
 ### 1. **Success Page (`/auth/success`)**
+
 ```typescript
 // Cập nhật để xử lý token và redirect đúng
 const handleAuthSuccess = async () => {
@@ -19,7 +20,7 @@ const handleAuthSuccess = async () => {
   // Fetch user data (optional)
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-      headers: { 'Authorization': `Bearer ${token}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (response.ok) {
       const userData = await response.json();
@@ -47,6 +48,7 @@ const handleAuthSuccess = async () => {
 ```
 
 ### 2. **Login Page (`/auth/login`)**
+
 ```typescript
 const handleSocialLogin = (provider: string) => {
   if (provider === 'Google') {
@@ -58,6 +60,7 @@ const handleSocialLogin = (provider: string) => {
 ```
 
 ### 3. **Register Page (`/auth/register`)**
+
 ```typescript
 // Google button
 <Button
@@ -65,7 +68,7 @@ const handleSocialLogin = (provider: string) => {
   fullWidth
   startIcon={<Image src="/google-icon.svg" alt="Google" width={24} height={24} />}
   onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
-  sx={{ 
+  sx={{
     borderRadius: 0,
     borderColor: 'black',
     color: 'black',
@@ -76,12 +79,12 @@ const handleSocialLogin = (provider: string) => {
 </Button>
 
 // Facebook button
-<Button 
-  fullWidth 
-  variant="outlined" 
-  startIcon={<Facebook />} 
+<Button
+  fullWidth
+  variant="outlined"
+  startIcon={<Facebook />}
   onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`}
-  sx={{ 
+  sx={{
     borderRadius: 0,
     borderColor: 'black',
     color: 'black',
@@ -95,11 +98,13 @@ const handleSocialLogin = (provider: string) => {
 ## 🔄 OAuth Flow
 
 ### **Backend OAuth Endpoints:**
+
 1. **`/auth/google`** - Redirect to Google OAuth
 2. **`/auth/facebook`** - Redirect to Facebook OAuth
 3. **`/auth/success`** - Handle OAuth callback với token
 
 ### **Frontend Flow:**
+
 1. User click "Login with Google"
 2. Redirect to `${API_URL}/auth/google`
 3. Backend redirect to Google OAuth
@@ -110,12 +115,14 @@ const handleSocialLogin = (provider: string) => {
 ## 🎨 UI/UX Improvements
 
 ### **Success Page:**
+
 - ✅ Loading spinner với CircularProgress
 - ✅ Error handling với proper error messages
 - ✅ Smooth redirect sau 1 giây
 - ✅ Fetch user data để đồng bộ state
 
 ### **Social Login Buttons:**
+
 - ✅ Consistent styling với design system
 - ✅ Hover effects
 - ✅ Proper icons (Google SVG, Facebook icon)
@@ -124,6 +131,7 @@ const handleSocialLogin = (provider: string) => {
 ## 🔧 Technical Implementation
 
 ### **Token Management:**
+
 ```typescript
 // Save token
 localStorage.setItem('auth_token', token);
@@ -133,6 +141,7 @@ localStorage.setItem('user_data', JSON.stringify(userData.data));
 ```
 
 ### **Role-based Redirect:**
+
 ```typescript
 let redirectPath = `/${currentLocale}`; // Default homepage
 
@@ -144,6 +153,7 @@ if (role === 'admin') {
 ```
 
 ### **Error Handling:**
+
 ```typescript
 if (!token) {
   setError('Missing authentication token');
@@ -155,6 +165,7 @@ if (!token) {
 ## 🧪 Testing
 
 ### **Test Cases:**
+
 1. **Google Login:** Click → Redirect to Google → Success → Homepage
 2. **Facebook Login:** Click → Redirect to Facebook → Success → Homepage
 3. **Admin User:** Success → Admin Dashboard
@@ -163,6 +174,7 @@ if (!token) {
 6. **Error Cases:** Missing token, Network error
 
 ### **URL Examples:**
+
 - Success: `http://localhost:3000/en/auth/success?token=xxx&role=user`
 - Error: `http://localhost:3000/en/auth/success?error=missing_token`
 
@@ -185,4 +197,4 @@ if (!token) {
 - Backend cần implement `/auth/google` và `/auth/facebook` endpoints
 - Backend cần handle OAuth callback và redirect to frontend success page
 - Token format: JWT với user role information
-- Success page URL: `/auth/success?token=xxx&role=user` 
+- Success page URL: `/auth/success?token=xxx&role=user`

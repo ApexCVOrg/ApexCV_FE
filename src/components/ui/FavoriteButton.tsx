@@ -90,8 +90,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   const tooltipTitle = isLoading
     ? 'Loading...'
     : favorite
-    ? 'Bỏ khỏi yêu thích'
-    : 'Thêm vào yêu thích';
+      ? 'Bỏ khỏi yêu thích'
+      : 'Thêm vào yêu thích';
 
   return (
     <Tooltip title={tooltipTitle} arrow placement="top">
@@ -100,4 +100,4 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   );
 };
 
-export default FavoriteButton; 
+export default FavoriteButton;

@@ -145,7 +145,7 @@ const Header = () => {
     // Check authentication status
     const authStatus = isAuthenticated();
     setIsUserAuthenticated(authStatus);
-    
+
     const user = getCurrentUser() as User | null;
     if (user) {
       setUserRole(user.role);
@@ -214,7 +214,7 @@ const Header = () => {
         { title: tHeader('shoes.adizero'), href: ROUTES.SHOES.ADIZERO },
         { title: tHeader('shoes.air_force'), href: ROUTES.SHOES.AIR_FORCE },
         { title: tHeader('shoes.air_max'), href: ROUTES.SHOES.AIR_MAX },
-      ]
+      ],
     },
     {
       title: tHeader('men.title'),
@@ -225,7 +225,7 @@ const Header = () => {
         { title: tHeader('men.short_trouser'), href: ROUTES.MEN.SHORT_TROUSER },
         { title: tHeader('men.jacket'), href: ROUTES.MEN.JACKET },
         { title: tHeader('men.team_sneaker'), href: ROUTES.MEN.TEAM_SNEAKER },
-      ]
+      ],
     },
     {
       title: tHeader('women.title'),
@@ -236,7 +236,7 @@ const Header = () => {
         { title: tHeader('women.jacket'), href: ROUTES.WOMEN.JACKET },
         { title: tHeader('women.short_trouser'), href: ROUTES.WOMEN.SHORT_TROUSER },
         { title: tHeader('women.team_sneaker'), href: ROUTES.WOMEN.TEAM_SNEAKER },
-      ]
+      ],
     },
     {
       title: tHeader('kids.title'),
@@ -245,7 +245,7 @@ const Header = () => {
         { title: tHeader('kids.jersey'), href: ROUTES.KIDS.JERSEY },
         { title: tHeader('kids.tracksuits'), href: ROUTES.KIDS.TRACKSUITS },
         { title: tHeader('kids.smiley'), href: ROUTES.KIDS.SMILEY },
-      ]
+      ],
     },
     {
       title: tHeader('accessories.title'),
@@ -254,9 +254,12 @@ const Header = () => {
         { title: tHeader('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
         { title: tHeader('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
         { title: tHeader('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
-        { title: tHeader('accessories.sports_accessories'), href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES },
-        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS }
-      ]
+        {
+          title: tHeader('accessories.sports_accessories'),
+          href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES,
+        },
+        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS },
+      ],
     },
     {
       title: tHeader('sale.title'),
@@ -266,8 +269,8 @@ const Header = () => {
         { title: tHeader('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
         { title: tHeader('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
         { title: tHeader('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
-        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE }
-      ]
+        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE },
+      ],
     },
     {
       title: tHeader('outlet.title'),
@@ -279,8 +282,8 @@ const Header = () => {
             { title: tHeader('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
             { title: tHeader('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
             { title: tHeader('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
-            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN }
-          ]
+            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN },
+          ],
         },
         {
           title: tHeader('outlet.women.title'),
@@ -288,8 +291,8 @@ const Header = () => {
             { title: tHeader('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
             { title: tHeader('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
             { title: tHeader('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
-            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN }
-          ]
+            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN },
+          ],
         },
         {
           title: tHeader('outlet.kids.title'),
@@ -297,14 +300,18 @@ const Header = () => {
             { title: tHeader('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
             { title: tHeader('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
             { title: tHeader('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
-            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS }
-          ]
-        }
-      ]
-    }
+            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS },
+          ],
+        },
+      ],
+    },
   ];
 
-  const handleMenuHover = (event: React.MouseEvent<HTMLElement>, index: number, hasSubmenu: boolean) => {
+  const handleMenuHover = (
+    event: React.MouseEvent<HTMLElement>,
+    index: number,
+    hasSubmenu: boolean
+  ) => {
     if (hasSubmenu) {
       setAnchorElMenu(event.currentTarget);
       setOpenMenuIndex(index);
@@ -375,6 +382,7 @@ const Header = () => {
     <>
       <AppBar
         position="fixed"
+        suppressHydrationWarning
         sx={{
           bgcolor: 'transparent',
           color: isDarkMode ? '#fff' : '#000',
@@ -391,6 +399,7 @@ const Header = () => {
         elevation={0}
       >
         <Toolbar
+          suppressHydrationWarning
           sx={{
             minHeight: 64,
             px: { xs: 1, md: 2 },
@@ -459,7 +468,7 @@ const Header = () => {
                             content: '""',
                             position: 'absolute',
                             bottom: 0,
-                          }
+                          },
                         }}
                       >
                         {title}
@@ -479,17 +488,17 @@ const Header = () => {
                       )}
                     </Box>
                   ) : (
-                    <Box 
-                      key={title} 
-                      sx={{ 
+                    <Box
+                      key={title}
+                      sx={{
                         position: 'relative',
                         '&:hover': {
                           '& .MuiPopover-root': {
                             pointerEvents: 'auto',
-                          }
-                        }
+                          },
+                        },
                       }}
-                      onMouseEnter={(e) => handleMenuHover(e, i, !!submenu)}
+                      onMouseEnter={e => handleMenuHover(e, i, !!submenu)}
                       onMouseLeave={handleMenuClose}
                     >
                       <Button
@@ -505,7 +514,7 @@ const Header = () => {
                             content: '""',
                             position: 'absolute',
                             bottom: 0,
-                          }
+                          },
                         }}
                       >
                         {title}
@@ -533,7 +542,7 @@ const Header = () => {
                               boxShadow: 2,
                               px: 0,
                               mt: 0,
-                            }
+                            },
                           }}
                           sx={{
                             pointerEvents: 'none',
@@ -545,16 +554,18 @@ const Header = () => {
                             paper: {
                               onMouseEnter: () => setAnchorElMenu(anchorElMenu),
                               onMouseLeave: handleMenuClose,
-                            }
+                            },
                           }}
                         >
                           {href === ROUTES.OUTLET.ROOT ? (
                             <Box sx={{ p: 2, display: 'flex', gap: 4, maxWidth: 1200, mx: 'auto' }}>
-                              {(submenu as OutletSubmenu).map((group) =>
+                              {(submenu as OutletSubmenu).map(group =>
                                 'children' in group ? (
                                   <Box key={group.title}>
-                                    <Typography sx={{ fontWeight: 'bold', mb: 1 }}>{group.title}</Typography>
-                                    {group.children.map((item) => (
+                                    <Typography sx={{ fontWeight: 'bold', mb: 1 }}>
+                                      {group.title}
+                                    </Typography>
+                                    {group.children.map(item => (
                                       <MenuItem
                                         key={item.title}
                                         component={Link}
@@ -584,7 +595,7 @@ const Header = () => {
                             <Box sx={{ p: 1 }}>
                               {submenu
                                 .filter((item): item is OutletSubmenuItem => 'href' in item)
-                                .map((item) => (
+                                .map(item => (
                                   <MenuItem
                                     key={item.title}
                                     component={Link}
@@ -610,18 +621,20 @@ const Header = () => {
           )}
 
           {/* Right - Search + Icon */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            minWidth: 0, 
-            ml: 'auto',
-            position: 'relative',
-            zIndex: 1200,
-            flexWrap: 'wrap',
-            gap: { xs: 1, md: 2 },
-            width: { xs: '100%', sm: 'auto' },
-            maxWidth: '100vw',
-          }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              minWidth: 0,
+              ml: 'auto',
+              position: 'relative',
+              zIndex: 1200,
+              flexWrap: 'wrap',
+              gap: { xs: 1, md: 2 },
+              width: { xs: '100%', sm: 'auto' },
+              maxWidth: '100vw',
+            }}
+          >
             <ThemeToggle />
             {/* Nút đổi ngôn ngữ */}
             <Button
@@ -643,7 +656,12 @@ const Header = () => {
             >
               {language.toUpperCase()}
             </Button>
-            <IconButton aria-label="cart" color="inherit" size="large" onClick={() => router.push(ROUTES.CART)}>
+            <IconButton
+              aria-label="cart"
+              color="inherit"
+              size="large"
+              onClick={() => router.push(ROUTES.CART)}
+            >
               <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
               </Badge>
@@ -675,7 +693,7 @@ const Header = () => {
                       mt: 1.5,
                       minWidth: 180,
                       boxShadow: 3,
-                    }
+                    },
                   }}
                 >
                   <MenuItem onClick={handleProfile}>
@@ -684,13 +702,20 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
-                          {/* Thêm menu coupon */}
-        <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
-          <ListItemIcon>
-            <span role="img" aria-label="coupon">🎟️</span>
-          </ListItemIcon>
-          Coupon
-        </MenuItem>
+                  {/* Thêm menu coupon */}
+                  <MenuItem
+                    onClick={() => {
+                      handleCloseProfile();
+                      router.push(`/${language}/voucher`);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <span role="img" aria-label="coupon">
+                        🎟️
+                      </span>
+                    </ListItemIcon>
+                    Coupon
+                  </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" />
@@ -804,9 +829,9 @@ const Header = () => {
                   </ListItemButton>
                 </ListItem>
                 {submenu &&
-                  (submenu as OutletSubmenu).map((sub) =>
+                  (submenu as OutletSubmenu).map(sub =>
                     'children' in sub
-                      ? sub.children.map((item) => (
+                      ? sub.children.map(item => (
                           <ListItem key={item.title} sx={{ pl: 4 }} disablePadding>
                             <ListItemButton
                               component={Link}
@@ -817,8 +842,7 @@ const Header = () => {
                             </ListItemButton>
                           </ListItem>
                         ))
-                      : (
-                        'href' in sub && (
+                      : 'href' in sub && (
                           <ListItem key={sub.title} sx={{ pl: 4 }} disablePadding>
                             <ListItemButton
                               component={Link}
@@ -829,7 +853,6 @@ const Header = () => {
                             </ListItemButton>
                           </ListItem>
                         )
-                      )
                   )}
               </React.Fragment>
             ))}

@@ -109,14 +109,18 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
     const carouselContainer = document.querySelector('.tab-carousel-container');
     const handleMouseEnter = () => {
       if (carouselContainer) {
-        carouselContainer.addEventListener('wheel', (e) => {
-          e.preventDefault();
-        }, { passive: false });
+        carouselContainer.addEventListener(
+          'wheel',
+          e => {
+            e.preventDefault();
+          },
+          { passive: false }
+        );
       }
     };
     const handleMouseLeave = () => {
       if (carouselContainer) {
-        carouselContainer.removeEventListener('wheel', (e) => {
+        carouselContainer.removeEventListener('wheel', e => {
           e.preventDefault();
         });
       }
@@ -364,4 +368,4 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) =
   );
 };
 
-export default TabCarousel; 
+export default TabCarousel;

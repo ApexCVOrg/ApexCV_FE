@@ -8,12 +8,13 @@ import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 const mockProduct = {
   _id: 'test-product-1',
   name: "Women's Air Peg 2K35",
-  description: 'Legendary style meets all-day comfort. This running shoe features responsive cushioning and breathable mesh for your daily runs.',
+  description:
+    'Legendary style meets all-day comfort. This running shoe features responsive cushioning and breathable mesh for your daily runs.',
   images: [
     '/assets/images/lib/air-max-270.png',
     '/assets/images/lib/air-max-90.png',
     '/assets/images/lib/air-max-excee-.png',
-    '/assets/images/lib/nike-span-2.png'
+    '/assets/images/lib/nike-span-2.png',
   ],
   price: 2500000,
   discountPrice: 2000000,
@@ -29,12 +30,12 @@ const mockProduct = {
     { size: '8.5', stock: 4 },
     { size: '9.0', stock: 6 },
     { size: '9.5', stock: 2 },
-    { size: '10.0', stock: 3 }
+    { size: '10.0', stock: 3 },
   ],
   colors: ['black', 'white', 'red', 'blue'],
   rating: 4.5,
   reviewCount: 128,
-  stock: 50
+  stock: 50,
 };
 
 export default function TestSidebarPage() {
@@ -55,17 +56,12 @@ export default function TestSidebarPage() {
       <Typography variant="h3" gutterBottom>
         Test Product Detail Sidebar
       </Typography>
-      
+
       <Typography variant="body1" sx={{ mb: 4 }}>
         Click the button below to open the Product Detail Sidebar with the new design.
       </Typography>
 
-      <Button 
-        variant="contained" 
-        size="large"
-        onClick={handleOpenSidebar}
-        sx={{ mb: 4 }}
-      >
+      <Button variant="contained" size="large" onClick={handleOpenSidebar} sx={{ mb: 4 }}>
         Open Product Detail Sidebar
       </Button>
 
@@ -80,7 +76,11 @@ export default function TestSidebarPage() {
           Price: {mockProduct.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Discount Price: {mockProduct.discountPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+          Discount Price:{' '}
+          {mockProduct.discountPrice?.toLocaleString('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+          })}
         </Typography>
         <Typography variant="body1" color="text.secondary">
           Tags: {mockProduct.tags?.join(', ')}
@@ -119,4 +119,4 @@ export default function TestSidebarPage() {
       )}
     </Box>
   );
-} 
+}

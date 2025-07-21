@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
 import Header from '@/components/layout/Header';
@@ -9,7 +9,6 @@ import { NextIntlClientProvider } from 'next-intl';
 import { messages } from '@/lib/i18n/messages';
 import { usePathname } from 'next/navigation';
 import { ThemeProvider } from '@/context/ThemeContext';
-import { useAuth } from '@/hooks/useAuth';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import ChatBox from '@/components/ChatBox';
 import AutoLogoutNotification from '@/components/ui/AutoLogoutNotification';
@@ -26,9 +25,6 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   const pathname = usePathname();
   const prevPath = useRef<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const auth = useAuth();
-  const currentUser = auth.getCurrentUser ? auth.getCurrentUser() : null;
-  const userId = currentUser?.id ? String(currentUser.id) : (currentUser?.email || 'guest-guest');
 
   useEffect(() => {
     if (prevPath.current !== null && prevPath.current !== pathname) {
@@ -48,7 +44,10 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
     };
   }, [pathname]);
 
-  const isManagerPage = typeof window !== 'undefined' ? window.location.pathname.startsWith(`/${locale}/manager`) : false;
+  const isManagerPage =
+    typeof window !== 'undefined'
+      ? window.location.pathname.startsWith(`/${locale}/manager`)
+      : false;
 
   return (
     <ThemeProvider>
@@ -57,6 +56,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
           <PageTransitionOverlay show={showOverlay} fadeType={fadeType} />
           <Box
             className="app-container"
+            suppressHydrationWarning
             sx={{
               bgcolor: '#fff',
               minHeight: '100vh',
@@ -71,6 +71,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
             <Box
               component="main"
               className="main-content"
+              suppressHydrationWarning
               sx={{
                 bgcolor: '#fff',
                 flex: 1,
@@ -96,4 +97,4 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   );
 };
 
-export default ClientLayout; 
+export default ClientLayout;

@@ -74,12 +74,14 @@ if (!isAuthenticated()) throw new Error('Please login to clear favorites');
 ## 🎨 UI/UX Improvements
 
 ### **Header Behavior:**
+
 - ✅ Chỉ hiển thị user dropdown khi đã login
 - ✅ Hiển thị Login/Register buttons khi chưa login
 - ✅ Không gọi API favorites khi chưa login
 - ✅ Proper authentication state management
 
 ### **API Calls:**
+
 - ✅ Tránh gọi API khi chưa có token
 - ✅ Proper error handling cho 401 errors
 - ✅ Clean state khi logout
@@ -87,6 +89,7 @@ if (!isAuthenticated()) throw new Error('Please login to clear favorites');
 ## 🔧 Technical Details
 
 ### **Authentication Flow:**
+
 ```typescript
 // useAuth hook
 const isAuthenticated = useCallback(() => {
@@ -98,13 +101,15 @@ const authStatus = isAuthenticated(); // Gọi function để check
 setIsUserAuthenticated(authStatus);
 
 // FavoritesContext
-if (!isAuthenticated()) { // Gọi function để check
+if (!isAuthenticated()) {
+  // Gọi function để check
   // Không gọi API
   return;
 }
 ```
 
 ### **State Management:**
+
 ```typescript
 // Header state
 const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
@@ -119,6 +124,7 @@ useEffect(() => {
 ## 🧪 Testing
 
 ### **Test Cases:**
+
 1. **Chưa login**: Header hiển thị Login/Register buttons
 2. **Đã login**: Header hiển thị user dropdown menu
 3. **Logout**: Header chuyển về Login/Register buttons
@@ -126,6 +132,7 @@ useEffect(() => {
 5. **Error handling**: Proper 401 error handling
 
 ### **Expected Behavior:**
+
 - ✅ Không có API calls 401 khi chưa login
 - ✅ Header hiển thị đúng trạng thái authentication
 - ✅ User dropdown chỉ hiển thị khi đã login
@@ -136,4 +143,4 @@ useEffect(() => {
 - `isAuthenticated` là function, không phải boolean
 - Cần gọi `isAuthenticated()` để check authentication status
 - FavoritesContext sẽ không gọi API khi chưa login
-- Header sẽ hiển thị đúng trạng thái authentication 
+- Header sẽ hiển thị đúng trạng thái authentication

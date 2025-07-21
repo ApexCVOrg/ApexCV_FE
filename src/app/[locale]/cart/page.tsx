@@ -1,7 +1,6 @@
-
 /* eslint-disable */
-"use client";
-import { useState } from "react";
+'use client';
+import { useState } from 'react';
 import {
   Container,
   Typography,
@@ -21,16 +20,16 @@ import {
   MenuItem,
   Paper,
   Tooltip,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { useCartContext } from "@/context/CartContext";
-import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { createVnpayPayment } from "@/services/api";
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useCartContext } from '@/context/CartContext';
+import { useAuthContext } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { createVnpayPayment } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { profileService } from '@/services/profile';
 
@@ -65,8 +64,12 @@ export default function CartPage() {
   const t = useTranslations('cartPage');
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [couponInputs, setCouponInputs] = useState<{ [cartItemId: string]: string }>({});
-  const [appliedCoupons, setAppliedCoupons] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
-  const [couponError, setCouponError] = useState<string>("");
+  const [appliedCoupons, setAppliedCoupons] = useState<{
+    [cartItemId: string]:
+      | { code: string; newPrice: number; discountAmount: number; message: string }
+      | undefined;
+  }>({});
+  const [couponError, setCouponError] = useState<string>('');
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
@@ -77,24 +80,24 @@ export default function CartPage() {
   // Common styles matching login form
   const blackBorderStyle = {
     borderRadius: 0,
-    border: "2px solid black",
-    "& .MuiOutlinedInput-root": {
+    border: '2px solid black',
+    '& .MuiOutlinedInput-root': {
       borderRadius: 0,
-      "& fieldset": { borderColor: "black", borderWidth: 2 },
-      "&:hover fieldset": { borderColor: "black" },
-      "&.Mui-focused fieldset": { borderColor: "black" },
+      '& fieldset': { borderColor: 'black', borderWidth: 2 },
+      '&:hover fieldset': { borderColor: 'black' },
+      '&.Mui-focused fieldset': { borderColor: 'black' },
     },
-    "& .MuiInputLabel-root": {
-      color: "black",
-      "&.Mui-focused": { color: "black" },
+    '& .MuiInputLabel-root': {
+      color: 'black',
+      '&.Mui-focused': { color: 'black' },
     },
   };
 
   const buttonStyle = {
     borderRadius: 0,
     fontWeight: 700,
-    letterSpacing: "0.05em",
-    textTransform: "uppercase" as const,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase' as const,
     py: 1.5,
   };
 
@@ -105,44 +108,45 @@ export default function CartPage() {
           elevation={3}
           sx={{
             p: 4,
-            bgcolor: "white",
+            bgcolor: 'white',
             borderRadius: 0,
-            border: "2px solid black",
-            textAlign: "center",
+            border: '2px solid black',
+            textAlign: 'center',
           }}
         >
-          <ShoppingCartIcon sx={{ fontSize: 64, color: "black", mb: 2 }} />
+          <ShoppingCartIcon sx={{ fontSize: 64, color: 'black', mb: 2 }} />
           <Typography
             variant="h4"
             sx={{
               fontWeight: 900,
-              letterSpacing: "-0.02em",
-              color: "black",
+              letterSpacing: '-0.02em',
+              color: 'black',
               mb: 2,
-              textTransform: "uppercase",
+              textTransform: 'uppercase',
             }}
           >
-            {t("loginToViewCart")}
+            {t('loginToViewCart')}
           </Typography>
           <Button
             variant="contained"
             onClick={() => {
               // Get current locale from URL
               const currentLocale = window.location.pathname.split('/')[1];
-              const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-                ? `/${currentLocale}/auth/login` 
-                : '/vi/auth/login';
+              const loginUrl =
+                currentLocale === 'en' || currentLocale === 'vi'
+                  ? `/${currentLocale}/auth/login`
+                  : '/vi/auth/login';
               router.push(loginUrl);
             }}
             sx={{
               ...buttonStyle,
-              bgcolor: "black",
-              color: "white",
-              "&:hover": { bgcolor: "gray.800" },
+              bgcolor: 'black',
+              color: 'white',
+              '&:hover': { bgcolor: 'gray.800' },
               mt: 2,
             }}
           >
-            {t("login")}
+            {t('login')}
           </Button>
         </Paper>
       </Container>
@@ -156,13 +160,13 @@ export default function CartPage() {
           elevation={3}
           sx={{
             p: 4,
-            bgcolor: "white",
+            bgcolor: 'white',
             borderRadius: 0,
-            border: "2px solid black",
-            textAlign: "center",
+            border: '2px solid black',
+            textAlign: 'center',
           }}
         >
-          <CircularProgress sx={{ color: "black" }} />
+          <CircularProgress sx={{ color: 'black' }} />
         </Paper>
       </Container>
     );
@@ -175,18 +179,18 @@ export default function CartPage() {
           elevation={3}
           sx={{
             p: 4,
-            bgcolor: "white",
+            bgcolor: 'white',
             borderRadius: 0,
-            border: "2px solid black",
+            border: '2px solid black',
           }}
         >
           <Alert
             severity="error"
             sx={{
               borderRadius: 0,
-              border: "2px solid #d32f2f",
-              bgcolor: "#ffebee",
-              color: "black",
+              border: '2px solid #d32f2f',
+              bgcolor: '#ffebee',
+              color: 'black',
               fontWeight: 600,
             }}
           >
@@ -204,48 +208,48 @@ export default function CartPage() {
           elevation={3}
           sx={{
             p: 4,
-            bgcolor: "white",
+            bgcolor: 'white',
             borderRadius: 0,
-            border: "2px solid black",
-            textAlign: "center",
+            border: '2px solid black',
+            textAlign: 'center',
           }}
         >
-          <ShoppingCartIcon sx={{ fontSize: 64, color: "black", mb: 2 }} />
+          <ShoppingCartIcon sx={{ fontSize: 64, color: 'black', mb: 2 }} />
           <Typography
             variant="h4"
             sx={{
               fontWeight: 900,
-              letterSpacing: "-0.02em",
-              color: "black",
+              letterSpacing: '-0.02em',
+              color: 'black',
               mb: 1,
-              textTransform: "uppercase",
+              textTransform: 'uppercase',
             }}
           >
-            {t("cartEmpty")}
+            {t('cartEmpty')}
           </Typography>
           <Typography
             variant="body1"
             sx={{
-              color: "gray",
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              fontSize: "0.875rem",
+              color: 'gray',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              fontSize: '0.875rem',
               mb: 3,
             }}
           >
-            {t("noProductsInCart")}
+            {t('noProductsInCart')}
           </Typography>
           <Button
             variant="contained"
-            onClick={() => router.push("/")}
+            onClick={() => router.push('/')}
             sx={{
               ...buttonStyle,
-              bgcolor: "black",
-              color: "white",
-              "&:hover": { bgcolor: "gray.800" },
+              bgcolor: 'black',
+              color: 'white',
+              '&:hover': { bgcolor: 'gray.800' },
             }}
           >
-            {t("continueShopping")}
+            {t('continueShopping')}
           </Button>
         </Paper>
       </Container>
@@ -254,13 +258,13 @@ export default function CartPage() {
 
   const handleQuantityChange = async (cartItemId: string, newQuantity: number) => {
     if (newQuantity <= 0) return;
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
+    setUpdatingItems(prev => new Set(prev).add(cartItemId));
     try {
       await updateCartItem(cartItemId, newQuantity);
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      console.error('Error updating quantity:', error);
     } finally {
-      setUpdatingItems((prev) => {
+      setUpdatingItems(prev => {
         const newSet = new Set(prev);
         newSet.delete(cartItemId);
         return newSet;
@@ -269,13 +273,13 @@ export default function CartPage() {
   };
 
   const handleRemoveItem = async (cartItemId: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
+    setUpdatingItems(prev => new Set(prev).add(cartItemId));
     try {
       await removeFromCart(cartItemId);
     } catch (error) {
-      console.error("Error removing item:", error);
+      console.error('Error removing item:', error);
     } finally {
-      setUpdatingItems((prev) => {
+      setUpdatingItems(prev => {
         const newSet = new Set(prev);
         newSet.delete(cartItemId);
         return newSet;
@@ -287,39 +291,39 @@ export default function CartPage() {
     try {
       await clearCart();
     } catch (error) {
-      console.error("Error clearing cart:", error);
+      console.error('Error clearing cart:', error);
     }
   };
 
   const handleCheckout = async () => {
     if (!cart || cart.cartItems.length === 0) return;
-    
+
     // Kiểm tra user đã đăng nhập chưa
     if (!isAuthenticated) {
-      alert("Vui lòng đăng nhập để thanh toán");
+      alert('Vui lòng đăng nhập để thanh toán');
       return;
     }
-    
+
     // Kiểm tra tất cả items đã chọn size và màu chưa
     const itemsWithoutSizeOrColor = cart.cartItems.filter(item => {
       const cartItem = item as CartItemWithId;
       return !cartItem.size || !cartItem.color;
     });
-    
+
     if (itemsWithoutSizeOrColor.length > 0) {
       const itemNames = itemsWithoutSizeOrColor.map(item => item.product.name).join(', ');
       alert(`Vui lòng chọn size và màu cho các sản phẩm sau: ${itemNames}`);
       return;
     }
-    
+
     setIsProcessingPayment(true);
     try {
       // Lấy token từ localStorage
       const token = localStorage.getItem('auth_token');
       console.log('Token from localStorage:', token ? 'exists' : 'not found');
-      
+
       if (!token) {
-        alert("Token không tồn tại, vui lòng đăng nhập lại");
+        alert('Token không tồn tại, vui lòng đăng nhập lại');
         return;
       }
 
@@ -342,18 +346,18 @@ export default function CartPage() {
         currentUser = {
           id: payload.id || payload._id,
           email: payload.email,
-          role: payload.role
+          role: payload.role,
         };
         console.log('Current user from token:', currentUser);
         console.log('Token payload:', payload);
       } catch (error) {
         console.error('Error decoding token:', error);
-        alert("Token không hợp lệ, vui lòng đăng nhập lại");
+        alert('Token không hợp lệ, vui lòng đăng nhập lại');
         return;
       }
 
       if (!currentUser || !currentUser.id) {
-        alert("Không thể lấy thông tin người dùng từ token");
+        alert('Không thể lấy thông tin người dùng từ token');
         return;
       }
 
@@ -364,17 +368,18 @@ export default function CartPage() {
         userProfile = await profileService.getProfile();
         console.log('User profile:', userProfile);
       } catch (error) {
-        console.error("Error fetching user profile:", error);
-        console.error("Error details:", error);
-        alert("Không thể lấy thông tin profile");
+        console.error('Error fetching user profile:', error);
+        console.error('Error details:', error);
+        alert('Không thể lấy thông tin profile');
         return;
       }
 
       // Lấy địa chỉ mặc định hoặc địa chỉ đầu tiên
-      const defaultAddress = userProfile.addresses?.find(addr => addr.isDefault) || userProfile.addresses?.[0];
-      
+      const defaultAddress =
+        userProfile.addresses?.find(addr => addr.isDefault) || userProfile.addresses?.[0];
+
       if (!defaultAddress) {
-        alert("Vui lòng thêm địa chỉ giao hàng trong profile");
+        alert('Vui lòng thêm địa chỉ giao hàng trong profile');
         return;
       }
 
@@ -394,11 +399,13 @@ export default function CartPage() {
           product: item.product._id,
           name: item.product.name,
           quantity: item.quantity,
-          size: [{
-            size: item.size || 'M',
-            color: item.color || 'Default',
-            quantity: item.quantity,
-          }],
+          size: [
+            {
+              size: item.size || 'M',
+              color: item.color || 'Default',
+              quantity: item.quantity,
+            },
+          ],
           price: item.product.discountPrice || item.product.price,
         })),
         shippingAddress: {
@@ -422,8 +429,8 @@ export default function CartPage() {
       const paymentUrl = await createVnpayPayment(vnpayData);
       window.location.href = paymentUrl;
     } catch (error) {
-      console.error("Payment error:", error);
-      alert("Có lỗi xảy ra khi tạo thanh toán");
+      console.error('Payment error:', error);
+      alert('Có lỗi xảy ra khi tạo thanh toán');
     } finally {
       setIsProcessingPayment(false);
     }
@@ -434,7 +441,7 @@ export default function CartPage() {
     const applied = appliedCoupons[cartItem._id];
     if (applied && applied.newPrice) return applied.newPrice;
     if (!cartItem.product) return 0;
-    return cartItem.product.discountPrice || cartItem.product.price;
+    return cartItem.product?.discountPrice || cartItem.product?.price || 0;
   };
 
   const calculateSubtotal = () => {
@@ -455,14 +462,18 @@ export default function CartPage() {
     return !cartItem.size || !cartItem.color;
   });
 
-  const handleUpdateItemOptions = async (cartItemId: string, newSize?: string, newColor?: string) => {
-    setUpdatingItems((prev) => new Set(prev).add(cartItemId));
+  const handleUpdateItemOptions = async (
+    cartItemId: string,
+    newSize?: string,
+    newColor?: string
+  ) => {
+    setUpdatingItems(prev => new Set(prev).add(cartItemId));
     try {
       await updateCartItem(cartItemId, undefined, newSize, newColor);
     } catch (error) {
-      console.error("Error updating item options:", error);
+      console.error('Error updating item options:', error);
     } finally {
-      setUpdatingItems((prev) => {
+      setUpdatingItems(prev => {
         const newSet = new Set(prev);
         newSet.delete(cartItemId);
         return newSet;
@@ -475,7 +486,7 @@ export default function CartPage() {
     const code = couponInputs[cartItem._id];
     if (!code) return;
     setApplyingCouponId(cartItem._id);
-    setCouponError("");
+    setCouponError('');
     try {
       const res = await fetch("http://localhost:5000/api/coupon/apply", {
         method: "POST",
@@ -485,8 +496,8 @@ export default function CartPage() {
         },
         body: JSON.stringify({
           couponCode: code,
-          productId: cartItem.product._id,
-          price: cartItem.product.discountPrice || cartItem.product.price,
+          productId: cartItem.product?._id || '',
+          price: cartItem.product ? cartItem.product?.discountPrice || cartItem.product?.price : 0,
           quantity: cartItem.quantity,
         }),
       });
@@ -505,11 +516,11 @@ export default function CartPage() {
         else setIsFreeShipping(false);
         setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
-        setCouponError(data.message || "Coupon không hợp lệ");
+        setCouponError(data.message || 'Coupon không hợp lệ');
         console.log('Coupon error details:', data);
       }
     } catch (err) {
-      setCouponError("Có lỗi khi áp dụng coupon");
+      setCouponError('Có lỗi khi áp dụng coupon');
     } finally {
       setApplyingCouponId(null);
     }
@@ -517,37 +528,37 @@ export default function CartPage() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ textAlign: "center", mb: 4 }}>
+      <Box sx={{ textAlign: 'center', mb: 4 }}>
         <Typography
           variant="h3"
           sx={{
             fontWeight: 900,
-            letterSpacing: "-0.02em",
-            color: "black",
+            letterSpacing: '-0.02em',
+            color: 'black',
             mb: 1,
-            textTransform: "uppercase",
+            textTransform: 'uppercase',
           }}
         >
-          {t("cart")}
+          {t('cart')}
         </Typography>
         <Typography
           variant="body1"
           sx={{
-            color: "gray",
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            fontSize: "0.875rem",
+            color: 'gray',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            fontSize: '0.875rem',
           }}
         >
-          {t("productCount", { count: cart.cartItems.length })}
+          {t('productCount', { count: cart.cartItems.length })}
         </Typography>
       </Box>
 
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 3 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
         {/* Danh sách sản phẩm */}
         <Box sx={{ flex: { md: 2 } }}>
           <Stack spacing={3}>
-            {cart.cartItems.map((item) => {
+            {cart.cartItems.map(item => {
               const cartItem = item as CartItemWithId;
               const isUpdating = updatingItems.has(cartItem._id);
               // Đảm bảo chỉ khai báo biến một lần
@@ -564,43 +575,43 @@ export default function CartPage() {
                   key={cartItem._id}
                   elevation={3}
                   sx={{
-                    position: "relative",
-                    bgcolor: "white",
+                    position: 'relative',
+                    bgcolor: 'white',
                     borderRadius: 0,
-                    border: "2px solid black",
+                    border: '2px solid black',
                     p: 3,
-                    display: "flex",
-                    alignItems: "center",
+                    display: 'flex',
+                    alignItems: 'center',
                     minHeight: 240,
                   }}
                 >
                   {isUpdating && (
                     <Box
                       sx={{
-                        position: "absolute",
+                        position: 'absolute',
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        bgcolor: "rgba(255,255,255,0.9)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        bgcolor: 'rgba(255,255,255,0.9)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                         zIndex: 1,
                         borderRadius: 0,
                       }}
                     >
-                      <CircularProgress size={24} sx={{ color: "black" }} />
+                      <CircularProgress size={24} sx={{ color: 'black' }} />
                     </Box>
                   )}
 
-                  <Box sx={{ flex: "0 0 120px", mr: 3 }}>
+                  <Box sx={{ flex: '0 0 120px', mr: 3 }}>
                     <Box
                       sx={{
-                        border: "2px solid black",
+                        border: '2px solid black',
                         borderRadius: 0,
                         p: 1,
-                        bgcolor: "#f6f6f6",
+                        bgcolor: '#f6f6f6',
                       }}
                     >
                       <CardMedia
@@ -613,21 +624,29 @@ export default function CartPage() {
                     </Box>
                   </Box>
 
-                  <Box sx={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-                    <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography
                           variant="h6"
                           component="h3"
                           sx={{
                             fontWeight: 900,
-                            color: "black",
+                            color: 'black',
                             mb: 0.5,
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.02em",
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.02em',
                           }}
                         >
                           {cartItem.product ? cartItem.product.name : 'Sản phẩm đã bị xóa'}
@@ -637,14 +656,14 @@ export default function CartPage() {
                             variant="body2"
                             sx={{
                               fontWeight: 700,
-                              color: "gray",
+                              color: 'gray',
                               mb: 1,
-                              textTransform: "uppercase",
-                              letterSpacing: "0.1em",
-                              fontSize: "0.75rem",
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.1em',
+                              fontSize: '0.75rem',
                             }}
                           >
-                            {cartItem.product.brand.name}
+                            {cartItem.product?.brand?.name || 'Unknown Brand'}
                           </Typography>
                         )}
 
@@ -654,20 +673,30 @@ export default function CartPage() {
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("size")}</InputLabel>
                               <Select
-                                value={cartItem.size || ""}
-                                label={t("size")}
-                                onChange={(e) => handleUpdateItemOptions(cartItem._id, e.target.value, cartItem.color)}
-                                sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                value={cartItem.size || ''}
+                                label={t('size')}
+                                onChange={e =>
+                                  handleUpdateItemOptions(
+                                    cartItem._id,
+                                    e.target.value,
+                                    cartItem.color
+                                  )
+                                }
+                                sx={{ fontWeight: 600, textTransform: 'uppercase' }}
                                 error={!cartItem.size}
                               >
-                                {cartItem.product.sizes
-                                  ?.filter((sz) => !cartItem.color || ("color" in sz && sz.color === cartItem.color))
+                                {cartItem.product?.sizes
+                                  ?.filter(
+                                    sz =>
+                                      !cartItem.color ||
+                                      ('color' in sz && sz.color === cartItem.color)
+                                  )
                                   .map((sz: ProductSize) => (
                                     <MenuItem
-                                      key={sz.size + ("color" in sz && sz.color ? sz.color : "")}
+                                      key={sz.size + ('color' in sz && sz.color ? sz.color : '')}
                                       value={sz.size}
                                       disabled={sz.stock === 0}
-                                      sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                      sx={{ fontWeight: 600, textTransform: 'uppercase' }}
                                     >
                                       {sz.size}
                                     </MenuItem>
@@ -677,15 +706,15 @@ export default function CartPage() {
                           ) : (
                             cartItem.size && (
                               <Chip
-                                label={`${t("size")}: ${cartItem.size}`}
+                                label={`${t('size')}: ${cartItem.size}`}
                                 size="small"
                                 sx={{
                                   borderRadius: 0,
-                                  border: "1px solid black",
-                                  bgcolor: "white",
-                                  color: "black",
+                                  border: '1px solid black',
+                                  bgcolor: 'white',
+                                  color: 'black',
                                   fontWeight: 700,
-                                  textTransform: "uppercase",
+                                  textTransform: 'uppercase',
                                 }}
                               />
                             )
@@ -696,16 +725,22 @@ export default function CartPage() {
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("color")}</InputLabel>
                               <Select
-                                value={cartItem.color || ""}
-                                label={t("color")}
-                                onChange={(e) => handleUpdateItemOptions(cartItem._id, cartItem.size, e.target.value)}
-                                sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                value={cartItem.color || ''}
+                                label={t('color')}
+                                onChange={e =>
+                                  handleUpdateItemOptions(
+                                    cartItem._id,
+                                    cartItem.size,
+                                    e.target.value
+                                  )
+                                }
+                                sx={{ fontWeight: 600, textTransform: 'uppercase' }}
                                 error={!cartItem.color}
                               >
                                 {[
                                   ...new Set(
-                                    cartItem.product.sizes?.map((sz: ProductSize) =>
-                                      "color" in sz ? sz.color : undefined
+                                    cartItem.product?.sizes?.map((sz: ProductSize) =>
+                                      'color' in sz ? sz.color : undefined
                                     )
                                   ),
                                 ].map(
@@ -714,7 +749,7 @@ export default function CartPage() {
                                       <MenuItem
                                         key={color}
                                         value={color}
-                                        sx={{ fontWeight: 600, textTransform: "uppercase" }}
+                                        sx={{ fontWeight: 600, textTransform: 'uppercase' }}
                                       >
                                         {color}
                                       </MenuItem>
@@ -725,41 +760,40 @@ export default function CartPage() {
                           ) : (
                             cartItem.color && (
                               <Chip
-                                label={`${t("color")}: ${cartItem.color}`}
+                                label={`${t('color')}: ${cartItem.color}`}
                                 size="small"
                                 sx={{
                                   borderRadius: 0,
-                                  border: "1px solid black",
-                                  bgcolor: "white",
-                                  color: "black",
+                                  border: '1px solid black',
+                                  bgcolor: 'white',
+                                  color: 'black',
                                   fontWeight: 700,
-                                  textTransform: "uppercase",
+                                  textTransform: 'uppercase',
                                 }}
                               />
                             )
                           )}
                         </Stack>
-                        
+
                         {/* Warning message khi chưa chọn size hoặc màu */}
                         {(!cartItem.size || !cartItem.color) && (
-                          <Alert 
-                            severity="warning" 
-                            sx={{ 
-                              mb: 1, 
-                              borderRadius: 0, 
-                              border: "1px solid #ed6c02",
-                              bgcolor: "#fff4e5",
-                              color: "#ed6c02",
+                          <Alert
+                            severity="warning"
+                            sx={{
+                              mb: 1,
+                              borderRadius: 0,
+                              border: '1px solid #ed6c02',
+                              bgcolor: '#fff4e5',
+                              color: '#ed6c02',
                               fontWeight: 600,
-                              fontSize: "0.75rem"
+                              fontSize: '0.75rem',
                             }}
                           >
-                            {!cartItem.size && !cartItem.color 
-                              ? "Vui lòng chọn size và màu để thanh toán"
-                              : !cartItem.size 
-                                ? "Vui lòng chọn size để thanh toán"
-                                : "Vui lòng chọn màu để thanh toán"
-                            }
+                            {!cartItem.size && !cartItem.color
+                              ? 'Vui lòng chọn size và màu để thanh toán'
+                              : !cartItem.size
+                                ? 'Vui lòng chọn size để thanh toán'
+                                : 'Vui lòng chọn màu để thanh toán'}
                           </Alert>
                         )}
                         {/* Hiển thị tồn kho ngoài dropdown */}
@@ -767,11 +801,12 @@ export default function CartPage() {
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
                             {t("stockLeft", {
                               stock:
-                                cartItem.product.sizes.find(
+                                cartItem.product?.sizes?.find(
                                   (sz: ProductSize) =>
                                     sz.size === cartItem.size &&
-                                    ("color" in sz && sz.color === cartItem.color)
-                                )?.stock ?? "N/A"
+                                    'color' in sz &&
+                                    sz.color === cartItem.color
+                                )?.stock ?? 'N/A',
                             })}
                           </Typography>
                         )}
@@ -782,10 +817,10 @@ export default function CartPage() {
                         disabled={isUpdating}
                         sx={{
                           ml: 1,
-                          border: "2px solid black",
+                          border: '2px solid black',
                           borderRadius: 0,
-                          color: "black",
-                          "&:hover": { bgcolor: "black", color: "white" },
+                          color: 'black',
+                          '&:hover': { bgcolor: 'black', color: 'white' },
                         }}
                       >
                         <DeleteIcon />
@@ -797,20 +832,36 @@ export default function CartPage() {
                       <TextField
                         size="small"
                         label="Coupon"
-                        value={couponInputs[cartItem._id] || ""}
-                        onChange={e => setCouponInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
+                        value={couponInputs[cartItem._id] || ''}
+                        onChange={e =>
+                          setCouponInputs(v => ({
+                            ...v,
+                            [cartItem._id]: e.target.value.toUpperCase(),
+                          }))
+                        }
                         sx={{ width: 140, ...blackBorderStyle }}
-                        inputProps={{ style: { textTransform: "uppercase" } }}
+                        inputProps={{ style: { textTransform: 'uppercase' } }}
                         disabled={isUpdating || applyingCouponId === cartItem._id}
                       />
                       <Button
                         variant="outlined"
                         size="small"
-                        sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
-                        disabled={isUpdating || !couponInputs[cartItem._id] || applyingCouponId === cartItem._id}
+                        sx={{
+                          minWidth: 80,
+                          borderRadius: 0,
+                          fontWeight: 700,
+                          ml: 1,
+                          borderColor: 'black',
+                          color: 'black',
+                        }}
+                        disabled={
+                          isUpdating ||
+                          !couponInputs[cartItem._id] ||
+                          applyingCouponId === cartItem._id
+                        }
                         onClick={() => handleApplyCoupon(cartItem)}
                       >
-                        {applyingCouponId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
+                        {applyingCouponId === cartItem._id ? 'Đang áp dụng...' : 'Áp dụng'}
                       </Button>
                       {appliedCoupon && (
                         <>
@@ -854,32 +905,47 @@ export default function CartPage() {
                       </Typography>
                     )}
                     {/* Giá sản phẩm sau coupon */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       {discountedPrice !== originalPrice ? (
                         <>
                           <Typography
                             variant="h6"
-                            sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
+                            sx={{ color: 'black', fontWeight: 900, letterSpacing: '0.02em' }}
                           >
-                            {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                            {discountedPrice.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })}
                           </Typography>
                           <Typography
                             variant="body2"
-                            sx={{ color: "gray", textDecoration: "line-through", fontWeight: 600 }}
+                            sx={{ color: 'gray', textDecoration: 'line-through', fontWeight: 600 }}
                           >
-                            {originalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                            {originalPrice.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })}
                           </Typography>
                           <Chip
-                            label={`- ${appliedCoupon?.discountAmount ? Math.round(100 * appliedCoupon.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
-                            sx={{ bgcolor: "black", color: "white", fontWeight: 700, borderRadius: 0, ml: 1 }}
+                            label={`- ${appliedCoupon?.discountAmount ? Math.round((100 * appliedCoupon.discountAmount) / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            sx={{
+                              bgcolor: 'black',
+                              color: 'white',
+                              fontWeight: 700,
+                              borderRadius: 0,
+                              ml: 1,
+                            }}
                           />
                         </>
                       ) : (
                         <Typography
                           variant="h6"
-                          sx={{ color: "black", fontWeight: 900, letterSpacing: "0.02em" }}
+                          sx={{ color: 'black', fontWeight: 900, letterSpacing: '0.02em' }}
                         >
-                          {discountedPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
+                          {discountedPrice.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
                         </Typography>
                       )}
                     </Box>
@@ -889,23 +955,25 @@ export default function CartPage() {
                         (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
                       )?.stock ?? 1);
                       return (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconButton
-                            onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity - 1)}
+                            onClick={() =>
+                              handleQuantityChange(cartItem._id, cartItem.quantity - 1)
+                            }
                             disabled={isUpdating || cartItem.quantity <= 1}
                             sx={{
-                              border: "2px solid black",
+                              border: '2px solid black',
                               borderRadius: 0,
-                              color: "black",
-                              "&:hover": { bgcolor: "black", color: "white" },
-                              "&.Mui-disabled": { borderColor: "gray", color: "gray" },
+                              color: 'black',
+                              '&:hover': { bgcolor: 'black', color: 'white' },
+                              '&.Mui-disabled': { borderColor: 'gray', color: 'gray' },
                             }}
                           >
                             <RemoveIcon />
                           </IconButton>
                           <TextField
                             value={cartItem.quantity}
-                            onChange={(e) => {
+                            onChange={e => {
                               let newQuantity = Number.parseInt(e.target.value) || 1;
                               if (newQuantity > maxQuantity) newQuantity = maxQuantity;
                               handleQuantityChange(cartItem._id, newQuantity);
@@ -920,21 +988,23 @@ export default function CartPage() {
                               min: 1,
                               max: maxQuantity,
                               style: {
-                                textAlign: "center",
+                                textAlign: 'center',
                                 fontWeight: 700,
-                                fontSize: "1rem",
+                                fontSize: '1rem',
                               },
                             }}
                             disabled={isUpdating}
                           />
                           <IconButton
-                            onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity + 1)}
+                            onClick={() =>
+                              handleQuantityChange(cartItem._id, cartItem.quantity + 1)
+                            }
                             disabled={isUpdating || cartItem.quantity >= maxQuantity}
                             sx={{
-                              border: "2px solid black",
+                              border: '2px solid black',
                               borderRadius: 0,
-                              color: "black",
-                              "&:hover": { bgcolor: "black", color: "white" },
+                              color: 'black',
+                              '&:hover': { bgcolor: 'black', color: 'white' },
                             }}
                           >
                             <AddIcon />
@@ -954,9 +1024,9 @@ export default function CartPage() {
           <Paper
             elevation={3}
             sx={{
-              bgcolor: "white",
+              bgcolor: 'white',
               borderRadius: 0,
-              border: "2px solid black",
+              border: '2px solid black',
               p: 3,
             }}
           >
@@ -964,28 +1034,28 @@ export default function CartPage() {
               variant="h5"
               sx={{
                 fontWeight: 900,
-                color: "black",
+                color: 'black',
                 mb: 2,
-                textTransform: "uppercase",
-                letterSpacing: "0.02em",
-                textAlign: "center",
+                textTransform: 'uppercase',
+                letterSpacing: '0.02em',
+                textAlign: 'center',
               }}
             >
-              {t("orderSummary")}
+              {t('orderSummary')}
             </Typography>
 
             {/* Warning về items chưa hoàn thành */}
             {hasIncompleteItems && (
-              <Alert 
-                severity="warning" 
-                sx={{ 
-                  mb: 2, 
-                  borderRadius: 0, 
-                  border: "1px solid #ed6c02",
-                  bgcolor: "#fff4e5",
-                  color: "#ed6c02",
+              <Alert
+                severity="warning"
+                sx={{
+                  mb: 2,
+                  borderRadius: 0,
+                  border: '1px solid #ed6c02',
+                  bgcolor: '#fff4e5',
+                  color: '#ed6c02',
                   fontWeight: 600,
-                  fontSize: "0.875rem"
+                  fontSize: '0.875rem',
                 }}
               >
                 {(() => {
@@ -998,68 +1068,74 @@ export default function CartPage() {
               </Alert>
             )}
 
-            <Box sx={{ position: "relative", my: 3 }}>
-              <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
+            <Box sx={{ position: 'relative', my: 3 }}>
+              <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
             </Box>
 
             <Stack spacing={2}>
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>{t("subtotal")}:</Typography>
-                <Typography sx={{ fontWeight: 700, color: "black" }}>
-                  {subtotal.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 700, color: 'black', textTransform: 'uppercase' }}>
+                  {t('subtotal')}:
+                </Typography>
+                <Typography sx={{ fontWeight: 700, color: 'black' }}>
+                  {subtotal.toLocaleString('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
                   })}
                 </Typography>
               </Box>
 
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography sx={{ fontWeight: 700, color: "black", textTransform: "uppercase" }}>
-                  {t("shippingFee")}:
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography sx={{ fontWeight: 700, color: 'black', textTransform: 'uppercase' }}>
+                  {t('shippingFee')}:
                 </Typography>
-                <Typography sx={{ fontWeight: 700, color: "black" }}>
-                  {shipping.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
+                <Typography sx={{ fontWeight: 700, color: 'black' }}>
+                  {shipping.toLocaleString('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
                   })}
                 </Typography>
               </Box>
 
-              <Box sx={{ position: "relative", my: 2 }}>
-                <Divider sx={{ borderColor: "black", borderWidth: 2 }} />
+              <Box sx={{ position: 'relative', my: 2 }}>
+                <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
               </Box>
 
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography
                   variant="h6"
                   sx={{
                     fontWeight: 900,
-                    color: "black",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.02em",
+                    color: 'black',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.02em',
                   }}
                 >
-                  {t("total")}:
+                  {t('total')}:
                 </Typography>
                 <Typography
                   variant="h6"
                   sx={{
                     fontWeight: 900,
-                    color: "black",
-                    letterSpacing: "0.02em",
+                    color: 'black',
+                    letterSpacing: '0.02em',
                   }}
                 >
-                  {total.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
+                  {total.toLocaleString('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND',
                   })}
                 </Typography>
               </Box>
             </Stack>
 
             <Stack spacing={2} sx={{ mt: 4 }}>
-              <Tooltip 
-                title={hasIncompleteItems ? "Vui lòng chọn size và màu cho tất cả sản phẩm trước khi thanh toán" : ""}
+              <Tooltip
+                title={
+                  hasIncompleteItems
+                    ? 'Vui lòng chọn size và màu cho tất cả sản phẩm trước khi thanh toán'
+                    : ''
+                }
                 placement="top"
               >
                 <span>
@@ -1071,16 +1147,16 @@ export default function CartPage() {
                     disabled={isProcessingPayment || hasIncompleteItems}
                     sx={{
                       ...buttonStyle,
-                      bgcolor: "black",
-                      color: "white",
-                      "&:hover": { bgcolor: "gray.800" },
-                      "&.Mui-disabled": {
-                        bgcolor: "gray.400",
-                        color: "gray.600"
-                      }
+                      bgcolor: 'black',
+                      color: 'white',
+                      '&:hover': { bgcolor: 'gray.800' },
+                      '&.Mui-disabled': {
+                        bgcolor: 'gray.400',
+                        color: 'gray.600',
+                      },
                     }}
                   >
-                    {isProcessingPayment ? "Đang xử lý..." : t("checkout")}
+                    {isProcessingPayment ? 'Đang xử lý...' : t('checkout')}
                   </Button>
                 </span>
               </Tooltip>
@@ -1088,21 +1164,21 @@ export default function CartPage() {
               <Button
                 variant="outlined"
                 fullWidth
-                onClick={() => router.push("/")}
+                onClick={() => router.push('/')}
                 sx={{
                   ...buttonStyle,
-                  borderColor: "black",
-                  color: "black",
+                  borderColor: 'black',
+                  color: 'black',
                   borderWidth: 2,
-                  "&:hover": {
-                    borderColor: "black",
-                    bgcolor: "black",
-                    color: "white",
+                  '&:hover': {
+                    borderColor: 'black',
+                    bgcolor: 'black',
+                    color: 'white',
                     borderWidth: 2,
                   },
                 }}
               >
-                {t("continueShopping")}
+                {t('continueShopping')}
               </Button>
 
               <Button
@@ -1111,15 +1187,15 @@ export default function CartPage() {
                 onClick={handleClearCart}
                 sx={{
                   ...buttonStyle,
-                  color: "black",
-                  border: "2px solid transparent",
-                  "&:hover": {
-                    bgcolor: "black",
-                    color: "white",
+                  color: 'black',
+                  border: '2px solid transparent',
+                  '&:hover': {
+                    bgcolor: 'black',
+                    color: 'white',
                   },
                 }}
               >
-                {t("clearCart")}
+                {t('clearCart')}
               </Button>
             </Stack>
           </Paper>

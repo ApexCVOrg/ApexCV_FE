@@ -29,7 +29,13 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 4 }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(4, 1fr)' },
+            gap: 4,
+          }}
+        >
           <Box>
             <Typography
               variant="h5"
@@ -47,11 +53,21 @@ const Footer = () => {
               SHOP
             </Typography>
             <Stack spacing={1}>
-              <Link href={ROUTES.MEN.ROOT} style={linkStyle}>Men</Link>
-              <Link href={ROUTES.WOMEN.ROOT} style={linkStyle}>Women</Link>
-              <Link href={ROUTES.KIDS.ROOT} style={linkStyle}>Kids</Link>
-              <Link href={ROUTES.ACCESSORIES.ROOT} style={linkStyle}>Accessories</Link>
-              <Link href={ROUTES.SALE.ROOT} style={linkStyle}>Sale</Link>
+              <Link href={ROUTES.MEN.ROOT} style={linkStyle}>
+                Men
+              </Link>
+              <Link href={ROUTES.WOMEN.ROOT} style={linkStyle}>
+                Women
+              </Link>
+              <Link href={ROUTES.KIDS.ROOT} style={linkStyle}>
+                Kids
+              </Link>
+              <Link href={ROUTES.ACCESSORIES.ROOT} style={linkStyle}>
+                Accessories
+              </Link>
+              <Link href={ROUTES.SALE.ROOT} style={linkStyle}>
+                Sale
+              </Link>
             </Stack>
           </Box>
 
@@ -60,10 +76,18 @@ const Footer = () => {
               CUSTOMER SERVICE
             </Typography>
             <Stack spacing={1}>
-              <Link href="/help" style={linkStyle}>Help Center</Link>
-              <Link href="/shipping" style={linkStyle}>Shipping & Returns</Link>
-              <Link href="/contact" style={linkStyle}>Contact Us</Link>
-              <Link href="/privacy" style={linkStyle}>Privacy Policy</Link>
+              <Link href="/help" style={linkStyle}>
+                Help Center
+              </Link>
+              <Link href="/shipping" style={linkStyle}>
+                Shipping & Returns
+              </Link>
+              <Link href="/contact" style={linkStyle}>
+                Contact Us
+              </Link>
+              <Link href="/privacy" style={linkStyle}>
+                Privacy Policy
+              </Link>
             </Stack>
           </Box>
 
@@ -72,15 +96,30 @@ const Footer = () => {
               FOLLOW US
             </Typography>
             <Stack spacing={1}>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>Instagram</Typography>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>Facebook</Typography>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>Twitter</Typography>
-              <Typography variant="body2" sx={{ cursor: 'pointer' }}>YouTube</Typography>
+              <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                Instagram
+              </Typography>
+              <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                Facebook
+              </Typography>
+              <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                Twitter
+              </Typography>
+              <Typography variant="body2" sx={{ cursor: 'pointer' }}>
+                YouTube
+              </Typography>
             </Stack>
           </Box>
         </Box>
 
-        <Box sx={{ textAlign: 'center', mt: 6, fontSize: '0.875rem', color: theme === 'dark' ? '#666' : '#999' }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            mt: 6,
+            fontSize: '0.875rem',
+            color: theme === 'dark' ? '#666' : '#999',
+          }}
+        >
           &copy; {currentYear} NIDAS. All rights reserved.
         </Box>
       </Container>

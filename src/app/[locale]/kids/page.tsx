@@ -1,12 +1,24 @@
-"use client";
-import React, { useEffect, useState, useRef } from "react";
-import { Container, Typography, Box, Card, CardMedia, Button, CircularProgress, IconButton } from "@mui/material";
-import ProductCard from "@/components/card";
-import { useCartContext } from '@/context/CartContext';
-import { HeroBanner } from "@/components/banner";
+/* eslint-disable */
+'use client';
+import React, { useEffect, useState, useRef } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardMedia,
+  Button,
+  CircularProgress,
+  IconButton,
+} from '@mui/material';
+import Image from 'next/image';
+import ProductCard from '@/components/card';
+import { HeroBanner } from '@/components/banner';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import Link from "next/link";
+import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -16,8 +28,8 @@ interface Product {
   discountPrice?: number;
   tags: string[];
   brand: { _id: string; name: string };
-  categories: { 
-    _id: string; 
+  categories: {
+    _id: string;
     name: string;
     parentCategory?: {
       _id: string;
@@ -43,21 +55,60 @@ export default function KidsPage() {
   // Debug environment variables
   console.log('[KidsPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
 
+  // Function to get team name from product categories
+  const getTeamNameFromProduct = (product: Product): string => {
+    // Find team category (usually has a parent category that is gender)
+    for (const category of product.categories) {
+      // Check if category name matches known teams
+      const teamNames = [
+        'arsenal',
+        'juventus',
+        'bayern munich',
+        'real madrid',
+        'manchester united',
+      ];
+      const categoryNameLower = category.name.toLowerCase();
+
+      for (const team of teamNames) {
+        if (categoryNameLower.includes(team) || categoryNameLower === team) {
+          return team;
+        }
+      }
+
+      // Check parent category with optional chaining
+      const parentCategory = category.parentCategory;
+      if (parentCategory) {
+        const parentNameLower = parentCategory.name.toLowerCase();
+        for (const team of teamNames) {
+          if (parentNameLower.includes(team) || parentNameLower === team) {
+            return team;
+          }
+        }
+      }
+    }
+
+    // Default fallback
+    return 'arsenal';
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
-        console.log('[KidsPage] Fetching from:', `${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
+        console.log(
+          '[KidsPage] Fetching from:',
+          `${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`
+        );
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=kids`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
         console.log('[KidsPage] API Response:', result);
-        
+
         if (result.success) {
           console.log('[KidsPage] Total products:', result.data?.length);
           console.log('[KidsPage] Sample product data:', result.data?.[0]);
@@ -110,16 +161,18 @@ export default function KidsPage() {
   };
 
   const handleCarouselPrev = () => {
-    setCarouselIndex((prev) => Math.max(prev - 1, 0));
+    setCarouselIndex(prev => Math.max(prev - 1, 0));
   };
 
   const handleCarouselNext = () => {
-    setCarouselIndex((prev) => Math.min(prev + 1, Math.ceil(products.length / 4) - 1));
+    setCarouselIndex(prev => Math.min(prev + 1, Math.ceil(products.length / 4) - 1));
   };
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}
+      >
         <Typography color="error">{error}</Typography>
       </Box>
     );
@@ -140,44 +193,56 @@ export default function KidsPage() {
         {/* Categories Section */}
         <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
           <Container maxWidth="lg">
-            <Typography 
-              variant="h3" 
-              component="h2" 
-              align="center" 
+            <Typography
+              variant="h3"
+              component="h2"
+              align="center"
               sx={{
                 fontWeight: 'bold',
                 mb: 2,
-                color: 'text.primary'
+                color: 'text.primary',
               }}
             >
               MUA SẮM THEO DANH MỤC
             </Typography>
-            <Typography 
-              variant="h6" 
-              align="center" 
+            <Typography
+              variant="h6"
+              align="center"
               sx={{
                 color: 'text.secondary',
                 mb: 6,
-                fontWeight: 300
+                fontWeight: 300,
               }}
             >
               Khám phá bộ sưu tập đa dạng dành cho trẻ em
             </Typography>
-            <Box sx={{ 
-              display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
-              gap: { xs: 3, md: 3 },
-              mt: 4,
-              maxWidth: '800px',
-              mx: 'auto'
-            }}>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+                gap: { xs: 3, md: 3 },
+                mt: 4,
+                maxWidth: '800px',
+                mx: 'auto',
+              }}
+            >
               {[
-                { name: 'Áo đấu', image: '/assets/images/kids/arsenal/Arsenal_Shirt.avif', description: 'Chính thức và đẳng cấp', href: '/kids/jersey' },
-                { name: 'Tracksuit', image: '/assets/images/kids/arsenal/Arsenal_Tracksuit.png', description: 'Thoải mái vận động', href: '/kids/tracksuit' }
-              ].map((category) => (
+                {
+                  name: 'Áo đấu',
+                  image: '/assets/images/kids/arsenal/Arsenal_Shirt.avif',
+                  description: 'Chính thức và đẳng cấp',
+                  href: '/kids/jersey',
+                },
+                {
+                  name: 'Tracksuit',
+                  image: '/assets/images/kids/arsenal/Arsenal_Tracksuit.png',
+                  description: 'Thoải mái vận động',
+                  href: '/kids/tracksuit',
+                },
+              ].map(category => (
                 <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
-                  <Card 
-                    sx={{ 
+                  <Card
+                    sx={{
                       height: '100%',
                       cursor: 'pointer',
                       transition: 'all 0.3s ease',
@@ -187,8 +252,8 @@ export default function KidsPage() {
                       mx: 'auto',
                       '&:hover': {
                         transform: 'translateY(-8px)',
-                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
-                      }
+                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
+                      },
                     }}
                   >
                     <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
@@ -204,8 +269,8 @@ export default function KidsPage() {
                           filter: 'brightness(0.95)',
                           '&:hover': {
                             transform: 'scale(1.05)',
-                            filter: 'brightness(1)'
-                          }
+                            filter: 'brightness(1)',
+                          },
                         }}
                       />
                       <Box
@@ -217,26 +282,26 @@ export default function KidsPage() {
                           background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
                           color: 'white',
                           p: { xs: 2, md: 3 },
-                          textAlign: 'center'
+                          textAlign: 'center',
                         }}
                       >
-                        <Typography 
-                          variant="h5" 
-                          sx={{ 
-                            fontWeight: 'bold', 
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontWeight: 'bold',
                             mb: 1,
                             fontSize: { xs: '1.5rem', md: '1.75rem' },
-                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
                           }}
                         >
                           {category.name}
                         </Typography>
-                        <Typography 
-                          variant="body1" 
-                          sx={{ 
+                        <Typography
+                          variant="body1"
+                          sx={{
                             opacity: 0.95,
                             fontSize: { xs: '0.9rem', md: '1rem' },
-                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)',
                           }}
                         >
                           {category.description}
@@ -253,31 +318,33 @@ export default function KidsPage() {
         {/* Featured Products */}
         <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
           <Container maxWidth="lg">
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: { xs: 'column', md: 'row' },
-              justifyContent: 'space-between', 
-              alignItems: { xs: 'flex-start', md: 'center' }, 
-              mb: 6,
-              gap: { xs: 3, md: 0 }
-            }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', md: 'row' },
+                justifyContent: 'space-between',
+                alignItems: { xs: 'flex-start', md: 'center' },
+                mb: 6,
+                gap: { xs: 3, md: 0 },
+              }}
+            >
               <Box>
-                <Typography 
-                  variant="h3" 
+                <Typography
+                  variant="h3"
                   component="h2"
                   sx={{
                     fontWeight: 'bold',
                     color: 'text.primary',
-                    mb: 1
+                    mb: 1,
                   }}
                 >
                   SẢN PHẨM NỔI BẬT
                 </Typography>
-                <Typography 
-                  variant="h6" 
+                <Typography
+                  variant="h6"
                   sx={{
                     color: 'text.secondary',
-                    fontWeight: 300
+                    fontWeight: 300,
                   }}
                 >
                   Những sản phẩm được yêu thích nhất
@@ -285,28 +352,32 @@ export default function KidsPage() {
               </Box>
             </Box>
             {loading && (
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                minHeight: '300px'
-              }}>
-                <CircularProgress size={60} sx={{ color: 'black' }}/>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  minHeight: '300px',
+                }}
+              >
+                <CircularProgress size={60} sx={{ color: 'black' }} />
               </Box>
             )}
             {error && (
-              <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minHeight: '300px',
-                justifyContent: 'center'
-              }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  minHeight: '300px',
+                  justifyContent: 'center',
+                }}
+              >
                 <Typography color="error" align="center" variant="h6" sx={{ mb: 2 }}>
                   Đã xảy ra lỗi: {error}
                 </Typography>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   onClick={refreshProducts}
                   sx={{
                     borderColor: 'black',
@@ -314,8 +385,8 @@ export default function KidsPage() {
                     '&:hover': {
                       borderColor: 'black',
                       bgcolor: 'black',
-                      color: 'white'
-                    }
+                      color: 'white',
+                    },
                   }}
                 >
                   Thử lại
@@ -323,18 +394,20 @@ export default function KidsPage() {
               </Box>
             )}
             {!loading && !error && displayedProducts.length === 0 && (
-              <Box sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minHeight: '300px',
-                justifyContent: 'center'
-              }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  minHeight: '300px',
+                  justifyContent: 'center',
+                }}
+              >
                 <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
                   Không tìm thấy sản phẩm nào
                 </Typography>
-                <Button 
-                  variant="outlined" 
+                <Button
+                  variant="outlined"
                   onClick={refreshProducts}
                   sx={{
                     borderColor: 'black',
@@ -342,8 +415,8 @@ export default function KidsPage() {
                     '&:hover': {
                       borderColor: 'black',
                       bgcolor: 'black',
-                      color: 'white'
-                    }
+                      color: 'white',
+                    },
                   }}
                 >
                   Tải lại
@@ -365,7 +438,7 @@ export default function KidsPage() {
                     bgcolor: 'rgba(255,255,255,0.9)',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
                     '&:hover': { bgcolor: 'white' },
-                    '&.Mui-disabled': { opacity: 0 }
+                    '&.Mui-disabled': { opacity: 0 },
                   }}
                 >
                   <ArrowBackIosIcon />
@@ -384,7 +457,7 @@ export default function KidsPage() {
                     bgcolor: 'rgba(255,255,255,0.9)',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
                     '&:hover': { bgcolor: 'white' },
-                    '&.Mui-disabled': { opacity: 0 }
+                    '&.Mui-disabled': { opacity: 0 },
                   }}
                 >
                   <ArrowForwardIosIcon />
@@ -400,7 +473,7 @@ export default function KidsPage() {
                     width: `${Math.max(products.length, 4) * 280}px`,
                   }}
                 >
-                  {products.map((product) => (
+                  {products.map(product => (
                     <Box
                       key={product._id}
                       sx={{
@@ -435,14 +508,16 @@ export default function KidsPage() {
                     </Box>
                   ))}
                 </Box>
-                
+
                 {/* Carousel Indicators */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  gap: 2, 
-                  mt: 4 
-                }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: 2,
+                    mt: 4,
+                  }}
+                >
                   {Array.from({ length: Math.ceil(products.length / 4) }).map((_, index) => (
                     <Box
                       key={index}
@@ -456,8 +531,8 @@ export default function KidsPage() {
                         transition: 'all 0.3s ease',
                         '&:hover': {
                           bgcolor: carouselIndex === index ? 'black' : 'grey.500',
-                          transform: 'scale(1.2)'
-                        }
+                          transform: 'scale(1.2)',
+                        },
                       }}
                     />
                   ))}
@@ -469,4 +544,4 @@ export default function KidsPage() {
       </Container>
     </>
   );
-} 
+}

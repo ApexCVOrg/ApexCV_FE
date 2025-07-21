@@ -11,7 +11,7 @@ interface AutoLogoutNotificationProps {
 
 const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
   inactivityLimit = 15,
-  warningTime = 2
+  warningTime = 2,
 }) => {
   const [showWarning, setShowWarning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(warningTime * 60);
@@ -26,7 +26,7 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
       warningTimeout = setTimeout(() => {
         setShowWarning(true);
         setTimeLeft(warningTime * 60);
-        
+
         // Start countdown
         countdownInterval = setInterval(() => {
           setTimeLeft(prev => {
@@ -38,9 +38,10 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
               const currentPath = window.location.pathname;
               if (!currentPath.includes('/auth/login')) {
                 const currentLocale = window.location.pathname.split('/')[1];
-                const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-                  ? `/${currentLocale}/auth/login` 
-                  : '/vi/auth/login';
+                const loginUrl =
+                  currentLocale === 'en' || currentLocale === 'vi'
+                    ? `/${currentLocale}/auth/login`
+                    : '/vi/auth/login';
                 window.location.href = loginUrl;
               }
               return 0;
@@ -63,7 +64,7 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
 
     // Track user activity
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
+
     events.forEach(event => {
       document.addEventListener(event, resetTimer, true);
     });
@@ -98,14 +99,14 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       sx={{ zIndex: 9999 }}
     >
-      <Alert 
-        severity="warning" 
-        sx={{ 
+      <Alert
+        severity="warning"
+        sx={{
           width: '100%',
           minWidth: 400,
           '& .MuiAlert-message': {
-            width: '100%'
-          }
+            width: '100%',
+          },
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -116,17 +117,17 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
             Bạn sẽ bị đăng xuất sau {formatTime(timeLeft)} do không hoạt động.
           </Typography>
           <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-            <Button 
-              variant="contained" 
-              size="small" 
+            <Button
+              variant="contained"
+              size="small"
               onClick={handleStayLoggedIn}
               sx={{ minWidth: 100 }}
             >
               Tiếp tục
             </Button>
-            <Button 
-              variant="outlined" 
-              size="small" 
+            <Button
+              variant="outlined"
+              size="small"
               onClick={() => {
                 localStorage.removeItem('auth_token');
                 localStorage.removeItem('refresh_token');
@@ -134,9 +135,10 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
                 const currentPath = window.location.pathname;
                 if (!currentPath.includes('/auth/login')) {
                   const currentLocale = window.location.pathname.split('/')[1];
-                  const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-                    ? `/${currentLocale}/auth/login` 
-                    : '/vi/auth/login';
+                  const loginUrl =
+                    currentLocale === 'en' || currentLocale === 'vi'
+                      ? `/${currentLocale}/auth/login`
+                      : '/vi/auth/login';
                   window.location.href = loginUrl;
                 }
               }}
@@ -151,4 +153,4 @@ const AutoLogoutNotification: React.FC<AutoLogoutNotificationProps> = ({
   );
 };
 
-export default AutoLogoutNotification; 
+export default AutoLogoutNotification;

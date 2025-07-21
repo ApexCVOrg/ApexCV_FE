@@ -1,15 +1,7 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Card,
-  Button,
-  Stack,
-  Snackbar,
-  useMediaQuery,
-} from "@mui/material";
-import { styled, useTheme } from "@mui/material/styles";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Card, Button, Stack, Snackbar, useMediaQuery } from '@mui/material';
+import { styled, useTheme } from '@mui/material/styles';
 
 interface Coupon {
   code: string;
@@ -24,49 +16,49 @@ interface Coupon {
 
 // Styled components for high contrast, minimalism
 const CouponCard = styled(Card)(({ theme }) => ({
-  background: theme.palette.mode === "dark" ? "#111" : "#fff",
-  border: `2px solid #111` ,
-  boxShadow: "0 2px 12px 0 rgba(0,0,0,0.04)",
+  background: theme.palette.mode === 'dark' ? '#111' : '#fff',
+  border: `2px solid #111`,
+  boxShadow: '0 2px 12px 0 rgba(0,0,0,0.04)',
   borderRadius: 16,
-  transition: "transform 0.15s, box-shadow 0.15s, border-color 0.15s",
+  transition: 'transform 0.15s, box-shadow 0.15s, border-color 0.15s',
   '&:hover, &:focus-within': {
-    transform: "scale(1.015)",
-    boxShadow: "0 4px 24px 0 rgba(0,0,0,0.10)",
-    borderColor: "#cfd9df", // Polite Rumors
+    transform: 'scale(1.015)',
+    boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10)',
+    borderColor: '#cfd9df', // Polite Rumors
   },
   minWidth: 0,
 }));
 
 const CodeBox = styled(Box)(() => ({
-  background: "#111",
-  color: "#fff",
+  background: '#111',
+  color: '#fff',
   fontWeight: 700,
   fontSize: 22,
   letterSpacing: 2,
   borderRadius: 8,
-  padding: "8px 20px",
-  display: "inline-block",
+  padding: '8px 20px',
+  display: 'inline-block',
   marginBottom: 8,
-  userSelect: "all",
+  userSelect: 'all',
 }));
 
 const CopyButton = styled(Button)(({ theme }) => ({
-  background: "#111",
-  color: "#fff",
+  background: '#111',
+  color: '#fff',
   borderRadius: 24,
   fontWeight: 600,
   fontSize: 16,
   minWidth: 120,
   minHeight: 44,
-  boxShadow: "none",
-  textTransform: "none",
-  transition: "background 0.2s, box-shadow 0.2s, transform 0.1s",
+  boxShadow: 'none',
+  textTransform: 'none',
+  transition: 'background 0.2s, box-shadow 0.2s, transform 0.1s',
   '&:hover, &:focus': {
     background: theme.palette.grey[900],
-    boxShadow: "0 2px 8px 0 rgba(0,0,0,0.10)",
-    transform: "scale(1.04)",
+    boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+    transform: 'scale(1.04)',
   },
-  outline: "none",
+  outline: 'none',
 }));
 
 // Format date to dd/MM/yyyy
@@ -78,12 +70,12 @@ function formatDate(dateString: string) {
 
 export default function CouponPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/coupon/")
+    fetch('http://localhost:5000/api/coupon/')
       .then(res => res.json())
       .then(data => setCoupons(data.data || []));
   }, []);
@@ -93,7 +85,7 @@ export default function CouponPage() {
       await navigator.clipboard.writeText(code);
       setSnackbar({ open: true, message: `Đã sao chép mã: ${code}` });
     } catch {
-      setSnackbar({ open: true, message: "Không thể sao chép mã." });
+      setSnackbar({ open: true, message: 'Không thể sao chép mã.' });
     }
   };
 
@@ -101,15 +93,15 @@ export default function CouponPage() {
     <Box
       sx={{
         maxWidth: 600,
-        mx: "auto",
+        mx: 'auto',
         py: { xs: 3, sm: 6 },
         px: { xs: 1, sm: 2 },
-        minHeight: "100vh",
-        bgcolor: theme.palette.mode === "dark" ? "#111" : "#fff",
+        minHeight: '100vh',
+        bgcolor: theme.palette.mode === 'dark' ? '#111' : '#fff',
       }}
     >
       <Typography
-        variant={isMobile ? "h4" : "h3"}
+        variant={isMobile ? 'h4' : 'h3'}
         fontWeight={800}
         mb={4}
         mt={{ xs: 4, sm: 8 }}
@@ -117,7 +109,7 @@ export default function CouponPage() {
         color="#111"
         sx={{
           letterSpacing: 1,
-          fontFamily: `"Be Vietnam Pro", "Inter", "Roboto", "Arial", sans-serif`
+          fontFamily: `"Be Vietnam Pro", "Inter", "Roboto", "Arial", sans-serif`,
         }}
       >
         Coupon Ưu Đãi
@@ -128,22 +120,22 @@ export default function CouponPage() {
             Hiện chưa có coupon nào.
           </Typography>
         )}
-        {coupons.map((coupon) => (
+        {coupons.map(coupon => (
           <CouponCard
             key={coupon.code}
             tabIndex={0}
             aria-label={`Coupon ${coupon.code}`}
             sx={{
               p: { xs: 2, sm: 3 },
-              width: "100%",
-              outline: "none",
+              width: '100%',
+              outline: 'none',
             }}
           >
             <Box
               sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                alignItems: { xs: "flex-start", sm: "center" },
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: { xs: 'flex-start', sm: 'center' },
                 gap: { xs: 2, sm: 3 },
               }}
             >
@@ -157,28 +149,20 @@ export default function CouponPage() {
                   color="#111"
                   fontSize={18}
                   mb={0.5}
-                  sx={{ wordBreak: "break-word" }}
+                  sx={{ wordBreak: 'break-word' }}
                 >
-                  {coupon.type === 'percentage' ? `Giảm ${coupon.value}%` : `Giảm ${coupon.value.toLocaleString()}đ`}
+                  {coupon.type === 'percentage'
+                    ? `Giảm ${coupon.value}%`
+                    : `Giảm ${coupon.value.toLocaleString()}đ`}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  fontSize={16}
-                  sx={{ mt: 0.5 }}
-                >
+                <Typography variant="body2" color="text.secondary" fontSize={16} sx={{ mt: 0.5 }}>
                   Đơn hàng tối thiểu: {coupon.minOrderValue.toLocaleString()}đ
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  fontSize={16}
-                  sx={{ mt: 0.5 }}
-                >
+                <Typography variant="body2" color="text.secondary" fontSize={16} sx={{ mt: 0.5 }}>
                   Hạn sử dụng: {formatDate(coupon.expiresAt)}
                 </Typography>
               </Box>
-              <Box sx={{ minWidth: { xs: "100%", sm: 120 }, mt: { xs: 1, sm: 0 } }}>
+              <Box sx={{ minWidth: { xs: '100%', sm: 120 }, mt: { xs: 1, sm: 0 } }}>
                 <CopyButton
                   aria-label={`Sao chép mã ${coupon.code}`}
                   fullWidth={isMobile}
@@ -194,20 +178,20 @@ export default function CouponPage() {
       <Snackbar
         open={snackbar.open}
         autoHideDuration={2000}
-        onClose={() => setSnackbar({ open: false, message: "" })}
+        onClose={() => setSnackbar({ open: false, message: '' })}
         message={<span style={{ fontSize: 18, fontWeight: 600 }}>{snackbar.message}</span>}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         ContentProps={{
           sx: {
-            bgcolor: "#111",
-            color: "#fff",
+            bgcolor: '#111',
+            color: '#fff',
             borderRadius: 2,
-            boxShadow: "0 2px 8px 0 rgba(0,0,0,0.15)",
+            boxShadow: '0 2px 8px 0 rgba(0,0,0,0.15)',
             minWidth: 280,
-            textAlign: "center",
+            textAlign: 'center',
           },
         }}
       />
     </Box>
   );
-} 
+}

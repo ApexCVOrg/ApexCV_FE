@@ -104,7 +104,7 @@ export default function OutletPage() {
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
           <FormControl sx={{ minWidth: 200 }}>
             <InputLabel>Sort By</InputLabel>
-            <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+            <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="priceAsc">Price: Low to High</MenuItem>
               <MenuItem value="priceDesc">Price: High to Low</MenuItem>

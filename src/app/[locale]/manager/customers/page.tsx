@@ -1,5 +1,5 @@
-"use client";
-import React, { useEffect, useState } from "react";
+'use client';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -30,15 +30,15 @@ import {
   Switch,
   FormControlLabel,
   Pagination,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import api from "@/services/api";
-import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from "@/lib/constants/constants";
-import { useTranslations } from "next-intl";
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import api from '@/services/api';
+import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/lib/constants/constants';
+import { useTranslations } from 'next-intl';
 
 interface Address {
   recipientName: string;
@@ -56,7 +56,7 @@ interface User {
   email: string;
   fullName: string;
   phone: string;
-  role: "user" | "admin" | "manager";
+  role: 'user' | 'admin' | 'manager';
   isVerified: boolean;
   addresses: Address[];
   createdAt: string;
@@ -70,7 +70,7 @@ interface UserFormData {
   email: string;
   fullName: string;
   phone: string;
-  role: "user" | "admin" | "manager";
+  role: 'user' | 'admin' | 'manager';
   status: string;
   isVerified: boolean;
   addresses: Address[];
@@ -82,26 +82,26 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  
+
   // Pagination states
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
-  
+
   // Search and filter states
-  const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [verificationFilter, setVerificationFilter] = useState<string>("all");
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [verificationFilter, setVerificationFilter] = useState<string>('all');
+
   const [formData, setFormData] = useState<UserFormData>({
-    username: "",
-    email: "",
-    fullName: "",
-    phone: "",
-    role: "user",
-    status: "active",
+    username: '',
+    email: '',
+    fullName: '',
+    phone: '',
+    role: 'user',
+    status: 'active',
     isVerified: false,
     addresses: [],
   });
@@ -109,10 +109,10 @@ export default function CustomersPage() {
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
-    severity: "success" | "error";
-  }>({ open: false, message: "", severity: "success" });
+    severity: 'success' | 'error';
+  }>({ open: false, message: '', severity: 'success' });
 
-  const t = useTranslations("manager.users");
+  const t = useTranslations('manager.users');
 
   // Search and filter function
   const filterUsers = () => {
@@ -120,27 +120,28 @@ export default function CustomersPage() {
 
     // Filter by search term
     if (searchTerm) {
-      filtered = filtered.filter(user =>
-        user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.phone.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        user =>
+          user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.phone.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     // Filter by role
-    if (roleFilter !== "all") {
+    if (roleFilter !== 'all') {
       filtered = filtered.filter(user => user.role === roleFilter);
     }
 
     // Filter by status
-    if (statusFilter !== "all") {
+    if (statusFilter !== 'all') {
       filtered = filtered.filter(user => user.status === statusFilter);
     }
 
     // Filter by verification status
-    if (verificationFilter !== "all") {
-      const isVerified = verificationFilter === "verified";
+    if (verificationFilter !== 'all') {
+      const isVerified = verificationFilter === 'verified';
       filtered = filtered.filter(user => user.isVerified === isVerified);
     }
 
@@ -155,32 +156,31 @@ export default function CustomersPage() {
 
   // Clear all filters
   const clearFilters = () => {
-    setSearchTerm("");
-    setRoleFilter("all");
-    setStatusFilter("all");
-    setVerificationFilter("all");
+    setSearchTerm('');
+    setRoleFilter('all');
+    setStatusFilter('all');
+    setVerificationFilter('all');
   };
 
   // Fetch users with pagination
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      
+
       // Use CUSTOMERS endpoint for direct array response
       const response = await api.get<User[]>(API_ENDPOINTS.MANAGER.CUSTOMERS, {
-        params: { page, limit }
+        params: { page, limit },
       });
-      
+
       // Parse resp.data directly as User[] array
       setUsers(response.data);
-      
+
       // Set pagination info
       setTotalUsers(response.data.length);
       setTotalPages(Math.ceil(response.data.length / limit));
-      
     } catch (error) {
       console.error('Error fetching users:', error);
-      setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: "error" });
+      setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: 'error' });
       setUsers([]);
     } finally {
       setLoading(false);
@@ -202,7 +202,7 @@ export default function CustomersPage() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       [name]: value,
     }));
@@ -218,19 +218,19 @@ export default function CustomersPage() {
         fullName: user.fullName,
         phone: user.phone,
         role: user.role,
-        status: user.status || "active",
+        status: user.status || 'active',
         isVerified: user.isVerified,
         addresses: user.addresses,
       });
     } else {
       setSelectedUser(null);
       setFormData({
-        username: "",
-        email: "",
-        fullName: "",
-        phone: "",
-        role: "user",
-        status: "active",
+        username: '',
+        email: '',
+        fullName: '',
+        phone: '',
+        role: 'user',
+        status: 'active',
         isVerified: false,
         addresses: [],
       });
@@ -242,12 +242,12 @@ export default function CustomersPage() {
     setOpenDialog(false);
     setSelectedUser(null);
     setFormData({
-      username: "",
-      email: "",
-      fullName: "",
-      phone: "",
-      role: "user",
-      status: "active",
+      username: '',
+      email: '',
+      fullName: '',
+      phone: '',
+      role: 'user',
+      status: 'active',
       isVerified: false,
       addresses: [],
     });
@@ -261,7 +261,7 @@ export default function CustomersPage() {
       const url = selectedUser
         ? `${API_ENDPOINTS.MANAGER.CUSTOMERS}/${selectedUser._id}`
         : API_ENDPOINTS.MANAGER.CUSTOMERS;
-      const method = selectedUser ? "put" : "post";
+      const method = selectedUser ? 'put' : 'post';
 
       await api[method](url, formData);
 
@@ -270,7 +270,7 @@ export default function CustomersPage() {
         message: selectedUser
           ? SUCCESS_MESSAGES.MANAGER.USER_UPDATED
           : SUCCESS_MESSAGES.MANAGER.USER_CREATED,
-        severity: "success",
+        severity: 'success',
       });
 
       handleCloseDialog();
@@ -279,14 +279,14 @@ export default function CustomersPage() {
       setSnackbar({
         open: true,
         message: ERROR_MESSAGES.MANAGER.INVALID_USER_DATA,
-        severity: "error",
+        severity: 'error',
       });
     }
   };
 
   // Delete user
   const handleDelete = async (id: string) => {
-    if (!window.confirm(t("deleteConfirm"))) return;
+    if (!window.confirm(t('deleteConfirm'))) return;
 
     try {
       await api.delete(`${API_ENDPOINTS.MANAGER.CUSTOMERS}/${id}`);
@@ -294,7 +294,7 @@ export default function CustomersPage() {
       setSnackbar({
         open: true,
         message: SUCCESS_MESSAGES.MANAGER.USER_DELETED,
-        severity: "success",
+        severity: 'success',
       });
 
       fetchUsers();
@@ -302,7 +302,7 @@ export default function CustomersPage() {
       setSnackbar({
         open: true,
         message: ERROR_MESSAGES.MANAGER.INVALID_USER_DATA,
-        severity: "error",
+        severity: 'error',
       });
     }
   };
@@ -315,7 +315,7 @@ export default function CustomersPage() {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -336,16 +336,18 @@ export default function CustomersPage() {
 
   return (
     <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3} sx={{ flexWrap: 'wrap' }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        sx={{ flexWrap: 'wrap' }}
+      >
         <Typography variant="h4" component="h1" fontWeight="bold">
-          {t("title")}
+          {t('title')}
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          {t("addNew")}
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+          {t('addNew')}
         </Button>
       </Stack>
 
@@ -355,9 +357,9 @@ export default function CustomersPage() {
           {/* Search Bar */}
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <TextField
-              placeholder={t("search.searchUsers")}
+              placeholder={t('search.searchUsers')}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               sx={{ flexGrow: 1 }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
@@ -367,59 +369,77 @@ export default function CustomersPage() {
               variant="outlined"
               startIcon={<ClearIcon />}
               onClick={clearFilters}
-              disabled={!searchTerm && roleFilter === "all" && statusFilter === "all" && verificationFilter === "all"}
+              disabled={
+                !searchTerm &&
+                roleFilter === 'all' &&
+                statusFilter === 'all' &&
+                verificationFilter === 'all'
+              }
             >
-              {t("search.clearFilters")}
+              {t('search.clearFilters')}
             </Button>
           </Box>
 
           {/* Filter Row */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', width: '100%', overflowX: 'auto' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 2,
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              width: '100%',
+              overflowX: 'auto',
+            }}
+          >
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>{t("role")}</InputLabel>
+              <InputLabel>{t('role')}</InputLabel>
               <Select
                 value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-                label={t("role")}
+                onChange={e => setRoleFilter(e.target.value)}
+                label={t('role')}
               >
-                <MenuItem value="all">{t("search.allRoles")}</MenuItem>
-                <MenuItem value="user">{t("roles.user")}</MenuItem>
-                <MenuItem value="admin">{t("roles.admin")}</MenuItem>
-                <MenuItem value="manager">{t("roles.manager")}</MenuItem>
+                <MenuItem value="all">{t('search.allRoles')}</MenuItem>
+                <MenuItem value="user">{t('roles.user')}</MenuItem>
+                <MenuItem value="admin">{t('roles.admin')}</MenuItem>
+                <MenuItem value="manager">{t('roles.manager')}</MenuItem>
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>{t("status")}</InputLabel>
+              <InputLabel>{t('status')}</InputLabel>
               <Select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                label={t("status")}
+                onChange={e => setStatusFilter(e.target.value)}
+                label={t('status')}
               >
-                <MenuItem value="all">{t("search.allStatus")}</MenuItem>
-                <MenuItem value="active">{t("statuses.active")}</MenuItem>
-                <MenuItem value="inactive">{t("statuses.inactive")}</MenuItem>
-                <MenuItem value="suspended">{t("statuses.suspended")}</MenuItem>
+                <MenuItem value="all">{t('search.allStatus')}</MenuItem>
+                <MenuItem value="active">{t('statuses.active')}</MenuItem>
+                <MenuItem value="inactive">{t('statuses.inactive')}</MenuItem>
+                <MenuItem value="suspended">{t('statuses.suspended')}</MenuItem>
               </Select>
             </FormControl>
 
             <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel>{t("verification")}</InputLabel>
+              <InputLabel>{t('verification')}</InputLabel>
               <Select
                 value={verificationFilter}
-                onChange={(e) => setVerificationFilter(e.target.value)}
-                label={t("verification")}
+                onChange={e => setVerificationFilter(e.target.value)}
+                label={t('verification')}
               >
-                <MenuItem value="all">{t("search.allVerification")}</MenuItem>
-                <MenuItem value="verified">{t("verificationStatus.verified")}</MenuItem>
-                <MenuItem value="unverified">{t("verificationStatus.unverified")}</MenuItem>
+                <MenuItem value="all">{t('search.allVerification')}</MenuItem>
+                <MenuItem value="verified">{t('verificationStatus.verified')}</MenuItem>
+                <MenuItem value="unverified">{t('verificationStatus.unverified')}</MenuItem>
               </Select>
             </FormControl>
 
             {/* Results Count */}
             <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
               <Typography variant="body2" color="text.secondary">
-                {t("search.resultsCount", { filtered: filteredUsers.length, total: totalUsers, itemType: t("search.users") })}
+                {t('search.resultsCount', {
+                  filtered: filteredUsers.length,
+                  total: totalUsers,
+                  itemType: t('search.users'),
+                })}
               </Typography>
             </Box>
           </Box>
@@ -430,41 +450,37 @@ export default function CustomersPage() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>{t("avatar")}</TableCell>
-              <TableCell>{t("username")}</TableCell>
-              <TableCell>{t("email")}</TableCell>
-              <TableCell>{t("fullName")}</TableCell>
-              <TableCell>{t("phone")}</TableCell>
-              <TableCell>{t("role")}</TableCell>
-              <TableCell>{t("status")}</TableCell>
-              <TableCell>{t("verification")}</TableCell>
-              <TableCell>{t("addresses")}</TableCell>
-              <TableCell>{t("createdAt")}</TableCell>
-              <TableCell align="right">{t("actions")}</TableCell>
+              <TableCell>{t('avatar')}</TableCell>
+              <TableCell>{t('username')}</TableCell>
+              <TableCell>{t('email')}</TableCell>
+              <TableCell>{t('fullName')}</TableCell>
+              <TableCell>{t('phone')}</TableCell>
+              <TableCell>{t('role')}</TableCell>
+              <TableCell>{t('status')}</TableCell>
+              <TableCell>{t('verification')}</TableCell>
+              <TableCell>{t('addresses')}</TableCell>
+              <TableCell>{t('createdAt')}</TableCell>
+              <TableCell align="right">{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={11} align="center">
-                  {t("loading")}
+                  {t('loading')}
                 </TableCell>
               </TableRow>
             ) : users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={11} align="center">
-                  {t("noUsers")}
+                  {t('noUsers')}
                 </TableCell>
               </TableRow>
-            ) : (
-              Array.isArray(filteredUsers) ? filteredUsers.map((user) => (
+            ) : Array.isArray(filteredUsers) ? (
+              filteredUsers.map(user => (
                 <TableRow key={user._id}>
                   <TableCell>
-                    <Avatar
-                      src={user.avatar}
-                      alt={user.fullName}
-                      sx={{ width: 40, height: 40 }}
-                    >
+                    <Avatar src={user.avatar} alt={user.fullName} sx={{ width: 40, height: 40 }}>
                       {user.fullName?.charAt(0) || user.username?.charAt(0)}
                     </Avatar>
                   </TableCell>
@@ -475,20 +491,36 @@ export default function CustomersPage() {
                   <TableCell>
                     <Chip
                       label={t(`roles.${user.role}`)}
-                      color={user.role === 'admin' ? 'error' : user.role === 'manager' ? 'warning' : 'default'}
+                      color={
+                        user.role === 'admin'
+                          ? 'error'
+                          : user.role === 'manager'
+                            ? 'warning'
+                            : 'default'
+                      }
                       size="small"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip
                       label={t(`statuses.${user.status || 'active'}`)}
-                      color={user.status === 'active' ? 'success' : user.status === 'suspended' ? 'error' : 'default'}
+                      color={
+                        user.status === 'active'
+                          ? 'success'
+                          : user.status === 'suspended'
+                            ? 'error'
+                            : 'default'
+                      }
                       size="small"
                     />
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={user.isVerified ? t("verificationStatus.verified") : t("verificationStatus.unverified")}
+                      label={
+                        user.isVerified
+                          ? t('verificationStatus.verified')
+                          : t('verificationStatus.unverified')
+                      }
                       color={user.isVerified ? 'success' : 'default'}
                       size="small"
                     />
@@ -496,7 +528,7 @@ export default function CustomersPage() {
                   <TableCell>
                     <Tooltip title={getDefaultAddress(user.addresses)}>
                       <Chip
-                        label={`${getAddressCount(user.addresses)} ${t("addresses")}`}
+                        label={`${getAddressCount(user.addresses)} ${t('addresses')}`}
                         size="small"
                         variant="outlined"
                       />
@@ -504,29 +536,21 @@ export default function CustomersPage() {
                   </TableCell>
                   <TableCell>{formatDate(user.createdAt)}</TableCell>
                   <TableCell align="right">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenDialog(user)}
-                      sx={{ mr: 1 }}
-                    >
+                    <IconButton size="small" onClick={() => handleOpenDialog(user)} sx={{ mr: 1 }}>
                       <EditIcon />
                     </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(user._id)}
-                      color="error"
-                    >
+                    <IconButton size="small" onClick={() => handleDelete(user._id)} color="error">
                       <DeleteIcon />
                     </IconButton>
                   </TableCell>
                 </TableRow>
-              )) : (
-                <TableRow>
-                  <TableCell colSpan={11} align="center">
-                    {t("loading")}
-                  </TableCell>
-                </TableRow>
-              )
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={11} align="center">
+                  {t('loading')}
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
@@ -548,13 +572,13 @@ export default function CustomersPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedUser ? t("editUser") : t("addUser")}</DialogTitle>
+        <DialogTitle>{selectedUser ? t('editUser') : t('addUser')}</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
             <Stack spacing={3}>
               <TextField
                 name="username"
-                label={t("username")}
+                label={t('username')}
                 value={formData.username}
                 onChange={handleInputChange}
                 required
@@ -563,7 +587,7 @@ export default function CustomersPage() {
 
               <TextField
                 name="email"
-                label={t("email")}
+                label={t('email')}
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
@@ -573,7 +597,7 @@ export default function CustomersPage() {
 
               <TextField
                 name="fullName"
-                label={t("fullName")}
+                label={t('fullName')}
                 value={formData.fullName}
                 onChange={handleInputChange}
                 required
@@ -582,37 +606,42 @@ export default function CustomersPage() {
 
               <TextField
                 name="phone"
-                label={t("phone")}
+                label={t('phone')}
                 value={formData.phone}
                 onChange={handleInputChange}
                 fullWidth
               />
 
               <FormControl fullWidth required>
-                <InputLabel>{t("role")}</InputLabel>
+                <InputLabel>{t('role')}</InputLabel>
                 <Select
                   name="role"
                   value={formData.role}
-                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as "user" | "admin" | "manager" }))}
-                  label={t("role")}
+                  onChange={e =>
+                    setFormData(prev => ({
+                      ...prev,
+                      role: e.target.value as 'user' | 'admin' | 'manager',
+                    }))
+                  }
+                  label={t('role')}
                 >
-                  <MenuItem value="user">{t("roles.user")}</MenuItem>
-                  <MenuItem value="admin">{t("roles.admin")}</MenuItem>
-                  <MenuItem value="manager">{t("roles.manager")}</MenuItem>
+                  <MenuItem value="user">{t('roles.user')}</MenuItem>
+                  <MenuItem value="admin">{t('roles.admin')}</MenuItem>
+                  <MenuItem value="manager">{t('roles.manager')}</MenuItem>
                 </Select>
               </FormControl>
 
               <FormControl fullWidth required>
-                <InputLabel>{t("status")}</InputLabel>
+                <InputLabel>{t('status')}</InputLabel>
                 <Select
                   name="status"
                   value={formData.status}
-                  onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value }))}
-                  label={t("status")}
+                  onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))}
+                  label={t('status')}
                 >
-                  <MenuItem value="active">{t("statuses.active")}</MenuItem>
-                  <MenuItem value="inactive">{t("statuses.inactive")}</MenuItem>
-                  <MenuItem value="suspended">{t("statuses.suspended")}</MenuItem>
+                  <MenuItem value="active">{t('statuses.active')}</MenuItem>
+                  <MenuItem value="inactive">{t('statuses.inactive')}</MenuItem>
+                  <MenuItem value="suspended">{t('statuses.suspended')}</MenuItem>
                 </Select>
               </FormControl>
 
@@ -620,17 +649,17 @@ export default function CustomersPage() {
                 control={
                   <Switch
                     checked={formData.isVerified}
-                    onChange={(e) => setFormData(prev => ({ ...prev, isVerified: e.target.checked }))}
+                    onChange={e => setFormData(prev => ({ ...prev, isVerified: e.target.checked }))}
                   />
                 }
-                label={t("isVerified")}
+                label={t('isVerified')}
               />
             </Stack>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>{t("cancel")}</Button>
+            <Button onClick={handleCloseDialog}>{t('cancel')}</Button>
             <Button type="submit" variant="contained">
-              {selectedUser ? t("update") : t("create")}
+              {selectedUser ? t('update') : t('create')}
             </Button>
           </DialogActions>
         </form>
@@ -645,11 +674,11 @@ export default function CustomersPage() {
         <Alert
           onClose={() => setSnackbar(prev => ({ ...prev, open: false }))}
           severity={snackbar.severity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbar.message}
         </Alert>
       </Snackbar>
     </Box>
   );
-} 
+}

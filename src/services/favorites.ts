@@ -83,7 +83,9 @@ class FavoritesService {
   // Xóa sản phẩm khỏi favorites
   async removeFromFavorites(productId: string): Promise<ToggleFavoriteResponse> {
     try {
-      const response = await api.delete<ToggleFavoriteResponse>(`${this.baseURL}/remove/${productId}`);
+      const response = await api.delete<ToggleFavoriteResponse>(
+        `${this.baseURL}/remove/${productId}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error removing from favorites:', error);
@@ -94,7 +96,9 @@ class FavoritesService {
   // Toggle thêm/xóa favorites
   async toggleFavorite(productId: string): Promise<ToggleFavoriteResponse> {
     try {
-      const response = await api.post<ToggleFavoriteResponse>(`${this.baseURL}/toggle/${productId}`);
+      const response = await api.post<ToggleFavoriteResponse>(
+        `${this.baseURL}/toggle/${productId}`
+      );
       return response.data;
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -105,7 +109,9 @@ class FavoritesService {
   // Xóa tất cả favorites
   async clearAllFavorites(): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await api.delete<{ success: boolean; message: string }>(`${this.baseURL}/clear`);
+      const response = await api.delete<{ success: boolean; message: string }>(
+        `${this.baseURL}/clear`
+      );
       return response.data;
     } catch (error) {
       console.error('Error clearing favorites:', error);
@@ -115,4 +121,4 @@ class FavoritesService {
 }
 
 export const favoritesService = new FavoritesService();
-export default favoritesService; 
+export default favoritesService;

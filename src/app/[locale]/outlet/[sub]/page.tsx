@@ -61,7 +61,7 @@ export default function OutletSubCategoryPage() {
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
+          <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
             <MenuItem value="newest">Newest</MenuItem>
             <MenuItem value="price-low">Price: Low to High</MenuItem>
             <MenuItem value="price-high">Price: High to Low</MenuItem>

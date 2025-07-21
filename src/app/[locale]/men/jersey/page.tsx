@@ -1,6 +1,6 @@
-"use client";
-import React from "react";
-import GenderPageLayout from "@/components/layout/GenderPageLayout";
+'use client';
+import React from 'react';
+import GenderPageLayout from '@/components/layout/GenderPageLayout';
 
 interface Product {
   _id: string;
@@ -18,19 +18,32 @@ export default function MenJerseyPage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
     let apiSortBy = sortBy;
     let sortOrder = 'desc';
-    if (sortBy === 'price-low') { apiSortBy = 'price'; sortOrder = 'asc'; }
-    else if (sortBy === 'price-high') { apiSortBy = 'price'; sortOrder = 'desc'; }
-    else if (sortBy === 'newest') { apiSortBy = 'createdAt'; sortOrder = 'desc'; }
-    else if (sortBy === 'popular') { apiSortBy = 'popularity'; sortOrder = 'desc'; }
+    if (sortBy === 'price-low') {
+      apiSortBy = 'price';
+      sortOrder = 'asc';
+    } else if (sortBy === 'price-high') {
+      apiSortBy = 'price';
+      sortOrder = 'desc';
+    } else if (sortBy === 'newest') {
+      apiSortBy = 'createdAt';
+      sortOrder = 'desc';
+    } else if (sortBy === 'popular') {
+      apiSortBy = 'popularity';
+      sortOrder = 'desc';
+    }
     const queryParams = new URLSearchParams({ sortBy: apiSortBy, sortOrder, gender: 'men' });
     const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
     const res = await fetch(apiUrl);
     const data = await res.json();
     if (!data.success) throw new Error(data.message || 'Failed to fetch products');
-    const teamNames = ["arsenal","real madrid","manchester united","bayern munich","juventus"];
-    const jerseys = (data.data || []).filter((p: any) =>
-      (p.categories || []).some((c: any) => c.name.toLowerCase() === "t-shirts" || c.name.toLowerCase() === "jersey") &&
-      (p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase()))
+    const teamNames = ['arsenal', 'real madrid', 'manchester united', 'bayern munich', 'juventus'];
+    const jerseys = (data.data || []).filter(
+      (p: any) =>
+        (p.categories || []).some(
+          (c: any) => c.name.toLowerCase() === 't-shirts' || c.name.toLowerCase() === 'jersey'
+        ) &&
+        p.categories?.[1] &&
+        teamNames.includes(p.categories[1].name.toLowerCase())
     );
     return jerseys;
   };
@@ -44,4 +57,4 @@ export default function MenJerseyPage() {
       emptyMessage="No jerseys found."
     />
   );
-} 
+}

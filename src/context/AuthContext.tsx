@@ -49,9 +49,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const currentPath = window.location.pathname;
         if (!currentPath.includes('/auth/login')) {
           const currentLocale = window.location.pathname.split('/')[1];
-          const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
-            ? `/${currentLocale}/auth/login` 
-            : '/vi/auth/login';
+          const loginUrl =
+            currentLocale === 'en' || currentLocale === 'vi'
+              ? `/${currentLocale}/auth/login`
+              : '/vi/auth/login';
           router.push(loginUrl);
         }
       }
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Track mouse movements, clicks, and keyboard events
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
-    
+
     events.forEach(event => {
       document.addEventListener(event, updateActivity, true);
     });
@@ -90,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Bạn có thể fetch user profile ở đây nếu cần
       // Fetch user profile từ backend
       fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/users/profile', {
-        headers: { Authorization: `Bearer ${storedToken}` }
+        headers: { Authorization: `Bearer ${storedToken}` },
       })
         .then(res => res.json())
         .then(user => setUser(user))
@@ -107,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
+
     // Also listen for custom auth token update event
     const handleAuthTokenUpdate = (event: CustomEvent) => {
       const newToken = event.detail.token;
@@ -116,9 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLastActivity(Date.now());
       }
     };
-    
+
     window.addEventListener('authTokenUpdated', handleAuthTokenUpdate as EventListener);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('authTokenUpdated', handleAuthTokenUpdate as EventListener);

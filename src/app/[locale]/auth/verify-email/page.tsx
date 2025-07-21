@@ -56,12 +56,15 @@ export default function VerifyEmailPage() {
           return;
         }
 
-        const response = await fetch(`${API_BASE_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}?token=${token}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `${API_BASE_URL}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}?token=${token}`,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
         const data: VerifyEmailResponse = await response.json();
 
@@ -88,10 +91,10 @@ export default function VerifyEmailPage() {
     try {
       const token = localStorage.getItem('auth_token');
       const pendingEmail = localStorage.getItem('pendingEmail');
-      
+
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       };
 
       if (isEmailChange && token) {
@@ -103,8 +106,8 @@ export default function VerifyEmailPage() {
         headers,
         body: JSON.stringify({
           email: registeredEmail,
-          code: verificationCode
-        })
+          code: verificationCode,
+        }),
       });
 
       const data = await response.json();

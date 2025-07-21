@@ -43,7 +43,16 @@ export default function TopProducts({ products }: TopProductsProps) {
   const safeProducts = products || [];
 
   return (
-    <Card sx={{ height: '100%', minHeight: 400, borderRadius: 4, boxShadow: 4, maxWidth: 600, width: '100%' }}>
+    <Card
+      sx={{
+        height: '100%',
+        minHeight: 400,
+        borderRadius: 4,
+        boxShadow: 4,
+        maxWidth: 600,
+        width: '100%',
+      }}
+    >
       <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <TrendingUp sx={{ mr: 1, color: 'primary.main' }} />
@@ -169,4 +178,4 @@ export default function TopProducts({ products }: TopProductsProps) {
       </CardContent>
     </Card>
   );
-} 
+}

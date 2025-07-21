@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import favoritesService, { FavoriteProduct } from '@/services/favorites';
 import { useAuth } from '@/hooks/useAuth';
@@ -49,74 +49,86 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
   }, [isAuthenticated]);
 
   // Kiểm tra sản phẩm có trong favorites không
-  const isFavorite = useCallback((productId: string): boolean => {
-    return favorites.some(fav => fav._id === productId);
-  }, [favorites]);
+  const isFavorite = useCallback(
+    (productId: string): boolean => {
+      return favorites.some(fav => fav._id === productId);
+    },
+    [favorites]
+  );
 
   // Toggle favorite với optimistic update
-  const toggleFavorite = useCallback(async (productId: string) => {
-    if (!isAuthenticated()) throw new Error('Please login to manage favorites');
-    const currentIsFavorite = isFavorite(productId);
-    // Optimistic update
-    if (currentIsFavorite) {
-      setFavorites(prev => prev.filter(fav => fav._id !== productId));
-      setFavoritesCount(prev => prev - 1);
-    } else {
-      setFavorites(prev => [...prev, { _id: productId } as FavoriteProduct]); // Tạm thời thêm vào để UI update, sẽ sync lại sau
-      setFavoritesCount(prev => prev + 1);
-    }
-    try {
-      const response = await favoritesService.toggleFavorite(productId);
-      if (response.success) {
-        setFavorites(response.data.favorites);
-        setFavoritesCount(response.data.count);
-        setError(null);
+  const toggleFavorite = useCallback(
+    async (productId: string) => {
+      if (!isAuthenticated()) throw new Error('Please login to manage favorites');
+      const currentIsFavorite = isFavorite(productId);
+      // Optimistic update
+      if (currentIsFavorite) {
+        setFavorites(prev => prev.filter(fav => fav._id !== productId));
+        setFavoritesCount(prev => prev - 1);
+      } else {
+        setFavorites(prev => [...prev, { _id: productId } as FavoriteProduct]); // Tạm thời thêm vào để UI update, sẽ sync lại sau
+        setFavoritesCount(prev => prev + 1);
       }
-    } catch (err) {
-      await fetchFavorites();
-      throw err;
-    }
-  }, [isAuthenticated, isFavorite, fetchFavorites]);
+      try {
+        const response = await favoritesService.toggleFavorite(productId);
+        if (response.success) {
+          setFavorites(response.data.favorites);
+          setFavoritesCount(response.data.count);
+          setError(null);
+        }
+      } catch (err) {
+        await fetchFavorites();
+        throw err;
+      }
+    },
+    [isAuthenticated, isFavorite, fetchFavorites]
+  );
 
   // Thêm vào favorites
-  const addToFavorites = useCallback(async (productId: string) => {
-    if (!isAuthenticated()) throw new Error('Please login to add favorites');
-    if (isFavorite(productId)) return;
-    setFavorites(prev => [...prev, { _id: productId } as FavoriteProduct]);
-    setFavoritesCount(prev => prev + 1);
-    try {
-      const response = await favoritesService.addToFavorites(productId);
-      if (response.success) {
-        setFavorites(response.data.favorites);
-        setFavoritesCount(response.data.count);
-        setError(null);
+  const addToFavorites = useCallback(
+    async (productId: string) => {
+      if (!isAuthenticated()) throw new Error('Please login to add favorites');
+      if (isFavorite(productId)) return;
+      setFavorites(prev => [...prev, { _id: productId } as FavoriteProduct]);
+      setFavoritesCount(prev => prev + 1);
+      try {
+        const response = await favoritesService.addToFavorites(productId);
+        if (response.success) {
+          setFavorites(response.data.favorites);
+          setFavoritesCount(response.data.count);
+          setError(null);
+        }
+      } catch (err) {
+        await fetchFavorites();
+        setError(err instanceof Error ? err.message : 'Failed to add to favorites');
+        throw err;
       }
-    } catch (err) {
-      await fetchFavorites();
-      setError(err instanceof Error ? err.message : 'Failed to add to favorites');
-      throw err;
-    }
-  }, [isAuthenticated, isFavorite, fetchFavorites]);
+    },
+    [isAuthenticated, isFavorite, fetchFavorites]
+  );
 
   // Xóa khỏi favorites
-  const removeFromFavorites = useCallback(async (productId: string) => {
-    if (!isAuthenticated()) throw new Error('Please login to remove favorites');
-    if (!isFavorite(productId)) return;
-    setFavorites(prev => prev.filter(fav => fav._id !== productId));
-    setFavoritesCount(prev => prev - 1);
-    try {
-      const response = await favoritesService.removeFromFavorites(productId);
-      if (response.success) {
-        setFavorites(response.data.favorites);
-        setFavoritesCount(response.data.count);
-        setError(null);
+  const removeFromFavorites = useCallback(
+    async (productId: string) => {
+      if (!isAuthenticated()) throw new Error('Please login to remove favorites');
+      if (!isFavorite(productId)) return;
+      setFavorites(prev => prev.filter(fav => fav._id !== productId));
+      setFavoritesCount(prev => prev - 1);
+      try {
+        const response = await favoritesService.removeFromFavorites(productId);
+        if (response.success) {
+          setFavorites(response.data.favorites);
+          setFavoritesCount(response.data.count);
+          setError(null);
+        }
+      } catch (err) {
+        await fetchFavorites();
+        setError(err instanceof Error ? err.message : 'Failed to remove from favorites');
+        throw err;
       }
-    } catch (err) {
-      await fetchFavorites();
-      setError(err instanceof Error ? err.message : 'Failed to remove from favorites');
-      throw err;
-    }
-  }, [isAuthenticated, isFavorite, fetchFavorites]);
+    },
+    [isAuthenticated, isFavorite, fetchFavorites]
+  );
 
   // Xóa tất cả favorites
   const clearAllFavorites = useCallback(async () => {
@@ -143,18 +155,20 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
   }, [fetchFavorites]);
 
   return (
-    <FavoritesContext.Provider value={{
-      favorites,
-      favoritesCount,
-      loading,
-      error,
-      isFavorite,
-      toggleFavorite,
-      addToFavorites,
-      removeFromFavorites,
-      clearAllFavorites,
-      refreshFavorites,
-    }}>
+    <FavoritesContext.Provider
+      value={{
+        favorites,
+        favoritesCount,
+        loading,
+        error,
+        isFavorite,
+        toggleFavorite,
+        addToFavorites,
+        removeFromFavorites,
+        clearAllFavorites,
+        refreshFavorites,
+      }}
+    >
       {children}
     </FavoritesContext.Provider>
   );
@@ -164,4 +178,4 @@ export const useFavorites = () => {
   const ctx = useContext(FavoritesContext);
   if (!ctx) throw new Error('useFavorites must be used within FavoritesProvider');
   return ctx;
-}; 
+};
