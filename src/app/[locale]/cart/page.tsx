@@ -69,7 +69,7 @@ export default function CartPage() {
       | { code: string; newPrice: number; discountAmount: number; message: string }
       | undefined;
   }>({});
-  const [couponError, setCouponError] = useState<string>('');
+  const [couponError, setCouponError] = useState<{ [cartItemId: string]: string }>({});
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
@@ -486,7 +486,7 @@ export default function CartPage() {
     const code = couponInputs[cartItem._id];
     if (!code) return;
     setApplyingCouponId(cartItem._id);
-    setCouponError('');
+    setCouponError(prev => ({ ...prev, [cartItem._id]: '' }));
     try {
       const res = await fetch("http://localhost:5000/api/coupon/apply", {
         method: "POST",
@@ -514,13 +514,14 @@ export default function CartPage() {
         }));
         if (data.freeShipping) setIsFreeShipping(true);
         else setIsFreeShipping(false);
+        setCouponError(prev => ({ ...prev, [cartItem._id]: '' }));
         setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
-        setCouponError(data.message || 'Coupon không hợp lệ');
+        setCouponError(prev => ({ ...prev, [cartItem._id]: data.message || 'Coupon không hợp lệ' }));
         console.log('Coupon error details:', data);
       }
     } catch (err) {
-      setCouponError('Có lỗi khi áp dụng coupon');
+      setCouponError(prev => ({ ...prev, [cartItem._id]: 'Có lỗi khi áp dụng coupon' }));
     } finally {
       setApplyingCouponId(null);
     }
@@ -899,9 +900,9 @@ export default function CartPage() {
                       )}
                     </Box>
                     {/* Hiển thị lỗi coupon */}
-                    {couponError && (
-                      <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {couponError}
+                    {couponError[cartItem._id] && (
+                      <Typography color="error" sx={{ ml: 1, fontWeight: 600, fontSize: '0.9rem' }}>
+                        {couponError[cartItem._id]}
                       </Typography>
                     )}
                     {/* Giá sản phẩm sau coupon */}

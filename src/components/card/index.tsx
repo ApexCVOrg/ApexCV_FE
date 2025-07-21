@@ -416,10 +416,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 )}
               </Box>
 
-              {/* Star rating (5.0) */}
+              {/* Star rating and value (dynamic) */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
+                  <StarIcon
+                    key={i}
+                    sx={{
+                      color: i < Math.round(averageRating * 2) / 2 ? '#FFD600' : '#e0e0e0',
+                      fontSize: 20,
+                      mr: 0.2,
+                    }}
+                  />
                 ))}
                 <Box
                   sx={{
@@ -432,8 +439,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     ml: 1,
                   }}
                 >
-                  5.0
+                  {ratingCount > 0 ? averageRating.toFixed(1) : 'Chưa có đánh giá'}
                 </Box>
+                {ratingCount > 0 && (
+                  <Box sx={{ color: '#888', fontSize: 12, ml: 1 }}>({ratingCount})</Box>
+                )}
               </Box>
 
               {/* Brand and Categories */}

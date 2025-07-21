@@ -125,7 +125,6 @@ export default function ProductDetailPage() {
   }>({ open: false, message: '', severity: 'success' });
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]); // State để lưu reviews
   const [averageRating, setAverageRating] = useState(0);
   const [ratingCount, setRatingCount] = useState(0);
@@ -746,16 +745,7 @@ export default function ProductDetailPage() {
               >
                 {t('addToCart')}
               </Button>
-              <IconButton
-                sx={{
-                  border: '1px solid #ddd',
-                  color: isFavorite ? '#ff3b30' : '#000',
-                  '&:hover': { bgcolor: '#f5f5f5' },
-                }}
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <Favorite />
-              </IconButton>
+              <FavoriteButton productId={product._id} />
               <IconButton
                 sx={{
                   border: '1px solid #ddd',
