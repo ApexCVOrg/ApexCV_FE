@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -51,6 +51,15 @@ interface Product {
 interface Brand {
   _id: string;
   name: string;
+}
+
+interface TopSellingItem {
+  _id: string;
+  name: string;
+  image?: string;
+  totalRevenue?: number;
+  totalQuantity?: number;
+  category?: string;
 }
 
 const TABS = [
@@ -147,7 +156,6 @@ export default function HomePage() {
   const [visibleCount, setVisibleCount] = useState(6); // Mặc định 2 dòng (3 sản phẩm mỗi dòng)
   // State for pagination (load more) cho từng tab
    
-  const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { addToHomeCart } = useHomeCartContext();
   // const { addToCart } = useCartContext();
@@ -302,7 +310,7 @@ export default function HomePage() {
         );
         const result = await response.json();
          
-        filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
+        filtered = (Array.isArray(result.data) ? result.data : []).map((item: TopSellingItem) => ({
           _id: item._id,
           name: item.name,
           images: [item.image || ''],
@@ -399,10 +407,9 @@ export default function HomePage() {
 
   // Reset visible count khi đổi tab
   useEffect(() => {
-    setTabVisibleCount(prev => ({ ...prev, [TABS[tab].key]: 5 }));
     // Chỉ reset startIndex nếu có nhiều hơn 3 sản phẩm
-    const key = TABS[tab].key;
-    const tabProducts = products[key] || [];
+    // const key = TABS[tab].key;
+    // const tabProducts = products[key] || [];
     // if (tabProducts.length > 3) {
     //   setTabStartIndex(prev => ({ ...prev, [key]: 0 }));
     // }

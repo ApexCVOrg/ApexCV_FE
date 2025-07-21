@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 'use client';
 import { useState } from 'react';
 import {
@@ -73,9 +73,7 @@ export default function CartPage() {
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
-  const [voucherError, setVoucherError] = useState<{ [cartItemId: string]: string}>({});
-  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string}>({});
-  const { isAuthenticated, getCurrentUser } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   // Common styles matching login form
   const blackBorderStyle = {
@@ -515,12 +513,11 @@ export default function CartPage() {
         if (data.freeShipping) setIsFreeShipping(true);
         else setIsFreeShipping(false);
         setCouponError(prev => ({ ...prev, [cartItem._id]: '' }));
-        setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
         setCouponError(prev => ({ ...prev, [cartItem._id]: data.message || 'Coupon không hợp lệ' }));
         console.log('Coupon error details:', data);
       }
-    } catch (err) {
+    } catch {
       setCouponError(prev => ({ ...prev, [cartItem._id]: 'Có lỗi khi áp dụng coupon' }));
     } finally {
       setApplyingCouponId(null);
@@ -563,10 +560,8 @@ export default function CartPage() {
               const cartItem = item as CartItemWithId;
               const isUpdating = updatingItems.has(cartItem._id);
               // Đảm bảo chỉ khai báo biến một lần
-              let price = 0;
               let originalPrice = 0;
               if (cartItem.product) {
-                price = cartItem.product.discountPrice || cartItem.product.price;
                 originalPrice = cartItem.product.price;
               }
               const discountedPrice = getDiscountedPrice(cartItem);
@@ -878,16 +873,6 @@ export default function CartPage() {
                                 if (appliedCoupon.code === 'FREESHIP') setIsFreeShipping(false);
                                 delete newV[cartItem._id];
                                 return newV;
-                              });
-                              setVoucherError(prev => {
-                                const newErr = { ...prev };
-                                delete newErr[cartItem._id];
-                                return newErr;
-                              });
-                              setVoucherInputs(prev => {
-                                const newInputs = { ...prev };
-                                delete newInputs[cartItem._id];
-                                return newInputs;
                               });
                             }}
                           />
