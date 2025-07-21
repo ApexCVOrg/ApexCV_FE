@@ -26,10 +26,7 @@
     "@types/lodash": "^4.17.20",
     "antd": "^5.25.2",
     "axios": "^1.9.0",
-<<<<<<< HEAD
-=======
     "cloudinary": "^2.7.0",
->>>>>>> 48c2c59c4c992b6c360865e0bb8c59b268c07aec
     "framer-motion": "^12.23.3",
     "gsap": "^3.13.0",
     "js-cookie": "^3.0.5",
