@@ -21,7 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 // import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 
 interface ChatSession {
   _id: string;
@@ -51,7 +51,7 @@ interface ApiResponse<T> {
 }
 
 export default function MessagesPage() {
-  const { isAuthenticated, getToken } = useAuth();
+  const { getToken } = useAuth();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -65,7 +65,6 @@ export default function MessagesPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Lắng nghe mở/đóng sidebar layout manager
   useEffect(() => {
@@ -97,7 +96,7 @@ export default function MessagesPage() {
         );
         const data = await response.json();
         setSessions(data.data || []);
-      } catch (err) {
+      } catch {
         setError('Không thể tải danh sách chat.');
       } finally {
         setLoadingSessions(false);
@@ -134,7 +133,7 @@ export default function MessagesPage() {
         if (hasRealManagerMessage) {
           setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
         }
-      } catch (err) {
+      } catch {
         setError('Không thể tải tin nhắn.');
         setMessages([]);
       } finally {
@@ -174,7 +173,7 @@ export default function MessagesPage() {
 
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
-    } catch (err) {
+    } catch {
       setError('Không thể gửi tin nhắn.');
       setInputMessage(messageContent);
     } finally {
@@ -208,7 +207,7 @@ export default function MessagesPage() {
 
       // Mark that manager has joined this chat
       setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
-    } catch (err) {
+    } catch {
       setError('Không thể bắt đầu chat.');
     }
   };
@@ -275,6 +274,11 @@ export default function MessagesPage() {
           >
             Đoạn chat
           </Typography>
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
           {loadingSessions ? (
             <CircularProgress />
           ) : (

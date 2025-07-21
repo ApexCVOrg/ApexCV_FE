@@ -2,34 +2,15 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
-  Divider,
   Button,
   Chip,
   Stack,
   CircularProgress,
   IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Alert,
-  Slide,
-  Fade,
-  Paper,
-  Grid,
-  Rating,
-  Badge,
-  Avatar,
-  Tooltip,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import StarIcon from '@mui/icons-material/Star';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -169,7 +150,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
       setAddToCartSuccess(true);
       setTimeout(() => setAddToCartSuccess(false), 3000);
-    } catch (err) {
+    } catch {
       setError('Không thể thêm sản phẩm vào giỏ hàng');
     } finally {
       setAddToCartLoading(false);
@@ -188,10 +169,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     return false;
   };
 
-  const getDiscountPercentage = () => {
-    if (!product?.discountPrice || !product?.price) return 0;
-    return Math.round(((product.price - product.discountPrice) / product.price) * 100);
-  };
+
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({

@@ -22,6 +22,7 @@ interface Product {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
 }
 
 export default function AirForcePage() {
@@ -71,7 +72,7 @@ export default function AirForcePage() {
         const desiredPath = ['Shoes', 'Nike', 'Air Force'];
 
         // Thử nhiều cách filter khác nhau
-        const filtered = (data.data || []).filter((item: any) => {
+        const filtered = (data.data || []).filter((item: Product) => {
           console.log('Checking product:', {
             name: item.name,
             categoryPath: item.categoryPath,
@@ -81,9 +82,9 @@ export default function AirForcePage() {
           });
 
           // Cách 1: Kiểm tra nếu categoryPath là array
-          if (Array.isArray(item.categoryPath)) {
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
             const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+              (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) {
               console.log('✅ Matched by categoryPath array:', item.name);
@@ -103,7 +104,7 @@ export default function AirForcePage() {
 
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('air force') || categoryNames.includes('airforce')) {
               console.log('✅ Matched by categories array:', item.name);
               return true;
@@ -124,7 +125,7 @@ export default function AirForcePage() {
 
         console.log('=== FILTERED PRODUCTS ===');
         console.log('Filtered products count:', filtered.length);
-        filtered.forEach((product: any, index: number) => {
+        filtered.forEach((product: Product, index: number) => {
           const originalImageUrl = product.images?.[0] || '';
           console.log(`Product ${index + 1}:`, {
             name: product.name,

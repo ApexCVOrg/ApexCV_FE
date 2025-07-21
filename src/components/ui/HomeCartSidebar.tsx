@@ -10,12 +10,8 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   TextField,
   Chip,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  Alert,
   CircularProgress,
   FormControl,
   InputLabel,
@@ -35,21 +31,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useRouter } from 'next/navigation';
 import { useHomeCartContext } from '@/context/HomeCartContext';
 import { useCartContext } from '@/context/CartContext';
-import { useTheme } from '@mui/material/styles';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface CartItem {
-  _id: string;
-  productId: string;
-  name: string;
-  image: string;
-  price: number;
-  discountPrice?: number;
-  brand?: string;
-  size?: string;
-  color?: string;
-  quantity: number;
-}
 
 interface ProductInfo {
   _id: string;
@@ -74,8 +55,6 @@ const HomeCartSidebar: React.FC = () => {
     addToHomeCart,
   } = useHomeCartContext();
   const { loading: cartLoading } = useCartContext();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const theme = useTheme();
 
   const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
   const [selectedSize, setSelectedSize] = useState('');

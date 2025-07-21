@@ -44,7 +44,7 @@ export default function WomenSneakerPage() {
       const data = await res.json();
 
       // Lọc sản phẩm sneaker cho nữ
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasSneaker = item.categoryPath.some(
@@ -58,7 +58,7 @@ export default function WomenSneakerPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasSneakerCategory = categoryNames.some(
             (name: string) =>
               name.includes('sneaker') || name.includes('sneakers') || name.includes('shoes')

@@ -44,7 +44,7 @@ export default function JacketPage() {
       const data = await res.json();
 
       // Lọc sản phẩm jacket cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasJacket = item.categoryPath.some(
@@ -56,7 +56,7 @@ export default function JacketPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasJacketCategory = categoryNames.some(
             (name: string) => name.includes('jacket') || name.includes('jackets')
           );

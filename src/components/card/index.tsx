@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   Card,
   CardMedia,
@@ -53,7 +54,6 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
-  _id,
   name,
   image,
   price,
@@ -61,7 +61,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   tags,
   brand,
   categories,
-  onAddToCart,
   onViewDetail,
   labels,
   allCategories,
@@ -128,34 +127,34 @@ const ProductCard: React.FC<ProductCardProps> = ({
     router.push(`/product/${productId}`); // Chuyển đến trang detail
   };
 
-  const handleAddToCartClick = async () => {
-    if (!token) {
-      setSnackbar({
-        open: true,
-        message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
-        severity: 'warning',
-      });
-      return;
-    }
-    try {
-      await api.post('/carts/add', { productId });
-      setSnackbar({
-        open: true,
-        message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!',
-        severity: 'success',
-      });
-    } catch {
-      setSnackbar({
-        open: true,
-        message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!',
-        severity: 'error',
-      });
-    }
-  };
+  // const handleAddToCartClick = async () => {
+  //   if (!token) {
+  //     setSnackbar({
+  //       open: true,
+  //       message: 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
+  //       severity: 'warning',
+  //     });
+  //     return;
+  //   }
+  //   try {
+  //     await api.post('/carts/add', { productId });
+  //     setSnackbar({
+  //       open: true,
+  //       message: t('addToCartSuccess') || 'Đã thêm vào giỏ hàng!',
+  //       severity: 'success',
+  //     });
+  //   } catch {
+  //     setSnackbar({
+  //       open: true,
+  //       message: t('addToCartError') || 'Thêm vào giỏ hàng thất bại!',
+  //       severity: 'error',
+  //     });
+  //   }
+  // };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
-  };
+  // const handleCloseSnackbar = () => {
+  //   setSnackbar(prev => ({ ...prev, open: false }));
+  // };
 
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
@@ -270,9 +269,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             }}
             className="product-image"
           >
-            <img
+            <Image
               src={image}
               alt={name}
+              width={300}
+              height={300}
               style={{
                 width: '100%',
                 height: '100%',

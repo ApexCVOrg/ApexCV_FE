@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -66,7 +67,7 @@ export default function SambaPage() {
       const data = await res.json();
 
       // Lọc sản phẩm samba
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasSamba = item.categoryPath.some((cat: string) =>
@@ -77,7 +78,7 @@ export default function SambaPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasSambaCategory = categoryNames.some((name: string) => name.includes('samba'));
           if (hasSambaCategory) return true;
         }

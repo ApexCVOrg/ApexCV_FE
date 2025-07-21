@@ -16,8 +16,8 @@ interface Product {
 
 export default function HoodiePage() {
   const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
+    // let apiSortBy = sortBy;
+    // let sortOrder = 'desc';
     if (sortBy === 'price-low') {
       apiSortBy = 'price';
       sortOrder = 'asc';
@@ -40,7 +40,7 @@ export default function HoodiePage() {
       const data = await res.json();
 
       // Lọc sản phẩm hoodie cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasHoodie = item.categoryPath.some(
@@ -52,7 +52,7 @@ export default function HoodiePage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasHoodieCategory = categoryNames.some(
             (name: string) => name.includes('hoodie') || name.includes('hoodies')
           );

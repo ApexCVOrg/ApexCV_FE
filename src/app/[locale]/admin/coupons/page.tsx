@@ -107,7 +107,7 @@ export default function CouponsPage() {
     setForm(defaultForm);
   };
 
-  const handleFormChange = (field: keyof Coupon) => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (field: keyof Coupon) => (e: React.ChangeEvent<HTMLInputElement> | { target: { value: string } }) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }));
   };
 
@@ -132,10 +132,10 @@ export default function CouponsPage() {
       }
       handleCloseDialog();
       fetchCoupons();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: err?.response?.data?.message || t('errors.server'),
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('errors.server'),
         severity: 'error',
       });
     }
@@ -269,8 +269,8 @@ export default function CouponsPage() {
                 <InputLabel>{t('type')}</InputLabel>
                 <Select
                   value={form.type}
-                  onChange={handleFormChange('type') as any}
-                  label={t('type') as any}
+                  onChange={handleFormChange('type')}
+                  label={t('type')}
                 >
                   <MenuItem value="percentage">%</MenuItem>
                   <MenuItem value="fixed">₫</MenuItem>

@@ -22,8 +22,7 @@ import {
   Button,
   CircularProgress,
   Alert,
-  useTheme,
-  useMediaQuery,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -33,7 +32,7 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { useTranslations } from 'next-intl';
+
 
 interface ChatSession {
   _id: string;
@@ -56,10 +55,7 @@ interface ChatSessionsResponse {
 
 const ChatSessionsPage = () => {
   const router = useRouter();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { isAuthenticated, getToken } = useAuth();
-  const t = useTranslations('manager.chats');
 
   // State
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -115,8 +111,8 @@ const ChatSessionsPage = () => {
       const data: ChatSessionsResponse = await response.json();
       setSessions(data.data);
       setTotal(data.total);
-    } catch (err) {
-      console.error('Error fetching chat sessions:', err);
+    } catch {
+      console.error('Error fetching chat sessions');
       setError('Không thể tải danh sách chat sessions. Vui lòng thử lại.');
     } finally {
       setLoading(false);
@@ -145,7 +141,7 @@ const ChatSessionsPage = () => {
   };
 
   // Handle status filter
-  const handleStatusFilterChange = (event: any) => {
+  const handleStatusFilterChange = (event: SelectChangeEvent<string>) => {
     setStatusFilter(event.target.value);
     setPage(0);
   };
@@ -374,7 +370,7 @@ const ChatSessionsPage = () => {
                     <TableCell>
                       <Chip
                         label={getStatusText(session.status)}
-                        color={getStatusColor(session.status) as any}
+                        color={getStatusColor(session.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                         size="small"
                       />
                     </TableCell>

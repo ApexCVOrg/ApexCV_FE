@@ -140,7 +140,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setCart(null);
     }
-  }, [token]);
+  }, [token, fetchCart]);
 
   const value: CartContextProps = {
     cart,

@@ -357,7 +357,7 @@ export default function CustomersPage() {
     } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: (err as any)?.response?.data?.message || 'Failed to ban user',
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to ban user',
         severity: 'error',
       });
     }
@@ -371,7 +371,7 @@ export default function CustomersPage() {
     } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: (err as any)?.response?.data?.message || 'Failed to unlock user',
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to unlock user',
         severity: 'error',
       });
     }

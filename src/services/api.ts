@@ -106,7 +106,7 @@ api.interceptors.response.use(
 /**
  * Gọi API backend để tạo link thanh toán VNPAY
  */
-export async function createVnpayPayment(data: any): Promise<string> {
+export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
