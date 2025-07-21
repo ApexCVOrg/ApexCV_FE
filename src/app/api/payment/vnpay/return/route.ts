@@ -7,10 +7,9 @@ export async function GET(request: NextRequest) {
 
     console.log('[Frontend API] VNPAY return query:', query);
 
-    // Forward to backend - loại bỏ /api từ baseURL nếu có
+    // Forward to backend
     const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
-    const cleanBaseURL = baseURL.replace(/\/api$/, '');
-    const apiUrl = `${cleanBaseURL}/api/payment/vnpay/return?${query}`;
+    const apiUrl = `${baseURL}/payment/vnpay/return?${query}`;
 
     console.log('[Frontend API] Calling backend:', apiUrl);
 

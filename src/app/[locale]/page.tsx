@@ -123,6 +123,7 @@ function guessGenderAndTeam(product: Product): { gender?: string; team?: string 
 }
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
   const [tab, setTab] = useState(0);
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<{ [key: string]: Product[] }>({});
@@ -154,6 +155,11 @@ export default function HomePage() {
   // State lưu hướng chuyển động (slide direction)
   // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -292,74 +298,58 @@ export default function HomePage() {
     console.log('Fetching products for tab:', tabKey);
     try {
       let filtered: Product[] = [];
+      
+      // Build query parameters for all tabs
+      const queryParams = new URLSearchParams({
+        minPrice: priceRange[0].toString(),
+        maxPrice: priceRange[1].toString(),
+        ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+        ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+        ...(searchQuery ? { search: searchQuery } : {}),
+      });
+      
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      console.log('Calling API:', apiUrl);
+      
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('Failed to fetch products');
+      const result = await response.json();
+      filtered = result.data || [];
+      
       if (tabKey === 'topSelling') {
-        // Top Selling: gọi API public, không cần token
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/products/public-top-selling?limit=5`
-        );
-        const result = await response.json();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        filtered = (Array.isArray(result.data) ? result.data : []).map((item: any) => ({
-          _id: item._id,
-          name: item.name,
-          images: [item.image || ''],
-          price: item.totalRevenue || 0,
-          discountPrice: undefined,
-          tags: [],
-          label: '',
-          brand: { _id: '', name: '' },
-          categories: [{ _id: '', name: item.category || 'Uncategorized' }],
-          orderCount: item.totalQuantity || 0,
-        }));
-      } else {
-        // Các tab còn lại lấy từ API products (không filter theo category, price, brand)
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products`);
-        if (!response.ok) throw new Error('Failed to fetch products');
-        const result = await response.json();
-        filtered = result.data || [];
-
-        if (tabKey === 'newArrivals') {
-          filtered = filtered.filter((product: Product) => {
+        // Top Selling: sort theo orderCount và lấy top 10
+        filtered = filtered.sort((a: Product, b: Product) => 
+          (b.orderCount || 0) - (a.orderCount || 0)
+        ).slice(0, 10);
+      } else if (tabKey === 'newArrivals') {
+        filtered = filtered.filter((product: Product) => {
+          const labels = Array.isArray(product.label) ? product.label : [product.label];
+          return labels?.some(
+            (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
+          );
+        });
+      } else if (tabKey === 'deals') {
+        filtered = filtered.filter((product: Product) => product.discountPrice != null);
+      } else if (tabKey === 'featured') {
+        filtered = filtered.filter((product: Product) => {
+          const labels = Array.isArray(product.label) ? product.label : [product.label];
+          return labels?.some((l: string) =>
+            ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase())
+          );
+        });
+      } else if (tabKey === 'trending') {
+        // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
+        // Ở đây giả sử không có API trending
+        filtered = filtered
+          .filter((product: Product) => {
             const labels = Array.isArray(product.label) ? product.label : [product.label];
             return labels?.some(
               (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
             );
-          });
-        } else if (tabKey === 'deals') {
-          filtered = filtered.filter((product: Product) => product.discountPrice != null);
-        } else if (tabKey === 'featured') {
-          filtered = filtered.filter((product: Product) => {
-            const labels = Array.isArray(product.label) ? product.label : [product.label];
-            return labels?.some((l: string) =>
-              ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase())
-            );
-          });
-        } else if (tabKey === 'trending') {
-          // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
-          // Ở đây giả sử không có API trending
-          filtered = filtered
-            .filter((product: Product) => {
-              const labels = Array.isArray(product.label) ? product.label : [product.label];
-              return labels?.some(
-                (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
-              );
-            })
-            .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
-        }
+          })
+          .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
       }
-      // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
-      filtered = (Array.isArray(filtered) ? filtered : []).filter(
-        (product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]
-      );
-      // Lọc theo category (nếu có chọn)
-      if (selectedCategories.length > 0) {
-        filtered = filtered.filter((product: Product) =>
-          (product.categories || []).some(
-            (cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
-              selectedCategories.includes(cat._id)
-          )
-        );
-      }
+      
       // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
       const libFileNames = [
         'nike-span-2.png',
@@ -387,7 +377,7 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
 
   // Reset visibleCount khi filter/search thay đổi
   useEffect(() => {
@@ -447,6 +437,21 @@ export default function HomePage() {
     setSelectedProductId(null);
     setSelectedProduct(null);
   };
+
+  // Prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <Box sx={{ 
+        minHeight: '100vh', 
+        bgcolor: '#fff',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>

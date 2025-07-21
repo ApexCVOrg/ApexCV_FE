@@ -110,9 +110,7 @@ export async function createVnpayPayment(data: Record<string, unknown>): Promise
   const token = localStorage.getItem('auth_token');
   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
 
-  // Loại bỏ /api từ baseURL nếu có để tránh duplicate
-  const cleanBaseURL = baseURL.replace(/\/api$/, '');
-  const apiUrl = `${cleanBaseURL}/api/payment/vnpay`;
+  const apiUrl = `${baseURL}/payment/vnpay`;
 
   console.log('[Frontend] Calling VNPAY API:', apiUrl);
   console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
