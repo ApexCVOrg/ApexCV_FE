@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
