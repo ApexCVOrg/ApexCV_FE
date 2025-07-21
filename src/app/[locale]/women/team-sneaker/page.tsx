@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -46,7 +47,7 @@ export default function WomenSneakerPage() {
       // Lọc sản phẩm sneaker cho nữ
       const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasSneaker = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('sneaker') ||

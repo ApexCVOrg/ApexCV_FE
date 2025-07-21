@@ -47,7 +47,7 @@ export default function JacketPage() {
       // Lọc sản phẩm jacket cho nam
       const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasJacket = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('jacket') || cat.toLowerCase().includes('jackets')

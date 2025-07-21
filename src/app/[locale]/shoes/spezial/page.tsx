@@ -14,7 +14,7 @@ interface Product {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
-  categoryPath?: string[];
+  categoryPath?: string[] | string;
 }
 
 // const TABS = [
