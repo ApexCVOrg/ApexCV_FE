@@ -43,7 +43,12 @@ export default function FavoritesPage() {
   React.useEffect(() => {
     setMounted(true);
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      // Get current locale from URL
+      const currentLocale = window.location.pathname.split('/')[1];
+      const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+        ? `/${currentLocale}/auth/login` 
+        : '/vi/auth/login';
+      router.push(loginUrl);
     }
   }, [isAuthenticated, router]);
 

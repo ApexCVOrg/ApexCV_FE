@@ -43,7 +43,23 @@ const isAxiosErrorResponse = (error: unknown): error is AxiosErrorLike => {
   return false;
 };
 
-export const useAuth = () => {
+// Add return type for useAuth hook
+interface UseAuthReturn {
+  login: (email: string, password: string) => Promise<any>;
+  register: (email: string, password: string, fullName: string, username: string, phone: string, addresses: Address[]) => Promise<any>;
+  logout: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
+  handleGoogleAuth: (code: string) => Promise<void>;
+  getCurrentUser: () => any;
+  getToken: () => string | null;
+  isAuthenticated: () => boolean;
+  updateActivity: () => void;
+  loading: boolean;
+  error: AuthError | null;
+}
+
+export const useAuth = (): UseAuthReturn => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
@@ -259,19 +275,31 @@ export const useAuth = () => {
     [router, setAuthData]
   );
 
+  const isAuthenticated = useCallback(() => {
+    return authService.isAuthenticated();
+  }, []);
+
+  const updateActivity = useCallback(() => {
+    // This function will be called by AutoLogoutNotification
+    // to update the last activity time
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('last_activity', Date.now().toString());
+    }
+  }, []);
+
   return {
     login,
     register,
     logout,
     forgotPassword,
     resetPassword,
+    handleGoogleAuth,
     getCurrentUser,
     getToken,
-    handleGoogleAuth,
-    setAuthData,
+    isAuthenticated,
+    updateActivity,
     loading,
     error,
-    isAuthenticated: authService.isAuthenticated(),
   };
 };
 

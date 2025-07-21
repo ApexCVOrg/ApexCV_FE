@@ -62,15 +62,14 @@ export default function CartPage() {
   const { cart, loading, error, updateCartItem, removeFromCart, clearCart } = useCartContext();
   const { token } = useAuthContext();
   const router = useRouter();
+  const t = useTranslations('cartPage');
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
-  const [voucherInputs, setVoucherInputs] = useState<{ [cartItemId: string]: string }>({});
-  const [appliedVouchers, setAppliedVouchers] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
-  const [voucherError, setVoucherError] = useState<{ [cartItemId: string]: string }>({});
-  const [applyingVoucherId, setApplyingVoucherId] = useState<string | null>(null);
-  const t = useTranslations("cartPage")
-  // State để lưu trạng thái miễn phí ship
-  const [isFreeShipping, setIsFreeShipping] = useState(false);
+  const [couponInputs, setCouponInputs] = useState<{ [cartItemId: string]: string }>({});
+  const [appliedCoupons, setAppliedCoupons] = useState<{ [cartItemId: string]: { code: string; newPrice: number; discountAmount: number; message: string } | undefined }>({});
+  const [couponError, setCouponError] = useState<string>("");
+  const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isFreeShipping, setIsFreeShipping] = useState(false);
   const { isAuthenticated, getCurrentUser } = useAuth();
 
   // Common styles matching login form
@@ -125,7 +124,14 @@ export default function CartPage() {
           </Typography>
           <Button
             variant="contained"
-            onClick={() => router.push("/auth/login")}
+            onClick={() => {
+              // Get current locale from URL
+              const currentLocale = window.location.pathname.split('/')[1];
+              const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+                ? `/${currentLocale}/auth/login` 
+                : '/vi/auth/login';
+              router.push(loginUrl);
+            }}
             sx={{
               ...buttonStyle,
               bgcolor: "black",
@@ -421,10 +427,11 @@ export default function CartPage() {
     }
   };
 
-  // Hàm tính giá sau voucher (ưu tiên giá từ API)
+  // Hàm tính giá sau coupon (ưu tiên giá từ API)
   const getDiscountedPrice = (cartItem: CartItemWithId) => {
-    const applied = appliedVouchers[cartItem._id];
+    const applied = appliedCoupons[cartItem._id];
     if (applied && applied.newPrice) return applied.newPrice;
+    if (!cartItem.product) return 0;
     return cartItem.product.discountPrice || cartItem.product.price;
   };
 
@@ -461,24 +468,21 @@ export default function CartPage() {
     }
   };
 
-  // Hàm gọi API áp dụng voucher
-  const handleApplyVoucher = async (cartItem: CartItemWithId) => {
-    const code = voucherInputs[cartItem._id];
+  // Hàm gọi API áp dụng coupon
+  const handleApplyCoupon = async (cartItem: CartItemWithId) => {
+    const code = couponInputs[cartItem._id];
     if (!code) return;
-    // Reset free shipping nếu áp voucher mới không phải FREESHIP
-    if (code !== 'FREESHIP') setIsFreeShipping(false);
-    setApplyingVoucherId(cartItem._id);
-    setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
+    setApplyingCouponId(cartItem._id);
+    setCouponError("");
     try {
-      const token = localStorage.getItem('auth_token');
-      const res = await fetch("http://localhost:5000/api/voucher/apply", {
+      const res = await fetch("http://localhost:5000/api/coupon/apply", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { "Authorization": `Bearer ${token}` } : {})
         },
         body: JSON.stringify({
-          voucherCode: code,
+          couponCode: code,
           productId: cartItem.product._id,
           price: cartItem.product.discountPrice || cartItem.product.price,
           quantity: cartItem.quantity,
@@ -486,7 +490,7 @@ export default function CartPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setAppliedVouchers(v => ({
+        setAppliedCoupons(v => ({
           ...v,
           [cartItem._id]: {
             code,
@@ -497,14 +501,14 @@ export default function CartPage() {
         }));
         if (data.freeShipping) setIsFreeShipping(true);
         else setIsFreeShipping(false);
-        setVoucherError(prev => ({ ...prev, [cartItem._id]: "" }));
       } else {
-        setVoucherError(prev => ({ ...prev, [cartItem._id]: data.message || "Voucher không hợp lệ" }));
+        setCouponError(data.message || "Coupon không hợp lệ");
+        console.log('Coupon error details:', data);
       }
     } catch (err) {
-      setVoucherError(prev => ({ ...prev, [cartItem._id]: "Có lỗi khi áp dụng voucher" }));
+      setCouponError("Có lỗi khi áp dụng coupon");
     } finally {
-      setApplyingVoucherId(null);
+      setApplyingCouponId(null);
     }
   };
 
@@ -543,10 +547,15 @@ export default function CartPage() {
             {cart.cartItems.map((item) => {
               const cartItem = item as CartItemWithId;
               const isUpdating = updatingItems.has(cartItem._id);
-              const price = cartItem.product.discountPrice || cartItem.product.price;
-              const originalPrice = cartItem.product.price;
+              // Đảm bảo chỉ khai báo biến một lần
+              let price = 0;
+              let originalPrice = 0;
+              if (cartItem.product) {
+                price = cartItem.product.discountPrice || cartItem.product.price;
+                originalPrice = cartItem.product.price;
+              }
               const discountedPrice = getDiscountedPrice(cartItem);
-              const appliedVoucher = appliedVouchers[cartItem._id];
+              const appliedCoupon = appliedCoupons[cartItem._id];
               return (
                 <Paper
                   key={cartItem._id}
@@ -594,8 +603,8 @@ export default function CartPage() {
                       <CardMedia
                         component="img"
                         height="120"
-                        image={cartItem.product.images[0] || "/assets/images/placeholder.jpg"}
-                        alt={cartItem.product.name}
+                        image={cartItem.product ? cartItem.product.images[0] || "/assets/images/placeholder.jpg" : "/assets/images/placeholder.jpg"}
+                        alt={cartItem.product ? cartItem.product.name : 'Sản phẩm đã bị xóa'}
                         sx={{ objectFit: "contain", borderRadius: 0 }}
                       />
                     </Box>
@@ -618,9 +627,9 @@ export default function CartPage() {
                             letterSpacing: "0.02em",
                           }}
                         >
-                          {cartItem.product.name}
+                          {cartItem.product ? cartItem.product.name : 'Sản phẩm đã bị xóa'}
                         </Typography>
-                        {cartItem.product.brand && (
+                        {cartItem.product && cartItem.product.brand && (
                           <Typography
                             variant="body2"
                             sx={{
@@ -638,7 +647,7 @@ export default function CartPage() {
 
                         <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
                           {/* Size */}
-                          {cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
+                          {cartItem.product && cartItem.product.sizes && cartItem.product.sizes.length > 0 ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("size")}</InputLabel>
                               <Select
@@ -680,7 +689,7 @@ export default function CartPage() {
                           )}
 
                           {/* Color */}
-                          {cartItem.product.sizes && cartItem.product.sizes.some((sz) => "color" in sz && sz.color) ? (
+                          {cartItem.product && cartItem.product.sizes && cartItem.product.sizes.some((sz) => "color" in sz && sz.color) ? (
                             <FormControl size="small" sx={{ minWidth: 90, ...blackBorderStyle }} disabled={isUpdating}>
                               <InputLabel sx={{ color: "black", fontWeight: 600 }}>{t("color")}</InputLabel>
                               <Select
@@ -751,7 +760,7 @@ export default function CartPage() {
                           </Alert>
                         )}
                         {/* Hiển thị tồn kho ngoài dropdown */}
-                        {cartItem.size && cartItem.color && cartItem.product.sizes && (
+                        {cartItem.size && cartItem.color && cartItem.product && cartItem.product.sizes && (
                           <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontWeight: 600 }}>
                             {t("stockLeft", {
                               stock:
@@ -780,68 +789,58 @@ export default function CartPage() {
                       </IconButton>
                     </Box>
 
-                    {/* Voucher input */}
+                    {/* Coupon input */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       <TextField
                         size="small"
-                        label="Voucher"
-                        value={voucherInputs[cartItem._id] || ""}
-                        onChange={e => setVoucherInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
+                        label="Coupon"
+                        value={couponInputs[cartItem._id] || ""}
+                        onChange={e => setCouponInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
                         sx={{ width: 140, ...blackBorderStyle }}
                         inputProps={{ style: { textTransform: "uppercase" } }}
-                        disabled={isUpdating || applyingVoucherId === cartItem._id}
+                        disabled={isUpdating || applyingCouponId === cartItem._id}
                       />
                       <Button
                         variant="outlined"
                         size="small"
                         sx={{ minWidth: 80, borderRadius: 0, fontWeight: 700, ml: 1, borderColor: "black", color: "black" }}
-                        disabled={isUpdating || !voucherInputs[cartItem._id] || applyingVoucherId === cartItem._id || !!appliedVouchers[cartItem._id]}
-                        onClick={() => handleApplyVoucher(cartItem)}
+                        disabled={isUpdating || !couponInputs[cartItem._id] || applyingCouponId === cartItem._id}
+                        onClick={() => handleApplyCoupon(cartItem)}
                       >
-                        {applyingVoucherId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
+                        {applyingCouponId === cartItem._id ? "Đang áp dụng..." : "Áp dụng"}
                       </Button>
-                      {appliedVoucher && (
+                      {appliedCoupon && (
                         <>
                           <Chip
-                            label={`Đã áp dụng: ${appliedVoucher.code}`}
+                            label={`Đã áp dụng: ${appliedCoupon.code}`}
                             color="success"
                             size="small"
                             sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
                             onDelete={() => {
-                              setAppliedVouchers(v => {
+                              setAppliedCoupons(v => {
                                 const newV = { ...v };
                                 // Nếu xóa voucher FREESHIP thì reset free shipping
-                                if (appliedVoucher.code === 'FREESHIP') setIsFreeShipping(false);
+                                if (appliedCoupon.code === 'FREESHIP') setIsFreeShipping(false);
                                 delete newV[cartItem._id];
                                 return newV;
                               });
-                              setVoucherError(prev => {
-                                const newErr = { ...prev };
-                                delete newErr[cartItem._id];
-                                return newErr;
-                              });
-                              setVoucherInputs(prev => {
-                                const newInputs = { ...prev };
-                                delete newInputs[cartItem._id];
-                                return newInputs;
-                              });
                             }}
                           />
-                          {appliedVoucher.message && (
+                          {appliedCoupon.message && (
                             <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
-                              {appliedVoucher.message}
+                              {appliedCoupon.message}
                             </Typography>
                           )}
                         </>
                       )}
                     </Box>
-                    {/* Hiển thị lỗi voucher */}
-                    {voucherError[cartItem._id] && (
+                    {/* Hiển thị lỗi coupon */}
+                    {couponError && (
                       <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {voucherError[cartItem._id]}
+                        {couponError}
                       </Typography>
                     )}
-                    {/* Giá sản phẩm sau voucher */}
+                    {/* Giá sản phẩm sau coupon */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       {discountedPrice !== originalPrice ? (
                         <>
@@ -858,7 +857,7 @@ export default function CartPage() {
                             {originalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
                           </Typography>
                           <Chip
-                            label={`- ${appliedVoucher?.discountAmount ? Math.round(100 * appliedVoucher.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            label={`- ${appliedCoupon?.discountAmount ? Math.round(100 * appliedCoupon.discountAmount / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
                             sx={{ bgcolor: "black", color: "white", fontWeight: 700, borderRadius: 0, ml: 1 }}
                           />
                         </>
@@ -873,9 +872,9 @@ export default function CartPage() {
                     </Box>
                     {/* Controls số lượng */}
                     {(() => {
-                      const maxQuantity = cartItem.product.sizes?.find(
+                      const maxQuantity = cartItem.product && (cartItem.product.sizes?.find(
                         (sz: ProductSize) => sz.size === cartItem.size && ("color" in sz && sz.color === cartItem.color)
-                      )?.stock ?? 1;
+                      )?.stock ?? 1);
                       return (
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <IconButton

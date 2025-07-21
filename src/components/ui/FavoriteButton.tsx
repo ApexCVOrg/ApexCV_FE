@@ -15,6 +15,7 @@ interface FavoriteButtonProps {
   showTooltip?: boolean;
   onToggle?: (isFavorite: boolean) => void;
   className?: string;
+  dataTestId?: string;
 }
 
 const FavoriteButton: React.FC<FavoriteButtonProps> = ({
@@ -24,6 +25,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
   showTooltip = true,
   onToggle,
   className,
+  dataTestId = 'favorite-button',
 }) => {
   const { isAuthenticated } = useAuth();
   const { isFavorite, toggleFavorite } = useFavorites();
@@ -60,6 +62,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       size={size}
       color={color}
       className={className}
+      data-testid={dataTestId}
       sx={{
         transition: 'all 0.2s ease-in-out',
         '&:hover': {

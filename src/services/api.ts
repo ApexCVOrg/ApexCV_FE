@@ -53,6 +53,22 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refresh_token');
+        if (!refreshToken) {
+          // No refresh token, logout user
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+          // Only redirect if not already on login page
+          const currentPath = window.location.pathname;
+          if (!currentPath.includes('/auth/login')) {
+            const currentLocale = window.location.pathname.split('/')[1];
+            const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+              ? `/${currentLocale}/auth/login` 
+              : '/vi/auth/login';
+            window.location.href = loginUrl;
+          }
+          return Promise.reject(error);
+        }
+
         const response = await api.post<RefreshTokenResponse>('/auth/refresh-token', {
           refreshToken,
         });
@@ -65,9 +81,18 @@ api.interceptors.response.use(
 
         return api(originalRequest as AxiosRequest);
       } catch (refreshError) {
+        // Refresh token failed, logout user
         localStorage.removeItem('auth_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/auth/login';
+        // Only redirect if not already on login page
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('/auth/login')) {
+          const currentLocale = window.location.pathname.split('/')[1];
+          const loginUrl = currentLocale === 'en' || currentLocale === 'vi' 
+            ? `/${currentLocale}/auth/login` 
+            : '/vi/auth/login';
+          window.location.href = loginUrl;
+        }
         return Promise.reject(refreshError);
       }
     }

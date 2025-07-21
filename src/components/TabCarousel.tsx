@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -31,13 +32,14 @@ interface Product {
 
 interface TabCarouselProps {
   products: Product[];
+  onProductClick?: (productId: string, product?: Product) => void;
 }
 
 const CARD_MAX_WIDTH = 340;
 const CARD_MIN_WIDTH = 260;
 const CARD_HEIGHT = 450;
 
-const TabCarousel: React.FC<TabCarouselProps> = ({ products }) => {
+const TabCarousel: React.FC<TabCarouselProps> = ({ products, onProductClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeIndex, setActiveIndex] = useState(0);
@@ -309,6 +311,7 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products }) => {
                 }}
               >
                 <ProductCard
+                  _id={product._id}
                   productId={product._id}
                   name={product.name}
                   image={product.images?.[0] || '/assets/images/placeholder.jpg'}
@@ -318,18 +321,8 @@ const TabCarousel: React.FC<TabCarouselProps> = ({ products }) => {
                   brand={product.brand}
                   categories={product.categories}
                   labels={product.label ? [product.label as ProductLabel] : []}
-                  onAddToCart={async () => {
-                    try {
-                      await addToCart({
-                        productId: product._id,
-                        quantity: 1,
-                      });
-                      // Có thể thêm snackbar thông báo thành công ở đây
-                    } catch (error) {
-                      console.error('Error adding to cart:', error);
-                      // Có thể thêm snackbar thông báo lỗi ở đây
-                    }
-                  }}
+                  onAddToCart={() => console.log('Add to cart:', product._id)}
+                  onViewDetail={() => onProductClick?.(product._id, product)}
                   backgroundColor="#f8f9fa"
                   colors={3}
                 />

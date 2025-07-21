@@ -70,6 +70,7 @@ const Header = () => {
   const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
+  const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const { cartItemCount } = useCartContext();
   const t = useTranslations('login');
   const tRegister = useTranslations('register');
@@ -136,6 +137,10 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
+    // Check authentication status
+    const authStatus = isAuthenticated();
+    setIsUserAuthenticated(authStatus);
+    
     const user = getCurrentUser() as User | null;
     if (user) {
       setUserRole(user.role);
@@ -162,7 +167,7 @@ const Header = () => {
         setUserRole(null);
       }
     }
-  }, [pathname, getCurrentUser]);
+  }, [pathname, getCurrentUser, isAuthenticated]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -614,7 +619,7 @@ const Header = () => {
             </IconButton>
 
             {/* Mobile menu button */}
-            {isAuthenticated ? (
+            {isUserAuthenticated ? (
               <Box sx={{ position: 'relative' }}>
                 <IconButton
                   onClick={handleClickProfile}
@@ -648,13 +653,13 @@ const Header = () => {
                     </ListItemIcon>
                     {t('profile')}
                   </MenuItem>
-                  {/* Thêm menu voucher */}
-                  <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
-                    <ListItemIcon>
-                      <span role="img" aria-label="voucher">🎟️</span>
-                    </ListItemIcon>
-                    Voucher
-                  </MenuItem>
+                          {/* Thêm menu coupon */}
+        <MenuItem onClick={() => { handleCloseProfile(); router.push(`/${language}/voucher`); }}>
+          <ListItemIcon>
+            <span role="img" aria-label="coupon">🎟️</span>
+          </ListItemIcon>
+          Coupon
+        </MenuItem>
                   <MenuItem onClick={() => router.push('/favorites')}>
                     <ListItemIcon>
                       <FavoriteIcon fontSize="small" />

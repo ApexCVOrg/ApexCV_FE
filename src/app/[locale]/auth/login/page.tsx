@@ -195,7 +195,13 @@ export default function LoginForm() {
   };
 
   const handleSocialLogin = (provider: string) => {
-    console.log(`${provider} login clicked`);
+    if (provider === 'Google') {
+      // Redirect to Google OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    } else if (provider === 'Facebook') {
+      // Redirect to Facebook OAuth
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+    }
   };
 
   return (

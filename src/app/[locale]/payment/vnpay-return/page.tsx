@@ -77,13 +77,48 @@ export default function VnpayReturnPage() {
         const json = await res.json();
         setDetail(json.result || json.error || json);
         
-        if (json.result?.isSuccess) {
+        // Kiểm tra response code từ VNPay
+        const responseCode = searchParams.get('vnp_ResponseCode');
+        console.log('VNPay Response Code:', responseCode);
+        
+        if (json.status === 'success' && json.result?.isSuccess) {
           setStatus('success');
           if (json.order) {
             setOrderData(json.order);
           }
+        } else if (json.status === 'fail' || responseCode !== '00') {
+          setStatus('fail');
+          // Xử lý thông báo lỗi cụ thể dựa trên response code
+          if (responseCode === '24') {
+            setMessage('Khách hàng hủy giao dịch');
+          } else if (responseCode === '07') {
+            setMessage('Giao dịch bị nghi ngờ gian lận');
+          } else if (responseCode === '09') {
+            setMessage('Giao dịch không thành công do: Thẻ/Tài khoản bị khóa');
+          } else if (responseCode === '10') {
+            setMessage('Giao dịch không thành công do: Khách hàng chưa kích hoạt thẻ');
+          } else if (responseCode === '11') {
+            setMessage('Giao dịch không thành công do: Thẻ/Tài khoản chưa đăng ký dịch vụ');
+          } else if (responseCode === '12') {
+            setMessage('Giao dịch không thành công do: Thẻ/Tài khoản bị khóa');
+          } else if (responseCode === '13') {
+            setMessage('Giao dịch không thành công do: Nhập sai mật khẩu xác thực giao dịch');
+          } else if (responseCode === '51') {
+            setMessage('Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư');
+          } else if (responseCode === '65') {
+            setMessage('Giao dịch không thành công do: Tài khoản của quý khách đã vượt quá hạn mức cho phép');
+          } else if (responseCode === '75') {
+            setMessage('Giao dịch không thành công do: Ngân hàng thanh toán đang bảo trì');
+          } else if (responseCode === '79') {
+            setMessage('Giao dịch không thành công do: Khách hàng nhập sai mật khẩu thanh toán quá số lần quy định');
+          } else if (responseCode === '99') {
+            setMessage('Giao dịch không thành công do: Lỗi khác');
+          } else {
+            setMessage(json.message || 'Thanh toán không thành công');
+          }
         } else {
           setStatus('fail');
+          setMessage(json.message || 'Không có thông tin chi tiết');
         }
         
         // Set message with fallback
@@ -687,8 +722,8 @@ export default function VnpayReturnPage() {
           </Stack>
         </Box>
 
-        {/* Debug Info (only in development) */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Debug Info (only in development) - COMMENTED OUT */}
+        {/* {process.env.NODE_ENV === 'development' && (
           <Box sx={{ mt: 4, p: 2, bgcolor: "#f5f5f5", borderRadius: 0 }} className="no-print">
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>
               Debug Information
@@ -730,7 +765,7 @@ export default function VnpayReturnPage() {
           {JSON.stringify(detail, null, 2)}
         </pre>
           </Box>
-        )}
+        )} */}
       </Paper>
       
       {/* Snackbar for copy notification */}
