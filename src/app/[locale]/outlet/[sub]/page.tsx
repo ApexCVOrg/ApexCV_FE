@@ -17,14 +17,6 @@ interface Product {
   categories?: { _id: string; name: string }[];
 }
 
-const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2'; // OUTLET
-const CATEGORY_NAME_TO_ID: Record<string, string> = {
-  men: '6845a435f588c9b6fd8235fa',
-  women: '6845a435f588c9b6fd8235fb',
-  kids: '6845a435f588c9b6fd8235fc',
-  'last-size': '6845a435f588c9b6fd8235fd',
-};
-
 export default function OutletSubCategoryPage() {
   const { sub } = useParams();
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,20 +25,16 @@ export default function OutletSubCategoryPage() {
   const { addToCart } = useCartContext();
 
   useEffect(() => {
-    const subId = CATEGORY_NAME_TO_ID[sub as string];
-    if (!subId) return;
-
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
-          category: `${OUTLET_CATEGORY_ID},${subId}`,
+          categorySlug: 'outlet',
+          subSlug: sub?.toString() || '',
           sortBy: sortBy
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        
-        // Handle different API response structures
         if (data.success && data.data) {
           setProducts(Array.isArray(data.data) ? data.data : []);
         } else if (Array.isArray(data)) {
@@ -61,12 +49,11 @@ export default function OutletSubCategoryPage() {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [sub, sortBy]);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4 }}>
+    <Box sx={{ width: '100%', py: 4 }}>
       <Typography variant="h4" fontWeight={700} mb={4}>
         OUTLET - {sub?.toString().toUpperCase()}
       </Typography>
@@ -86,9 +73,18 @@ export default function OutletSubCategoryPage() {
       {loading ? (
         <Typography>Đang tải sản phẩm...</Typography>
       ) : (
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1.5 }}>
+        <Box display="flex" justifyContent="center" alignItems="flex-start" gap={4} flexWrap="wrap" sx={{ width: 'auto', maxWidth: 'none' }}>
           {Array.isArray(products) && products.map((product) => (
-            <Box key={product._id} sx={{ width: { xs: '100%', sm: '50%', md: '25%' }, p: 1.5 }}>
+            <Box
+              key={product._id}
+              sx={{
+                maxWidth: 350,
+                width: '100%',
+                minWidth: 220,
+                margin: 0,
+                flex: '0 1 30%',
+              }}
+            >
               <ProductCard
                 _id={product._id}
                 productId={product._id}
@@ -105,10 +101,8 @@ export default function OutletSubCategoryPage() {
                       productId: product._id,
                       quantity: 1,
                     });
-                    // Có thể thêm snackbar thông báo thành công ở đây
                   } catch (error) {
                     console.error('Error adding to cart:', error);
-                    // Có thể thêm snackbar thông báo lỗi ở đây
                   }
                 }}
               />

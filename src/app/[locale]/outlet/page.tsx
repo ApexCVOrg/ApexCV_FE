@@ -21,8 +21,6 @@ interface Product {
   colors?: string[];
 }
 
-const OUTLET_CATEGORY_ID = '68446a93bc749d5ad8fb80f2';
-
 export default function OutletPage() {
   const t = useTranslations('outletPage');
   const router = useRouter();
@@ -59,12 +57,11 @@ export default function OutletPage() {
       setLoading(true);
       try {
         const queryParams = new URLSearchParams({
-          category: OUTLET_CATEGORY_ID,
+          categorySlug: 'outlet',
           sortBy: sortBy
         });
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-        
         // Handle different API response structures
         if (data.success && data.data) {
           setProducts(Array.isArray(data.data) ? data.data : []);
@@ -80,7 +77,6 @@ export default function OutletPage() {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [sortBy]);
 
@@ -120,7 +116,7 @@ export default function OutletPage() {
         {loading ? (
           <Typography>{t('loading')}</Typography>
         ) : (
-          <Box className="product-grid">
+          <Box className="product-grid-centered">
             {Array.isArray(products) && products.map((product) => (
               <Box key={product._id} className="product-card">
                 <ProductCard
