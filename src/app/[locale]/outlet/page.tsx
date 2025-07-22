@@ -194,24 +194,185 @@ export default function OutletPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <Box className="outlet-categories-section" sx={{ mb: 6 }}>
-          <Box className="outlet-grid">
+        <Box sx={{ mb: 8 }}>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700, 
+              mb: 4, 
+              textAlign: 'center',
+              color: '#1a1a1a'
+            }}
+          >
+            Chọn Danh Mục
+          </Typography>
+          
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(4, 1fr)',
+              },
+              gap: 3,
+              maxWidth: 1200,
+              mx: 'auto'
+            }}
+          >
             {categories.map((category, index) => (
               <motion.div
                 key={index}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  duration: 0.6, 
+                  delay: 0.3 + index * 0.1,
+                  ease: "easeOut"
+                }}
                 whileHover={{ 
                   scale: 1.05,
-                  boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+                  y: -10,
+                  transition: { duration: 0.3 }
                 }}
                 whileTap={{ scale: 0.95 }}
-                transition={{ duration: 0.3 }}
               >
                 <Box
                   onClick={() => router.push(`/outlet/${category.href}`)}
-                  className="outlet-category-card"
-                  style={{ backgroundImage: `url(${category.image})` }}
+                  sx={{
+                    position: 'relative',
+                    height: 280,
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    background: `linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%), url(${category.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
+                      transform: 'translateY(-8px)',
+                      '& .category-overlay': {
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                      },
+                      '& .category-title': {
+                        transform: 'translateY(-5px)',
+                      }
+                    },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.7) 100%)',
+                      zIndex: 1,
+                    }
+                  }}
                 >
-                  <Typography className="label">{category.name}</Typography>
+                  {/* Overlay for better text readability */}
+                  <Box 
+                    className="category-overlay"
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'rgba(0,0,0,0.3)',
+                      transition: 'background-color 0.3s ease',
+                      zIndex: 2,
+                    }}
+                  />
+                  
+                  {/* Category Title */}
+                  <Box
+                    className="category-title"
+                    sx={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      p: 3,
+                      zIndex: 3,
+                      transition: 'transform 0.3s ease',
+                    }}
+                  >
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        color: 'white',
+                        fontWeight: 800,
+                        textAlign: 'center',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                        fontSize: { xs: '1.25rem', md: '1.5rem' },
+                        letterSpacing: '0.5px',
+                      }}
+                    >
+                      {category.name}
+                    </Typography>
+                    
+                    {/* Arrow indicator */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        mt: 1,
+                        opacity: 0.8,
+                        transition: 'opacity 0.3s ease',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 0,
+                          height: 0,
+                          borderLeft: '8px solid transparent',
+                          borderRight: '8px solid transparent',
+                          borderTop: '8px solid white',
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
+                        }}
+                      />
+                    </Box>
+                  </Box>
+
+                  {/* Special badge for last-size */}
+                  {category.href === 'last-size' && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        zIndex: 4,
+                        background: 'linear-gradient(45deg, #ff4757, #ff3742)',
+                        color: 'white',
+                        px: 2,
+                        py: 0.5,
+                        borderRadius: '20px',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        boxShadow: '0 4px 12px rgba(255, 71, 87, 0.4)',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': {
+                            transform: 'scale(1)',
+                          },
+                          '50%': {
+                            transform: 'scale(1.05)',
+                          },
+                          '100%': {
+                            transform: 'scale(1)',
+                          },
+                        },
+                      }}
+                    >
+                      Sale 40%
+                    </Box>
+                  )}
                 </Box>
               </motion.div>
             ))}
