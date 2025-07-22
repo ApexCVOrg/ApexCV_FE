@@ -43,6 +43,7 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import CouponIcon from '@mui/icons-material/LocalOffer';
+import StarIcon from '@mui/icons-material/Star';
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -134,6 +135,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     { icon: <CategoryIcon />, text: t('categories'), href: ROUTES.ADMIN.CATEGORIES },
     { icon: <LocalShippingIcon />, text: t('orders'), href: ROUTES.ADMIN.ORDERS },
     { icon: <PeopleIcon />, text: t('customers'), href: ROUTES.ADMIN.CUSTOMERS },
+    { icon: <StarIcon />, text: 'Quản lí đánh giá', href: ROUTES.ADMIN.REVIEWS },
     { icon: <CouponIcon />, text: t('coupons'), href: ROUTES.ADMIN.COUPONS },
     {
       icon: <ListAltIcon />,
