@@ -85,6 +85,14 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+interface Review {
+  _id: string;
+  user: { _id: string; fullName?: string; avatar?: string } | string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const t = useTranslations('productDetail');
@@ -109,6 +117,8 @@ export default function ProductDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
 
   const productId = params.id as string;
 
@@ -155,6 +165,35 @@ export default function ProductDetailPage() {
       }
     };
   }, [autoScroll, product?.images]);
+
+  // Fetch reviews for this product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product?._id) return;
+      try {
+        const res = await api.get(`/reviews?product=${product._id}`);
+        setReviews(res.data as Review[]);
+      } catch {
+        setReviews([]);
+      }
+    };
+    fetchReviews();
+  }, [product?._id]);
+
+  // Fetch average rating for this product
+  useEffect(() => {
+    const fetchAverage = async () => {
+      if (!productId) return;
+      try {
+        const res = await api.get(`/reviews/average/${productId}`);
+        const data = res.data as { average: number };
+        setAverageRating(data.average || 0);
+      } catch {
+        setAverageRating(0);
+      }
+    };
+    fetchAverage();
+  }, [productId]);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -521,9 +560,9 @@ export default function ProductDetailPage() {
 
             {/* Rating */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Rating value={product.ratingsAverage} precision={0.1} readOnly />
+              <Rating value={averageRating} precision={0.1} readOnly />
               <Typography variant="body2" sx={{ ml: 1 }}>
-                {product.ratingsAverage.toFixed(1)} ({product.ratingsQuantity} đánh giá)
+                {typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'} ({product.ratingsQuantity} đánh giá)
               </Typography>
             </Box>
 
@@ -862,7 +901,7 @@ export default function ProductDetailPage() {
                       <strong>{t('colors')}:</strong> {uniqueColors.join(', ') || 'No colors'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
+                      <strong>{t('averageRating')}:</strong> {typeof product.ratingsAverage === 'number' ? product.ratingsAverage.toFixed(1) : '0.0'}/5
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('reviewCount')}:</strong> {product.ratingsQuantity}
@@ -875,15 +914,34 @@ export default function ProductDetailPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              {t('noReviews')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('beFirstToReview')}
-            </Typography>
-          </Box>
+          {reviews.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary">
+                {t('noReviews')}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t('beFirstToReview')}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ py: 2 }}>
+              {reviews.map((review) => (
+                <Box key={review._id} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                    {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Rating value={review.rating} readOnly size="small" precision={0.5} sx={{ mr: 1 }} />
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ color: '#222' }}>{review.comment}</Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
         </TabPanel>
       </Box>
 

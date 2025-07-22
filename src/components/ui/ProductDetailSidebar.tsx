@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCartContext } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import FavoriteButton from '@/components/ui/FavoriteButton';
+import Rating from '@mui/material/Rating';
 
 interface ProductDetailSidebarProps {
   productId: string | null;
@@ -42,6 +43,14 @@ interface Product {
   stock?: number;
 }
 
+interface Review {
+  _id: string;
+  user: { _id: string; fullName?: string; avatar?: string } | string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
   productId,
   product: initialProduct,
@@ -63,6 +72,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     shipping: false,
     care: false,
   });
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const { addToCart } = useCartContext();
   const { getToken } = useAuth();
@@ -113,6 +123,21 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [productId, initialProduct]);
+
+  // Fetch reviews for this product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product?._id) return;
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews?product=${product._id}`);
+        const data = await res.json();
+        setReviews(Array.isArray(data) ? data : data.data || []);
+      } catch {
+        setReviews([]);
+      }
+    };
+    fetchReviews();
+  }, [product?._id]);
 
   const handleAddToCart = async () => {
     const token = getToken();
@@ -605,9 +630,26 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       </Button>
                       {expandedSections.reviews && (
                         <Box sx={{ pl: 2, pb: 2 }}>
-                          <Typography variant="body2" color="#666">
-                            Chưa có đánh giá nào cho sản phẩm này.
-                          </Typography>
+                          {reviews.length === 0 ? (
+                            <Typography variant="body2" color="#666">
+                              Chưa có đánh giá nào cho sản phẩm này.
+                            </Typography>
+                          ) : (
+                            reviews.map((review) => (
+                              <Box key={review._id} sx={{ mb: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
+                                <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                                  {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <Rating value={review.rating} readOnly size="small" precision={0.5} sx={{ mr: 1 }} />
+                                  <Typography variant="caption" color="text.secondary">
+                                    {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                                  </Typography>
+                                </Box>
+                                <Typography variant="body1" sx={{ color: '#222' }}>{review.comment}</Typography>
+                              </Box>
+                            ))
+                          )}
                         </Box>
                       )}
                     </Box>
