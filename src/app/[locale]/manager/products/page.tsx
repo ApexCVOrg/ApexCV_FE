@@ -47,7 +47,7 @@ import { API_ENDPOINTS, SUCCESS_MESSAGES, ERROR_MESSAGES } from '@/lib/constants
 
 interface Product {
   _id: string;
-  name: string;
+  name?: string;
   description?: string;
   price: number;
   discountPrice?: number;
@@ -55,8 +55,8 @@ interface Product {
   sizes: { size: string; stock: number; color?: string }[];
   colors: string[];
   tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
+  brand?: { _id: string; name: string } | null;
+  categories?: { _id: string; name: string }[] | null;
   ratingsAverage: number;
   ratingsQuantity: number;
   status: string;
@@ -139,10 +139,10 @@ export default function ProductsPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         product =>
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.brand.name.toLowerCase().includes(searchTerm.toLowerCase())
+          product.brand?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -154,13 +154,13 @@ export default function ProductsPage() {
     // Filter by category
     if (categoryFilter !== 'all') {
       filtered = filtered.filter(product => 
-        product.categories.some(cat => cat._id === categoryFilter)
+        product.categories?.some(cat => cat._id === categoryFilter) || false
       );
     }
 
     // Filter by brand
     if (brandFilter !== 'all') {
-      filtered = filtered.filter(product => product.brand._id === brandFilter);
+      filtered = filtered.filter(product => product.brand?._id === brandFilter);
     }
 
     setFilteredProducts(filtered);
@@ -244,7 +244,7 @@ export default function ProductsPage() {
     if (product) {
       setSelectedProduct(product);
       setFormData({
-        name: product.name,
+        name: product.name || 'Unknown Product',
         description: product.description || '',
         price: product.price,
         discountPrice: product.discountPrice || 0,
@@ -252,8 +252,8 @@ export default function ProductsPage() {
         sizes: product.sizes,
         colors: product.colors,
         tags: product.tags,
-        brand: product.brand._id,
-        categories: product.categories.map(cat => cat._id),
+        brand: product.brand?._id || '',
+        categories: product.categories?.map(cat => cat._id) || [],
         status: product.status,
       });
     } else {
@@ -563,23 +563,23 @@ export default function ProductsPage() {
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {product.name}
-                      </Typography>
+                                        <Typography variant="body2" fontWeight="medium">
+                    {product.name || 'Unknown Product'}
+                  </Typography>
                       <Typography variant="caption" color="textSecondary">
                         {product.description?.substring(0, 50)}...
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">{product.brand.name}</Typography>
+                    <Typography variant="body2">{product.brand?.name || 'Unknown Brand'}</Typography>
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                      {product.categories.map(category => (
+                      {product.categories?.map(category => (
                         <Chip
                           key={category._id}
-                          label={category.name}
+                          label={category.name || 'Unknown Category'}
                           size="small"
                           sx={{ mb: 0.5 }}
                         />
@@ -641,7 +641,7 @@ export default function ProductsPage() {
       {/* Add/Edit Product Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
         <DialogTitle>
-          {selectedProduct ? `Edit Product: ${selectedProduct.name}` : 'Add New Product'}
+          {selectedProduct ? `Edit Product: ${selectedProduct.name || 'Unknown Product'}` : 'Add New Product'}
         </DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -704,9 +704,9 @@ export default function ProductsPage() {
                     label="Brand"
                     required
                   >
-                    {brands.map(brand => (
+                    {brands?.map(brand => (
                       <MenuItem key={brand._id} value={brand._id}>
-                        {brand.name}
+                        {brand.name || 'Unknown Brand'}
                       </MenuItem>
                     ))}
                   </Select>
@@ -737,9 +737,9 @@ export default function ProductsPage() {
                     onChange={handleSelectChange}
                     label="Categories"
                   >
-                    {categories.map(category => (
+                    {categories?.map(category => (
                       <MenuItem key={category._id} value={category._id}>
-                        {category.name}
+                        {category.name || 'Unknown Category'}
                       </MenuItem>
                     ))}
                   </Select>
