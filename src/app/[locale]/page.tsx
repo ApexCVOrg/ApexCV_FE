@@ -36,6 +36,7 @@ import { useToast } from '@/components/ui/Toast';
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 import { ApiProduct, ApiResponse } from '@/types';
+import api from '@/services/api';
 
 interface Product {
   _id: string;
@@ -162,6 +163,7 @@ export default function HomePage() {
   const [isProductDetailSidebarOpen, setIsProductDetailSidebarOpen] = useState(false);
   const [libProducts, setLibProducts] = useState<Product[]>([]);
   const [otherProducts, setOtherProducts] = useState<Product[]>([]);
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
   useAuth();
   const isLargeScreen = useMediaQuery('(width: 1440px) and (height: 1920px)');
   const [scrollY, setScrollY] = useState(0);
@@ -461,6 +463,25 @@ export default function HomePage() {
     fetchTabProducts(tabKey);
   }, [tab, fetchTabProducts]);
 
+  // Fetch average rating cho tất cả sản phẩm hiển thị
+  useEffect(() => {
+    const allProducts = Object.values(products).flat();
+    const fetchAverages = async () => {
+      const ratings: Record<string, number> = {};
+      await Promise.all(allProducts.map(async (product) => {
+        try {
+          const res = await api.get(`/reviews/average/${product._id}`);
+          const data = res.data as { average: number };
+          ratings[product._id] = data.average || 0;
+        } catch {
+          ratings[product._id] = 0;
+        }
+      }));
+      setAverageRatings(ratings);
+    };
+    if (allProducts.length > 0) fetchAverages();
+  }, [products]);
+
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
   };
@@ -629,6 +650,7 @@ export default function HomePage() {
                     labels={product.label ? [product.label as string] : []}
                     allCategories={categories}
                     allBrands={brands}
+                    averageRating={averageRatings[product._id] ?? 0}
                     onAddToCart={async () => {
                       try {
                         await addToCart({
@@ -963,6 +985,7 @@ export default function HomePage() {
                             labels={product.label ? [product.label as string] : []}
                             allCategories={categories}
                             allBrands={brands}
+                            averageRating={averageRatings[product._id] ?? 0}
                             onAddToCart={async () => {
                       try {
                         await addToCart({

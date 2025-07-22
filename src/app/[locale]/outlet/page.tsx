@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ProductCard from '@/components/card';
 import { useTranslations } from 'next-intl';
+import api from '@/services/api';
 
 import '@/styles/components/_outlet.scss'; // import SCSS
 
@@ -30,6 +31,7 @@ export default function OutletPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState('newest');
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
 
   const categories = [
     {
@@ -84,6 +86,23 @@ export default function OutletPage() {
     fetchProducts();
   }, [sortBy]);
 
+  useEffect(() => {
+    const fetchAverages = async () => {
+      const ratings: Record<string, number> = {};
+      await Promise.all(products.map(async (product) => {
+        try {
+          const res = await api.get(`/reviews/average/${product._id}`);
+          const data = res.data as { average: number };
+          ratings[product._id] = data.average || 0;
+        } catch {
+          ratings[product._id] = 0;
+        }
+      }));
+      setAverageRatings(ratings);
+    };
+    if (products.length > 0) fetchAverages();
+  }, [products]);
+
   return (
     <Box className="outlet-wrapper">
       <Typography className="outlet-heading">{t('title')}</Typography>
@@ -137,6 +156,7 @@ export default function OutletPage() {
                     sizes={product.sizes}
                     // @ts-expect-error colors prop expects number, but product.colors is string[]
                     colors={product.colors}
+                    averageRating={averageRatings[product._id] ?? 0}
                   />
                 </Box>
               ))}

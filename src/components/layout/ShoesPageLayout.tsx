@@ -14,6 +14,7 @@ import Link from 'next/link';
 import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useParams, usePathname } from 'next/navigation';
+import api from '@/services/api';
 
 interface Product {
   _id: string;
@@ -54,6 +55,7 @@ export default function ShoesPageLayout({
   const { locale } = useParams();
   const pathname = usePathname();
   const productCount = products.length;
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
 
   // Get current tab from pathname
   const currentTab = pathname.split('/').pop() || '';
@@ -73,6 +75,23 @@ export default function ShoesPageLayout({
     };
     loadProducts();
   }, [sortBy, fetchProducts]);
+
+  useEffect(() => {
+    const fetchAverages = async () => {
+      const ratings: Record<string, number> = {};
+      await Promise.all(products.map(async (product) => {
+        try {
+          const res = await api.get(`/reviews/average/${product._id}`);
+          const data = res.data as { average: number };
+          ratings[product._id] = data.average || 0;
+        } catch {
+          ratings[product._id] = 0;
+        }
+      }));
+      setAverageRatings(ratings);
+    };
+    if (products.length > 0) fetchAverages();
+  }, [products]);
 
   return (
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', mt: 10, position: 'relative' }}>
@@ -318,6 +337,7 @@ export default function ShoesPageLayout({
                     tags={product.tags || []}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories || []}
+                    averageRating={averageRatings[product._id] ?? 0}
                   />
                 </Box>
               ))}

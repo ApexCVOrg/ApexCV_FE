@@ -21,6 +21,8 @@ import { useRouter } from 'next/navigation';
 import ProductCard from '@/components/card';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
+import api from '@/services/api';
+import { useEffect } from 'react';
 
 export default function FavoritesPage() {
   const t = useTranslations('favorites');
@@ -30,6 +32,7 @@ export default function FavoritesPage() {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
 
   // Redirect to login if not authenticated
   React.useEffect(() => {
@@ -44,6 +47,23 @@ export default function FavoritesPage() {
       router.push(loginUrl);
     }
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    const fetchAverages = async () => {
+      const ratings: Record<string, number> = {};
+      await Promise.all(favorites.map(async (product) => {
+        try {
+          const res = await api.get(`/reviews/average/${product._id}`);
+          const data = res.data as { average: number };
+          ratings[product._id] = data.average || 0;
+        } catch {
+          ratings[product._id] = 0;
+        }
+      }));
+      setAverageRatings(ratings);
+    };
+    if (favorites.length > 0) fetchAverages();
+  }, [favorites]);
 
   const handleClearAll = async () => {
     setClearing(true);
@@ -162,6 +182,7 @@ export default function FavoritesPage() {
                 brand={product.brand}
                 categories={product.categories}
                 onAddToCart={() => console.log('Add to cart:', product._id)}
+                averageRating={averageRatings[product._id] ?? 0}
               />
             </Box>
           ))}

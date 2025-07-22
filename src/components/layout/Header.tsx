@@ -724,6 +724,17 @@ const Header = () => {
                       </Box>
                     )}
                   </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleCloseProfile();
+                      router.push(`/${language}/order-history`);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <span role="img" aria-label="history">🕑</span>
+                    </ListItemIcon>
+                    Lịch sử
+                  </MenuItem>
                   {userRole === 'admin' && (
                     <MenuItem onClick={handleAdminDashboard}>
                       <ListItemIcon>
