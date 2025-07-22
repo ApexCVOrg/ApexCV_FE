@@ -417,7 +417,7 @@ export default function CartPage() {
         paymentMethod: 'VNPAY',
         totalPrice: total,
         taxPrice: 0,
-        shippingPrice: 0,
+        shippingPrice: 50000, // Luôn là 50.000 VND
         user: currentUser.id, // Thêm user ID để backend có thể lấy thông tin
       };
 
@@ -450,7 +450,7 @@ export default function CartPage() {
   };
 
   const subtotal = calculateSubtotal();
-  const shipping = 0;
+  const shipping = 50000;
   const total = subtotal + shipping;
 
   // Kiểm tra xem có items nào chưa chọn size hoặc màu không
@@ -846,7 +846,7 @@ export default function CartPage() {
                         }
                         sx={{ width: 140, ...blackBorderStyle }}
                         inputProps={{ style: { textTransform: 'uppercase' } }}
-                        disabled={isUpdating || applyingCouponId === cartItem._id}
+                        disabled={isUpdating || applyingCouponId === cartItem._id || !!appliedCoupon}
                       />
                       <Button
                         variant="outlined"
@@ -862,7 +862,8 @@ export default function CartPage() {
                         disabled={
                           isUpdating ||
                           !couponInputs[cartItem._id] ||
-                          applyingCouponId === cartItem._id
+                          applyingCouponId === cartItem._id ||
+                          !!appliedCoupon
                         }
                         onClick={() => handleApplyCoupon(cartItem)}
                       >
@@ -877,6 +878,11 @@ export default function CartPage() {
                             sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
                             onDelete={() => {
                               setAppliedCoupons(v => {
+                                const newV = { ...v };
+                                delete newV[cartItem._id];
+                                return newV;
+                              });
+                              setCouponInputs(v => {
                                 const newV = { ...v };
                                 delete newV[cartItem._id];
                                 return newV;
@@ -920,7 +926,7 @@ export default function CartPage() {
                             })}
                           </Typography>
                           <Chip
-                            label={`- ${appliedCoupon?.discountAmount ? Math.round((100 * appliedCoupon.discountAmount) / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            label={`- ${Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
                             sx={{
                               bgcolor: 'black',
                               color: 'white',

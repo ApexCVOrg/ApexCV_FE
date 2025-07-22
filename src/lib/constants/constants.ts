@@ -170,6 +170,7 @@ export const ROUTES = {
     CHAT: '/admin/chats',
     LOGS: '/admin/logs',
     COUPONS: '/admin/coupons',
+    REVIEWS: '/admin/reviews',
   },
 };
 

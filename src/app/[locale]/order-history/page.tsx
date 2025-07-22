@@ -191,7 +191,23 @@ const HistoryPage = () => {
                 <span style={{ marginLeft: 12, fontWeight: 700, color: '#111a2f', fontSize: 16 }}>{form[product._id]?.rating || 0}/5</span>
               </div>
               <textarea
-                style={{ width: '100%', minHeight: 48, borderRadius: 6, border: '1.5px solid #e0e0e0', padding: 10, fontSize: 15, marginBottom: 10, color: '#111a2f', background: '#fafbfc', fontWeight: 500, outline: 'none', resize: 'vertical' }}
+                style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  minHeight: 48,
+                  borderRadius: 6,
+                  border: '1.5px solid #e0e0e0',
+                  padding: 10,
+                  fontSize: 15,
+                  marginBottom: 10,
+                  color: '#111a2f',
+                  background: '#fafbfc',
+                  fontWeight: 500,
+                  outline: 'none',
+                  resize: 'vertical',
+                  boxSizing: 'border-box',
+                  display: 'block',
+                }}
                 placeholder="Nhận xét của bạn về sản phẩm này..."
                 value={form[product._id]?.comment || ''}
                 onChange={e => handleCommentChange(product._id, e.target.value)}
