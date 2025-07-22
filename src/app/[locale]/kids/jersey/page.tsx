@@ -4,21 +4,8 @@ import GenderPageLayout from "@/components/layout/GenderPageLayout";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
 
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  categoryPath?: string[] | string;
-  createdAt: string;
-}
-
 export default function KidsJerseyPage() {
-  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
+  const fetchProducts = async (sortBy: string) => {
     const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
@@ -66,10 +53,23 @@ export default function KidsJerseyPage() {
         return false;
       });
       
-      // Client-side sorting as fallback if API sorting doesn't work
-      const sorted = sortProductsClientSide(filtered, sortBy);
+      // Transform ApiProduct to match GenderPageLayout expectations
+      const transformed = filtered.map((item: ApiProduct) => ({
+        _id: item._id,
+        name: item.name,
+        images: item.images,
+        price: item.price,
+        discountPrice: item.discountPrice,
+        tags: item.tags || [],
+        brand: item.brand || { _id: '', name: 'Unknown Brand' },
+        categories: item.categories || [],
+        createdAt: item.createdAt || new Date().toISOString(),
+      })) as any;
       
-      return sorted;
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(transformed, sortBy);
+      
+      return sorted as any;
     } catch {
       throw new Error('Failed to fetch products');
     }
