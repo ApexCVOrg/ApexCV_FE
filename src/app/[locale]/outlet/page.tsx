@@ -166,7 +166,7 @@ export default function OutletPage() {
             fontWeight: 900, 
             textAlign: 'center', 
             mb: 2,
-            background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+            background: 'linear-gradient(45deg,rgb(0, 0, 0),rgb(19, 22, 24))',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',

@@ -36,6 +36,7 @@ import { useTranslations } from 'next-intl';
 import { createVnpayPayment } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { profileService } from '@/services/profile';
+import SizeRecommender from '@/components/SizeRecommender';
 
 // Extend CartItem interface to include _id
 interface ProductSize {
@@ -662,52 +663,72 @@ export default function CartPage() {
                     {/* Size and Color Selection */}
                     <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
                           {cartItem.product?.sizes && cartItem.product?.sizes.length > 0 ? (
-                            <FormControl
-                              size="small"
-                          sx={{ minWidth: 120 }}
-                              disabled={isUpdating}
-                            >
-                              <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
-                                {t('size')}
-                              </InputLabel>
-                              <Select
-                                value={cartItem.size || ''}
-                                label={t('size')}
-                            onChange={(e) => {
-                              e.preventDefault();
-                                  handleUpdateItemOptions(
-                                    cartItem._id,
-                                    e.target.value,
-                                    cartItem.color
-                              );
-                            }}
-                            sx={{ 
-                              fontWeight: 600, 
-                              textTransform: 'uppercase',
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#e0e0e0',
-                              },
-                            }}
-                                error={!cartItem.size}
+                            <>
+                              {/* Size Recommendation */}
+                              <Box sx={{ mb: 1, width: '100%' }}>
+                                <SizeRecommender
+                                  productId={cartItem.product._id}
+                                  sizes={cartItem.product.sizes.map(s => s.size)}
+                                  categories={cartItem.product.brand ? [cartItem.product.brand.name] : []}
+                                  onSizeSelect={(recommendedSize) => {
+                                    if (typeof recommendedSize === 'string') {
+                                      handleUpdateItemOptions(
+                                        cartItem._id,
+                                        recommendedSize,
+                                        cartItem.color
+                                      );
+                                    }
+                                  }}
+                                />
+                              </Box>
+                              
+                              <FormControl
+                                size="small"
+                            sx={{ minWidth: 120 }}
+                                disabled={isUpdating}
                               >
-                                {cartItem.product?.sizes
-                                  ?.filter(
-                                    sz =>
-                                      !cartItem.color ||
-                                      ('color' in sz && sz.color === cartItem.color)
-                                  )
-                                  .map((sz: ProductSize) => (
-                                    <MenuItem
-                                      key={sz.size + ('color' in sz && sz.color ? sz.color : '')}
-                                      value={sz.size}
-                                      disabled={sz.stock === 0}
-                                      sx={{ fontWeight: 600, textTransform: 'uppercase' }}
-                                    >
-                                      {sz.size}
-                                    </MenuItem>
-                                  ))}
-                              </Select>
-                            </FormControl>
+                                <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
+                                  {t('size')}
+                                </InputLabel>
+                                <Select
+                                  value={cartItem.size || ''}
+                                  label={t('size')}
+                              onChange={(e) => {
+                                e.preventDefault();
+                                    handleUpdateItemOptions(
+                                      cartItem._id,
+                                      e.target.value,
+                                      cartItem.color
+                                );
+                              }}
+                              sx={{ 
+                                fontWeight: 600, 
+                                textTransform: 'uppercase',
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#e0e0e0',
+                                },
+                              }}
+                                  error={!cartItem.size}
+                                >
+                                  {cartItem.product?.sizes
+                                    ?.filter(
+                                      sz =>
+                                        !cartItem.color ||
+                                        ('color' in sz && sz.color === cartItem.color)
+                                    )
+                                    .map((sz: ProductSize) => (
+                                      <MenuItem
+                                        key={sz.size + ('color' in sz && sz.color ? sz.color : '')}
+                                        value={sz.size}
+                                        disabled={sz.stock === 0}
+                                        sx={{ fontWeight: 600, textTransform: 'uppercase' }}
+                                      >
+                                        {sz.size}
+                                      </MenuItem>
+                                    ))}
+                                </Select>
+                              </FormControl>
+                            </>
                           ) : (
                             cartItem.size && (
                               <Chip

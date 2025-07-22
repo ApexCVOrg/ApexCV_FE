@@ -50,6 +50,7 @@ interface ProductCardProps {
   productId: string;
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
+  availableColors?: string[]; // Danh sách màu sắc có sẵn
   addToCartButtonProps?: React.ComponentProps<typeof Button>;
   averageRating?: number; // Thêm prop này
 }
@@ -70,6 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   productId,
   backgroundColor = '#ffffff',
   colors = 1,
+  availableColors = [],
   addToCartButtonProps,
   averageRating = 5.0, // Giá trị mặc định nếu không truyền
 }) => {
@@ -461,6 +463,64 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     );
                   })}
                 </Stack>
+              )}
+
+              {/* Available Colors */}
+              {availableColors && availableColors.length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      textTransform: 'uppercase',
+                      mb: 1,
+                    }}
+                  >
+                    Available Colors
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                    {availableColors.slice(0, 4).map((color, index) => (
+                      <Box
+                        key={`${productId}-color-${index}`}
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          bgcolor: color.toLowerCase(),
+                          border: '1px solid #e0e0e0',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                          transition: 'transform 0.2s ease',
+                          '&:hover': {
+                            transform: 'scale(1.2)',
+                          },
+                        }}
+                        title={color.charAt(0).toUpperCase() + color.slice(1)}
+                      />
+                    ))}
+                    {availableColors.length > 4 && (
+                      <Box
+                        sx={{
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          bgcolor: '#f5f5f5',
+                          border: '1px solid #e0e0e0',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '8px',
+                          fontWeight: 600,
+                          color: '#666',
+                        }}
+                        title={`+${availableColors.length - 4} more colors`}
+                      >
+                        +{availableColors.length - 4}
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
               )}
             </CardContent>
           </Box>

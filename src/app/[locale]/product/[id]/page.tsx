@@ -33,7 +33,6 @@ import {
   ArrowBack,
   ArrowForward,
   Close,
-  Check,
   Info,
   ZoomIn,
 } from '@mui/icons-material';
@@ -45,6 +44,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import ColorPicker from '@/components/ui/ColorPicker';
+import SizeRecommender from '@/components/SizeRecommender';
 
 interface Product {
   _id: string;
@@ -589,49 +590,14 @@ export default function ProductDetailPage() {
             {/* Color Picker */}
             {product.colors.length > 0 && (
               <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom>
-                  {t('colors')}:
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {product.colors.map(color => (
-                    <Box
-                      key={color}
-                      sx={{
-                        position: 'relative',
-                        minWidth: 80,
-                        height: 40,
-                        borderRadius: 20,
-                        border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
-                        bgcolor: selectedColor === color ? '#000' : '#fff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s',
-                        px: 2,
-                        '&:hover': {
-                          transform: 'scale(1.05)',
-                          bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
-                        },
-                      }}
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      <Typography
-                        sx={{
-                          color: selectedColor === color ? '#fff' : '#000',
-                          fontWeight: 600,
-                          fontSize: 14,
-                          textTransform: 'capitalize',
-                        }}
-                      >
-                        {color}
-                      </Typography>
-                      {selectedColor === color && (
-                        <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
-                      )}
-                    </Box>
-                  ))}
-                </Box>
+                <ColorPicker
+                  colors={product.colors}
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                  title={t('colors')}
+                  size="large"
+                  variant="circle"
+                />
               </Box>
             )}
 
@@ -655,6 +621,21 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
+                
+                {/* Size Recommendation */}
+                <Box sx={{ mb: 2 }}>
+                  <SizeRecommender
+                    productId={product._id}
+                    sizes={getUniqueSizes()}
+                    categories={product.categories?.map(cat => cat.name) || []}
+                    onSizeSelect={(recommendedSize) => {
+                      if (typeof recommendedSize === 'string') {
+                        setSelectedSize(recommendedSize);
+                      }
+                    }}
+                  />
+                </Box>
+                
                 <Box
                   sx={{
                     display: 'flex',
