@@ -34,7 +34,7 @@ export default function SocksPage() {
       const queryParams = new URLSearchParams();
       queryParams.append('status', 'active');
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`);
       const data: ApiResponse = await res.json();
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // First: Filter by gender if specified

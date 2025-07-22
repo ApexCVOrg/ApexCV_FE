@@ -181,7 +181,6 @@ export default function FavoritesPage() {
                 tags={product.tags}
                 brand={product.brand}
                 categories={product.categories}
-                onAddToCart={() => console.log('Add to cart:', product._id)}
                 averageRating={averageRatings[product._id] ?? 0}
               />
             </Box>

@@ -32,7 +32,7 @@ export default function MenJerseyPage() {
       sortOrder = 'desc';
     }
     const queryParams = new URLSearchParams({ sortBy: apiSortBy, sortOrder, gender: 'men' });
-    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+    const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
     const res = await fetch(apiUrl);
     const data = await res.json();
     if (!data.success) throw new Error(data.message || 'Failed to fetch products');

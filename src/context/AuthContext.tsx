@@ -84,13 +84,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+      return;
+    }
+
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
       setToken(storedToken);
       setLastActivity(Date.now());
       // Bạn có thể fetch user profile ở đây nếu cần
       // Fetch user profile từ backend
-      fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/users/profile', {
+      fetch((process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api') + '/users/profile', {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
         .then(res => res.json())

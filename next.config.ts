@@ -15,7 +15,7 @@ const nextConfig = {
       'dothethao.net.vn',
       'res.cloudinary.com',
       'nidas-fe.vercel.app',
-      'nidas-70lhai0y8-nidas-projects-e8bff2a3.vercel.app',
+      'nidas-be.onrender.com',
     ],
   },
   async rewrites() {

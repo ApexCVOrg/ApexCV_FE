@@ -158,10 +158,10 @@ export const useAuth = (): UseAuthReturn => {
       };
 
       console.log('=== Request Data ===');
-      console.log('API URL:', `${process.env.NEXT_PUBLIC_API_URL}/auth/register`);
+      console.log('API URL:', `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/register`);
       console.log('Request Body:', JSON.stringify(requestData, null, 2));
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
@@ -189,7 +189,7 @@ export const useAuth = (): UseAuthReturn => {
       console.error('=== Registration Error ===');
       console.error('Error Message:', registerError.message);
       console.error('Stack Trace:', registerError.stack);
-      console.error('API URL:', process.env.NEXT_PUBLIC_API_URL);
+      console.error('API URL:', process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api');
       return {
         success: false,
         message: 'server_error',

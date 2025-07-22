@@ -875,9 +875,14 @@
     "orderSummary": "Order Summary",
     "subtotal": "Subtotal",
     "shippingFee": "Shipping Fee",
+    "tax": "Tax",
     "total": "Total",
     "checkout": "Checkout",
-    "clearCart": "Clear Cart"
+    "clearCart": "Clear Cart",
+    "edit": "Edit",
+    "remove": "Remove",
+    "or": "OR",
+    "promoCode": "DO YOU HAVE A PROMO CODE"
   },
   "sizeGuide": {
     "title": "Size Guide",

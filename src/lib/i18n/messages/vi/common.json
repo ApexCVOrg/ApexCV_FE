@@ -913,9 +913,14 @@
     "orderSummary": "Tổng quan đơn hàng",
     "subtotal": "Tạm tính",
     "shippingFee": "Phí vận chuyển",
+    "tax": "Thuế",
     "total": "Tổng cộng",
     "checkout": "Thanh toán",
-    "clearCart": "Xóa giỏ hàng"
+    "clearCart": "Xóa giỏ hàng",
+    "edit": "Chỉnh sửa",
+    "remove": "Xóa",
+    "or": "HOẶC",
+    "promoCode": "BẠN CÓ MÃ GIẢM GIÁ KHÔNG"
   },
   "checkout": "Thanh toán",
   "checkoutPage": {

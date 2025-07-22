@@ -43,7 +43,7 @@ const TABS = [
 export default function GazellePage() {
   const fetchProducts = async (sortBy: string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?status=active`);
       const data = await res.json();
 
       // Lọc sản phẩm theo categoryPath mong muốn

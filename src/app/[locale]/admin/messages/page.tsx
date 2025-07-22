@@ -86,7 +86,7 @@ export default function MessagesPage() {
       try {
         const token = getToken();
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats?limit=50&status=open`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -114,7 +114,7 @@ export default function MessagesPage() {
       try {
         const token = getToken();
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${selectedChat.chatId}/messages`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -157,7 +157,7 @@ export default function MessagesPage() {
     try {
       const token = getToken();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${selectedChat.chatId}/messages`,
         {
           method: 'POST',
           headers: {
@@ -191,7 +191,7 @@ export default function MessagesPage() {
     try {
       const token = getToken();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${selectedChat.chatId}/messages`,
         {
           method: 'POST',
           headers: {

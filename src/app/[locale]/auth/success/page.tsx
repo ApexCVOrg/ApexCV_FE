@@ -33,7 +33,7 @@ const AuthSuccessPage = () => {
 
         // Có thể fetch user info từ BE để đồng bộ trạng thái
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/me`, {
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
