@@ -15,9 +15,9 @@ import {
   Snackbar,
   Alert,
   IconButton,
+  Rating,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import StarIcon from '@mui/icons-material/Star';
 import SearchIcon from '@mui/icons-material/Search';
 import { useTranslations } from 'next-intl';
 import FavoriteButton from '@/components/ui/FavoriteButton';
@@ -53,6 +53,7 @@ interface ProductCardProps {
   backgroundColor?: string; // Thêm background color như Nike project
   colors?: number; // Số lượng màu sắc
   addToCartButtonProps?: React.ComponentProps<typeof Button>;
+  averageRating?: number; // Thêm prop này
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -72,6 +73,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   backgroundColor = '#ffffff',
   colors = 1,
   addToCartButtonProps,
+  averageRating = 5.0, // Giá trị mặc định nếu không truyền
 }) => {
   // Theme hook
   const { theme } = useTheme();
@@ -410,9 +412,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
               {/* Star rating (5.0) */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
-                ))}
+                <Rating
+                  value={averageRating}
+                  precision={0.1}
+                  readOnly
+                  size="small"
+                  sx={{ color: '#FFD600' }}
+                />
                 <Box
                   sx={{
                     bgcolor: '#f5f5f5',
@@ -424,7 +430,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                     ml: 1,
                   }}
                 >
-                  5.0
+                  {averageRating.toFixed(1)}
                 </Box>
               </Box>
 
@@ -686,9 +692,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
         </Box>
         {/* Star rating and value (placeholder) */}
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          {[...Array(5)].map((_, i) => (
-            <StarIcon key={i} sx={{ color: '#FFD600', fontSize: 20, mr: 0.2 }} />
-          ))}
+          <Rating
+            value={averageRating}
+            precision={0.1}
+            readOnly
+            size="small"
+            sx={{ color: '#FFD600' }}
+          />
           <Box
             sx={{
               bgcolor: '#f5f5f5',
@@ -700,7 +710,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               ml: 1,
             }}
           >
-            5.0
+            {averageRating.toFixed(1)}
           </Box>
         </Box>
         {/* Brand and categories */}

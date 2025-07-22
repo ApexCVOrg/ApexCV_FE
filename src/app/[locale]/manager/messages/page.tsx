@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -194,6 +194,13 @@ export default function MessagesPage() {
       const refreshSessions = async () => {
         try {
           const token = getToken();
+          if (!token) {
+            console.error('No token available for API call');
+            return;
+          }
+
+          console.log('Fetching sessions from:', `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`);
+          
           const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
             {
@@ -203,10 +210,21 @@ export default function MessagesPage() {
               },
             }
           );
+          
+          console.log('Response status:', response.status);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', response.status, errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+          
           const data = await response.json();
+          console.log('Sessions data:', data);
           setSessions(data.data || []);
-        } catch {
-          console.error('Error refreshing sessions');
+        } catch (error) {
+          console.error('Error refreshing sessions:', error);
+          // Don't show error to user for background refresh
         }
       };
       refreshSessions();
@@ -471,56 +489,64 @@ export default function MessagesPage() {
   const handleEndSession = async (chatId: string) => {
     try {
       const token = getToken();
-      const endMessage = 'Phiên chat đã kết thúc. Cảm ơn bạn đã liên hệ với NIDAS!';
+      if (!token) {
+        console.error('No token available for close session');
+        return;
+      }
 
-      // Send end message
+      console.log('Closing session:', chatId);
+      
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`,
         {
-          method: 'POST',
+          method: 'PATCH',
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ content: endMessage }),
+          body: JSON.stringify({
+            note: 'Session closed by manager'
+          }),
         }
       );
 
-      if (response.ok) {
-        const result: ApiResponse<Message> = await response.json();
-        setMessages(prev => [...prev, result.data]);
+      console.log('Close session response status:', response.status);
 
-        // Close chat session
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        // Remove from joined chats
-        setManagerJoined(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(chatId);
-          return newSet;
-        });
-
-        // Refresh sessions list
-        const refreshResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        const refreshData = await refreshResponse.json();
-        setSessions(refreshData.data || []);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Close session error:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-    } catch {
-      setError('Không thể kết thúc phiên chat.');
+
+      const result = await response.json();
+      console.log('Close session result:', result);
+
+      // Refresh sessions list
+      const refreshSessions = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            setSessions(data.data || []);
+          }
+        } catch (error) {
+          console.error('Error refreshing sessions after close:', error);
+        }
+      };
+      
+      refreshSessions();
+    } catch (error) {
+      console.error('Error ending session:', error);
+      // You can add a toast notification here
     }
   };
 

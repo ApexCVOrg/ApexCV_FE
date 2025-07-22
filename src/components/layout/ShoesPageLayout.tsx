@@ -16,6 +16,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useParams, usePathname } from 'next/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import { THEME } from '@/lib/constants/constants';
+import api from '@/services/api';
 
 interface Product {
   _id: string;
@@ -53,6 +54,7 @@ export default function ShoesPageLayout({
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
   const [error, setError] = useState<string | null>(null);
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
   const { locale } = useParams();
   const pathname = usePathname();
   const productCount = products.length;
@@ -76,6 +78,23 @@ export default function ShoesPageLayout({
     };
     loadProducts();
   }, [sortBy, fetchProducts]);
+
+  useEffect(() => {
+    const fetchAverages = async () => {
+      const ratings: Record<string, number> = {};
+      await Promise.all(products.map(async (product) => {
+        try {
+          const res = await api.get(`/reviews/average/${product._id}`);
+          const data = res.data as { average: number };
+          ratings[product._id] = data.average || 0;
+        } catch {
+          ratings[product._id] = 0;
+        }
+      }));
+      setAverageRatings(ratings);
+    };
+    if (products.length > 0) fetchAverages();
+  }, [products]);
 
   return (
     <Box sx={{ 
@@ -425,6 +444,7 @@ export default function ShoesPageLayout({
                     tags={product.tags || []}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories || []}
+                    averageRating={averageRatings[product._id] ?? 0}
                   />
                 </Box>
               ))}

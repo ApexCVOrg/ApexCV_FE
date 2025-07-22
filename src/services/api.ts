@@ -24,8 +24,17 @@ interface AxiosRequest {
   _retry?: boolean;
 }
 
+// Track refresh attempts to prevent infinite loops
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string) => void> = [];
+
+const processQueue = (token: string) => {
+  refreshSubscribers.forEach(callback => callback(token));
+  refreshSubscribers = [];
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -50,6 +59,20 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      // If already refreshing, wait for the new token
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          refreshSubscribers.push((token: string) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+            }
+            resolve(api(originalRequest as AxiosRequest));
+          });
+        });
+      }
+
+      isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem('refresh_token');
@@ -76,6 +99,8 @@ api.interceptors.response.use(
         const { token } = response.data;
 
         localStorage.setItem('auth_token', token);
+        processQueue(token);
+
         if (originalRequest.headers) {
           originalRequest.headers.Authorization = `Bearer ${token}`;
         }
@@ -96,6 +121,8 @@ api.interceptors.response.use(
           window.location.href = loginUrl;
         }
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
@@ -108,7 +135,7 @@ api.interceptors.response.use(
  */
 export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   const apiUrl = `${baseURL}/payment/vnpay`;
 

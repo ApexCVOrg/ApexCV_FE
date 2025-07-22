@@ -143,20 +143,24 @@ const Header = () => {
       setUserRole(user.role);
     } else {
       // If no user in context, try to get from token
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        try {
-          const base64Url = token.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(
-            atob(base64)
-              .split('')
-              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-              .join('')
-          );
-          const payload = JSON.parse(jsonPayload);
-          setUserRole(payload.role);
-        } catch {
+      if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(
+              atob(base64)
+                .split('')
+                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                .join('')
+            );
+            const payload = JSON.parse(jsonPayload);
+            setUserRole(payload.role);
+          } catch {
+            setUserRole(null);
+          }
+        } else {
           setUserRole(null);
         }
       } else {
@@ -166,27 +170,6 @@ const Header = () => {
   }, [pathname, getCurrentUser, isAuthenticated]);
 
 
-
-  useEffect(() => {
-    let ticking = false;
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentY = window.scrollY;
-          if (currentY > 80) {
-            setHideHeader(true);
-          } else if (currentY < 40) {
-            setHideHeader(false);
-          }
-          setLastScrollY(currentY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
 
   const NAV_LINKS = [
     {
@@ -367,15 +350,16 @@ const Header = () => {
         position="fixed"
         suppressHydrationWarning
         sx={{
-          bgcolor: 'transparent',
-          color: isDarkMode ? '#fff' : '#000',
-          borderBottom: 'none',
-          boxShadow: 'none',
+          bgcolor: 'white',
+          color: '#000',
+          borderBottom: '1px solid #e0e0e0',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           px: { xs: 1, md: 2 },
           width: '100%',
           left: 0,
           top: 0,
-          zIndex: 100,
+          zIndex: 1000,
+          height: { xs: '64px', sm: '64px', md: '64px' }, // Responsive height
           transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
           transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
         }}
@@ -384,14 +368,16 @@ const Header = () => {
         <Toolbar
           suppressHydrationWarning
           sx={{
-            minHeight: 64,
+            minHeight: { xs: '64px !important', sm: '64px !important', md: '64px !important' },
+            height: { xs: '64px', sm: '64px', md: '64px' },
             px: { xs: 1, md: 2 },
             width: '100%',
             maxWidth: 1920,
             mx: 'auto',
-            bgcolor: 'transparent',
+            bgcolor: 'white',
             display: 'flex',
             flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
           {/* Logo - Left */}
@@ -625,15 +611,15 @@ const Header = () => {
               size="small"
               onClick={toggleLanguage}
               sx={{
-                color: 'inherit',
-                borderColor: 'inherit',
+                color: '#000',
+                borderColor: '#000',
                 textTransform: 'uppercase',
                 minWidth: 48,
                 fontWeight: 'bold',
                 fontSize: '0.875rem',
                 '&:hover': {
-                  borderColor: isDarkMode ? 'white' : 'black',
-                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                  borderColor: '#000',
+                  backgroundColor: 'rgba(0,0,0,0.05)',
                 },
               }}
             >
@@ -644,6 +630,7 @@ const Header = () => {
               color="inherit"
               size="large"
               onClick={() => router.push(ROUTES.CART)}
+              sx={{ color: '#000' }}
             >
               <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
@@ -656,7 +643,7 @@ const Header = () => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2, mr: 10 }}
+                  sx={{ ml: 2, mr: 10, color: '#000' }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
@@ -724,6 +711,17 @@ const Header = () => {
                       </Box>
                     )}
                   </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleCloseProfile();
+                      router.push(`/${language}/order-history`);
+                    }}
+                  >
+                    <ListItemIcon>
+                      <span role="img" aria-label="history">🕑</span>
+                    </ListItemIcon>
+                    Lịch sử
+                  </MenuItem>
                   {userRole === 'admin' && (
                     <MenuItem onClick={handleAdminDashboard}>
                       <ListItemIcon>
@@ -754,6 +752,14 @@ const Header = () => {
                   variant="outlined"
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
+                  sx={{ 
+                    color: '#000', 
+                    borderColor: '#000',
+                    '&:hover': {
+                      borderColor: '#000',
+                      backgroundColor: 'rgba(0,0,0,0.05)',
+                    }
+                  }}
                 >
                   {t('loginButton')}
                 </Button>
@@ -774,6 +780,7 @@ const Header = () => {
                 color="inherit"
                 size="large"
                 onClick={toggleDrawer(true)}
+                sx={{ color: '#000' }}
               >
                 <MenuIcon />
               </IconButton>
