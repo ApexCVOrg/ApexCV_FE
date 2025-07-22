@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
     CHANGE_PASSWORD: '/users/change-password',
     UPDATE_ADDRESS: '/users/update-address',
   },
+  CATEGORIES: '/categories',
+  BRANDS: '/brands',
   MANAGER: {
     DASHBOARD: '/manager/dashboard',
     PRODUCTS: '/manager/products',
