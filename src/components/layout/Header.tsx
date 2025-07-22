@@ -635,15 +635,15 @@ const Header = () => {
               size="small"
               onClick={toggleLanguage}
               sx={{
-                color: '#000',
-                borderColor: '#000',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
+                borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
                 textTransform: 'uppercase',
                 minWidth: 48,
                 fontWeight: 'bold',
                 fontSize: '0.875rem',
                 '&:hover': {
-                  borderColor: '#000',
-                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                  backgroundColor: theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                 },
               }}
             >
@@ -654,7 +654,7 @@ const Header = () => {
               color="inherit"
               size="large"
               onClick={() => router.push(ROUTES.CART)}
-              sx={{ color: '#000' }}
+              sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}
             >
               <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
@@ -667,7 +667,7 @@ const Header = () => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2, mr: 10, color: '#000' }}
+                  sx={{ ml: 2, mr: 10, color: theme === THEME.LIGHT ? '#000' : '#fff' }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
@@ -777,11 +777,11 @@ const Header = () => {
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
                   sx={{ 
-                    color: '#000', 
-                    borderColor: '#000',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: '#000',
-                      backgroundColor: 'rgba(0,0,0,0.05)',
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      backgroundColor: theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                     }
                   }}
                 >
@@ -804,7 +804,7 @@ const Header = () => {
                 color="inherit"
                 size="large"
                 onClick={toggleDrawer(true)}
-                sx={{ color: '#000' }}
+                sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}
               >
                 <MenuIcon />
               </IconButton>
