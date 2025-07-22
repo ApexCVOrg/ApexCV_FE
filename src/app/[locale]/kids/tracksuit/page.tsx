@@ -4,7 +4,8 @@ import GenderPageLayout from "@/components/layout/GenderPageLayout";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
 
-interface Product {
+// Type for GenderPageLayout Product interface
+type GenderPageProduct = {
   _id: string;
   name: string;
   images: string[];
@@ -13,12 +14,11 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
-  categoryPath?: string[];
   createdAt: string;
-}
+};
 
 export default function KidsTracksuitPage() {
-  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
+  const fetchProducts = async (sortBy: string): Promise<GenderPageProduct[]> => {
     const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
@@ -66,10 +66,23 @@ export default function KidsTracksuitPage() {
         return false;
       });
       
-      // Client-side sorting as fallback if API sorting doesn't work
-      const sorted = sortProductsClientSide(filtered, sortBy);
+      // Transform ApiProduct to match GenderPageLayout expectations
+      const transformed = filtered.map((item: ApiProduct): GenderPageProduct => ({
+        _id: item._id,
+        name: item.name,
+        images: item.images,
+        price: item.price,
+        discountPrice: item.discountPrice,
+        tags: item.tags || [],
+        brand: item.brand || { _id: '', name: 'Unknown Brand' },
+        categories: item.categories || [],
+        createdAt: item.createdAt || new Date().toISOString(),
+      }));
       
-      return sorted;
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(transformed, sortBy);
+      
+      return sorted as GenderPageProduct[];
     } catch {
       throw new Error('Failed to fetch products');
     }
