@@ -18,7 +18,33 @@ interface WebSocketMessage {
   messageType?: 'text' | 'file' | 'image';
 }
 
-class WebSocketService {
+interface WebSocketServiceInterface {
+  connect(): void;
+  disconnect(): void;
+  isConnected(): boolean;
+  sendMessage(
+    chatId: string,
+    content: string,
+    role: 'user' | 'manager',
+    attachments?: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }>,
+    messageType?: string
+  ): void;
+  markAsRead(chatId: string): void;
+  requestUnreadCount(): void;
+  subscribeToChat(chatId: string, handler: (message: WebSocketMessage) => void): () => void;
+  unsubscribeFromChat(chatId: string): void;
+  onUnreadCountChange(handler: (count: number) => void): () => void;
+  sendTyping(chatId: string, isTyping: boolean): void;
+  onConnectionChange(handler: () => void): () => void;
+}
+
+class WebSocketService implements WebSocketServiceInterface {
   private ws: WebSocket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -31,8 +57,14 @@ class WebSocketService {
     this.connect();
   }
 
-  private connect() {
+  connect() {
     try {
+      // Check if we're in a browser environment
+      if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+        console.warn('localStorage not available (SSR environment)');
+        return;
+      }
+
       const token = localStorage.getItem('auth_token');
       if (!token) {
         console.warn('No auth token found for WebSocket connection');
@@ -84,8 +116,11 @@ class WebSocketService {
   }
 
   private handleMessage(message: WebSocketMessage) {
+    console.log('WebSocket received message:', message);
+    
     // Handle unread count updates
     if (message.type === 'unread_count' && message.unreadCount !== undefined) {
+      console.log('Handling unread count update:', message.unreadCount);
       this.unreadCountHandlers.forEach(handler => handler(message.unreadCount!));
       return;
     }
@@ -93,12 +128,16 @@ class WebSocketService {
     // Handle chat-specific messages
     const handler = this.messageHandlers.get(message.chatId);
     if (handler) {
+      console.log('Found handler for chatId:', message.chatId);
       handler(message);
+    } else {
+      console.log('No handler found for chatId:', message.chatId);
+      console.log('Available handlers for:', Array.from(this.messageHandlers.keys()));
     }
   }
 
   // Subscribe to chat messages
-  subscribeToChat(chatId: string, handler: (message: WebSocketMessage) => void) {
+  subscribeToChat(chatId: string, handler: (message: WebSocketMessage) => void): () => void {
     this.messageHandlers.set(chatId, handler);
 
     // Send join message
@@ -110,6 +149,11 @@ class WebSocketService {
         })
       );
     }
+
+    // Return unsubscribe function
+    return () => {
+      this.unsubscribeFromChat(chatId);
+    };
   }
 
   // Unsubscribe from chat messages
@@ -127,7 +171,6 @@ class WebSocketService {
     }
   }
 
-  // Send message
   sendMessage(
     chatId: string,
     content: string,
@@ -180,7 +223,7 @@ class WebSocketService {
   }
 
   // Subscribe to unread count updates
-  onUnreadCountChange(handler: (count: number) => void) {
+  onUnreadCountChange(handler: (count: number) => void): () => void {
     const id = Date.now().toString();
     this.unreadCountHandlers.set(id, handler);
     return () => {
@@ -202,7 +245,7 @@ class WebSocketService {
   }
 
   // Subscribe to connection events
-  onConnectionChange(handler: () => void) {
+  onConnectionChange(handler: () => void): () => void {
     const id = Date.now().toString();
     this.connectionHandlers.set(id, handler);
     return () => {
@@ -228,7 +271,31 @@ class WebSocketService {
   }
 }
 
-// Create singleton instance
-const websocketService = new WebSocketService();
+// Create singleton instance with lazy initialization
+let websocketServiceInstance: WebSocketServiceInterface | null = null;
 
-export default websocketService;
+const getWebSocketService = (): WebSocketServiceInterface => {
+  if (typeof window === 'undefined') {
+    // Return a mock service for SSR
+    return {
+      connect: () => {},
+      disconnect: () => {},
+      isConnected: () => false,
+      sendMessage: () => {},
+      markAsRead: () => {},
+      requestUnreadCount: () => {},
+      subscribeToChat: () => () => {},
+      unsubscribeFromChat: () => {},
+      onUnreadCountChange: () => () => {},
+      sendTyping: () => {},
+      onConnectionChange: () => () => {},
+    };
+  }
+
+  if (!websocketServiceInstance) {
+    websocketServiceInstance = new WebSocketService();
+  }
+  return websocketServiceInstance;
+};
+
+export default getWebSocketService();

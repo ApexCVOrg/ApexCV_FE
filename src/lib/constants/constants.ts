@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
     CHANGE_PASSWORD: '/users/change-password',
     UPDATE_ADDRESS: '/users/update-address',
   },
+  CATEGORIES: '/categories',
+  BRANDS: '/brands',
   MANAGER: {
     DASHBOARD: '/manager/dashboard',
     PRODUCTS: '/manager/products',
@@ -54,7 +56,7 @@ export const API_ENDPOINTS = {
 };
 
 // API Base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api';
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -170,6 +172,7 @@ export const ROUTES = {
     CHAT: '/admin/chats',
     LOGS: '/admin/logs',
     COUPONS: '/admin/coupons',
+    REVIEWS: '/admin/reviews',
   },
 };
 

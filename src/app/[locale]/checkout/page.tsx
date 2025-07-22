@@ -17,6 +17,16 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [placing, setPlacing] = useState(false);
 
+  // Lấy danh sách sản phẩm được chọn từ localStorage
+  const selectedIds = useMemo(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem("selectedCartItemIds") || "[]");
+    } catch {
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
     // Lấy cart và user info
     const fetchData = async () => {
@@ -26,7 +36,9 @@ export default function CheckoutPage() {
         // Lấy cart
         const cartRes = await api.get("/carts/user", { headers: { Authorization: `Bearer ${token}` } });
         const cartData = cartRes.data as any;
-        setCartItems(cartData.cartItems || []);
+        // Lọc chỉ các sản phẩm được chọn
+        const filtered = (cartData.cartItems || []).filter((item: any) => selectedIds.includes(item._id));
+        setCartItems(filtered);
         // Lấy địa chỉ user
         const userRes = await api.get("/users/profile", { headers: { Authorization: `Bearer ${token}` } });
         const userData = userRes.data as any;
@@ -42,7 +54,7 @@ export default function CheckoutPage() {
       }
     };
     fetchData();
-  }, [getToken]);
+  }, [getToken, selectedIds]);
 
   // Lấy appliedCoupons từ localStorage
   const appliedCoupons = useMemo(() => {

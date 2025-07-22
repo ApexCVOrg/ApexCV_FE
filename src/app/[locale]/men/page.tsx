@@ -15,7 +15,7 @@ import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
-import { useCartContext } from '@/context/CartContext';
+
 
 interface Product {
   _id: string;
@@ -88,7 +88,7 @@ export default function MenPage() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?gender=men`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -122,7 +122,7 @@ export default function MenPage() {
   const refreshProducts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?gender=men`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?gender=men`);
       const result = await response.json();
       if (result.success) {
         setProducts(result.data);
@@ -138,22 +138,7 @@ export default function MenPage() {
     }
   };
 
-  const { addToCart } = useCartContext();
-  
-  const handleAddToCart = async (product: Product) => {
-    try {
-      await addToCart({
-        productId: product._id,
-        quantity: 1
-      });
-      // Show success message
-      console.log('Đã thêm vào giỏ hàng!');
-    } catch (error) {
-      console.error('Add to cart error:', error);
-      // Show error message
-      console.error('Thêm vào giỏ hàng thất bại!');
-    }
-  };
+
 
   const handleCarouselNext = () => {
     const maxIndex = Math.max(0, products.length - 4);
@@ -618,7 +603,6 @@ export default function MenPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

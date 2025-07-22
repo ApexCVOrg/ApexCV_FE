@@ -49,7 +49,7 @@ export default function SpezialPage() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?status=active`);
         const data = await res.json();
 
         // Lọc sản phẩm theo categoryPath mong muốn
@@ -354,7 +354,6 @@ export default function SpezialPage() {
                       tags={products[0].tags}
                       brand={products[0].brand}
                       categories={products[0].categories}
-                      onAddToCart={() => {}}
                     />
                   </Box>
                 </Box>

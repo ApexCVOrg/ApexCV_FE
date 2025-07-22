@@ -49,7 +49,7 @@ export default function ForgotPasswordForm() {
     try {
       console.log('Sending forgot password request...');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -87,7 +87,7 @@ export default function ForgotPasswordForm() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -77,11 +77,11 @@ interface PaymentResult {
 
 interface Order {
   _id: string;
-  user: {
+  user?: {
     _id: string;
     username: string;
     email: string;
-  };
+  } | null;
   orderItems: OrderItem[];
   shippingAddress: ShippingAddress;
   paymentMethod: string;
@@ -149,8 +149,8 @@ export default function OrdersPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         order =>
-          order.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (order.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+          (order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
           order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.shippingAddress.recipientName.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -513,10 +513,10 @@ export default function OrdersPage() {
                   <TableCell>
                     <Box>
                       <Typography variant="body2" fontWeight="medium">
-                        {order.user.username}
+                        {order.user?.username || 'Unknown User'}
                       </Typography>
                       <Typography variant="caption" color="textSecondary">
-                        {order.user.email}
+                        {order.user?.email || 'No email'}
                       </Typography>
                     </Box>
                   </TableCell>
@@ -602,13 +602,13 @@ export default function OrdersPage() {
                   <Typography variant="body2" color="textSecondary">
                     Customer
                   </Typography>
-                  <Typography variant="body1">{selectedOrder.user.username}</Typography>
+                  <Typography variant="body1">{selectedOrder.user?.username || 'Unknown User'}</Typography>
                 </Box>
                 <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
                   <Typography variant="body2" color="textSecondary">
                     Email
                   </Typography>
-                  <Typography variant="body1">{selectedOrder.user.email}</Typography>
+                  <Typography variant="body1">{selectedOrder.user?.email || 'No email'}</Typography>
                 </Box>
                 <Box sx={{ flex: '1 1 100%' }}>
                   <Typography variant="body2" color="textSecondary">

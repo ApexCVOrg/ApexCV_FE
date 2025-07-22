@@ -65,7 +65,7 @@ export default function AuditLogPage() {
   // Lấy danh sách admin để filter (có thể tối ưu sau)
   useEffect(() => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/admins`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/admin/admins`, {
       headers: {
         Authorization: token ? `Bearer ${token}` : '',
         'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export default function AuditLogPage() {
       if (adminId) params.append('adminId', adminId);
       const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/admin/logs?${params.toString()}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/admin/logs?${params.toString()}`,
         {
           headers: {
             Authorization: token ? `Bearer ${token}` : '',

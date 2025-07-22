@@ -65,9 +65,12 @@ interface ChatSession {
   lastMessageAt?: Date;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api';
 const AI_CHAT_STORAGE_KEY = 'nidas_ai_chat_messages';
 const SHOP_CHAT_STORAGE_KEY = 'nidas_shop_chat_session';
+
+// Debug API URL
+console.log('API_URL:', API_URL);
 
 const ChatBox: React.FC = () => {
   const { isAuthenticated, getCurrentUser, getToken } = useAuth();
@@ -182,7 +185,10 @@ const ChatBox: React.FC = () => {
         return null;
       }
 
-      const response = await fetch(`${API_URL}/user/chats`, {
+      const url = `${API_URL}/user/chats`;
+      console.log('Creating chat session at:', url);
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,12 +196,17 @@ const ChatBox: React.FC = () => {
         },
       });
 
+      console.log('Create chat session response status:', response.status);
+
       if (!response.ok) {
-        console.error('Failed to create chat session');
+        const errorText = await response.text();
+        console.error('Failed to create chat session:', response.status, errorText);
         return null;
       }
 
       const data = await response.json();
+      console.log('Chat session created:', data);
+      
       return {
         chatId: data.data.chatId,
         userId: String((currentUser as { id?: string })?.id || 'unknown'),
@@ -258,7 +269,15 @@ const ChatBox: React.FC = () => {
       url: string;
     }>
   ) => {
-    if (!currentChatSession) return;
+    if (!currentChatSession) {
+      console.log('No current chat session, skipping database save');
+      return;
+    }
+
+    if (!currentChatSession.chatId) {
+      console.error('Chat session has no chatId');
+      return;
+    }
 
     try {
       const token = getToken();
@@ -267,7 +286,16 @@ const ChatBox: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`${API_URL}/user/chats/${currentChatSession.chatId}/messages`, {
+      const url = `${API_URL}/user/chats/${currentChatSession.chatId}/messages`;
+      console.log('Sending message to:', url);
+      console.log('Message data:', {
+        content: message,
+        role: isUserMessage ? 'user' : 'bot',
+        isBotMessage: !isUserMessage,
+        attachments,
+      });
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -281,8 +309,24 @@ const ChatBox: React.FC = () => {
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
-        console.error('Failed to save shop message to database');
+        const errorText = await response.text();
+        console.error('Failed to save shop message to database:', response.status, errorText);
+        
+        // If it's a 404, try to recreate the chat session
+        if (response.status === 404) {
+          console.log('Chat session not found, attempting to recreate...');
+          const newSession = await createChatSession();
+          if (newSession) {
+            setCurrentChatSession(newSession);
+            console.log('Recreated chat session:', newSession);
+          }
+        }
+      } else {
+        console.log('Message saved successfully');
       }
     } catch (error) {
       console.error('Error saving shop message to database:', error);
@@ -639,23 +683,50 @@ const ChatBox: React.FC = () => {
   const sendShopMessage = async () => {
     setChatLoading(true);
     try {
-      // Giả lập response từ shop (có thể thay bằng API thực tế)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Thực sự gửi tin nhắn đến manager thông qua WebSocket
+      if (currentChatSession && websocketService.isConnected()) {
+        // Gửi tin nhắn qua WebSocket để manager có thể nhận được
+        websocketService.sendMessage(
+          currentChatSession.chatId,
+          messages[messages.length - 1]?.text || '',
+          'user'
+        );
 
-      const shopResponses = [
-        'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.',
-        'Xin chào! Nhân viên của chúng tôi sẽ hỗ trợ bạn ngay.',
-        'Cảm ơn bạn! Chúng tôi đã nhận được tin nhắn và sẽ liên hệ lại.',
-        'Xin chào! Bạn cần hỗ trợ gì ạ? Chúng tôi sẵn sàng giúp đỡ.',
-        'Cảm ơn bạn đã quan tâm! Nhân viên sẽ phản hồi trong 5-10 phút.',
-      ];
+        // Đợi một chút để manager có thể phản hồi
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const randomResponse = shopResponses[Math.floor(Math.random() * shopResponses.length)];
+        // Kiểm tra xem manager đã phản hồi chưa
+        const managerResponse = await checkManagerStatus(currentChatSession.chatId);
+        
+        if (managerResponse) {
+          return {
+            reply: `Manager: ${managerResponse}`,
+            suggestions: [],
+          };
+        } else {
+          // Nếu manager chưa phản hồi, trả về thông báo chờ
+          return {
+            reply: 'Tin nhắn đã được gửi đến manager. Vui lòng chờ phản hồi.',
+            suggestions: [],
+          };
+        }
+      } else {
+        // Fallback nếu WebSocket không kết nối
+        const shopResponses = [
+          'Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.',
+          'Xin chào! Nhân viên của chúng tôi sẽ hỗ trợ bạn ngay.',
+          'Cảm ơn bạn! Chúng tôi đã nhận được tin nhắn và sẽ liên hệ lại.',
+          'Xin chào! Bạn cần hỗ trợ gì ạ? Chúng tôi sẵn sàng giúp đỡ.',
+          'Cảm ơn bạn đã quan tâm! Nhân viên sẽ phản hồi trong 5-10 phút.',
+        ];
 
-      return {
-        reply: randomResponse,
-        suggestions: [],
-      };
+        const randomResponse = shopResponses[Math.floor(Math.random() * shopResponses.length)];
+
+        return {
+          reply: randomResponse,
+          suggestions: [],
+        };
+      }
     } catch (err) {
       console.error('Shop Chat Error:', err);
       return {
@@ -843,7 +914,7 @@ const ChatBox: React.FC = () => {
 
     // Handle message based on chat type and manager status
     if (chatType === 'shop') {
-      if (currentChatSession) {
+      if (currentChatSession && currentChatSession.chatId) {
         // Always save to database first
         await saveShopMessageToDatabase(messageContent || '📎 File(s)', true, uploadedFiles);
 
@@ -880,6 +951,14 @@ const ChatBox: React.FC = () => {
           setTimeout(() => {
             generateBotResponse();
           }, 1000);
+        }
+      } else {
+        console.error('No valid chat session found for shop chat');
+        // Try to create a new chat session
+        const newSession = await createChatSession();
+        if (newSession) {
+          setCurrentChatSession(newSession);
+          console.log('Created new chat session:', newSession);
         }
       }
     } else {
@@ -951,42 +1030,57 @@ const ChatBox: React.FC = () => {
 
   // Handle start shop chat
   const handleStartShopChat = async () => {
+    console.log('Starting shop chat...');
     setShopChatStarted(true);
     setShopChatTimer(0);
 
-    // Create chat session
-    const chatSession = await createChatSession();
-    setCurrentChatSession(chatSession);
+    try {
+      // Create chat session
+      console.log('Creating chat session...');
+      const chatSession = await createChatSession();
+      console.log('Created chat session:', chatSession);
+      
+      if (!chatSession) {
+        console.error('Failed to create chat session');
+        return;
+      }
 
-    // Add welcome message from shop
-    const welcomeMessage =
-      'Shop: Xin chào! Cảm ơn bạn đã liên hệ với NIDAS. Nhân viên của chúng tôi sẽ hỗ trợ bạn trong thời gian sớm nhất. Bạn có thể gửi tin nhắn ngay bây giờ!';
-    setMessages([
-      {
+      if (!chatSession.chatId) {
+        console.error('Chat session has no chatId');
+        return;
+      }
+
+      setCurrentChatSession(chatSession);
+      console.log('Set current chat session:', chatSession);
+
+      // Add welcome message from shop
+      const welcomeMessage =
+        'Shop: Xin chào! Cảm ơn bạn đã liên hệ với NIDAS. Nhân viên của chúng tôi sẽ hỗ trợ bạn trong thời gian sớm nhất. Bạn có thể gửi tin nhắn ngay bây giờ!';
+      
+      const welcomeMessageObj = {
         id: Date.now().toString(),
         text: welcomeMessage,
         isUser: false,
         timestamp: new Date(),
-      },
-    ]);
+      };
 
-    // Save welcome message to database
-    if (chatSession) {
+      setMessages([welcomeMessageObj]);
+      console.log('Set welcome message');
+
+      // Save welcome message to database
+      console.log('Saving welcome message to database...');
       await saveShopMessageToDatabase(welcomeMessage, false);
 
       // Save shop chat session to localStorage
       saveShopChatSession({
-        messages: [
-          {
-            id: Date.now().toString(),
-            text: welcomeMessage,
-            isUser: false,
-            timestamp: new Date(),
-          },
-        ],
+        messages: [welcomeMessageObj],
         chatSession: chatSession,
         ended: false,
       });
+
+      console.log('Shop chat started successfully');
+    } catch (error) {
+      console.error('Error starting shop chat:', error);
     }
   };
 
@@ -1006,15 +1100,19 @@ const ChatBox: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setManagerJoined(data.data.isJoined);
+        return data.data.isJoined ? 'Xin chào! Nhân viên của chúng tôi sẽ hỗ trợ bạn ngay.' : null;
       }
     } catch (error) {
       console.error('Error checking manager status:', error);
     }
+    return null;
   };
 
   // Subscribe to chat when session changes
   useEffect(() => {
     if (currentChatSession) {
+      console.log('Subscribing to chat:', currentChatSession.chatId);
+      
       // Subscribe to WebSocket chat for all sessions
       websocketService.subscribeToChat(currentChatSession.chatId, (message: {
         type: 'message' | 'join' | 'leave' | 'typing' | 'read' | 'unread_count';
@@ -1035,7 +1133,15 @@ const ChatBox: React.FC = () => {
         }>;
         messageType?: 'text' | 'file' | 'image';
       }) => {
+        console.log('Received WebSocket message:', message);
+        
         if (message.type === 'message' && message.content) {
+          console.log('Processing message:', {
+            content: message.content,
+            role: message.role,
+            timestamp: message.timestamp
+          });
+          
           // Check if message already exists to avoid duplicates
           setMessages(prev => {
             // Check if this is a message we just sent by checking recently sent messages
@@ -1116,6 +1222,7 @@ const ChatBox: React.FC = () => {
               return prev; // Don't add duplicate
             }
 
+            console.log('Adding new message to chat');
             const newMessage: Message = {
               id: Date.now().toString(),
               text:
@@ -1150,6 +1257,7 @@ const ChatBox: React.FC = () => {
 
           // If manager sends a message, mark as joined
           if (message.role === 'manager') {
+            console.log('Manager message received, setting managerJoined to true');
             setManagerJoined(true);
           }
         }
@@ -1159,6 +1267,7 @@ const ChatBox: React.FC = () => {
       markMessagesAsRead(currentChatSession.chatId);
 
       return () => {
+        console.log('Unsubscribing from chat:', currentChatSession.chatId);
         websocketService.unsubscribeFromChat(currentChatSession.chatId);
       };
     }

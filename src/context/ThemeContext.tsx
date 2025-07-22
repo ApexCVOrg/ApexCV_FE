@@ -28,16 +28,22 @@ interface ThemeProviderProps {
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setTheme] = useState(THEME.LIGHT);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || THEME.LIGHT;
-    setTheme(savedTheme);
+    setMounted(true);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') || THEME.LIGHT;
+      setTheme(savedTheme);
+    }
   }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT;
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
+    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+      localStorage.setItem('theme', newTheme);
+    }
   };
 
   const muiTheme = createTheme({
@@ -51,6 +57,11 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       },
     },
   });
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return <MuiThemeProvider theme={muiTheme}>{children}</MuiThemeProvider>;
+  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

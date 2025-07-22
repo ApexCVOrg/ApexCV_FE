@@ -62,7 +62,7 @@ export default function ResetPasswordForm() {
     try {
       console.log('Resetting password...');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
         {
           method: 'POST',
           headers: {
