@@ -19,7 +19,6 @@ import {
   ListItemButton,
   ListItemText,
   Badge,
-  useTheme,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TextField,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -65,7 +64,6 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
-  const muiTheme = useTheme();
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
