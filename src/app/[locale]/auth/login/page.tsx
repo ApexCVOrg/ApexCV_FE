@@ -134,7 +134,7 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.LOGIN}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.LOGIN}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -197,10 +197,10 @@ export default function LoginForm() {
   const handleSocialLogin = (provider: string) => {
     if (provider === 'Google') {
       // Redirect to Google OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/google`;
     } else if (provider === 'Facebook') {
       // Redirect to Facebook OAuth
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`;
+      window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/facebook`;
     }
   };
 

@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLastActivity(Date.now());
       // Bạn có thể fetch user profile ở đây nếu cần
       // Fetch user profile từ backend
-      fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/users/profile', {
+      fetch((process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api') + '/users/profile', {
         headers: { Authorization: `Bearer ${storedToken}` },
       })
         .then(res => res.json())

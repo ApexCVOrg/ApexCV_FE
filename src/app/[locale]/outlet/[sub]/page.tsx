@@ -41,7 +41,7 @@ export default function OutletSubCategoryPage() {
           category: `${OUTLET_CATEGORY_ID},${subId}`,
           sortBy: sortBy,
         });
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`);
         const data = await res.json();
 
         // Handle different API response structures

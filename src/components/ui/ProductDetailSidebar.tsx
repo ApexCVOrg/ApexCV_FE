@@ -105,7 +105,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     }
 
     // Nếu không có product data, gọi API (fallback)
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products/${productId}`)
       .then(res => {
         if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
         return res.json();
@@ -129,7 +129,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     const fetchReviews = async () => {
       if (!product?._id) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews?product=${product._id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/reviews?product=${product._id}`);
         const data = await res.json();
         setReviews(Array.isArray(data) ? data : data.data || []);
       } catch {

@@ -132,7 +132,7 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${chatId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -172,7 +172,7 @@ const ChatDetailPage = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${chatId}/messages`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -220,7 +220,7 @@ const ChatDetailPage = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${chatId}/messages`,
         {
           method: 'POST',
           headers: {
@@ -259,7 +259,7 @@ const ChatDetailPage = () => {
       }
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats/${chatId}/close`,
         {
           method: 'PATCH',
           headers: {

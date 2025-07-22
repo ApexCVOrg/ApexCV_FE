@@ -29,7 +29,7 @@ export default function KidsTracksuitPage() {
         sortBy: apiSortBy,
         sortOrder: sortOrder,
       });
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`);
       const data = await res.json();
 
       // Lọc sản phẩm tracksuit cho kids

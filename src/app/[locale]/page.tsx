@@ -203,8 +203,8 @@ export default function HomePage() {
         console.log('Fetching initial categories and brands...');
         
         const [categoriesRes, brandsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/tree`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/categories/tree`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/brands`),
         ]);
         
         console.log('Categories response status:', categoriesRes.status);
@@ -277,7 +277,7 @@ export default function HomePage() {
         queryParams: queryParams.toString()
       });
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl);
@@ -420,7 +420,7 @@ export default function HomePage() {
         ...(searchQuery ? { search: searchQuery } : {}),
       });
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
       console.log('Calling API:', apiUrl);
       
       const response = await fetch(apiUrl);

@@ -479,7 +479,7 @@ export default function CartPage() {
     setApplyingCouponId(cartItem._id);
     setCouponError('');
     try {
-              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com'}/coupon/apply`, {
+              const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/coupon/apply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

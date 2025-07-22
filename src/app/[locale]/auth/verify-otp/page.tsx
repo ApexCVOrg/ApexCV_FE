@@ -87,7 +87,7 @@ export default function VerifyOTPForm() {
     try {
       console.log('Verifying OTP...');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.VERIFY_OTP}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.VERIFY_OTP}`,
         {
           method: 'POST',
           headers: {
@@ -132,7 +132,7 @@ export default function VerifyOTPForm() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
         {
           method: 'POST',
           headers: {

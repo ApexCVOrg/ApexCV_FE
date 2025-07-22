@@ -96,7 +96,7 @@ const ChatSessionsPage = () => {
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?${queryParams}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats?${queryParams}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
