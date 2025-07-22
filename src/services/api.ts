@@ -138,4 +138,14 @@ export async function createVnpayPayment(data: Record<string, unknown>): Promise
   return json.paymentUrl;
 }
 
+/**
+ * Lấy lịch sử refund cho 1 order cụ thể
+ */
+export async function getRefundHistoryByOrder(orderId: string): Promise<any[]> {
+  const res = await api.get(`/refund/history?orderId=${orderId}`);
+  const data = res.data as any;
+  if (data && data.success) return data.refunds;
+  return [];
+}
+
 export default api;

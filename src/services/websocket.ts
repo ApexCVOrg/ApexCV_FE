@@ -222,6 +222,10 @@ class WebSocketService {
       this.ws = null;
     }
   }
+
+  public getWebSocket() {
+    return this.ws;
+  }
 }
 
 // Create singleton instance

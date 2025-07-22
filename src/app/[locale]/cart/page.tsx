@@ -205,6 +205,13 @@ export default function CartPage() {
     if (cart?.cartItems) setLocalCartItems(cart.cartItems as CartItemWithId[]);
   }, [cart?.cartItems]);
 
+  // Lưu appliedCoupons vào localStorage mỗi khi thay đổi
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("appliedCoupons", JSON.stringify(appliedCoupons));
+    }
+  }, [appliedCoupons]);
+
   useEffect(() => {
     if (cart?.cartItems && selectedItems.size === 0) {
       setSelectedItems(new Set(cart.cartItems.map((item: any) => item._id)));
@@ -668,19 +675,36 @@ export default function CartPage() {
     return cartItem.product?.discountPrice || cartItem.product?.price || 0;
   };
 
-  const calculateSubtotal = () => {
-    return localCartItems
-      .filter(item => selectedItems.has((item as CartItemWithId)._id))
-      .reduce((total, item) => {
-        const cartItem = item as CartItemWithId;
-        const price = getDiscountedPrice(cartItem);
-        return total + price * cartItem.quantity;
-      }, 0);
-  };
+  // --- TÍNH TOÁN GIÁ ---
+  // Tổng tiền sản phẩm (giá gốc, chưa trừ voucher)
+  const productSubtotal = localCartItems
+    .filter(item => selectedItems.has((item as CartItemWithId)._id))
+    .reduce((total, item) => {
+      const cartItem = item as CartItemWithId;
+      const price = cartItem.product?.discountPrice || cartItem.product?.price || 0;
+      return total + price * cartItem.quantity;
+    }, 0);
 
-  const subtotal = calculateSubtotal();
-  const shipping = 0;
-  const total = subtotal + shipping;
+  // Tính tổng giảm giá từ coupon sản phẩm
+  const productCouponDiscount = localCartItems
+    .filter(item => selectedItems.has((item as CartItemWithId)._id))
+    .reduce((total, item) => {
+      const cartItem = item as CartItemWithId;
+      const applied = appliedCoupons[cartItem._id];
+      if (applied && applied.newPrice) {
+        const price = cartItem.product?.discountPrice || cartItem.product?.price || 0;
+        return total + (price - applied.newPrice) * cartItem.quantity;
+      }
+      return total;
+    }, 0);
+
+  // Lấy voucher giảm giá phí vận chuyển từ localStorage (nếu có)
+  const shippingVoucher = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('shippingDiscount') || 'null') : null;
+  const shippingFee = 30000; // Phí vận chuyển mặc định
+  const shippingDiscount = shippingVoucher?.amount || 0;
+
+  // Tổng thanh toán = tổng tiền sản phẩm + phí vận chuyển - giảm giá phí vận chuyển - tổng giảm giá coupon
+  const total = productSubtotal + shippingFee - shippingDiscount - productCouponDiscount;
 
   // Kiểm tra xem có items nào chưa chọn size hoặc màu không
   const hasIncompleteItems = localCartItems.some(item => {
@@ -694,6 +718,22 @@ export default function CartPage() {
     const cartItem = item as CartItemWithId;
     return !cartItem.size || !cartItem.color;
   });
+
+  // Thêm hàm mẫu áp mã giảm giá phí vận chuyển
+  const handleApplyShippingVoucher = (code: string, amount: number) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem('shippingDiscount', JSON.stringify({ code, amount }));
+    }
+    // ... các logic khác khi áp dụng voucher phí ship
+  };
+
+  // Thêm hàm mẫu xóa mã giảm giá phí vận chuyển
+  const handleRemoveShippingVoucher = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem('shippingDiscount');
+    }
+    // ... các logic khác khi xóa voucher phí ship
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -1155,7 +1195,7 @@ export default function CartPage() {
                   {t('subtotal')}:
                 </Typography>
                 <Typography sx={{ fontWeight: 700, color: 'black' }}>
-                  {subtotal.toLocaleString('vi-VN', {
+                  {productSubtotal.toLocaleString('vi-VN', {
                     style: 'currency',
                     currency: 'VND',
                     })}
@@ -1167,12 +1207,22 @@ export default function CartPage() {
                   {t('shippingFee')}:
                 </Typography>
                 <Typography sx={{ fontWeight: 700, color: 'black' }}>
-                  {shipping.toLocaleString('vi-VN', {
+                  {shippingFee.toLocaleString('vi-VN', {
                     style: 'currency',
                     currency: 'VND',
-                    })}
+                  })}
+                </Typography>
+              </Box>
+              {productCouponDiscount > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography sx={{ fontWeight: 700, color: 'black', textTransform: 'uppercase' }}>
+                    Giảm giá sản phẩm (coupon):
+                  </Typography>
+                  <Typography sx={{ fontWeight: 700, color: 'error.main' }}>
+                    -{productCouponDiscount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                   </Typography>
                 </Box>
+              )}
 
               <Box sx={{ position: 'relative', my: 2 }}>
                 <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
@@ -1216,20 +1266,20 @@ export default function CartPage() {
                   variant="contained"
                   fullWidth
                   size="large"
-                onClick={handleCheckout}
-                    disabled={isProcessingPayment || hasIncompleteSelectedItems || selectedItems.size === 0}
+                  onClick={() => router.push('/checkout')}
+                  disabled={isProcessingPayment || hasIncompleteSelectedItems || selectedItems.size === 0}
                 sx={{
                   ...buttonStyle,
-                      bgcolor: 'black',
-                      color: 'white',
-                      '&:hover': { bgcolor: 'gray.800' },
-                      '&.Mui-disabled': {
-                        bgcolor: 'gray.400',
-                        color: 'gray.600',
-                      },
-                }}
-              >
-                    {isProcessingPayment ? 'Đang xử lý...' : t('checkout')}
+                    bgcolor: 'black',
+                    color: 'white',
+                    '&:hover': { bgcolor: 'gray.800' },
+                    '&.Mui-disabled': {
+                      bgcolor: 'gray.400',
+                      color: 'gray.600',
+                    },
+                  }}
+                >
+                  {isProcessingPayment ? 'Đang xử lý...' : t('checkout')}
                 </Button>
                 </span>
               </Tooltip>

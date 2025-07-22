@@ -42,6 +42,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import ChatIcon from '@mui/icons-material/Chat';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -132,6 +133,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
     { icon: <InventoryIcon />, text: t('products'), href: ROUTES.MANAGER.PRODUCTS },
     { icon: <CategoryIcon />, text: t('categories'), href: ROUTES.MANAGER.CATEGORIES },
     { icon: <LocalShippingIcon />, text: t('orders'), href: ROUTES.MANAGER.ORDERS },
+    // Thêm menu duyệt refund ở đây
+    { icon: <AttachMoneyIcon />, text: 'Duyệt hoàn tiền', href: '/manager/refunds' },
     { icon: <PeopleIcon />, text: t('customers'), href: ROUTES.MANAGER.CUSTOMERS },
     { icon: <ChatIcon />, text: t('chat'), href: ROUTES.MANAGER.CHAT },
     { icon: <SettingsIcon />, text: t('settings'), href: ROUTES.MANAGER.SETTINGS },
