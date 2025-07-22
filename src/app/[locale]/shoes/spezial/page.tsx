@@ -354,7 +354,6 @@ export default function SpezialPage() {
                       tags={products[0].tags}
                       brand={products[0].brand}
                       categories={products[0].categories}
-                      onAddToCart={() => {}}
                     />
                   </Box>
                 </Box>

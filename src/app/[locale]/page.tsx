@@ -740,20 +740,6 @@ export default function HomePage() {
                     allCategories={categories}
                     allBrands={brands}
                     averageRating={averageRatings[product._id] ?? 0}
-                    onAddToCart={async () => {
-                      try {
-                        await addToCart({
-                          productId: product._id,
-                          quantity: 1
-                        });
-                        // Show success message
-                        showToast('Đã thêm vào giỏ hàng!', 'success');
-                      } catch (error) {
-                        console.error('Add to cart error:', error);
-                        // Show error message
-                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
-                      }
-                    }}
                     backgroundColor="#f8f9fa"
                     colors={3}
                     onViewDetail={() => handleProductCardClick(product._id, product)}
@@ -1072,20 +1058,6 @@ export default function HomePage() {
                             allCategories={categories}
                             allBrands={brands}
                             averageRating={averageRatings[product._id] ?? 0}
-                            onAddToCart={async () => {
-                      try {
-                        await addToCart({
-                          productId: product._id,
-                          quantity: 1
-                        });
-                        // Show success message
-                        showToast('Đã thêm vào giỏ hàng!', 'success');
-                      } catch (error) {
-                        console.error('Add to cart error:', error);
-                        // Show error message
-                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
-                      }
-                    }}
                             backgroundColor="#f8f9fa"
                             colors={3}
                             sx={{ height: '100%' }}
