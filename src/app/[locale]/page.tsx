@@ -4,9 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   CircularProgress,
   Slider,
-  Checkbox,
   FormGroup,
-  FormControlLabel,
   TextField,
   InputAdornment,
   useMediaQuery,
