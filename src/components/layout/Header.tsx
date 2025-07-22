@@ -66,7 +66,6 @@ const Header = () => {
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
   const muiTheme = useTheme();
-  // const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
@@ -85,7 +84,6 @@ const Header = () => {
   // Thêm state cho mega menu shoes
   const [showShoesMenu, setShowShoesMenu] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
-  // const [lastScrollY, setLastScrollY] = useState(0);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
