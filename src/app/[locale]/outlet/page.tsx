@@ -72,7 +72,7 @@ export default function OutletPage() {
     },
     {
       name: t('categories.lastSize'),
-      image: '/assets/images/image.png',
+      image: '/assets/images/outlet-sale.png',
       href: 'last-size',
     },
   ];
