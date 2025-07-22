@@ -73,7 +73,7 @@ export default function CartPage() {
       | { code: string; newPrice: number; discountAmount: number; message: string }
       | undefined;
   }>({});
-  const [couponError, setCouponError] = useState<string>('');
+  const [couponErrors, setCouponErrors] = useState<{ [cartItemId: string]: string }>({});
   const [applyingCouponId, setApplyingCouponId] = useState<string | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [promoCodeExpanded, setPromoCodeExpanded] = useState(false);
@@ -492,7 +492,7 @@ export default function CartPage() {
     const code = couponInputs[cartItem._id];
     if (!code) return;
     setApplyingCouponId(cartItem._id);
-    setCouponError('');
+    setCouponErrors(v => ({ ...v, [cartItem._id]: '' }));
     try {
               const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/coupon/apply`, {
         method: 'POST',
@@ -520,12 +520,17 @@ export default function CartPage() {
           delete newV[cartItem._id];
           return newV;
         });
+        setCouponErrors(v => {
+          const newV = { ...v };
+          delete newV[cartItem._id];
+          return newV;
+        });
       } else {
-        setCouponError(data.message || 'Coupon không hợp lệ');
+        setCouponErrors(v => ({ ...v, [cartItem._id]: data.message || 'Coupon không hợp lệ' }));
         console.log('Coupon error details:', data);
       }
     } catch (err) {
-      setCouponError('Có lỗi khi áp dụng coupon');
+      setCouponErrors(v => ({ ...v, [cartItem._id]: 'Có lỗi khi áp dụng coupon' }));
       console.error('Coupon application error:', err);
     } finally {
       setApplyingCouponId(null);
@@ -982,9 +987,9 @@ export default function CartPage() {
                       )}
                     </Box>
                     {/* Hiển thị lỗi coupon */}
-                    {couponError && (
+                    {couponErrors[cartItem._id] && (
                       <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {couponError}
+                        {couponErrors[cartItem._id]}
                       </Typography>
                     )}
                     {/* Giá sản phẩm sau coupon */}
@@ -1033,127 +1038,6 @@ export default function CartPage() {
                       )}
                     </Box>
 
-                    {/* Coupon Input */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                      <TextField
-                        size="small"
-                        label="Coupon"
-                        value={couponInputs[cartItem._id] || ''}
-                        onChange={(e) => {
-                          e.preventDefault();
-                          setCouponInputs(v => ({
-                            ...v,
-                            [cartItem._id]: e.target.value.toUpperCase(),
-                          }));
-                        }}
-                        sx={{ 
-                          width: 140,
-                          '& .MuiOutlinedInput-root': {
-                            borderRadius: 0,
-                            '& fieldset': { borderColor: '#e0e0e0' },
-                          },
-                        }}
-                        inputProps={{ style: { textTransform: 'uppercase' } }}
-                        disabled={isUpdating || applyingCouponId === cartItem._id}
-                      />
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          minWidth: 80,
-                          borderRadius: 0,
-                          fontWeight: 700,
-                          borderColor: '#e0e0e0',
-                          color: 'black',
-                          '&:hover': {
-                            borderColor: 'black',
-                            bgcolor: 'black',
-                            color: 'white',
-                          },
-                        }}
-                        disabled={
-                          isUpdating ||
-                          !couponInputs[cartItem._id] ||
-                          applyingCouponId === cartItem._id
-                        }
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleApplyCoupon(cartItem);
-                        }}
-                      >
-                        {applyingCouponId === cartItem._id ? 'Đang áp dụng...' : 'Áp dụng'}
-                      </Button>
-                      {appliedCoupon && (
-                        <>
-                          <Chip
-                            label={`Đã áp dụng: ${appliedCoupon.code}`}
-                            color="success"
-                            size="small"
-                            sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
-                            onDelete={() => {
-                              setAppliedCoupons(v => {
-                                const newV = { ...v };
-                                delete newV[cartItem._id];
-                                return newV;
-                              });
-                            }}
-                          />
-                          {appliedCoupon.message && (
-                            <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
-                              {appliedCoupon.message}
-                            </Typography>
-                          )}
-                        </>
-                      )}
-                    </Box>
-                    
-                    {/* Coupon Error */}
-                    {couponError && (
-                      <Typography variant="caption" color="error" sx={{ mb: 1 }}>
-                        {couponError}
-                      </Typography>
-                    )}
-
-                    {/* Action Buttons */}
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        variant="text"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleRemoveItem(cartItem._id);
-                        }}
-                        disabled={isUpdating}
-                            sx={{
-                              color: 'black',
-                          textTransform: 'uppercase',
-                          fontWeight: 700,
-                          fontSize: '0.875rem',
-                          p: 0,
-                          '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
-                            }}
-                          >
-                        {t('remove')}
-                      </Button>
-                      <Typography sx={{ color: '#ccc' }}>|</Typography>
-                      <Button
-                        variant="text"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          // Edit functionality - could navigate to product page
-                          router.push(`/product/${cartItem.product._id}`);
-                            }}
-                            sx={{
-                          color: 'black',
-                          textTransform: 'uppercase',
-                                fontWeight: 700,
-                          fontSize: '0.875rem',
-                          p: 0,
-                          '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
-                            }}
-                      >
-                        {t('edit')}
-                      </Button>
-                    </Box>
                   </Box>
 
                   {/* Price on the right */}
