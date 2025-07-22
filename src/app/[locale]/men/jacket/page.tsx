@@ -1,37 +1,13 @@
-'use client';
-import React from 'react';
-import GenderPageLayout from '@/components/layout/GenderPageLayout';
-
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  createdAt: string;
-}
+"use client";
+import React from "react";
+import GenderPageLayout from "@/components/layout/GenderPageLayout";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct } from '@/types';
 
 export default function JacketPage() {
-  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
-    if (sortBy === 'price-low') {
-      apiSortBy = 'price';
-      sortOrder = 'asc';
-    } else if (sortBy === 'price-high') {
-      apiSortBy = 'price';
-      sortOrder = 'desc';
-    } else if (sortBy === 'newest') {
-      apiSortBy = 'createdAt';
-      sortOrder = 'desc';
-    } else if (sortBy === 'popular') {
-      apiSortBy = 'popularity';
-      sortOrder = 'desc';
-    }
-
+  const fetchProducts = async (sortBy: string) => {
+    const { apiSortBy, sortOrder } = convertSortParams(sortBy);
+    
     try {
       // Fetch only men's products with sorting
       const queryParams = new URLSearchParams({
@@ -42,11 +18,11 @@ export default function JacketPage() {
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
-
-      // Lọc sản phẩm jacket cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      
+      // Lọc sản phẩm jacket cho men
+      const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasJacket = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('jacket') || cat.toLowerCase().includes('jackets')
@@ -56,9 +32,9 @@ export default function JacketPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
-          const hasJacketCategory = categoryNames.some(
-            (name: string) => name.includes('jacket') || name.includes('jackets')
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
+          const hasJacketCategory = categoryNames.some((name: string) => 
+            name.includes('jacket') || name.includes('jackets')
           );
           if (hasJacketCategory) return true;
         }
@@ -76,10 +52,25 @@ export default function JacketPage() {
 
         return false;
       });
-
-      return filtered;
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(filtered, sortBy);
+      
+      // Convert to match the expected Product interface
+      const converted = sorted.map((item) => ({
+        _id: item._id,
+        name: item.name,
+        images: item.images || [],
+        price: item.price,
+        discountPrice: item.discountPrice,
+        tags: item.tags || [],
+        brand: item.brand || { _id: '', name: 'Unknown Brand' },
+        categories: item.categories || [],
+        createdAt: item.createdAt || new Date().toISOString(),
+      }));
+      
+      return converted;
+    } catch {
       throw new Error('Failed to fetch products');
     }
   };

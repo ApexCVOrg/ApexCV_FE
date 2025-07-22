@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Grid from '@mui/material/Grid';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface OrderStatusData {
@@ -129,9 +127,9 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
-                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                { }
                 <CustomLegend
-                  payload={safeOrderStatusData.map((item, index) => ({
+                  payload={safeOrderStatusData.map((item) => ({
                     value: item.name,
                     color: item.color,
                     payload: item,

@@ -83,17 +83,12 @@ const Header = () => {
   const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
   const openProfile = Boolean(anchorElProfile);
   // Thêm state cho mega menu shoes
-  const [anchorElShoes, setAnchorElShoes] = useState<null | HTMLElement>(null);
-  const openShoesMenu = Boolean(anchorElShoes);
   const [showShoesMenu, setShowShoesMenu] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
-  const headerBg = scrollY < bannerHeight ? 'transparent' : '#fff';
-  const headerColor = scrollY < bannerHeight ? (isDarkMode ? '#fff' : '#000') : '#000';
 
   // --- NEW HEADER SHOW/HIDE LOGIC ---
   useEffect(() => {
@@ -103,7 +98,6 @@ const Header = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const currentY = window.scrollY;
-          setScrollY(currentY);
           if (currentY < bannerHeight) {
             setHideHeader(false); // Always show header above banner
           } else {
@@ -162,8 +156,7 @@ const Header = () => {
           );
           const payload = JSON.parse(jsonPayload);
           setUserRole(payload.role);
-        } catch (e) {
-          console.error('Error decoding token:', e);
+        } catch {
           setUserRole(null);
         }
       } else {
@@ -172,11 +165,7 @@ const Header = () => {
     }
   }, [pathname, getCurrentUser, isAuthenticated]);
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+
 
   useEffect(() => {
     let ticking = false;
@@ -252,12 +241,8 @@ const Header = () => {
         { title: tHeader('accessories.bags'), href: ROUTES.ACCESSORIES.BAGS },
         { title: tHeader('accessories.hats'), href: ROUTES.ACCESSORIES.HATS },
         { title: tHeader('accessories.socks'), href: ROUTES.ACCESSORIES.SOCKS },
-        {
-          title: tHeader('accessories.sports_accessories'),
-          href: ROUTES.ACCESSORIES.SPORTS_ACCESSORIES,
-        },
-        { title: tHeader('accessories.backpacks'), href: ROUTES.ACCESSORIES.BACKPACKS },
-      ],
+        { title: tHeader('accessories.eyewear'), href: ROUTES.ACCESSORIES.EYEWEAR },
+      ]
     },
     {
       title: tHeader('sale.title'),

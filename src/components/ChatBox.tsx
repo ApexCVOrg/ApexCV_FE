@@ -20,7 +20,7 @@ import {
   Send as SendIcon,
   Close as CloseIcon,
   AttachFile as AttachFileIcon,
-  Image as ImageIcon,
+  // Image as ImageIcon,
   Stop as StopIcon,
 } from '@mui/icons-material';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,6 +31,21 @@ interface Message {
   text: string;
   isUser: boolean;
   timestamp: Date;
+  attachments?: Array<{
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    url: string;
+  }>;
+  messageType?: 'text' | 'file' | 'image';
+}
+
+interface StoredMessage {
+  id: string;
+  text: string;
+  isUser: boolean;
+  timestamp: string;
   attachments?: Array<{
     filename: string;
     originalName: string;
@@ -113,7 +128,7 @@ const ChatBox: React.FC = () => {
       const stored = localStorage.getItem(AI_CHAT_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        return parsed.map((msg: any) => ({
+        return parsed.map((msg: StoredMessage) => ({
           ...msg,
           timestamp: new Date(msg.timestamp),
         }));
@@ -135,7 +150,7 @@ const ChatBox: React.FC = () => {
   };
 
   // Save shop chat session to localStorage
-  const saveShopChatSession = (session: any) => {
+  const saveShopChatSession = (session: { messages: Message[]; chatSession: ChatSession; ended: boolean }) => {
     if (typeof window === 'undefined') return;
     try {
       localStorage.setItem(SHOP_CHAT_STORAGE_KEY, JSON.stringify(session));
@@ -183,7 +198,7 @@ const ChatBox: React.FC = () => {
       const data = await response.json();
       return {
         chatId: data.data.chatId,
-        userId: String(currentUser?.id || 'unknown'),
+        userId: String((currentUser as { id?: string })?.id || 'unknown'),
         status: 'active',
       };
     } catch (error) {
@@ -193,7 +208,13 @@ const ChatBox: React.FC = () => {
   };
 
   // Upload files to server
-  const uploadFiles = async (files: File[]): Promise<any[]> => {
+  const uploadFiles = async (files: File[]): Promise<Array<{
+    filename: string;
+    originalName: string;
+    mimetype: string;
+    size: number;
+    url: string;
+  }>> => {
     try {
       const token = getToken();
       if (!token) {
@@ -229,7 +250,13 @@ const ChatBox: React.FC = () => {
   const saveShopMessageToDatabase = async (
     message: string,
     isUserMessage: boolean,
-    attachments?: any[]
+    attachments?: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }>
   ) => {
     if (!currentChatSession) return;
 
@@ -286,7 +313,12 @@ const ChatBox: React.FC = () => {
       const dbMessages = data.data || [];
 
       // Convert database messages to local format
-      const convertedMessages: Message[] = dbMessages.map((msg: any) => ({
+      const convertedMessages: Message[] = dbMessages.map((msg: {
+        _id: string;
+        content: string;
+        role: string;
+        createdAt: string;
+      }) => ({
         id: msg._id,
         text:
           msg.role === 'manager'
@@ -604,7 +636,7 @@ const ChatBox: React.FC = () => {
   };
 
   // Send message to shop chat
-  const sendShopMessage = async (message: string) => {
+  const sendShopMessage = async () => {
     setChatLoading(true);
     try {
       // Giả lập response từ shop (có thể thay bằng API thực tế)
@@ -660,7 +692,7 @@ const ChatBox: React.FC = () => {
     }
 
     // Send to appropriate chat API
-    const response = chatType === 'ai' ? await sendChatMessage(s) : await sendShopMessage(s);
+    const response = chatType === 'ai' ? await sendChatMessage(s) : await sendShopMessage();
 
     // Add bot response
     const botMessage = `Bot: ${response.reply}`;
@@ -744,7 +776,13 @@ const ChatBox: React.FC = () => {
     }
 
     const messageContent = inputMessage.trim();
-    let uploadedFiles: any[] = [];
+    let uploadedFiles: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }> = [];
 
     // Upload files if any
     if (selectedFiles.length > 0) {
@@ -840,7 +878,7 @@ const ChatBox: React.FC = () => {
         // Generate bot response if manager hasn't joined
         if (!managerJoined) {
           setTimeout(() => {
-            generateBotResponse(messageContent || '📎 File(s)');
+            generateBotResponse();
           }, 1000);
         }
       }
@@ -978,7 +1016,25 @@ const ChatBox: React.FC = () => {
   useEffect(() => {
     if (currentChatSession) {
       // Subscribe to WebSocket chat for all sessions
-      websocketService.subscribeToChat(currentChatSession.chatId, message => {
+      websocketService.subscribeToChat(currentChatSession.chatId, (message: {
+        type: 'message' | 'join' | 'leave' | 'typing' | 'read' | 'unread_count';
+        chatId: string;
+        userId?: string;
+        managerId?: string;
+        content?: string;
+        role?: 'user' | 'manager';
+        timestamp?: Date;
+        isTyping?: boolean;
+        unreadCount?: number;
+        attachments?: Array<{
+          filename: string;
+          originalName: string;
+          mimetype: string;
+          size: number;
+          url: string;
+        }>;
+        messageType?: 'text' | 'file' | 'image';
+      }) => {
         if (message.type === 'message' && message.content) {
           // Check if message already exists to avoid duplicates
           setMessages(prev => {
@@ -1130,7 +1186,7 @@ const ChatBox: React.FC = () => {
   }, [currentChatSession]);
 
   // Bot response logic
-  const generateBotResponse = async (userMessage: string) => {
+  const generateBotResponse = async () => {
     if (managerJoined) {
       // Manager has joined, don't send bot response
       return;
@@ -1543,7 +1599,7 @@ const ChatBox: React.FC = () => {
                                   e.currentTarget.style.display = 'none';
                                 }}
                                 onLoad={() => {
-                                  console.log('Image loaded successfully:', attachment.url);
+                                  // Image loaded
                                 }}
                               />
                             ) : (

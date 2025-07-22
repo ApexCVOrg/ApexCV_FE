@@ -2,40 +2,20 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
-  Divider,
   Button,
   Chip,
   Stack,
   CircularProgress,
   IconButton,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Alert,
-  Slide,
-  Fade,
-  Paper,
-  Grid,
-  Rating,
-  Badge,
-  Avatar,
-  Tooltip,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  FormLabel,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import StarIcon from '@mui/icons-material/Star';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCartContext } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
-import { useFavorites } from '@/hooks/useFavorites';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 
 interface ProductDetailSidebarProps {
@@ -86,7 +66,6 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
   const { addToCart } = useCartContext();
   const { getToken } = useAuth();
-  const { isFavorite } = useFavorites();
 
   useEffect(() => {
     if (!productId) {
@@ -169,16 +148,15 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
       setAddToCartSuccess(true);
       setTimeout(() => setAddToCartSuccess(false), 3000);
-    } catch (err) {
+    } catch {
       setError('Không thể thêm sản phẩm vào giỏ hàng');
     } finally {
       setAddToCartLoading(false);
     }
   };
 
-  const handleToggleFavorite = (isFavorite: boolean) => {
+  const handleToggleFavorite = () => {
     // FavoriteButton sẽ tự xử lý việc toggle favorite
-    console.log('Favorite toggled:', isFavorite);
   };
 
   const isAddToCartDisabled = () => {
@@ -188,10 +166,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     return false;
   };
 
-  const getDiscountPercentage = () => {
-    if (!product?.discountPrice || !product?.price) return 0;
-    return Math.round(((product.price - product.discountPrice) / product.price) * 100);
-  };
+
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -537,7 +512,6 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         const token = getToken();
                         if (!token) {
                           // Redirect to login or show login modal
-                          console.log('Please login to add to wishlist');
                           return;
                         }
 
@@ -547,10 +521,10 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                             '@/services/favorites'
                           );
                           await favoritesService.toggleFavorite(product._id);
-                          handleToggleFavorite(!isFavorite(product._id));
-                        } catch (error) {
-                          console.error('Error toggling favorite:', error);
-                        }
+                          handleToggleFavorite();
+                                } catch {
+          // Handle error silently
+        }
                       }}
                       sx={{
                         display: 'flex',

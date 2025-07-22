@@ -98,7 +98,6 @@ export default function OutletSubCategoryPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
                 />
               </Box>
             ))}

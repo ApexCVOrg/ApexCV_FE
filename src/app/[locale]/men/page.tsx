@@ -15,6 +15,7 @@ import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useCartContext } from '@/context/CartContext';
 
 interface Product {
   _id: string;
@@ -47,44 +48,40 @@ export default function MenPage() {
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  // Debug environment variables
-  console.log('[MenPage] API URL:', process.env.NEXT_PUBLIC_API_URL);
-
   // Function to get team name from product categories
-  const getTeamNameFromProduct = (product: Product): string => {
-    // Find team category (usually has a parent category that is gender)
-    for (const category of product.categories) {
-      // Check if category name matches known teams
-      const teamNames = [
-        'arsenal',
-        'juventus',
-        'bayern munich',
-        'real madrid',
-        'manchester united',
-      ];
-      const categoryNameLower = category.name.toLowerCase();
+  // const getTeamNameFromProduct = (product: Product): string => {
+  //   // Find team category (usually has a parent category that is gender)
+  //   for (const category of product.categories) {
+  //     // Check if category name matches known teams
+  //     const teamNames = [
+  //       'arsenal',
+  //       'juventus',
+  //       'bayern munich',
+  //       'real madrid',
+  //       'manchester united',
+  //     ];
+  //     const categoryNameLower = category.name.toLowerCase();
 
-      for (const team of teamNames) {
-        if (categoryNameLower.includes(team) || categoryNameLower === team) {
-          return team;
-        }
-      }
+  //     for (const team of teamNames) {
+  //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
+  //         return team;
+  //       }
+  //     }
 
-      // Check parent category with optional chaining
-      const parentCategory = category.parentCategory;
-      if (parentCategory) {
-        const parentNameLower = parentCategory.name.toLowerCase();
-        for (const team of teamNames) {
-          if (parentNameLower.includes(team) || parentNameLower === team) {
-            return team;
-          }
-        }
-      }
-    }
+  //     // Check parent category with optional chaining
+  //     const parentCategory = category.parentCategory;
+  //     if (parentCategory) {
+  //       const parentNameLower = parentCategory.name.toLowerCase();
+  //       for (const team of teamNames) {
+  //         if (parentNameLower.includes(team) || parentNameLower === team) {
+  //           return team;
+  //       }
+  //     }
+  //   }
 
-    // Default fallback
-    return 'arsenal';
-  };
+  //   // Default fallback
+  //   return 'arsenal';
+  // };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -106,7 +103,7 @@ export default function MenPage() {
           ];
           // Lọc sản phẩm thuộc 5 team lớn
           const teamProducts = (result.data || []).filter(
-            (p: any) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
+            (p: Product) => p.categories?.[1] && teamNames.includes(p.categories[1].name.toLowerCase())
           );
           setProducts(teamProducts);
           setDisplayedProducts(teamProducts.slice(0, productsPerPage));
@@ -141,8 +138,21 @@ export default function MenPage() {
     }
   };
 
-  const handleAddToCart = (productName: string) => {
-    console.log('Add to cart:', productName);
+  const { addToCart } = useCartContext();
+  
+  const handleAddToCart = async (product: Product) => {
+    try {
+      await addToCart({
+        productId: product._id,
+        quantity: 1
+      });
+      // Show success message
+      console.log('Đã thêm vào giỏ hàng!');
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      // Show error message
+      console.error('Thêm vào giỏ hàng thất bại!');
+    }
   };
 
   const handleCarouselNext = () => {
@@ -608,7 +618,7 @@ export default function MenPage() {
                         tags={product.tags || []}
                         brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                         categories={product.categories || []}
-                        onAddToCart={() => handleAddToCart(product.name)}
+                        onAddToCart={() => handleAddToCart(product)}
                       />
                     </Box>
                   ))}

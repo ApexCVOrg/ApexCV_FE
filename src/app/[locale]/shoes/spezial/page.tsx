@@ -14,31 +14,32 @@ interface Product {
   tags?: string[];
   brand?: string | { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
 }
 
-const TABS = [
-  // { label: "SPEZIAL", value: "spezial", image: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif" }, // Loại bỏ SPEZIAL
-  {
-    label: 'SAMBA',
-    value: 'samba',
-    image: '/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif',
-  },
-  {
-    label: 'SUPERSTAR',
-    value: 'superstar',
-    image: '/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif',
-  },
-  {
-    label: 'GAZELLE',
-    value: 'gazelle',
-    image: '/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif',
-  },
-  {
-    label: 'SL 72',
-    value: 'sl-72',
-    image: '/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif',
-  },
-];
+// const TABS = [
+//   // { label: "SPEZIAL", value: "spezial", image: "/assets/images/shoes/spezial/Giay_Handball_Spezial_mau_xanh_la_IG6192_01_standard.avif" }, // Loại bỏ SPEZIAL
+//   {
+//     label: 'SAMBA',
+//     value: 'samba',
+//     image: '/assets/images/shoes/samba/Giay_Samba_OG_trang_B75806_01_00_standard.avif',
+//   },
+//   {
+//     label: 'SUPERSTAR',
+//     value: 'superstar',
+//     image: '/assets/images/shoes/superstar/Giay_Superstar_Vintage_trang_JQ3254_01_00_standard.avif',
+//   },
+//   {
+//     label: 'GAZELLE',
+//     value: 'gazelle',
+//     image: '/assets/images/shoes/gazelle/Giay_Gazelle_Indoor_DJen_JI2060_01_standard.avif',
+//   },
+//   {
+//     label: 'SL 72',
+//     value: 'sl-72',
+//     image: '/assets/images/shoes/sl72/Giay_SL_72_OG_Mau_xanh_da_troi_JS0255_01_00_standard.avif',
+//   },
+// ];
 
 export default function SpezialPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -55,17 +56,17 @@ export default function SpezialPage() {
         const desiredPath = ['Shoes', 'Adidas', 'Spezial'];
 
         // Thử nhiều cách filter khác nhau
-        const filtered = (data.data || []).filter((item: any) => {
+        const filtered = (data.data || []).filter((item: Product) => {
           // Cách 1: Kiểm tra nếu categoryPath là array
-          if (Array.isArray(item.categoryPath)) {
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
             const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+              (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) return true;
           }
 
           // Cách 2: Kiểm tra nếu categoryPath là string
-          if (typeof item.categoryPath === 'string') {
+          if (item.categoryPath && typeof item.categoryPath === 'string') {
             const pathString = item.categoryPath.toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
@@ -73,7 +74,7 @@ export default function SpezialPage() {
 
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('spezial')) return true;
           }
 

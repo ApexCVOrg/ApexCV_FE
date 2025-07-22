@@ -29,7 +29,7 @@ interface Product {
 
 interface ShoesPageLayoutProps {
   pageTitle: string;
-  pageDescription: string;
+  pageDescription?: string;
   category: string;
   bannerImage?: string;
   bannerAlt?: string;
@@ -40,7 +40,6 @@ interface ShoesPageLayoutProps {
 
 export default function ShoesPageLayout({
   pageTitle,
-  pageDescription,
   category,
   bannerImage = 'https://res.cloudinary.com/dqmb4e2et/image/upload/v1752376328/originals_ss25_the_original_introduce_plp_the_original_iwp_background_media_d_79a5b46e37_lwnind.avif',
   bannerAlt = 'Shoes Collection Banner',
@@ -300,6 +299,7 @@ export default function ShoesPageLayout({
                   }}
                 >
                   <ProductCard
+                    _id={product._id}
                     productId={product._id}
                     name={product.name}
                     image={(() => {
@@ -318,7 +318,6 @@ export default function ShoesPageLayout({
                     tags={product.tags || []}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories || []}
-                    onAddToCart={() => {}}
                   />
                 </Box>
               ))}

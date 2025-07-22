@@ -1,27 +1,21 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Container,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
-import Link from 'next/link';
-import ProductCard from '@/components/card';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Container, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import Link from "next/link";
+import ProductCard from "@/components/card";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct } from '@/types';
 
 interface Product {
   _id: string;
   name: string;
-  description?: string;
-  images: string[];
   price: number;
   discountPrice?: number;
+  createdAt?: string;
   tags?: string[];
-  brand?: string | { _id: string; name: string };
+  brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  images?: string[];
 }
 
 export default function AirMaxPage() {
@@ -42,23 +36,29 @@ export default function AirMaxPage() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+        const { apiSortBy, sortOrder } = convertSortParams(sortBy);
+        
+        const queryParams = new URLSearchParams({
+          status: 'active',
+          sortBy: apiSortBy,
+          sortOrder: sortOrder
+        });
+        
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
         const desiredPath = ['Shoes', 'Nike', 'Air Max'];
-        const filtered = (data.data || []).filter((item: any) => {
+        const filtered = (data.data || []).filter((item: ApiProduct) => {
           if (Array.isArray(item.categoryPath)) {
-            const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
-            );
+            const isMatch = desiredPath.every((cat, idx) => (item.categoryPath?.[idx] || '').toLowerCase() === cat.toLowerCase());
             if (isMatch) return true;
           }
-          if (typeof item.categoryPath === 'string') {
+          if (item.categoryPath && typeof item.categoryPath === 'string') {
             const pathString = item.categoryPath.toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
           }
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('air max') || categoryNames.includes('airmax')) return true;
           }
           if (
@@ -68,16 +68,18 @@ export default function AirMaxPage() {
             return true;
           return false;
         });
-        setProducts(filtered);
-      } catch (e) {
-        console.error('Error fetching products:', e);
+        
+        // Client-side sorting as fallback if API sorting doesn't work
+        const sorted = sortProductsClientSide(filtered, sortBy);
+        setProducts(sorted);
+      } catch {
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, []);
+  }, [sortBy]);
 
   return (
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '80vh', mt: 10, position: 'relative', pb: 12 }}>
@@ -258,7 +260,6 @@ export default function AirMaxPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => {}}
                 />
               </Box>
             ))

@@ -22,6 +22,21 @@ import {
   Stack,
 } from '@mui/material';
 
+interface AuditLog {
+  _id: string;
+  action: string;
+  target: string;
+  detail: string;
+  ip: string;
+  userAgent: string;
+  adminId: {
+    _id: string;
+    username?: string;
+    email?: string;
+  };
+  createdAt: string;
+}
+
 const ACTIONS = [
   'LOGIN',
   'LOGOUT',
@@ -37,7 +52,7 @@ const ACTIONS = [
 ];
 
 export default function AuditLogPage() {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [total, setTotal] = useState(0);
@@ -92,7 +107,7 @@ export default function AuditLogPage() {
       } else {
         setError(data.message || 'Lỗi khi tải audit log');
       }
-    } catch (_err) {
+    } catch {
       setError('Lỗi khi tải audit log');
     } finally {
       setLoading(false);
@@ -125,10 +140,10 @@ export default function AuditLogPage() {
           <InputLabel>Admin</InputLabel>
           <Select value={adminId} label="Admin" onChange={e => setAdminId(e.target.value)}>
             <MenuItem value="">Tất cả</MenuItem>
-            {admins.map((ad: any) => (
-              <MenuItem key={ad._id} value={ad._id}>
-                {ad.username || ad.email || ad._id}
-              </MenuItem>
+            {admins.map((ad: unknown) => (
+                              <MenuItem key={(ad as { _id: string })._id} value={(ad as { _id: string })._id}>
+                  {(ad as { _id: string; username?: string; email?: string }).username || (ad as { _id: string; username?: string; email?: string }).email || (ad as { _id: string })._id}
+                </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -158,10 +173,10 @@ export default function AuditLogPage() {
                 {logs.map(log => (
                   <TableRow key={log._id} hover>
                     <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
-                    <TableCell>{(log as any).action}</TableCell>
-                    <TableCell>{(log as any).target}</TableCell>
-                    <TableCell>{(log as any).detail}</TableCell>
-                    <TableCell>{(log as any).ip}</TableCell>
+                    <TableCell>{log.action}</TableCell>
+                    <TableCell>{log.target}</TableCell>
+                    <TableCell>{log.detail}</TableCell>
+                    <TableCell>{log.ip}</TableCell>
                     <TableCell
                       sx={{
                         maxWidth: 120,
@@ -170,12 +185,12 @@ export default function AuditLogPage() {
                         textOverflow: 'ellipsis',
                       }}
                     >
-                      {(log as any).userAgent}
+                      {log.userAgent}
                     </TableCell>
                     <TableCell>
-                      {(log as any).adminId?.username ||
-                        (log as any).adminId?.email ||
-                        (log as any).adminId}
+                      {log.adminId?.username ||
+                        log.adminId?.email ||
+                        log.adminId._id}
                     </TableCell>
                   </TableRow>
                 ))}

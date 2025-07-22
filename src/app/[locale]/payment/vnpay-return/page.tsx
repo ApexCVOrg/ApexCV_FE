@@ -9,7 +9,6 @@ import {
   Alert,
   Button,
   Box,
-  Divider,
   Stack,
   Chip,
   Card,
@@ -61,7 +60,6 @@ export default function VnpayReturnPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<'pending' | 'success' | 'fail'>('pending');
-  const [detail, setDetail] = useState<any>(null);
   const [message, setMessage] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
@@ -74,13 +72,12 @@ export default function VnpayReturnPage() {
       try {
         const res = await fetch(`/api/payment/vnpay/return?${query}`);
         const json = await res.json();
-        setDetail(json.result || json.error || json);
         
         // Kiểm tra response code từ VNPay
         const responseCode = searchParams.get('vnp_ResponseCode');
         console.log('VNPay Response Code:', responseCode);
         
-        if (json.status === 'success' && json.result?.isSuccess) {
+        if (json.status === 'success' || json.result?.isSuccess) {
           setStatus('success');
           if (json.order) {
             setOrderData(json.order);

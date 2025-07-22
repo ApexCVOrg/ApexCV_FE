@@ -1,62 +1,68 @@
-import React from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardActionArea,
-  CardContent,
-  Container,
-  Button,
-} from '@mui/material';
-import Link from 'next/link';
-import { ArrowForward, Star, TrendingUp, LocalShipping } from '@mui/icons-material';
+'use client';
 
-const featuredProducts = [
-  {
-    name: 'Nike Air Max 270',
-    price: '$150',
-    image:
-      '/assets/images/men/banner/global_aclubs_home_realmadrid_football_ss25_launch_home_catlp_mh_d_7771d8dffb.avif',
-    rating: 4.8,
-    reviews: 124,
-  },
-  {
-    name: 'Adidas Ultraboost 22',
-    price: '$180',
-    image: '/assets/images/banner/COLLECTIO-BANNER-HOME-KIT-25-26-CHICAS.webp',
-    rating: 4.9,
-    reviews: 89,
-  },
-  {
-    name: 'Puma RS-X',
-    price: '$120',
-    image:
-      '/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif',
-    rating: 4.7,
-    reviews: 156,
-  },
-];
+import React from "react";
+import { Box, Typography, Card, Container, Button } from "@mui/material";
+import Link from "next/link";
+import { Star, TrendingUp, LocalShipping } from "@mui/icons-material";
+import ProductCard from "@/components/card";
+import { useState, useEffect } from "react";
+import api from "@/services/api";
 
-const categories = [
-  {
-    name: 'Every Day Running',
-    icon: '🏃‍♂️',
-  },
-  {
-    name: 'Run Energised',
-    icon: '⚡',
-  },
-  {
-    name: 'Race to win',
-    icon: '🏅',
-  },
-  {
-    name: 'Walking',
-    icon: '🚶',
-  },
-];
+interface Product {
+  _id: string;
+  name: string;
+  images: string[];
+  price: number;
+  discountPrice?: number;
+  tags: string[];
+  brand: { _id: string; name: string };
+  categories: { _id: string; name: string }[];
+  categoryPath?: string[];
+  createdAt: string;
+}
+
+
 
 export default function ShoesPage() {
+  const [trendingShoes, setTrendingShoes] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrendingShoes = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get('/products');
+        const allProducts = (response.data as { data: Product[] }).data;
+        
+        // Filter shoes products
+        const shoesProducts = allProducts.filter(product => {
+          const categoryName = product.categories[0]?.name?.toLowerCase() || '';
+          const productName = product.name.toLowerCase();
+          const categoryPath = product.categoryPath?.join(' ').toLowerCase() || '';
+          
+          return categoryName.includes('giày') || 
+                 categoryName.includes('dép') || 
+                 categoryName.includes('sneaker') ||
+                 categoryName.includes('shoes') ||
+                 productName.includes('giày') ||
+                 productName.includes('dép') ||
+                 productName.includes('sneaker') ||
+                 categoryPath.includes('shoes') ||
+                 categoryPath.includes('giày');
+        });
+
+        // Get first 6 trending shoes
+        setTrendingShoes(shoesProducts.slice(0, 6));
+      } catch {
+        // Error handling without console.log
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTrendingShoes();
+  }, []);
+
   return (
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh' }}>
       {/* Hero Banner */}
@@ -248,99 +254,59 @@ export default function ShoesPage() {
         </Container>
       </Box>
 
-      {/* Featured Products */}
+      {/* Trending Shoes - Using ProductCard Component */}
       <Box sx={{ bgcolor: 'white', py: 8 }}>
         <Container maxWidth="lg">
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: 'bold',
-              mb: 6,
-              textAlign: 'center',
+          <Box sx={{ textAlign: 'center', mb: 6 }}>
+            <Typography variant="h3" sx={{ 
+              fontWeight: "bold", 
+              mb: 2,
               color: 'text.primary',
-            }}
-          >
-            Featured Products
-          </Typography>
-          <Box display="flex" flexWrap="wrap" gap={4} justifyContent="center">
-            {featuredProducts.map(product => (
-              <Box key={product.name} flex="1 1 320px" maxWidth={400} minWidth={260}>
-                <Card
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: 3,
-                    transition: '0.3s',
-                    overflow: 'hidden',
-                    '&:hover': {
-                      boxShadow: 8,
-                      transform: 'translateY(-6px)',
-                    },
-                  }}
-                >
-                  <Box
-                    sx={{
-                      height: 250,
-                      position: 'relative',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                      }}
-                    />
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 16,
-                        right: 16,
-                        bgcolor: 'rgba(0,0,0,0.7)',
-                        color: 'white',
-                        px: 2,
-                        py: 0.5,
-                        borderRadius: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 0.5,
-                      }}
-                    >
-                      <Star sx={{ fontSize: 16, color: '#ffd700' }} />
-                      <Typography variant="body2">{product.rating}</Typography>
-                    </Box>
-                  </Box>
-                  <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                      {product.name}
-                    </Typography>
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: 'primary.main',
-                        mb: 1,
-                      }}
-                    >
-                      {product.price}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
-                      {product.reviews} reviews
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      endIcon={<ArrowForward />}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Box>
-            ))}
+              textTransform: 'uppercase',
+              letterSpacing: 2
+            }}>
+              Trending Shoes
+            </Typography>
+            <Typography variant="body1" sx={{ 
+              color: 'text.secondary', 
+              maxWidth: 600, 
+              mx: 'auto',
+              fontSize: '1.1rem'
+            }}>
+              Discover the most popular styles that everyone&apos;s talking about
+            </Typography>
+          </Box>
+          
+          <Box sx={{ 
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)', lg: 'repeat(3, 1fr)' },
+            gap: 4,
+            mb: 6
+          }}>
+            {loading ? (
+              <Typography variant="h6" sx={{ textAlign: 'center', py: 4 }}>Loading trending shoes...</Typography>
+            ) : trendingShoes.length === 0 ? (
+              <Typography variant="h6" sx={{ textAlign: 'center', py: 4 }}>No trending shoes found.</Typography>
+            ) : (
+              trendingShoes.map((product) => (
+                <Box key={product._id} sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <ProductCard
+                    _id={product._id}
+                    productId={product._id}
+                    name={product.name}
+                    image={product.images[0]} // Assuming the first image is the main one
+                    price={product.price}
+                    discountPrice={product.discountPrice}
+                    tags={product.tags}
+                    brand={product.brand}
+                    categories={product.categories}
+                    categoryPath={product.categoryPath}
+                    backgroundColor="#f8f9fa"
+                    colors={3}
+                  />
+                </Box>
+              ))
+            )}
           </Box>
         </Container>
       </Box>

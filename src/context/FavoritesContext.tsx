@@ -42,7 +42,6 @@ export const FavoritesProvider = ({ children }: { children: React.ReactNode }) =
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch favorites');
-      console.error('Error fetching favorites:', err);
     } finally {
       setLoading(false);
     }

@@ -39,7 +39,7 @@ class WebSocketService {
         return;
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'wss://nidas-be.onrender.com';
       this.ws = new WebSocket(`${wsUrl}?token=${token}`);
 
       this.ws.onopen = () => {
@@ -132,7 +132,13 @@ class WebSocketService {
     chatId: string,
     content: string,
     role: 'user' | 'manager',
-    attachments?: any[],
+    attachments?: Array<{
+      filename: string;
+      originalName: string;
+      mimetype: string;
+      size: number;
+      url: string;
+    }>,
     messageType?: string
   ) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {

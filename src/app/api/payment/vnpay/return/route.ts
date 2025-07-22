@@ -7,10 +7,9 @@ export async function GET(request: NextRequest) {
 
     console.log('[Frontend API] VNPAY return query:', query);
 
-    // Forward to backend - loại bỏ /api từ baseURL nếu có
-    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const cleanBaseURL = baseURL.replace(/\/api$/, '');
-    const apiUrl = `${cleanBaseURL}/api/payment/vnpay/return?${query}`;
+    // Forward to backend
+    const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+    const apiUrl = `${baseURL}/payment/vnpay/return?${query}`;
 
     console.log('[Frontend API] Calling backend:', apiUrl);
 
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('[Frontend API] VNPAY return error:', error);
     return NextResponse.json(
-      { error: 'Xác thực returnUrl thất bại', detail: (error as any)?.message },
+      { error: 'Xác thực returnUrl thất bại', detail: (error as { message?: string })?.message },
       { status: 400 }
     );
   }

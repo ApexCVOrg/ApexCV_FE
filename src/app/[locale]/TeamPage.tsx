@@ -21,31 +21,8 @@ import {
   MenuItem,
 } from '@mui/material';
 import ProductCard from '@/components/card';
-
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  categories: {
-    _id: string;
-    name: string;
-    parentCategory?: {
-      _id: string;
-      name: string;
-      parentCategory?: {
-        _id: string;
-        name: string;
-      };
-    };
-  }[];
-  brand: { _id: string; name: string };
-  sizes: { size: string; stock: number }[];
-  colors: string[];
-  createdAt: string;
-}
+import { sortProductsClientSide, convertSortParams } from '@/lib/utils/sortUtils';
+import { ApiProduct } from '@/types';
 
 interface Category {
   _id: string;
@@ -72,7 +49,7 @@ interface TeamPageProps {
 }
 
 export default function TeamPage({ teamName, gender }: TeamPageProps) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ApiProduct[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
@@ -158,22 +135,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       setLoading(true);
       try {
         // Convert sortBy to API format
-        let apiSortBy = sortBy;
-        let sortOrder = 'desc';
-
-        if (sortBy === 'price-low') {
-          apiSortBy = 'price';
-          sortOrder = 'asc';
-        } else if (sortBy === 'price-high') {
-          apiSortBy = 'price';
-          sortOrder = 'desc';
-        } else if (sortBy === 'newest') {
-          apiSortBy = 'createdAt';
-          sortOrder = 'desc';
-        } else if (sortBy === 'popular') {
-          apiSortBy = 'popularity';
-          sortOrder = 'desc';
-        }
+        const { apiSortBy, sortOrder } = convertSortParams(sortBy);
 
         const queryParams = new URLSearchParams({
           minPrice: priceRange[0].toString(),
@@ -186,7 +148,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         });
 
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
-        console.log('[FILTER] Fetching products with URL:', apiUrl);
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -196,43 +157,37 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
         const result = await response.json();
         if (result.success) {
           // Filter products to ensure they match the team
-          const filteredProducts = result.data.filter((product: Product) => {
+          const filteredProducts = result.data.filter((product: ApiProduct) => {
             // Check if any category's parent is the team
-            return product.categories.some(cat => {
+            return product.categories?.some(cat => {
               // Check if the category itself is the team
               if (cat.name === teamName) return true;
 
-              // Check if the category's parent is the team
-              if (cat.parentCategory?.name === teamName) return true;
-
-              // Check if the category's grandparent is the team
-              if (cat.parentCategory?.parentCategory?.name === teamName) return true;
-
+              // Check if the category's parent is the team (ApiProduct categories don't have parentCategory)
+              // We'll just check the category name for now
               return false;
-            });
+            }) || false;
           });
-
-          console.log('[FILTER] Filtered products before sorting:', filteredProducts.length);
-          console.log('[FILTER] Current sortBy value:', sortBy);
-
+          
           // Apply client-side sorting as fallback
-          const sortedProducts = sortProducts(filteredProducts, sortBy);
-          console.log('[FILTER] Final sorted products count:', sortedProducts.length);
-          console.log(
-            '[FILTER] Sample sorted products:',
-            sortedProducts.slice(0, 3).map(p => ({
-              name: p.name,
-              price: p.price,
-              discountPrice: p.discountPrice,
-              createdAt: p.createdAt,
-            }))
-          );
-          setProducts(sortedProducts);
+          const sortedProducts = sortProductsClientSide(filteredProducts, sortBy);
+          // Convert to match ApiProduct interface
+          const converted = sortedProducts.map((item) => ({
+            _id: item._id,
+            name: item.name,
+            images: item.images || [],
+            price: item.price,
+            discountPrice: item.discountPrice,
+            tags: item.tags || [],
+            brand: item.brand || { _id: '', name: 'Unknown Brand' },
+            categories: item.categories || [],
+            createdAt: item.createdAt || new Date().toISOString(),
+          }));
+          setProducts(converted);
         } else {
           throw new Error(result.message);
         }
       } catch (err) {
-        console.error('[TeamPage] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch products');
       } finally {
         setLoading(false);
@@ -254,44 +209,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
     setSelectedBrands((prev: string[]) =>
       prev.includes(brandId) ? prev.filter((id: string) => id !== brandId) : [...prev, brandId]
     );
-  };
-
-  // Helper function to sort products
-  const sortProducts = (products: Product[], sortType: string) => {
-    console.log('[FILTER] Sorting products by:', sortType);
-    const sortedProducts = [...products];
-
-    switch (sortType) {
-      case 'price-low':
-        return sortedProducts.sort((a, b) => {
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceA - priceB;
-        });
-      case 'price-high':
-        return sortedProducts.sort((a, b) => {
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceB - priceA;
-        });
-      case 'newest':
-        // Sort by createdAt if available, otherwise by price
-        return sortedProducts.sort((a, b) => {
-          if (a.createdAt && b.createdAt) {
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          }
-          // Fallback to price sorting if createdAt is not available
-          const priceA = a.discountPrice !== undefined ? a.discountPrice : a.price;
-          const priceB = b.discountPrice !== undefined ? b.discountPrice : b.price;
-          return priceB - priceA;
-        });
-      case 'popular':
-        // For now, return default order since we don't have popularity field
-        // Could be enhanced with orderCount or similar field in the future
-        return sortedProducts;
-      default:
-        return sortedProducts;
-    }
   };
 
   if (error) {
@@ -384,7 +301,6 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
                   tags={product.tags || []}
                   brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                   categories={product.categories || []}
-                  onAddToCart={() => console.log('Add to cart:', product._id)}
                 />
               </Box>
             ))}

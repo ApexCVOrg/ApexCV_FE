@@ -5,12 +5,10 @@ import { useParams } from 'next/navigation';
 import {
   Box,
   Container,
-  Grid,
   Typography,
   Button,
   Chip,
   Rating,
-  Divider,
   Tabs,
   Tab,
   Card,
@@ -19,15 +17,10 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  Badge,
   Stack,
   Breadcrumbs,
   Link,
   Modal,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
 import {
   ShoppingCart,
@@ -47,7 +40,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
-import FavoriteButton from '@/components/ui/FavoriteButton';
+// import FavoriteButton from '@/components/ui/FavoriteButton';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -114,7 +107,7 @@ export default function ProductDetailPage() {
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(true);
+  const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const productId = params.id as string;
@@ -134,8 +127,8 @@ export default function ProductDetailPage() {
         if (productData.data.sizes?.length > 0) {
           setSelectedSize(productData.data.sizes[0].size);
         }
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm');
+      } catch (err: unknown) {
+        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Không thể tải thông tin sản phẩm');
       } finally {
         setLoading(false);
       }
@@ -204,10 +197,10 @@ export default function ProductDetailPage() {
         message: t('addToCartSuccess'),
         severity: 'success',
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSnackbar({
         open: true,
-        message: err.response?.data?.message || t('addToCartError'),
+        message: (err as { response?: { data?: { message?: string } } })?.response?.data?.message || t('addToCartError'),
         severity: 'error',
       });
     }
@@ -246,7 +239,7 @@ export default function ProductDetailPage() {
     if (!product) return 'clothing';
     
     // Check category name
-    const categoryName = product.categories[0]?.name?.toLowerCase() || '';
+    const categoryName = product.categories?.[0]?.name?.toLowerCase() || '';
     const productName = product.name.toLowerCase();
     
     if (categoryName.includes('giày') || categoryName.includes('dép') || categoryName.includes('sneaker')) {
@@ -257,6 +250,37 @@ export default function ProductDetailPage() {
       return 'clothing';
     }
   };
+
+  // Lấy danh sách màu duy nhất từ mảng sizes
+  const uniqueColors = product ? Array.from(new Set(product.sizes.map(sz => sz.color).filter(Boolean))) : [];
+  // Lấy danh sách size duy nhất theo màu đã chọn
+  const sizesForSelectedColor = product && selectedColor
+    ? product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size)
+    : [];
+  // Lấy danh sách màu duy nhất theo size đã chọn (nếu muốn UX tốt hơn)
+  const colorsForSelectedSize = product && selectedSize
+    ? Array.from(new Set(product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color)))
+    : uniqueColors;
+
+  // Khi chọn màu, nếu size hiện tại không còn hợp lệ thì reset size
+  useEffect(() => {
+    if (selectedColor && product) {
+      const validSizes = product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size);
+      if (!validSizes.includes(selectedSize)) {
+        setSelectedSize(validSizes[0] || '');
+      }
+    }
+  }, [selectedColor, product]);
+
+  // Khi chọn size, nếu màu hiện tại không còn hợp lệ thì reset màu
+  useEffect(() => {
+    if (selectedSize && product) {
+      const validColors = product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color);
+      if (!validColors.includes(selectedColor)) {
+        setSelectedColor(validColors[0] || '');
+      }
+    }
+  }, [selectedSize, product]);
 
   if (loading) {
     return (
@@ -296,8 +320,12 @@ export default function ProductDetailPage() {
         <Link href="/" color="inherit" underline="hover">
           Trang chủ
         </Link>
-        <Link href={`/${product.categories[0]?.name.toLowerCase()}`} color="inherit" underline="hover">
-          {product.categories[0]?.name}
+        <Link
+          href={`/${product.categories?.[0]?.name?.toLowerCase() || 'products'}`}
+          color="inherit"
+          underline="hover"
+        >
+          {product.categories?.[0]?.name || 'Products'}
         </Link>
         <Typography color="text.primary">{product.name}</Typography>
       </Breadcrumbs>
@@ -424,12 +452,32 @@ export default function ProductDetailPage() {
 
             {/* Thumbnail Images */}
             {product.images.length > 1 && (
-              <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap' }}>
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 1, 
+                mt: 2, 
+                overflowX: 'auto',
+                pb: 1,
+                '&::-webkit-scrollbar': {
+                  height: 4,
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f1f1',
+                  borderRadius: 2,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#c1c1c1',
+                  borderRadius: 2,
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: '#a8a8a8',
+                },
+              }}>
                 {product.images.map((image, index) => (
                   <Box
                     key={index}
                     sx={{
-                      width: 80,
+                      minWidth: 80,
                       height: 80,
                       borderRadius: 1,
                       overflow: 'hidden',
@@ -439,6 +487,11 @@ export default function ProductDetailPage() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        transform: 'scale(1.05)',
+                        borderColor: selectedImage === index ? '#1976d2' : '#ddd',
+                      },
                     }}
                     onClick={() => setSelectedImage(index)}
                   >
@@ -514,64 +567,66 @@ export default function ProductDetailPage() {
             {/* Brand & Categories */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t('brand')}: <strong>{product.brand.name}</strong>
+                {t('brand')}: <strong>{product.brand?.name || 'Unknown Brand'}</strong>
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                {t('categories')}: {product.categories.map(cat => cat.name).join(', ')}
+                {t('categories')}: {product.categories?.map(cat => cat.name).join(', ') || 'No categories'}
               </Typography>
             </Box>
 
             {/* Color Picker */}
-            {product.colors.length > 0 && (
+            {uniqueColors.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
                   {t('colors')}:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {product.colors.map((color) => (
-                    <Box
-                      key={color}
-                      sx={{
-                        position: 'relative',
-                        minWidth: 80,
-                        height: 40,
-                        borderRadius: 20,
-                        border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
-                        bgcolor: selectedColor === color ? '#000' : '#fff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s',
-                        px: 2,
-                        '&:hover': {
-                          transform: 'scale(1.05)',
-                          bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
-                        },
-                      }}
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      <Typography
+                  {uniqueColors.map((color) => (
+                    colorsForSelectedSize.includes(color) && (
+                      <Box
+                        key={color}
                         sx={{
-                          color: selectedColor === color ? '#fff' : '#000',
-                          fontWeight: 600,
-                          fontSize: 14,
-                          textTransform: 'capitalize',
+                          position: 'relative',
+                          minWidth: 80,
+                          height: 40,
+                          borderRadius: 20,
+                          border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedColor === color ? '#000' : '#fff',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s',
+                          px: 2,
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
+                          },
                         }}
+                        onClick={() => color && setSelectedColor(color)}
                       >
-                        {color}
-                      </Typography>
-                      {selectedColor === color && (
-                        <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
-                      )}
-                    </Box>
+                        <Typography
+                          sx={{
+                            color: selectedColor === color ? '#fff' : '#000',
+                            fontWeight: 600,
+                            fontSize: 14,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {color}
+                        </Typography>
+                        {selectedColor === color && (
+                          <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
+                        )}
+                      </Box>
+                    )
                   ))}
                 </Box>
               </Box>
             )}
 
             {/* Size Selection */}
-            {getUniqueSizes().length > 0 && (
+            {sizesForSelectedColor.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Typography variant="h6">
@@ -585,12 +640,8 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexWrap: 'wrap', 
-                  gap: 2,
-                }}>
-                  {getUniqueSizes().map((size) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {sizesForSelectedColor.map((size) => (
                     <motion.div
                       key={size}
                       whileHover={{ scale: 1.05 }}
@@ -608,8 +659,7 @@ export default function ProductDetailPage() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          opacity: selectedColor ? 
-                            (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
                         }}
                         onClick={() => setSelectedSize(size)}
                       >
@@ -782,10 +832,11 @@ export default function ProductDetailPage() {
                       <strong>{t('productName')}:</strong> {product.name}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('brand')}:</strong> {product.brand.name}
+                      <strong>{t('brand')}:</strong> {product.brand?.name || 'Unknown Brand'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('categories')}:</strong> {product.categories.map(cat => cat.name).join(', ')}
+                      <strong>{t('categories')}:</strong>{' '}
+                      {product.categories?.map(cat => cat.name).join(', ') || 'No categories'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('status')}:</strong> {product.status}
@@ -808,7 +859,7 @@ export default function ProductDetailPage() {
                       <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('colors')}:</strong> {product.colors.join(', ')}
+                      <strong>{t('colors')}:</strong> {uniqueColors.join(', ') || 'No colors'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5

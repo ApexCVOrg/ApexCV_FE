@@ -1,46 +1,28 @@
-'use client';
-import React from 'react';
-import GenderPageLayout from '@/components/layout/GenderPageLayout';
-
-interface Product {
-  _id: string;
-  name: string;
-  images: string[];
-  price: number;
-  discountPrice?: number;
-  tags: string[];
-  brand: { _id: string; name: string };
-  categories: { _id: string; name: string }[];
-  createdAt: string;
-}
+"use client";
+import React from "react";
+import GenderPageLayout from "@/components/layout/GenderPageLayout";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct } from '@/types';
 
 export default function HoodiePage() {
-  const fetchProducts = async (sortBy: string): Promise<Product[]> => {
-    let apiSortBy = sortBy;
-    let sortOrder = 'desc';
-    if (sortBy === 'price-low') {
-      apiSortBy = 'price';
-      sortOrder = 'asc';
-    } else if (sortBy === 'price-high') {
-      apiSortBy = 'price';
-      sortOrder = 'desc';
-    } else if (sortBy === 'newest') {
-      apiSortBy = 'createdAt';
-      sortOrder = 'desc';
-    } else if (sortBy === 'popular') {
-      apiSortBy = 'popularity';
-      sortOrder = 'desc';
-    }
-
+  const fetchProducts = async (sortBy: string) => {
+    const { apiSortBy, sortOrder } = convertSortParams(sortBy);
+    
     try {
-      // Fetch only men's products
+      // Fetch only men's products with sorting
+      const queryParams = new URLSearchParams({
+        status: 'active',
+        gender: 'men',
+        sortBy: apiSortBy,
+        sortOrder: sortOrder,
+      });
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/products?status=active&gender=men`
+        `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`
       );
       const data = await res.json();
-
-      // Lọc sản phẩm hoodie cho nam
-      const filtered = (data.data || []).filter((item: any) => {
+      
+      // Lọc sản phẩm hoodie cho men
+      const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
         if (Array.isArray(item.categoryPath)) {
           const hasHoodie = item.categoryPath.some(
@@ -52,9 +34,9 @@ export default function HoodiePage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
-          const hasHoodieCategory = categoryNames.some(
-            (name: string) => name.includes('hoodie') || name.includes('hoodies')
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
+          const hasHoodieCategory = categoryNames.some((name: string) => 
+            name.includes('hoodie') || name.includes('hoodies')
           );
           if (hasHoodieCategory) return true;
         }
@@ -72,10 +54,25 @@ export default function HoodiePage() {
 
         return false;
       });
-
-      return filtered;
-    } catch (error) {
-      console.error('Error fetching products:', error);
+      
+      // Client-side sorting as fallback if API sorting doesn't work
+      const sorted = sortProductsClientSide(filtered, sortBy);
+      
+      // Convert to match the expected Product interface
+      const converted = sorted.map((item) => ({
+        _id: item._id,
+        name: item.name,
+        images: item.images || [],
+        price: item.price,
+        discountPrice: item.discountPrice,
+        tags: item.tags || [],
+        brand: item.brand || { _id: '', name: 'Unknown Brand' },
+        categories: item.categories || [],
+        createdAt: item.createdAt || new Date().toISOString(),
+      }));
+      
+      return converted;
+    } catch {
       throw new Error('Failed to fetch products');
     }
   };

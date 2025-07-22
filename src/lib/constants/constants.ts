@@ -54,7 +54,7 @@ export const API_ENDPOINTS = {
 };
 
 // API Base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
 
 // Local Storage Keys
 export const STORAGE_KEYS = {
@@ -99,7 +99,7 @@ export const ROUTES = {
   },
   KIDS: {
     ROOT: '/kids',
-    JERSEY: '/kids/jersey-kids',
+    JERSEY: '/kids/jersey',
     TRACKSUITS: '/kids/tracksuit',
     SMILEY: '/kids/smiley-kids',
   },
@@ -119,8 +119,7 @@ export const ROUTES = {
     BAGS: '/accessories/bags',
     HATS: '/accessories/hats',
     SOCKS: '/accessories/socks',
-    SPORTS_ACCESSORIES: '/accessories/sports-accessories',
-    BACKPACKS: '/accessories/backpacks',
+    EYEWEAR: '/accessories/eyewear',
   },
   COLLECTION_ULTRABOOST: '/collections/ultraboost',
   COLLECTION_ORIGINALS: '/collections/originals',

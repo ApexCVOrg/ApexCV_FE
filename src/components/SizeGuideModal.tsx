@@ -18,7 +18,6 @@ import {
   Paper,
   Tabs,
   Tab,
-  Grid,
   Chip,
   IconButton,
 } from '@mui/material';
@@ -35,6 +34,29 @@ interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+}
+
+interface ShoesData {
+  size: string;
+  length: string;
+  width: string;
+  description: string;
+}
+
+interface ClothingData {
+  size: string;
+  chest: string;
+  length: string;
+  shoulder: string;
+  description: string;
+}
+
+interface PantsData {
+  size: string;
+  waist: string;
+  length: string;
+  hip: string;
+  description: string;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -190,7 +212,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
 
   const sizeGuideData = getSizeGuideData();
 
-  const renderShoesTable = (data: any[]) => (
+  const renderShoesTable = (data: ShoesData[]) => (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table>
         <TableHead>
@@ -217,7 +239,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
     </TableContainer>
   );
 
-  const renderClothingTable = (data: any[]) => (
+  const renderClothingTable = (data: ClothingData[]) => (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table>
         <TableHead>
@@ -246,7 +268,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
     </TableContainer>
   );
 
-  const renderPantsTable = (data: any[]) => (
+  const renderPantsTable = (data: PantsData[]) => (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table>
         <TableHead>
@@ -275,14 +297,14 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
     </TableContainer>
   );
 
-  const renderTable = (data: any[]) => {
+  const renderTable = (data: ShoesData[] | ClothingData[] | PantsData[]) => {
     switch (productType) {
       case 'shoes':
-        return renderShoesTable(data);
+        return renderShoesTable(data as ShoesData[]);
       case 'clothing':
-        return renderClothingTable(data);
+        return renderClothingTable(data as ClothingData[]);
       case 'pants':
-        return renderPantsTable(data);
+        return renderPantsTable(data as PantsData[]);
       default:
         return null;
     }

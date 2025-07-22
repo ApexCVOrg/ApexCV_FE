@@ -1,27 +1,21 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Container,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
-import Link from 'next/link';
-import ProductCard from '@/components/card';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, Container, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import Link from "next/link";
+import ProductCard from "@/components/card";
+import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
+import { ApiProduct } from '@/types';
 
 interface Product {
   _id: string;
   name: string;
-  description?: string;
-  images: string[];
   price: number;
   discountPrice?: number;
+  createdAt?: string;
   tags?: string[];
-  brand?: string | { _id: string; name: string };
+  brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  images?: string[];
 }
 
 export default function AdizeroPage() {
@@ -33,32 +27,40 @@ export default function AdizeroPage() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+        const { apiSortBy, sortOrder } = convertSortParams(sortBy);
+        
+        const queryParams = new URLSearchParams({
+          status: 'active',
+          sortBy: apiSortBy,
+          sortOrder: sortOrder
+        });
+        
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
         const data = await res.json();
-
+        
         // Lọc sản phẩm theo categoryPath mong muốn
         const desiredPath = ['Shoes', 'Adidas', 'Adizero'];
-
+        
         // Thử nhiều cách filter khác nhau
-        const filtered = (data.data || []).filter((item: any) => {
+        const filtered = (data.data || []).filter((item: ApiProduct) => {
           // Cách 1: Kiểm tra nếu categoryPath là array
           if (Array.isArray(item.categoryPath)) {
-            const isMatch = desiredPath.every(
-              (cat, idx) => (item.categoryPath[idx] || '').toLowerCase() === cat.toLowerCase()
+            const isMatch = desiredPath.every((cat, idx) => 
+              (item.categoryPath?.[idx] || '').toLowerCase() === cat.toLowerCase()
             );
             if (isMatch) return true;
           }
 
           // Cách 2: Kiểm tra nếu categoryPath là string
-          if (typeof item.categoryPath === 'string') {
-            const pathString = item.categoryPath.toLowerCase();
+          if (item.categoryPath && typeof item.categoryPath === 'string') {
+            const pathString = (item.categoryPath as string).toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
           }
 
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
-            const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+            const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('adizero')) return true;
           }
 
@@ -67,17 +69,18 @@ export default function AdizeroPage() {
 
           return false;
         });
-
-        setProducts(filtered);
-      } catch (e) {
-        console.error('Error fetching products:', e);
+        
+        // Client-side sorting as fallback if API sorting doesn't work
+        const sorted = sortProductsClientSide(filtered, sortBy);
+        setProducts(sorted);
+      } catch {
         setProducts([]);
       } finally {
         setLoading(false);
       }
     };
     fetchProducts();
-  }, []);
+  }, [sortBy]);
 
   return (
     <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', mt: 10, position: 'relative' }}>
@@ -255,7 +258,6 @@ export default function AdizeroPage() {
                   tags={product.tags}
                   brand={product.brand}
                   categories={product.categories}
-                  onAddToCart={() => {}}
                 />
               </Box>
             ))

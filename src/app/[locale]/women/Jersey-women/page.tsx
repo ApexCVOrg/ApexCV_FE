@@ -11,6 +11,7 @@ interface Product {
   tags: string[];
   brand: { _id: string; name: string };
   categories: { _id: string; name: string }[];
+  categoryPath?: string[] | string;
   createdAt: string;
 }
 
@@ -44,9 +45,9 @@ export default function WomenJerseyPage() {
       const data = await res.json();
 
       // Lọc sản phẩm jersey cho nữ
-      const filtered = (data.data || []).filter((item: any) => {
+      const filtered = (data.data || []).filter((item: Product) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+        if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasJersey = item.categoryPath.some(
             (cat: string) =>
               cat.toLowerCase().includes('jersey') || cat.toLowerCase().includes('t-shirts')
@@ -56,7 +57,7 @@ export default function WomenJerseyPage() {
 
         // Kiểm tra categories array
         if (item.categories && Array.isArray(item.categories)) {
-          const categoryNames = item.categories.map((cat: any) => cat.name.toLowerCase());
+          const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
           const hasJerseyCategory = categoryNames.some(
             (name: string) => name.includes('jersey') || name.includes('t-shirts')
           );

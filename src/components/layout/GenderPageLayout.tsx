@@ -329,7 +329,6 @@ export default function GenderPageLayout({
                     tags={product.tags || []}
                     brand={product.brand || { _id: '', name: 'Unknown Brand' }}
                     categories={product.categories || []}
-                    onAddToCart={() => {}}
                   />
                 </Box>
               ))}

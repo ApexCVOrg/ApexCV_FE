@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const timeSinceLastActivity = now - lastActivity;
 
       if (timeSinceLastActivity > INACTIVITY_LIMIT && token) {
-        console.log('Auto logout due to inactivity');
+  
         logout();
         // Only redirect if not already on login page
         const currentPath = window.location.pathname;
