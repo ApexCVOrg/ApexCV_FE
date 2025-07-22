@@ -31,7 +31,7 @@ export default async function LocaleLayout({
       <body
         className={inter.className}
         style={{
-          backgroundColor: 'transparent',
+          backgroundColor: '#000', // Set dark background to prevent white showing behind transparent header
           minHeight: '100vh',
           margin: 0,
           padding: 0,

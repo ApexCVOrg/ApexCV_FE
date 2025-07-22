@@ -42,6 +42,8 @@ import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
 import HeaderMenuShoes from './HeaderMenuShoes';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -82,6 +84,7 @@ const Header = () => {
   // Thêm state cho mega menu shoes
   const [showShoesMenu, setShowShoesMenu] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
+  const { theme } = useTheme();
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -346,11 +349,13 @@ const Header = () => {
         position="fixed"
         suppressHydrationWarning
         sx={{
-          bgcolor: 'white',
-          color: '#000',
-          borderBottom: '1px solid #e0e0e0',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          px: { xs: 1, md: 2 },
+          bgcolor: 'transparent !important',
+          color: theme === THEME.LIGHT ? '#000' : '#fff',
+          borderBottom: 'none',
+          boxShadow: 'none !important',
+          px: 0,
+          py: 0,
+          m: 0,
           width: '100%',
           left: 0,
           top: 0,
@@ -358,8 +363,27 @@ const Header = () => {
           height: { xs: '64px', sm: '64px', md: '64px' }, // Responsive height
           transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
           transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
+          '& .MuiToolbar-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
+          },
+          '& .MuiPaper-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+          },
+          '&::before, &::after': {
+            display: 'none !important',
+          },
         }}
         elevation={0}
+        style={{
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          border: 'none',
+          margin: 0,
+          padding: 0,
+        }}
       >
         <Toolbar
           suppressHydrationWarning
@@ -367,10 +391,14 @@ const Header = () => {
             minHeight: { xs: '64px !important', sm: '64px !important', md: '64px !important' },
             height: { xs: '64px', sm: '64px', md: '64px' },
             px: { xs: 1, md: 2 },
+            py: 0,
+            m: 0,
             width: '100%',
             maxWidth: 1920,
             mx: 'auto',
-            bgcolor: 'white',
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',

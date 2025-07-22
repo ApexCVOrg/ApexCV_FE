@@ -74,8 +74,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
                 width: '100%',
                 maxWidth: 'none',
                 px: 0,
-                // Add responsive padding-top to prevent header overlap
-                pt: { xs: '64px', sm: '64px', md: '64px' }, // Match header height
+                pt: 0, // Remove padding top since header is transparent
                 '@media screen and (width: 1440px) and (height: 1920px)': {
                   fontSize: '1.1rem',
                 },
