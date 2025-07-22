@@ -29,6 +29,8 @@ import api from '@/services/api';
 import { useState } from 'react';
 import { gsap } from 'gsap';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 // Thêm type cho category hỗ trợ cả id và _id
 export type CategoryLike = { id?: string; _id?: string; name: string };
@@ -71,6 +73,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   colors = 1,
   addToCartButtonProps,
 }) => {
+  // Theme hook
+  const { theme } = useTheme();
   const t = useTranslations('productCard');
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -206,8 +210,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
           onClick={handleCardClick}
           sx={{
             borderRadius: '24px',
-            background: backgroundColor,
-            boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
+            background: theme === THEME.LIGHT ? backgroundColor : '#1a1a1a',
+            boxShadow: theme === THEME.LIGHT 
+              ? '0 4px 24px 0 rgba(0,0,0,0.08)' 
+              : '0 4px 24px 0 rgba(0,0,0,0.3)',
             p: 0,
             pt: 7,
             pb: 3,
@@ -225,14 +231,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
             transition: 'box-shadow 0.3s',
             cursor: 'pointer',
             '&:hover': {
-              boxShadow: '0 8px 32px 0 rgba(0,0,0,0.16)',
+              boxShadow: theme === THEME.LIGHT 
+                ? '0 8px 32px 0 rgba(0,0,0,0.16)' 
+                : '0 8px 32px 0 rgba(0,0,0,0.4)',
               '.cart-btn': {
                 opacity: 1,
                 pointerEvents: 'auto',
               },
               '.product-image': {
                 transform: 'translateX(-50%) rotate(-15deg) scale(1.65)',
-                filter: 'drop-shadow(0 8px 32px rgba(0,0,0,0.18))',
+                filter: theme === THEME.LIGHT 
+                  ? 'drop-shadow(0 8px 32px rgba(0,0,0,0.18))' 
+                  : 'drop-shadow(0 8px 32px rgba(0,0,0,0.3))',
               },
             },
           }}
@@ -294,7 +304,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
               bottom: 0,
               left: 0,
               right: 0,
-              background: 'linear-gradient(transparent, rgba(255,255,255,0.9) 20%, white)',
+              background: theme === THEME.LIGHT 
+                ? 'linear-gradient(transparent, rgba(255,255,255,0.9) 20%, white)' 
+                : 'linear-gradient(transparent, rgba(26,26,26,0.9) 20%, #1a1a1a)',
               padding: '20px',
               borderRadius: '20px 20px 0 0',
               transform: 'translateY(60px)',
@@ -321,7 +333,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   fontWeight: 600,
                   textTransform: 'capitalize',
                   letterSpacing: '0.5px',
-                  color: 'black',
+                  color: theme === THEME.LIGHT ? 'black' : 'white',
                   fontSize: '14px',
                 }}
               >
@@ -331,7 +343,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               {/* Colors Info */}
               <Typography
                 variant="body2"
-                color="text.secondary"
+                color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                 sx={{
                   fontSize: '12px',
                   textTransform: 'capitalize',
@@ -419,7 +431,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
               {/* Brand and Categories */}
               <Typography
                 variant="body2"
-                color="text.secondary"
+                color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                 sx={{
                   fontSize: '12px',
                   marginBottom: 1,
@@ -446,8 +458,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                         sx={{
                           fontWeight: 600,
                           textTransform: 'uppercase',
-                          backgroundColor: '#f1f1f1',
-                          color: '#333',
+                          backgroundColor: theme === THEME.LIGHT ? '#f1f1f1' : '#333',
+                          color: theme === THEME.LIGHT ? '#333' : '#e0e0e0',
                           fontSize: '10px',
                           height: '20px',
                         }}
@@ -481,12 +493,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 handleViewDetailButton();
               }}
               sx={{
-                bgcolor: 'white',
+                bgcolor: theme === THEME.LIGHT ? 'white' : '#333',
                 color: '#1976d2',
                 border: '2px solid #1976d2',
                 width: 48,
                 height: 48,
-                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                boxShadow: theme === THEME.LIGHT 
+                  ? '0 2px 8px 0 rgba(0,0,0,0.10)' 
+                  : '0 2px 8px 0 rgba(0,0,0,0.2)',
                 '&:hover': {
                   bgcolor: '#1976d2',
                   color: 'white',
@@ -506,7 +520,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 color: '#fff',
                 width: 48,
                 height: 48,
-                boxShadow: '0 2px 8px 0 rgba(0,0,0,0.10)',
+                boxShadow: theme === THEME.LIGHT 
+                  ? '0 2px 8px 0 rgba(0,0,0,0.10)' 
+                  : '0 2px 8px 0 rgba(0,0,0,0.2)',
                 '&:hover': {
                   bgcolor: '#1565c0',
                 },
@@ -540,15 +556,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
       sx={{
         maxWidth: 320,
         borderRadius: 4,
-        boxShadow: 2,
+        boxShadow: theme === THEME.LIGHT ? 2 : '0 4px 20px rgba(0,0,0,0.3)',
         p: 1.5,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        background: '#fff',
+        background: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
         transition: 'box-shadow 0.2s',
         cursor: 'pointer',
-        '&:hover': { boxShadow: 6 },
+        '&:hover': { 
+          boxShadow: theme === THEME.LIGHT ? 6 : '0 8px 32px rgba(0,0,0,0.4)' 
+        },
       }}
     >
       <Box sx={{ position: 'relative', width: '100%', mb: 2 }}>
@@ -640,7 +658,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           sx={{
             fontWeight: 600,
             mb: 1,
-            color: '#222',
+            color: theme === THEME.LIGHT ? '#222' : '#e0e0e0',
             minHeight: 48,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -686,7 +704,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </Box>
         </Box>
         {/* Brand and categories */}
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+        <Typography 
+          variant="body2" 
+          color={theme === THEME.LIGHT ? 'text.secondary' : '#b0b0b0'} 
+          sx={{ mb: 1 }}
+        >
           {displayBrand} - {categories?.map(cat => cat.name).join(', ') || categoryPath?.join(' / ') || t('uncategorized')}
         </Typography>
         {/* Tags */}
@@ -707,8 +729,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
                   sx={{
                     fontWeight: 600,
                     textTransform: 'uppercase',
-                    backgroundColor: '#f1f1f1',
-                    color: '#333',
+                    backgroundColor: theme === THEME.LIGHT ? '#f1f1f1' : '#333',
+                    color: theme === THEME.LIGHT ? '#333' : '#e0e0e0',
                   }}
                 />
               );
@@ -724,17 +746,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
               handleViewDetailButton();
             }}
             sx={{
-              bgcolor: 'white',
-              color: '#111a2f',
-              borderColor: '#111a2f',
+              bgcolor: theme === THEME.LIGHT ? 'white' : '#333',
+              color: theme === THEME.LIGHT ? '#111a2f' : '#e0e0e0',
+              borderColor: theme === THEME.LIGHT ? '#111a2f' : '#555',
               fontWeight: 700,
               borderRadius: 2,
               py: 1,
               textTransform: 'none',
               '&:hover': {
-                bgcolor: '#111a2f',
+                bgcolor: theme === THEME.LIGHT ? '#111a2f' : '#555',
                 color: 'white',
-                borderColor: '#111a2f',
+                borderColor: theme === THEME.LIGHT ? '#111a2f' : '#555',
               },
             }}
           >

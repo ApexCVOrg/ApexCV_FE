@@ -31,9 +31,10 @@ export default async function LocaleLayout({
       <body
         className={inter.className}
         style={{
-          backgroundColor: '#fff',
+          backgroundColor: 'transparent',
           minHeight: '100vh',
           margin: 0,
+          padding: 0,
         }}
       >
         <AuthProvider>

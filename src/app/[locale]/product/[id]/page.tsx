@@ -90,7 +90,7 @@ export default function ProductDetailPage() {
   const t = useTranslations('productDetail');
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
-
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +119,7 @@ export default function ProductDetailPage() {
         const response = await api.get(`/products/${productId}`);
         const productData = response.data as { data: Product };
         setProduct(productData.data);
-
+        
         // Set default selections
         if (productData.data.colors?.length > 0) {
           setSelectedColor(productData.data.colors[0]);
@@ -143,7 +143,9 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (autoScroll && product?.images && product.images.length > 1) {
       autoScrollRef.current = setInterval(() => {
-        setSelectedImage(prev => (prev < product?.images?.length - 1 ? prev + 1 : 0));
+        setSelectedImage((prev) => 
+          prev < (product?.images?.length - 1) ? prev + 1 : 0
+        );
       }, 3000);
     }
 
@@ -226,25 +228,21 @@ export default function ProductDetailPage() {
   };
 
   const handlePrevImage = () => {
-    setSelectedImage(prev => (prev > 0 ? prev - 1 : (product?.images.length || 1) - 1));
+    setSelectedImage(prev => prev > 0 ? prev - 1 : (product?.images.length || 1) - 1);
   };
 
   const handleNextImage = () => {
-    setSelectedImage(prev => (prev < (product?.images.length || 1) - 1 ? prev + 1 : 0));
+    setSelectedImage(prev => prev < (product?.images.length || 1) - 1 ? prev + 1 : 0);
   };
 
   const getProductType = () => {
     if (!product) return 'clothing';
-
+    
     // Check category name
     const categoryName = product.categories?.[0]?.name?.toLowerCase() || '';
     const productName = product.name.toLowerCase();
-
-    if (
-      categoryName.includes('giày') ||
-      categoryName.includes('dép') ||
-      categoryName.includes('sneaker')
-    ) {
+    
+    if (categoryName.includes('giày') || categoryName.includes('dép') || categoryName.includes('sneaker')) {
       return 'shoes';
     } else if (categoryName.includes('quần') || productName.includes('quần')) {
       return 'pants';
@@ -252,6 +250,37 @@ export default function ProductDetailPage() {
       return 'clothing';
     }
   };
+
+  // Lấy danh sách màu duy nhất từ mảng sizes
+  const uniqueColors = product ? Array.from(new Set(product.sizes.map(sz => sz.color).filter(Boolean))) : [];
+  // Lấy danh sách size duy nhất theo màu đã chọn
+  const sizesForSelectedColor = product && selectedColor
+    ? product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size)
+    : [];
+  // Lấy danh sách màu duy nhất theo size đã chọn (nếu muốn UX tốt hơn)
+  const colorsForSelectedSize = product && selectedSize
+    ? Array.from(new Set(product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color)))
+    : uniqueColors;
+
+  // Khi chọn màu, nếu size hiện tại không còn hợp lệ thì reset size
+  useEffect(() => {
+    if (selectedColor && product) {
+      const validSizes = product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size);
+      if (!validSizes.includes(selectedSize)) {
+        setSelectedSize(validSizes[0] || '');
+      }
+    }
+  }, [selectedColor, product]);
+
+  // Khi chọn size, nếu màu hiện tại không còn hợp lệ thì reset màu
+  useEffect(() => {
+    if (selectedSize && product) {
+      const validColors = product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color);
+      if (!validColors.includes(selectedColor)) {
+        setSelectedColor(validColors[0] || '');
+      }
+    }
+  }, [selectedSize, product]);
 
   if (loading) {
     return (
@@ -280,12 +309,12 @@ export default function ProductDetailPage() {
   }
 
   const isDiscounted = product.discountPrice && product.discountPrice < product.price;
-  const discountPercentage = isDiscounted
+  const discountPercentage = isDiscounted 
     ? Math.round(((product.price - product.discountPrice!) / product.price) * 100)
     : 0;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
       {/* Breadcrumbs */}
       <Breadcrumbs sx={{ mb: 3 }}>
         <Link href="/" color="inherit" underline="hover">
@@ -304,7 +333,7 @@ export default function ProductDetailPage() {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
         {/* Product Images */}
         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
-          <Box sx={{ position: 'sticky', top: 20 }}>
+          <Box sx={{ position: 'sticky', top: 100 }}>
             {/* Main Image with Carousel */}
             <Box
               sx={{
@@ -339,7 +368,7 @@ export default function ProductDetailPage() {
               {product.images.length > 1 && (
                 <>
                   <IconButton
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       handlePrevImage();
                     }}
@@ -356,7 +385,7 @@ export default function ProductDetailPage() {
                     <ArrowBack />
                   </IconButton>
                   <IconButton
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       handleNextImage();
                     }}
@@ -397,7 +426,7 @@ export default function ProductDetailPage() {
                         bgcolor: selectedImage === index ? 'white' : 'rgba(255,255,255,0.5)',
                         cursor: 'pointer',
                       }}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setSelectedImage(index);
                       }}
@@ -453,8 +482,7 @@ export default function ProductDetailPage() {
                       borderRadius: 1,
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      border:
-                        selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
+                      border: selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
                       bgcolor: '#f8f9fa',
                       display: 'flex',
                       alignItems: 'center',
@@ -485,7 +513,7 @@ export default function ProductDetailPage() {
 
         {/* Product Info */}
         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
-          <Box sx={{ position: 'sticky', top: 20 }}>
+          <Box sx={{ position: 'sticky', top: 100 }}>
             {/* Product Title */}
             <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 600 }}>
               {product.name}
@@ -547,66 +575,63 @@ export default function ProductDetailPage() {
             </Box>
 
             {/* Color Picker */}
-            {product.colors.length > 0 && (
+            {uniqueColors.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom>
                   {t('colors')}:
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                  {product.colors.map(color => (
-                    <Box
-                      key={color}
-                      sx={{
-                        position: 'relative',
-                        minWidth: 80,
-                        height: 40,
-                        borderRadius: 20,
-                        border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
-                        bgcolor: selectedColor === color ? '#000' : '#fff',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all 0.2s',
-                        px: 2,
-                        '&:hover': {
-                          transform: 'scale(1.05)',
-                          bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
-                        },
-                      }}
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      <Typography
+                  {uniqueColors.map((color) => (
+                    colorsForSelectedSize.includes(color) && (
+                      <Box
+                        key={color}
                         sx={{
-                          color: selectedColor === color ? '#fff' : '#000',
-                          fontWeight: 600,
-                          fontSize: 14,
-                          textTransform: 'capitalize',
+                          position: 'relative',
+                          minWidth: 80,
+                          height: 40,
+                          borderRadius: 20,
+                          border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedColor === color ? '#000' : '#fff',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s',
+                          px: 2,
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
+                          },
                         }}
+                        onClick={() => color && setSelectedColor(color)}
                       >
-                        {color}
-                      </Typography>
-                      {selectedColor === color && (
-                        <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
-                      )}
-                    </Box>
+                        <Typography
+                          sx={{
+                            color: selectedColor === color ? '#fff' : '#000',
+                            fontWeight: 600,
+                            fontSize: 14,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {color}
+                        </Typography>
+                        {selectedColor === color && (
+                          <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
+                        )}
+                      </Box>
+                    )
                   ))}
                 </Box>
               </Box>
             )}
 
             {/* Size Selection */}
-            {getUniqueSizes().length > 0 && (
+            {sizesForSelectedColor.length > 0 && (
               <Box sx={{ mb: 3 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="h6">{t('sizes')}:</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    {t('sizes')}:
+                  </Typography>
                   <Button
                     startIcon={<Info />}
                     onClick={() => setShowSizeGuide(true)}
@@ -615,15 +640,13 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                  }}
-                >
-                  {getUniqueSizes().map(size => (
-                    <motion.div key={size} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {sizesForSelectedColor.map((size) => (
+                    <motion.div
+                      key={size}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       <Box
                         sx={{
                           width: 60,
@@ -636,11 +659,7 @@ export default function ProductDetailPage() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          opacity: selectedColor
-                            ? getStock(selectedColor, size) === 0
-                              ? 0.5
-                              : 1
-                            : 1,
+                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
                         }}
                         onClick={() => setSelectedSize(size)}
                       >
@@ -664,10 +683,10 @@ export default function ProductDetailPage() {
             {selectedColor && selectedSize && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('colorSizeStock', {
+                  {t('colorSizeStock', { 
                     color: selectedColor,
-                    size: selectedSize,
-                    stock: getStock(selectedColor, selectedSize),
+                    size: selectedSize, 
+                    stock: getStock(selectedColor, selectedSize)
                   })}
                 </Typography>
               </Box>
@@ -683,7 +702,7 @@ export default function ProductDetailPage() {
                   <IconButton
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
-                    sx={{
+                    sx={{ 
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -695,11 +714,9 @@ export default function ProductDetailPage() {
                     {quantity}
                   </Typography>
                   <IconButton
-                    onClick={() =>
-                      setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))
-                    }
+                    onClick={() => setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))}
                     disabled={quantity >= getStock(selectedColor, selectedSize)}
-                    sx={{
+                    sx={{ 
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -773,8 +790,13 @@ export default function ProductDetailPage() {
                   {t('tags')}:
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {product.tags.map(tag => (
-                    <Chip key={tag} label={tag} size="small" sx={{ mb: 1 }} />
+                  {product.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      sx={{ mb: 1 }}
+                    />
                   ))}
                 </Stack>
               </Box>
@@ -785,11 +807,7 @@ export default function ProductDetailPage() {
 
       {/* Product Details Tabs */}
       <Box sx={{ mt: 6 }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tab label={t('description')} />
           <Tab label={t('specifications')} />
           <Tab label={t('reviews')} />
@@ -824,8 +842,7 @@ export default function ProductDetailPage() {
                       <strong>{t('status')}:</strong> {product.status}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('createdAt')}:</strong>{' '}
-                      {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                      <strong>{t('createdAt')}:</strong> {new Date(product.createdAt).toLocaleDateString('vi-VN')}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -842,7 +859,7 @@ export default function ProductDetailPage() {
                       <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('colors')}:</strong> {product.colors?.join(', ') || 'No colors'}
+                      <strong>{t('colors')}:</strong> {uniqueColors.join(', ') || 'No colors'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
@@ -935,4 +952,4 @@ export default function ProductDetailPage() {
       </Snackbar>
     </Container>
   );
-}
+} 

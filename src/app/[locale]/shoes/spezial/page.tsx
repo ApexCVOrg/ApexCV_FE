@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Container } from '@mui/material';
 import Link from 'next/link';
 import ProductCard from '@/components/card';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -44,6 +46,7 @@ interface Product {
 export default function SpezialPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -96,7 +99,25 @@ export default function SpezialPage() {
   }, []);
 
   return (
-    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', mt: 10, position: 'relative' }}>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', 
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh', 
+      pt: 10, // Add padding top for theme-aware whitespace
+      position: 'relative' 
+    }}>
+      {/* Theme-aware whitespace above banner */}
+      <Box
+        sx={{
+          width: '100vw',
+          height: 80, // 80px height for whitespace
+          mx: 'calc(-50vw + 50%)',
+          bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      />
+      
       {/* Banner cũ với text giới thiệu nổi phía trên */}
       <Box
         sx={{
@@ -190,7 +211,7 @@ export default function SpezialPage() {
                 display: 'flex',
                 alignItems: 'center',
                 textDecoration: 'none',
-                color: 'inherit',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
                 fontWeight: 700,
                 marginRight: 2,
               }}
@@ -200,29 +221,39 @@ export default function SpezialPage() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Home
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Link href="/shoes" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Shoes
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Typography
               component="span"
               sx={{
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
                 fontWeight: 500,
                 textDecoration: 'underline',
                 textUnderlineOffset: '4px',
@@ -233,10 +264,18 @@ export default function SpezialPage() {
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
+            <Typography variant="h3" component="h1" sx={{ 
+              fontWeight: 'bold', 
+              mb: 0,
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            }}>
               ADIDAS SPEZIAL
             </Typography>
-            <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
+            <Typography variant="body2" sx={{ 
+              color: theme === THEME.LIGHT ? '#000' : '#fff', 
+              fontWeight: 400, 
+              ml: 1 
+            }}>
               [{products.length}]
             </Typography>
           </Box>
@@ -252,7 +291,7 @@ export default function SpezialPage() {
               position: 'relative',
               borderRadius: 4,
               overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+              boxShadow: theme === THEME.LIGHT ? '0 8px 32px rgba(0,0,0,0.1)' : '0 8px 32px rgba(255,255,255,0.1)',
               minHeight: { xs: '400px', md: '500px' },
             }}
           >
@@ -354,7 +393,6 @@ export default function SpezialPage() {
                       tags={products[0].tags}
                       brand={products[0].brand}
                       categories={products[0].categories}
-                      onAddToCart={() => {}}
                     />
                   </Box>
                 </Box>
@@ -371,16 +409,23 @@ export default function SpezialPage() {
       >
         {loading ? (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h6" sx={{ color: 'text.secondary' }}>
+            <Typography variant="h6" sx={{ 
+              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+            }}>
               Loading...
             </Typography>
           </Box>
         ) : products.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <Typography variant="h5" sx={{ color: 'text.secondary', mb: 2 }}>
+            <Typography variant="h5" sx={{ 
+              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc', 
+              mb: 2 
+            }}>
               Không tìm thấy sản phẩm Spezial
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+            <Typography variant="body1" sx={{ 
+              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+            }}>
               Sản phẩm có thể đang được cập nhật hoặc tạm thời không có sẵn.
             </Typography>
           </Box>

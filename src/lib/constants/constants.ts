@@ -119,7 +119,7 @@ export const ROUTES = {
     BAGS: '/accessories/bags',
     HATS: '/accessories/hats',
     SOCKS: '/accessories/socks',
-    EYEWEAR: '/accessories/eyewear',
+    EYEWEAR: '/accessories/eyewears',
   },
   COLLECTION_ULTRABOOST: '/collections/ultraboost',
   COLLECTION_ORIGINALS: '/collections/originals',

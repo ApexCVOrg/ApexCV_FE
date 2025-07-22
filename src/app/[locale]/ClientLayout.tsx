@@ -12,6 +12,8 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import ChatBox from '@/components/ChatBox';
 import AutoLogoutNotification from '@/components/ui/AutoLogoutNotification';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface ClientLayoutProps {
   locale: string;
@@ -25,6 +27,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   const pathname = usePathname();
   const prevPath = useRef<string | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (prevPath.current !== null && prevPath.current !== pathname) {
@@ -58,7 +61,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
             className="app-container"
             suppressHydrationWarning
             sx={{
-              bgcolor: '#fff',
+              bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
               minHeight: '100vh',
               display: 'flex',
               flexDirection: 'column',
@@ -73,7 +76,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
               className="main-content"
               suppressHydrationWarning
               sx={{
-                bgcolor: '#fff',
+                bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
