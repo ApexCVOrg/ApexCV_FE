@@ -19,10 +19,6 @@ import {
   ListItemButton,
   ListItemText,
   Badge,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  TextField,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  InputAdornment,
   Menu,
   ListItemIcon,
 } from '@mui/material';
