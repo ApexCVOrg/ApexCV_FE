@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -139,7 +139,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     fetchReviews();
   }, [product?._id]);
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = useCallback(async () => {
     const token = getToken();
     if (!token) {
       setError('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
@@ -178,27 +178,33 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     } finally {
       setAddToCartLoading(false);
     }
-  };
+  }, [product, selectedSize, selectedColor, quantity, addToCart, getToken]);
 
-  const handleToggleFavorite = () => {
+  const handleToggleFavorite = useCallback(() => {
     // FavoriteButton sẽ tự xử lý việc toggle favorite
-  };
+  }, []);
 
-  const isAddToCartDisabled = () => {
+  const isAddToCartDisabled = useCallback(() => {
     if (!product) return true;
     if (product.sizes && product.sizes.length > 0 && !selectedSize) return true;
     if (product.colors && product.colors.length > 0 && !selectedColor) return true;
     return false;
-  };
+  }, [product, selectedSize, selectedColor]);
 
 
 
-  const toggleSection = (section: keyof typeof expandedSections) => {
+  const toggleSection = useCallback((section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section],
     }));
-  };
+  }, []);
+
+  // Memoize computed values
+  const hasImages = useMemo(() => product?.images && product.images.length > 1, [product?.images]);
+  const hasTags = useMemo(() => product?.tags && product?.tags.length > 0, [product?.tags]);
+  const hasColors = useMemo(() => product?.colors && product?.colors.length > 0, [product?.colors]);
+  const hasSizes = useMemo(() => product?.sizes && product?.sizes.length > 0, [product?.sizes]);
 
   if (!isOpen) return null;
 
@@ -304,11 +310,11 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                     </Box>
 
                     {/* Thumbnail Images */}
-                    {product.images && product.images.length > 1 && (
+                    {hasImages && (
                       <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                         {product.images.map((img, idx) => (
                           <Box
-                            key={idx}
+                            key={`${product._id}-image-${idx}-${img}`}
                             onClick={() => setSelectedImage(idx)}
                             sx={{
                               width: 60,
@@ -345,12 +351,12 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                     </Typography>
 
                     {/* Tags */}
-                    {product.tags && product.tags.length > 0 && (
+                    {hasTags && (
                       <Box sx={{ mb: 2 }}>
                         <Stack direction="row" spacing={1}>
-                          {product.tags.slice(0, 2).map((tag, idx) => (
+                          {product.tags?.slice(0, 2).map((tag, idx) => (
                             <Chip
-                              key={idx}
+                              key={`${product._id}-tag-${idx}-${tag}`}
                               label={tag}
                               size="small"
                               variant="outlined"
@@ -404,7 +410,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                   </Box>
 
                   {/* Color Selection */}
-                  {product.colors && product.colors.length > 0 && (
+                  {hasColors && (
                     <Box sx={{ mb: 3 }}>
                       <Box
                         sx={{
@@ -422,31 +428,35 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', gap: 1 }}>
-                        {product.colors.map(color => (
-                          <Box
-                            key={color}
-                            onClick={() => setSelectedColor(color)}
-                            sx={{
-                              width: 32,
-                              height: 32,
-                              borderRadius: '50%',
-                              border:
-                                selectedColor === color ? '2px solid #1976d2' : '2px solid #e0e0e0',
-                              cursor: 'pointer',
-                              bgcolor: color.toLowerCase(),
-                              transition: 'all 0.2s',
-                              '&:hover': {
-                                transform: 'scale(1.1)',
-                              },
-                            }}
-                          />
-                        ))}
+                        {product.colors
+                          ?.filter((color, index, self) => 
+                            index === self.findIndex(c => c === color)
+                          )
+                          .map((color, idx) => (
+                            <Box
+                              key={`${product._id}-color-${idx}-${color}`}
+                              onClick={() => setSelectedColor(color)}
+                              sx={{
+                                width: 32,
+                                height: 32,
+                                borderRadius: '50%',
+                                border:
+                                  selectedColor === color ? '2px solid #1976d2' : '2px solid #e0e0e0',
+                                cursor: 'pointer',
+                                bgcolor: color.toLowerCase(),
+                                transition: 'all 0.2s',
+                                '&:hover': {
+                                  transform: 'scale(1.1)',
+                                },
+                              }}
+                            />
+                          ))}
                       </Box>
                     </Box>
                   )}
 
                   {/* Size Selection */}
-                  {product.sizes && product.sizes.length > 0 && (
+                  {hasSizes && (
                     <Box sx={{ mb: 3 }}>
                       <Box
                         sx={{
@@ -468,30 +478,34 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
-                        {product.sizes.map(size => (
-                          <Button
-                            key={size.size}
-                            variant={selectedSize === size.size ? 'contained' : 'outlined'}
-                            size="small"
-                            onClick={() => setSelectedSize(size.size)}
-                            disabled={size.stock === 0}
-                            sx={{
-                              minWidth: 'auto',
-                              py: 1,
-                              px: 1,
-                              fontSize: '0.875rem',
-                              fontWeight: 500,
-                              borderColor: '#e0e0e0',
-                              color: selectedSize === size.size ? '#fff' : '#1a1a1a',
-                              bgcolor: selectedSize === size.size ? '#1976d2' : 'transparent',
-                              '&:hover': {
-                                bgcolor: selectedSize === size.size ? '#1565c0' : '#f5f5f5',
-                              },
-                            }}
-                          >
-                            US {size.size}
-                          </Button>
-                        ))}
+                        {product.sizes
+                          ?.filter((size, index, self) => 
+                            index === self.findIndex(s => s.size === size.size)
+                          )
+                          .map((size, idx) => (
+                            <Button
+                              key={`${product._id}-size-${idx}-${size.size}`}
+                              variant={selectedSize === size.size ? 'contained' : 'outlined'}
+                              size="small"
+                              onClick={() => setSelectedSize(size.size)}
+                              disabled={size.stock === 0}
+                              sx={{
+                                minWidth: 'auto',
+                                py: 1,
+                                px: 1,
+                                fontSize: '0.875rem',
+                                fontWeight: 500,
+                                borderColor: '#e0e0e0',
+                                color: selectedSize === size.size ? '#fff' : '#1a1a1a',
+                                bgcolor: selectedSize === size.size ? '#1976d2' : 'transparent',
+                                '&:hover': {
+                                  bgcolor: selectedSize === size.size ? '#1565c0' : '#f5f5f5',
+                                },
+                              }}
+                            >
+                              US {size.size}
+                            </Button>
+                          ))}
                       </Box>
                     </Box>
                   )}
@@ -635,8 +649,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                               Chưa có đánh giá nào cho sản phẩm này.
                             </Typography>
                           ) : (
-                            reviews.map((review) => (
-                              <Box key={review._id} sx={{ mb: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
+                            reviews.map((review, idx) => (
+                              <Box key={`${product._id}-review-${idx}-${review._id}`} sx={{ mb: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
                                 <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
                                   {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
                                 </Typography>

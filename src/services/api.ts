@@ -34,7 +34,7 @@ const processQueue = (token: string) => {
 };
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -135,7 +135,7 @@ api.interceptors.response.use(
  */
 export async function createVnpayPayment(data: Record<string, unknown>): Promise<string> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   const apiUrl = `${baseURL}/payment/vnpay`;
 

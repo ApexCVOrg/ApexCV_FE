@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   CircularProgress,
   Slider,
@@ -200,14 +200,24 @@ export default function HomePage() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
+        console.log('Fetching initial categories and brands...');
+        
         const [categoriesRes, brandsRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/tree`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
         ]);
+        
+        console.log('Categories response status:', categoriesRes.status);
+        console.log('Brands response status:', brandsRes.status);
+        
         const [categoriesData, brandsData] = await Promise.all([
           categoriesRes.json(),
           brandsRes.json(),
         ]);
+        
+        console.log('Categories data:', categoriesData);
+        console.log('Brands data:', brandsData);
+        
         if (
           categoriesData &&
           Array.isArray(categoriesData) &&
@@ -240,9 +250,9 @@ export default function HomePage() {
           setCategoryTree(buildCategoryTree(categoriesData));
         }
         setBrands(brandsData);
-          } catch {
-      // Handle error silently
-    }
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      }
     };
     fetchInitialData();
   }, []);
@@ -258,10 +268,32 @@ export default function HomePage() {
         ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
         ...(searchQuery ? { search: searchQuery } : {}),
       });
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
-      if (!response.ok) throw new Error('Failed to fetch products');
+      
+      console.log('Fetching filtered products with params:', {
+        priceRange,
+        selectedCategories,
+        selectedBrands,
+        searchQuery,
+        queryParams: queryParams.toString()
+      });
+      
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      console.log('API URL:', apiUrl);
+      
+      const response = await fetch(apiUrl);
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+      
       const result: ApiResponse<ApiProduct[]> = await response.json();
       let filtered = result.data || [];
+
+      console.log('Raw products from API:', filtered.length);
+      console.log('Sample product:', filtered[0]);
 
       // Lọc lại phía client nếu cần (search theo tên, category cha, category con)
       if (searchQuery) {
@@ -275,20 +307,38 @@ export default function HomePage() {
           );
           return nameMatch || catMatch;
         });
+        console.log('After search filter:', filtered.length);
       }
 
       // Lọc theo khoảng giá phía client nếu backend chưa hỗ trợ
       filtered = (Array.isArray(filtered) ? filtered : []).filter(
         (product: Product) => product.price >= priceRange[0] && product.price <= priceRange[1]
       );
+      console.log('After price filter:', filtered.length);
+      
       // Lọc theo category (nếu có chọn)
       if (selectedCategories.length > 0) {
-        filtered = filtered.filter((product: Product) =>
-          (product.categories || []).some(
+        console.log('Filtering by categories:', selectedCategories);
+        filtered = filtered.filter((product: Product) => {
+          const hasMatchingCategory = (product.categories || []).some(
             (cat: { _id: string; name: string; parentCategory?: { name: string } }) =>
               selectedCategories.includes(cat._id)
-          )
-        );
+          );
+          console.log(`Product ${product.name} categories:`, product.categories, 'has match:', hasMatchingCategory);
+          return hasMatchingCategory;
+        });
+        console.log('After category filter:', filtered.length);
+      }
+
+      // Lọc theo brand (nếu có chọn)
+      if (selectedBrands.length > 0) {
+        console.log('Filtering by brands:', selectedBrands);
+        filtered = filtered.filter((product: Product) => {
+          const hasMatchingBrand = product.brand && selectedBrands.includes(product.brand._id);
+          console.log(`Product ${product.name} brand:`, product.brand, 'has match:', hasMatchingBrand);
+          return hasMatchingBrand;
+        });
+        console.log('After brand filter:', filtered.length);
       }
 
       // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
@@ -316,13 +366,35 @@ export default function HomePage() {
         return libFileNames.includes(fileName);
       };
       const libFiltered = filtered.filter((p: Product) => isLib(p));
-      setLibProducts(libFiltered);
-      setOtherProducts(filtered.filter((p: Product) => !isLib(p)));
+      
+      // Debug: Check for duplicate IDs
+      const libProductIds = libFiltered.map(p => p._id);
+      const duplicateIds = libProductIds.filter((id, index) => libProductIds.indexOf(id) !== index);
+      if (duplicateIds.length > 0) {
+        console.warn('Duplicate product IDs found in lib products:', duplicateIds);
+      }
+      
+      // Remove duplicates based on _id
+      const uniqueLibProducts = libFiltered.filter((product, index, self) => 
+        index === self.findIndex(p => p._id === product._id)
+      );
+      
+      setLibProducts(uniqueLibProducts);
+      
+      // Remove duplicates from other products as well
+      const otherFiltered = filtered.filter((p: Product) => !isLib(p));
+      const uniqueOtherProducts = otherFiltered.filter((product, index, self) => 
+        index === self.findIndex(p => p._id === product._id)
+      );
+      
+      setOtherProducts(uniqueOtherProducts);
       setProducts(prev => ({ ...prev, filtered }));
       
       // Debug: Log kết quả phân loại
-      console.log('Lib products count:', libFiltered.length);
-      console.log('Other products count:', filtered.filter((p: Product) => !isLib(p)).length);
+      console.log('Lib products count (before dedup):', libFiltered.length);
+      console.log('Lib products count (after dedup):', uniqueLibProducts.length);
+      console.log('Other products count (before dedup):', otherFiltered.length);
+      console.log('Other products count (after dedup):', uniqueOtherProducts.length);
     } catch (error) {
       setLibProducts([]);
       setOtherProducts([]);
@@ -448,14 +520,16 @@ export default function HomePage() {
 
   // Fetch filtered products when filters change
   useEffect(() => {
+    console.log('Filters changed, fetching filtered products');
     fetchFilteredProducts();
-  }, [fetchFilteredProducts]);
+  }, [priceRange, selectedCategories, selectedBrands, searchQuery]);
 
   // Fetch initial data (chỉ chạy 1 lần khi component mount)
   useEffect(() => {
+    console.log('Component mounted, fetching initial data');
     fetchFilteredProducts();
     fetchTabProducts(TABS[tab].key);
-  }, [fetchFilteredProducts, fetchTabProducts, tab]);
+  }, []); // Chỉ chạy 1 lần khi mount
 
   // Fetch tabbed products khi đổi tab
   useEffect(() => {
@@ -485,16 +559,31 @@ export default function HomePage() {
   const handlePriceChange = (event: Event, newValue: number | number[]) => {
     setPriceRange(newValue as number[]);
   };
-  const handleCategoryChange = (categoryId: string, checked: boolean) => {
-    setSelectedCategories(prev =>
-      checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId)
-    );
-  };
-  const handleBrandChange = (event: React.ChangeEvent<HTMLInputElement>, brandId: string) => {
-    setSelectedBrands(prev =>
-      event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId)
-    );
-  };
+  // Memoize categories data to prevent unnecessary re-renders
+  const memoizedCategoryTree = useMemo(() => categoryTree, [categoryTree]);
+  const memoizedSelectedCategories = useMemo(() => selectedCategories, [selectedCategories]);
+  const memoizedSelectedBrands = useMemo(() => selectedBrands, [selectedBrands]);
+  const memoizedBrands = useMemo(() => brands, [brands]);
+
+  // Optimize category change handler with useCallback
+  const handleCategoryChange = useCallback((categoryId: string, checked: boolean) => {
+    console.log('Category filter changed:', { categoryId, checked });
+    setSelectedCategories(prev => {
+      const newSelected = checked ? [...prev, categoryId] : prev.filter(id => id !== categoryId);
+      console.log('New selected categories:', newSelected);
+      return newSelected;
+    });
+  }, []);
+
+  // Optimize brand change handler with useCallback
+  const handleBrandChange = useCallback((event: React.ChangeEvent<HTMLInputElement>, brandId: string) => {
+    console.log('Brand filter changed:', { brandId, checked: event.target.checked });
+    setSelectedBrands(prev => {
+      const newSelected = event.target.checked ? [...prev, brandId] : prev.filter(id => id !== brandId);
+      console.log('New selected brands:', newSelected);
+      return newSelected;
+    });
+  }, []);
 
   const handleProductCardClick = (productId: string, product?: Product) => {
     setSelectedProductId(productId);
@@ -632,12 +721,14 @@ export default function HomePage() {
                 mb: rowIdx === 0 ? 6 : 2, // tăng khoảng cách giữa 2 hàng
               }}
             >
-              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map(product => {
+              {libProducts.slice(rowIdx * 3, rowIdx * 3 + 3).map((product, productIndex) => {
                 // Luôn lấy đúng ảnh lib
                 const imgSrc = `/assets/images/lib/${product.images?.[0] || ''}`;
+                const uniqueKey = `lib-${product._id}-${rowIdx}-${productIndex}`;
+                console.log('Lib product key:', uniqueKey, 'product:', product._id);
                 return (
                   <ProductCard
-                    key={`lib-${product._id}-${rowIdx}-${product.images?.[0] || 'no-image'}`}
+                    key={uniqueKey}
                     productId={product._id}
                     name={product.name}
                     image={imgSrc}
@@ -858,6 +949,8 @@ export default function HomePage() {
                     </Box>
                   </Box>
 
+
+
                   {/* Categories */}
                   <Box sx={{ mb: 3 }}>
                     <Typography
@@ -872,11 +965,13 @@ export default function HomePage() {
                     >
                       Categories
                     </Typography>
-                    <CategoryTreeFilter
-                      categories={categoryTree}
-                      selectedCategories={selectedCategories}
-                      onCategoryChange={handleCategoryChange}
-                    />
+                    <Box sx={{ position: 'relative', zIndex: 10 }}>
+                      <CategoryTreeFilter
+                        categories={memoizedCategoryTree}
+                        selectedCategories={memoizedSelectedCategories}
+                        onCategoryChange={handleCategoryChange}
+                      />
+                    </Box>
                   </Box>
 
                   {/* Brands */}
@@ -893,35 +988,28 @@ export default function HomePage() {
                     >
                       Brands
                     </Typography>
-                    <FormGroup>
-                      {brands.map(brand => (
-                        <FormControlLabel
-                          key={brand._id}
-                          control={
-                            <Checkbox
-                              checked={selectedBrands.includes(brand._id)}
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                                handleBrandChange(e, brand._id)
-                              }
-                              sx={{
-                                '@media screen and (width: 1440px) and (height: 1920px)': {
-                                  '& .MuiSvgIcon-root': {
-                                    fontSize: '1.5rem',
-                                  },
-                                },
+                    <Box sx={{ position: 'relative', zIndex: 10 }}>
+                      <FormGroup>
+                        {memoizedBrands.map(brand => (
+                          <Box key={brand._id} sx={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
+                            <input
+                              type="checkbox"
+                              checked={memoizedSelectedBrands.includes(brand._id)}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                console.log('Brand checkbox clicked:', { brandId: brand._id, checked: e.target.checked });
+                                handleBrandChange(e, brand._id);
                               }}
+                              onClick={(e) => {
+                                console.log('Brand checkbox onClick:', { brandId: brand._id });
+                                e.stopPropagation();
+                              }}
+                              style={{ marginRight: '8px', cursor: 'pointer' }}
                             />
-                          }
-                          label={brand.name}
-                          sx={{
-                            '@media screen and (width: 1440px) and (height: 1920px)': {
-                              fontSize: '1.1rem',
-                              marginBottom: '0.5rem',
-                            },
-                          }}
-                        />
-                      ))}
-                    </FormGroup>
+                            <Typography variant="body2">{brand.name}</Typography>
+                          </Box>
+                        ))}
+                      </FormGroup>
+                    </Box>
                   </Box>
                 </Box>
               </Box>

@@ -358,7 +358,8 @@ const Header = () => {
           width: '100%',
           left: 0,
           top: 0,
-          zIndex: 100,
+          zIndex: 1000,
+          height: { xs: '64px', sm: '64px', md: '64px' }, // Responsive height
           transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
           transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
         }}
@@ -367,7 +368,8 @@ const Header = () => {
         <Toolbar
           suppressHydrationWarning
           sx={{
-            minHeight: 64,
+            minHeight: { xs: '64px !important', sm: '64px !important', md: '64px !important' },
+            height: { xs: '64px', sm: '64px', md: '64px' },
             px: { xs: 1, md: 2 },
             width: '100%',
             maxWidth: 1920,
@@ -375,6 +377,7 @@ const Header = () => {
             bgcolor: 'white',
             display: 'flex',
             flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
           {/* Logo - Left */}

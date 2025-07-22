@@ -1,12 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Checkbox,
-  FormControlLabel,
   Typography,
   Box,
 } from '@mui/material';
@@ -19,14 +17,43 @@ interface CategoryTreeFilterProps {
   onCategoryChange: (categoryId: string, checked: boolean) => void;
 }
 
-const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
+const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
   categories,
   selectedCategories,
   onCategoryChange,
 }) => {
-  const renderCategoryNode = (category: CategoryTree, level: number = 0) => {
+  console.log('CategoryTreeFilter render:', { categories: categories.length, selectedCategories });
+  
+  // Memoize the onCategoryChange handler to prevent child re-renders
+  const memoizedOnCategoryChange = useCallback((categoryId: string, checked: boolean) => {
+    console.log('Category checkbox onChange:', { categoryId, checked });
+    onCategoryChange(categoryId, checked);
+  }, [onCategoryChange]);
+
+  // Memoize the checkbox click handler
+  const handleCheckboxClick = useCallback((e: React.MouseEvent) => {
+    console.log('Category checkbox onClick');
+    e.stopPropagation();
+  }, []);
+
+  // Memoize the checkbox change handler for parent categories
+  const handleParentCheckboxChange = useCallback((categoryId: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Category checkbox onChange (parent):', { categoryId, checked: e.target.checked });
+    e.stopPropagation();
+    memoizedOnCategoryChange(categoryId, e.target.checked);
+  }, [memoizedOnCategoryChange]);
+
+  // Memoize the checkbox change handler for leaf categories
+  const handleLeafCheckboxChange = useCallback((categoryId: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Category checkbox onChange (leaf):', { categoryId, checked: e.target.checked });
+    memoizedOnCategoryChange(categoryId, e.target.checked);
+  }, [memoizedOnCategoryChange]);
+
+  const renderCategoryNode = useCallback((category: CategoryTree, level: number = 0) => {
     const hasChildren = category.children && category.children.length > 0;
     const isSelected = selectedCategories.includes(category._id);
+
+    console.log('Rendering category:', { id: category._id, name: category.name, isSelected, hasChildren });
 
     if (hasChildren) {
       return (
@@ -47,22 +74,18 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
               },
             }}
           >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isSelected}
-                  onChange={e => onCategoryChange(category._id, e.target.checked)}
-                  onClick={e => e.stopPropagation()}
-                  size="small"
-                />
-              }
-              label={
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {category.name}
-                </Typography>
-              }
-              sx={{ margin: 0, width: '100%' }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={handleParentCheckboxChange(category._id)}
+                onClick={handleCheckboxClick}
+                style={{ marginRight: '8px', cursor: 'pointer' }}
+              />
+              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                {category.name}
+              </Typography>
+            </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ pt: 0, pb: 1 }}>
             <Box sx={{ ml: 2 }}>
@@ -75,22 +98,28 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = ({
 
     return (
       <Box key={category._id} sx={{ ml: level * 2 + 2, mb: 0.5 }}>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={isSelected}
-              onChange={e => onCategoryChange(category._id, e.target.checked)}
-              size="small"
-            />
-          }
-          label={<Typography variant="body2">{category.name}</Typography>}
-          sx={{ margin: 0 }}
-        />
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={handleLeafCheckboxChange(category._id)}
+            onClick={handleCheckboxClick}
+            style={{ marginRight: '8px', cursor: 'pointer' }}
+          />
+          <Typography variant="body2">{category.name}</Typography>
+        </Box>
       </Box>
     );
-  };
+  }, [selectedCategories, handleParentCheckboxChange, handleLeafCheckboxChange, handleCheckboxClick]);
 
-  return <Box>{categories.map(category => renderCategoryNode(category))}</Box>;
-};
+  // Memoize the rendered categories
+  const renderedCategories = useMemo(() => {
+    return categories.map(category => renderCategoryNode(category));
+  }, [categories, renderCategoryNode]);
+
+  return <Box>{renderedCategories}</Box>;
+});
+
+CategoryTreeFilter.displayName = 'CategoryTreeFilter';
 
 export default CategoryTreeFilter;

@@ -19,35 +19,26 @@ interface ClientLayoutProps {
 }
 
 const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
-  // Overlay state
+  const pathname = usePathname();
   const [showOverlay, setShowOverlay] = useState(false);
   const [fadeType, setFadeType] = useState<'in' | 'out'>('in');
-  const pathname = usePathname();
-  const prevPath = useRef<string | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const prevPathname = useRef(pathname);
+  const isManagerPage = pathname?.includes('/manager') || pathname?.includes('/admin');
 
   useEffect(() => {
-    if (prevPath.current !== null && prevPath.current !== pathname) {
+    if (prevPathname.current !== pathname) {
+      setFadeType('out');
       setShowOverlay(true);
-      setFadeType('in');
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        setFadeType('out');
-        timeoutRef.current = setTimeout(() => {
-          setShowOverlay(false);
-        }, 600);
-      }, 400);
-    }
-    prevPath.current = pathname;
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [pathname]);
 
-  const isManagerPage =
-    typeof window !== 'undefined'
-      ? window.location.pathname.startsWith(`/${locale}/manager`)
-      : false;
+      const timer = setTimeout(() => {
+        setFadeType('in');
+        setShowOverlay(false);
+        prevPathname.current = pathname;
+      }, 300);
+
+      return () => clearTimeout(timer);
+    }
+  }, [pathname]);
 
   return (
     <ThemeProvider>
@@ -80,6 +71,8 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
                 width: '100%',
                 maxWidth: 'none',
                 px: 0,
+                // Add responsive padding-top to prevent header overlap
+                pt: { xs: '64px', sm: '64px', md: '64px' }, // Match header height
                 '@media screen and (width: 1440px) and (height: 1920px)': {
                   fontSize: '1.1rem',
                 },
