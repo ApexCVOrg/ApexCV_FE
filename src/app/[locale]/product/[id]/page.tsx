@@ -40,6 +40,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
+import { useFavorites } from '@/hooks/useFavorites';
 // import FavoriteButton from '@/components/ui/FavoriteButton';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
@@ -98,6 +99,7 @@ export default function ProductDetailPage() {
   const t = useTranslations('productDetail');
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -114,7 +116,6 @@ export default function ProductDetailPage() {
   }>({ open: false, message: '', severity: 'success' });
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -770,10 +771,10 @@ export default function ProductDetailPage() {
               <IconButton
                 sx={{
                   border: '1px solid #ddd',
-                  color: isFavorite ? '#ff3b30' : '#000',
+                  color: isFavorite(product?._id || '') ? '#ff3b30' : '#000',
                   '&:hover': { bgcolor: '#f5f5f5' },
                 }}
-                onClick={() => setIsFavorite(!isFavorite)}
+                onClick={() => product?._id && toggleFavorite(product._id)}
               >
                 <Favorite />
               </IconButton>

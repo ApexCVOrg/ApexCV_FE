@@ -78,6 +78,20 @@ export default function CartPage() {
   const [promoCodeExpanded, setPromoCodeExpanded] = useState(false);
   const t = useTranslations('cartPage');
   const { isAuthenticated, getCurrentUser } = useAuth();
+  const blackBorderStyle = {
+    borderRadius: 0,
+    border: '2px solid black',
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 0,
+      '& fieldset': { borderColor: 'black', borderWidth: 2 },
+      '&:hover fieldset': { borderColor: 'black' },
+      '&.Mui-focused fieldset': { borderColor: 'black' },
+    },
+    '& .MuiInputLabel-root': {
+      color: 'black',
+      '&.Mui-focused': { color: 'black' },
+    },
+  };
 
   // Prevent form submission that could cause page reload
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -433,8 +447,8 @@ export default function CartPage() {
         paymentMethod: 'VNPAY',
         totalPrice: total,
         taxPrice: 0,
-        shippingPrice: 0,
-        user: currentUser.id,
+        shippingPrice: 50000, // Luôn là 50.000 VND
+        user: currentUser.id, // Thêm user ID để backend có thể lấy thông tin
       };
 
       console.log('VNPAY data:', vnpayData);
@@ -465,7 +479,7 @@ export default function CartPage() {
   };
 
   const subtotal = calculateSubtotal();
-  const shipping = 0;
+  const shipping = 50000;
   const total = subtotal + shipping;
 
   const hasIncompleteItems = cart.cartItems.some(item => {
@@ -881,8 +895,79 @@ export default function CartPage() {
                       </IconButton>
                     </Box>
 
-                    {/* Price Display */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    {/* Voucher input */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <TextField
+                        size="small"
+                        label="Coupon"
+                        value={couponInputs[cartItem._id] || ''}
+                        onChange={e =>
+                          setCouponInputs(v => ({
+                            ...v,
+                            [cartItem._id]: e.target.value.toUpperCase(),
+                          }))
+                        }
+                        sx={{ width: 140, ...blackBorderStyle }}
+                        inputProps={{ style: { textTransform: 'uppercase' } }}
+                        disabled={isUpdating || applyingCouponId === cartItem._id || !!appliedCoupon}
+                      />
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{
+                          minWidth: 80,
+                          borderRadius: 0,
+                          fontWeight: 700,
+                          ml: 1,
+                          borderColor: 'black',
+                          color: 'black',
+                        }}
+                        disabled={
+                          isUpdating ||
+                          !couponInputs[cartItem._id] ||
+                          applyingCouponId === cartItem._id ||
+                          !!appliedCoupon
+                        }
+                        onClick={() => handleApplyCoupon(cartItem)}
+                      >
+                        {applyingCouponId === cartItem._id ? 'Đang áp dụng...' : 'Áp dụng'}
+                      </Button>
+                      {appliedCoupon && (
+                        <>
+                          <Chip
+                            label={`Đã áp dụng: ${appliedCoupon.code}`}
+                            color="success"
+                            size="small"
+                            sx={{ ml: 1, fontWeight: 700, borderRadius: 0 }}
+                            onDelete={() => {
+                              setAppliedCoupons(v => {
+                                const newV = { ...v };
+                                delete newV[cartItem._id];
+                                return newV;
+                              });
+                              setCouponInputs(v => {
+                                const newV = { ...v };
+                                delete newV[cartItem._id];
+                                return newV;
+                              });
+                            }}
+                          />
+                          {appliedCoupon.message && (
+                            <Typography variant="caption" color="success.main" sx={{ ml: 1 }}>
+                              {appliedCoupon.message}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Box>
+                    {/* Hiển thị lỗi coupon */}
+                    {couponError && (
+                      <Typography variant="caption" color="error" sx={{ mb: 1 }}>
+                        {couponError}
+                      </Typography>
+                    )}
+                    {/* Giá sản phẩm sau coupon */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       {discountedPrice !== originalPrice ? (
                         <>
                           <Typography
@@ -904,7 +989,7 @@ export default function CartPage() {
                             })}
                           </Typography>
                           <Chip
-                            label={`- ${appliedCoupon?.discountAmount ? Math.round((100 * appliedCoupon.discountAmount) / originalPrice) : Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
+                            label={`- ${Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
                             sx={{
                               bgcolor: 'black',
                               color: 'white',
