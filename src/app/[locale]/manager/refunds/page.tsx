@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Paper, Typography, Box, Button, Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Alert, CircularProgress } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import styled from '@emotion/styled';
-import Image from 'next/image'; // Use next/image for optimized images
 
 interface RefundRequest {
   _id: string;
@@ -87,16 +86,6 @@ const ImagePreviewContainer = styled(Box)`
   margin-top: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
-`;
-
-const StyledImage = styled(Image)`
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid #ddd;
-  transition: transform 0.2s ease;
-  &:hover {
-    transform: scale(1.05);
-  }
 `;
 
 const ActionButtonsContainer = styled(Box)`
@@ -234,6 +223,8 @@ export default function ManagerRefundsPage() {
     }
   };
 
+  const BE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
+
   return (
     <PageContainer>
       <PageTitle variant="h4">Quản lý yêu cầu hoàn tiền</PageTitle>
@@ -280,11 +271,14 @@ export default function ManagerRefundsPage() {
                 {Array.isArray(refund.images) && refund.images.length > 0 && (
                   <ImagePreviewContainer>
                     <Typography variant="body2" sx={{ fontWeight: 600, color: '#555', width: '100%', mb: 0.5 }}>Ảnh minh chứng:</Typography>
-                    {refund.images.map((url: string, idx: number) => (
-                      <a key={idx} href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                        <StyledImage src={url} alt={`refund-img-${idx}`} width={90} height={90} />
-                      </a>
-                    ))}
+                    {refund.images.map((url: string, idx: number) => {
+                      const fullUrl = url.startsWith('http') ? url : `${BE_URL}${url}`;
+                      return (
+                        <a key={idx} href={fullUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                          <img src={fullUrl} alt={`refund-img-${idx}`} width={90} height={90} style={{ borderRadius: 8, objectFit: 'cover', border: '1px solid #ddd' }} />
+                        </a>
+                      );
+                    })}
                   </ImagePreviewContainer>
                 )}
                 <InfoText sx={{ fontSize: '0.9rem', color: '#757575' }}>
