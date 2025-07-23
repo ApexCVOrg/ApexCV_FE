@@ -843,6 +843,7 @@
     }
   },
   "profile": {
+    "personalInfo": "Thông tin cá nhân",
     "fullName": "Họ và tên",
     "email": "Email",
     "phone": "Số điện thoại",

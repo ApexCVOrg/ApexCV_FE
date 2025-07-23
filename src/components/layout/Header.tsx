@@ -232,35 +232,6 @@ const Header = () => {
     {
       title: tHeader('outlet.title'),
       href: ROUTES.OUTLET.ROOT,
-      submenu: [
-        {
-          title: tHeader('outlet.men.title'),
-          children: [
-            { title: tHeader('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
-            { title: tHeader('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
-            { title: tHeader('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
-            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN },
-          ],
-        },
-        {
-          title: tHeader('outlet.women.title'),
-          children: [
-            { title: tHeader('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
-            { title: tHeader('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
-            { title: tHeader('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
-            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN },
-          ],
-        },
-        {
-          title: tHeader('outlet.kids.title'),
-          children: [
-            { title: tHeader('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
-            { title: tHeader('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
-            { title: tHeader('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
-            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS },
-          ],
-        },
-      ],
     },
   ];
 
