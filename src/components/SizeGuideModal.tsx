@@ -63,7 +63,7 @@ function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
-    <Box
+    <div
       role="tabpanel"
       hidden={value !== index}
       id={`size-guide-tabpanel-${index}`}
@@ -71,7 +71,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </Box>
+    </div>
   );
 }
 
@@ -100,7 +100,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
                 { size: '43', length: '27.5cm', width: '10.5cm', description: 'Chân lớn' },
                 { size: '44', length: '28cm', width: '10.8cm', description: 'Chân lớn' },
                 { size: '45', length: '28.5cm', width: '11cm', description: 'Chân rất lớn' },
-              ],
+              ]
             },
             {
               label: 'Nữ',
@@ -111,7 +111,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
                 { size: '39', length: '25cm', width: '9.2cm', description: 'Chân trung bình' },
                 { size: '40', length: '25.5cm', width: '9.5cm', description: 'Chân lớn' },
                 { size: '41', length: '26cm', width: '9.8cm', description: 'Chân lớn' },
-              ],
+              ]
             },
             {
               label: 'Trẻ Em',
@@ -121,11 +121,11 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
                 { size: '32', length: '20cm', width: '7.5cm', description: '6-7 tuổi' },
                 { size: '34', length: '21cm', width: '8cm', description: '8-9 tuổi' },
                 { size: '36', length: '22cm', width: '8.5cm', description: '10-11 tuổi' },
-              ],
-            },
-          ],
+              ]
+            }
+          ]
         };
-
+      
       case 'clothing':
         return {
           title: 'Hướng Dẫn Chọn Size Áo',
@@ -134,119 +134,35 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
             {
               label: 'Nam',
               data: [
-                {
-                  size: 'S',
-                  chest: '96-100cm',
-                  length: '68cm',
-                  shoulder: '44cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: 'M',
-                  chest: '100-104cm',
-                  length: '70cm',
-                  shoulder: '46cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'L',
-                  chest: '104-108cm',
-                  length: '72cm',
-                  shoulder: '48cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'XL',
-                  chest: '108-112cm',
-                  length: '74cm',
-                  shoulder: '50cm',
-                  description: 'Người to',
-                },
-                {
-                  size: 'XXL',
-                  chest: '112-116cm',
-                  length: '76cm',
-                  shoulder: '52cm',
-                  description: 'Người rất to',
-                },
-              ],
+                { size: 'S', chest: '96-100cm', length: '68cm', shoulder: '44cm', description: 'Người gầy' },
+                { size: 'M', chest: '100-104cm', length: '70cm', shoulder: '46cm', description: 'Người trung bình' },
+                { size: 'L', chest: '104-108cm', length: '72cm', shoulder: '48cm', description: 'Người trung bình' },
+                { size: 'XL', chest: '108-112cm', length: '74cm', shoulder: '50cm', description: 'Người to' },
+                { size: 'XXL', chest: '112-116cm', length: '76cm', shoulder: '52cm', description: 'Người rất to' },
+              ]
             },
             {
               label: 'Nữ',
               data: [
-                {
-                  size: 'XS',
-                  chest: '80-84cm',
-                  length: '60cm',
-                  shoulder: '36cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: 'S',
-                  chest: '84-88cm',
-                  length: '62cm',
-                  shoulder: '38cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: 'M',
-                  chest: '88-92cm',
-                  length: '64cm',
-                  shoulder: '40cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'L',
-                  chest: '92-96cm',
-                  length: '66cm',
-                  shoulder: '42cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'XL',
-                  chest: '96-100cm',
-                  length: '68cm',
-                  shoulder: '44cm',
-                  description: 'Người to',
-                },
-              ],
+                { size: 'XS', chest: '80-84cm', length: '60cm', shoulder: '36cm', description: 'Người gầy' },
+                { size: 'S', chest: '84-88cm', length: '62cm', shoulder: '38cm', description: 'Người gầy' },
+                { size: 'M', chest: '88-92cm', length: '64cm', shoulder: '40cm', description: 'Người trung bình' },
+                { size: 'L', chest: '92-96cm', length: '66cm', shoulder: '42cm', description: 'Người trung bình' },
+                { size: 'XL', chest: '96-100cm', length: '68cm', shoulder: '44cm', description: 'Người to' },
+              ]
             },
             {
               label: 'Trẻ Em',
               data: [
-                {
-                  size: '4-5Y',
-                  chest: '56-60cm',
-                  length: '42cm',
-                  shoulder: '28cm',
-                  description: '4-5 tuổi',
-                },
-                {
-                  size: '6-7Y',
-                  chest: '60-64cm',
-                  length: '44cm',
-                  shoulder: '30cm',
-                  description: '6-7 tuổi',
-                },
-                {
-                  size: '8-9Y',
-                  chest: '64-68cm',
-                  length: '46cm',
-                  shoulder: '32cm',
-                  description: '8-9 tuổi',
-                },
-                {
-                  size: '10-11Y',
-                  chest: '68-72cm',
-                  length: '48cm',
-                  shoulder: '34cm',
-                  description: '10-11 tuổi',
-                },
-              ],
-            },
-          ],
+                { size: '4-5Y', chest: '56-60cm', length: '42cm', shoulder: '28cm', description: '4-5 tuổi' },
+                { size: '6-7Y', chest: '60-64cm', length: '44cm', shoulder: '30cm', description: '6-7 tuổi' },
+                { size: '8-9Y', chest: '64-68cm', length: '46cm', shoulder: '32cm', description: '8-9 tuổi' },
+                { size: '10-11Y', chest: '68-72cm', length: '48cm', shoulder: '34cm', description: '10-11 tuổi' },
+              ]
+            }
+          ]
         };
-
+      
       case 'pants':
         return {
           title: 'Hướng Dẫn Chọn Size Quần',
@@ -255,131 +171,41 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
             {
               label: 'Nam',
               data: [
-                {
-                  size: '28',
-                  waist: '71-76cm',
-                  length: '32inch',
-                  hip: '91-96cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: '30',
-                  waist: '76-81cm',
-                  length: '32inch',
-                  hip: '96-101cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: '32',
-                  waist: '81-86cm',
-                  length: '32inch',
-                  hip: '101-106cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: '34',
-                  waist: '86-91cm',
-                  length: '32inch',
-                  hip: '106-111cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: '36',
-                  waist: '91-96cm',
-                  length: '32inch',
-                  hip: '111-116cm',
-                  description: 'Người to',
-                },
-                {
-                  size: '38',
-                  waist: '96-101cm',
-                  length: '32inch',
-                  hip: '116-121cm',
-                  description: 'Người to',
-                },
-              ],
+                { size: '28', waist: '71-76cm', length: '32inch', hip: '91-96cm', description: 'Người gầy' },
+                { size: '30', waist: '76-81cm', length: '32inch', hip: '96-101cm', description: 'Người gầy' },
+                { size: '32', waist: '81-86cm', length: '32inch', hip: '101-106cm', description: 'Người trung bình' },
+                { size: '34', waist: '86-91cm', length: '32inch', hip: '106-111cm', description: 'Người trung bình' },
+                { size: '36', waist: '91-96cm', length: '32inch', hip: '111-116cm', description: 'Người to' },
+                { size: '38', waist: '96-101cm', length: '32inch', hip: '116-121cm', description: 'Người to' },
+              ]
             },
             {
               label: 'Nữ',
               data: [
-                {
-                  size: 'XS',
-                  waist: '66-71cm',
-                  length: '30inch',
-                  hip: '86-91cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: 'S',
-                  waist: '71-76cm',
-                  length: '30inch',
-                  hip: '91-96cm',
-                  description: 'Người gầy',
-                },
-                {
-                  size: 'M',
-                  waist: '76-81cm',
-                  length: '30inch',
-                  hip: '96-101cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'L',
-                  waist: '81-86cm',
-                  length: '30inch',
-                  hip: '101-106cm',
-                  description: 'Người trung bình',
-                },
-                {
-                  size: 'XL',
-                  waist: '86-91cm',
-                  length: '30inch',
-                  hip: '106-111cm',
-                  description: 'Người to',
-                },
-              ],
+                { size: 'XS', waist: '66-71cm', length: '30inch', hip: '86-91cm', description: 'Người gầy' },
+                { size: 'S', waist: '71-76cm', length: '30inch', hip: '91-96cm', description: 'Người gầy' },
+                { size: 'M', waist: '76-81cm', length: '30inch', hip: '96-101cm', description: 'Người trung bình' },
+                { size: 'L', waist: '81-86cm', length: '30inch', hip: '101-106cm', description: 'Người trung bình' },
+                { size: 'XL', waist: '86-91cm', length: '30inch', hip: '106-111cm', description: 'Người to' },
+              ]
             },
             {
               label: 'Trẻ Em',
               data: [
-                {
-                  size: '4-5Y',
-                  waist: '51-56cm',
-                  length: '24inch',
-                  hip: '61-66cm',
-                  description: '4-5 tuổi',
-                },
-                {
-                  size: '6-7Y',
-                  waist: '56-61cm',
-                  length: '26inch',
-                  hip: '66-71cm',
-                  description: '6-7 tuổi',
-                },
-                {
-                  size: '8-9Y',
-                  waist: '61-66cm',
-                  length: '28inch',
-                  hip: '71-76cm',
-                  description: '8-9 tuổi',
-                },
-                {
-                  size: '10-11Y',
-                  waist: '66-71cm',
-                  length: '30inch',
-                  hip: '76-81cm',
-                  description: '10-11 tuổi',
-                },
-              ],
-            },
-          ],
+                { size: '4-5Y', waist: '51-56cm', length: '24inch', hip: '61-66cm', description: '4-5 tuổi' },
+                { size: '6-7Y', waist: '56-61cm', length: '26inch', hip: '66-71cm', description: '6-7 tuổi' },
+                { size: '8-9Y', waist: '61-66cm', length: '28inch', hip: '71-76cm', description: '8-9 tuổi' },
+                { size: '10-11Y', waist: '66-71cm', length: '30inch', hip: '76-81cm', description: '10-11 tuổi' },
+              ]
+            }
+          ]
         };
-
+      
       default:
         return {
           title: 'Hướng Dẫn Chọn Size',
           description: 'Chọn size phù hợp với cơ thể của bạn',
-          tabs: [],
+          tabs: []
         };
     }
   };
@@ -398,7 +224,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(row => (
+          {data.map((row) => (
             <TableRow key={row.size} hover>
               <TableCell sx={{ fontWeight: 'bold' }}>{row.size}</TableCell>
               <TableCell>{row.length}</TableCell>
@@ -426,7 +252,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(row => (
+          {data.map((row) => (
             <TableRow key={row.size} hover>
               <TableCell sx={{ fontWeight: 'bold' }}>{row.size}</TableCell>
               <TableCell>{row.chest}</TableCell>
@@ -455,7 +281,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(row => (
+          {data.map((row) => (
             <TableRow key={row.size} hover>
               <TableCell sx={{ fontWeight: 'bold' }}>{row.size}</TableCell>
               <TableCell>{row.waist}</TableCell>
@@ -494,18 +320,16 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
         sx: {
           borderRadius: 3,
           maxHeight: '90vh',
-        },
+        }
       }}
     >
-      <DialogTitle
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          borderBottom: '1px solid #eee',
-          pb: 2,
-        }}
-      >
+      <DialogTitle sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        borderBottom: '1px solid #eee',
+        pb: 2
+      }}>
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
             {sizeGuideData.title}
@@ -522,14 +346,14 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
       <DialogContent sx={{ p: 0 }}>
         {sizeGuideData.tabs.length > 0 && (
           <>
-            <Tabs
-              value={tabValue}
+            <Tabs 
+              value={tabValue} 
               onChange={handleTabChange}
-              sx={{
-                borderBottom: 1,
+              sx={{ 
+                borderBottom: 1, 
                 borderColor: 'divider',
                 px: 3,
-                pt: 2,
+                pt: 2
               }}
             >
               {sizeGuideData.tabs.map((tab, index) => (
@@ -544,7 +368,7 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
                     Size Guide - {tab.label}
                   </Typography>
                   {renderTable(tab.data)}
-
+                  
                   {/* Hướng dẫn đo */}
                   <Box sx={{ mt: 4, p: 3, bgcolor: '#f8f9fa', borderRadius: 2 }}>
                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
@@ -566,7 +390,9 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
                           <Typography variant="body2" sx={{ mb: 1 }}>
                             3. Đo từ gót đến ngón chân dài nhất
                           </Typography>
-                          <Typography variant="body2">4. Đối chiếu với bảng size trên</Typography>
+                          <Typography variant="body2">
+                            4. Đối chiếu với bảng size trên
+                          </Typography>
                         </Box>
                         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
                           <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -659,14 +485,14 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
       </DialogContent>
 
       <DialogActions sx={{ p: 3, borderTop: '1px solid #eee' }}>
-        <Button
-          onClick={onClose}
+        <Button 
+          onClick={onClose} 
           variant="contained"
-          sx={{
+          sx={{ 
             bgcolor: '#000',
             '&:hover': { bgcolor: '#333' },
             borderRadius: 2,
-            px: 3,
+            px: 3
           }}
         >
           {t('close')}
@@ -676,4 +502,4 @@ const SizeGuideModal: React.FC<SizeGuideModalProps> = ({ open, onClose, productT
   );
 };
 
-export default SizeGuideModal;
+export default SizeGuideModal; 

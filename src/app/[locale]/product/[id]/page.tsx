@@ -35,6 +35,7 @@ import {
   Close,
   Info,
   ZoomIn,
+  Check,
 } from '@mui/icons-material';
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
@@ -87,14 +88,6 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-interface Review {
-  _id: string;
-  user: { _id: string; fullName?: string; avatar?: string } | string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-}
-
 export default function ProductDetailPage() {
   const params = useParams();
   const t = useTranslations('productDetail');
@@ -119,8 +112,6 @@ export default function ProductDetailPage() {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [averageRating, setAverageRating] = useState<number>(0);
 
   const productId = params.id as string;
 
@@ -131,7 +122,7 @@ export default function ProductDetailPage() {
         const response = await api.get(`/products/${productId}`);
         const productData = response.data as { data: Product };
         setProduct(productData.data);
-
+        
         // Set default selections
         if (productData.data.colors?.length > 0) {
           setSelectedColor(productData.data.colors[0]);
@@ -155,7 +146,9 @@ export default function ProductDetailPage() {
   useEffect(() => {
     if (autoScroll && product?.images && product.images.length > 1) {
       autoScrollRef.current = setInterval(() => {
-        setSelectedImage(prev => (prev < product?.images?.length - 1 ? prev + 1 : 0));
+        setSelectedImage((prev) => 
+          prev < (product?.images?.length - 1) ? prev + 1 : 0
+        );
       }, 3000);
     }
 
@@ -165,35 +158,6 @@ export default function ProductDetailPage() {
       }
     };
   }, [autoScroll, product?.images]);
-
-  // Fetch reviews for this product
-  useEffect(() => {
-    const fetchReviews = async () => {
-      if (!product?._id) return;
-      try {
-        const res = await api.get(`/reviews?product=${product._id}`);
-        setReviews(res.data as Review[]);
-      } catch {
-        setReviews([]);
-      }
-    };
-    fetchReviews();
-  }, [product?._id]);
-
-  // Fetch average rating for this product
-  useEffect(() => {
-    const fetchAverage = async () => {
-      if (!productId) return;
-      try {
-        const res = await api.get(`/reviews/average/${productId}`);
-        const data = res.data as { average: number };
-        setAverageRating(data.average || 0);
-      } catch {
-        setAverageRating(0);
-      }
-    };
-    fetchAverage();
-  }, [productId]);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -267,25 +231,21 @@ export default function ProductDetailPage() {
   };
 
   const handlePrevImage = () => {
-    setSelectedImage(prev => (prev > 0 ? prev - 1 : (product?.images.length || 1) - 1));
+    setSelectedImage(prev => prev > 0 ? prev - 1 : (product?.images.length || 1) - 1);
   };
 
   const handleNextImage = () => {
-    setSelectedImage(prev => (prev < (product?.images.length || 1) - 1 ? prev + 1 : 0));
+    setSelectedImage(prev => prev < (product?.images.length || 1) - 1 ? prev + 1 : 0);
   };
 
   const getProductType = () => {
     if (!product) return 'clothing';
-
+    
     // Check category name
     const categoryName = product.categories?.[0]?.name?.toLowerCase() || '';
     const productName = product.name.toLowerCase();
-
-    if (
-      categoryName.includes('giày') ||
-      categoryName.includes('dép') ||
-      categoryName.includes('sneaker')
-    ) {
+    
+    if (categoryName.includes('giày') || categoryName.includes('dép') || categoryName.includes('sneaker')) {
       return 'shoes';
     } else if (categoryName.includes('quần') || productName.includes('quần')) {
       return 'pants';
@@ -293,6 +253,37 @@ export default function ProductDetailPage() {
       return 'clothing';
     }
   };
+
+  // Lấy danh sách màu duy nhất từ mảng sizes
+  const uniqueColors = product ? Array.from(new Set(product.sizes.map(sz => sz.color).filter(Boolean))) : [];
+  // Lấy danh sách size duy nhất theo màu đã chọn
+  const sizesForSelectedColor = product && selectedColor
+    ? product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size)
+    : [];
+  // Lấy danh sách màu duy nhất theo size đã chọn (nếu muốn UX tốt hơn)
+  const colorsForSelectedSize = product && selectedSize
+    ? Array.from(new Set(product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color)))
+    : uniqueColors;
+
+  // Khi chọn màu, nếu size hiện tại không còn hợp lệ thì reset size
+  useEffect(() => {
+    if (selectedColor && product) {
+      const validSizes = product.sizes.filter(sz => sz.color === selectedColor).map(sz => sz.size);
+      if (!validSizes.includes(selectedSize)) {
+        setSelectedSize(validSizes[0] || '');
+      }
+    }
+  }, [selectedColor, product]);
+
+  // Khi chọn size, nếu màu hiện tại không còn hợp lệ thì reset màu
+  useEffect(() => {
+    if (selectedSize && product) {
+      const validColors = product.sizes.filter(sz => sz.size === selectedSize).map(sz => sz.color);
+      if (!validColors.includes(selectedColor)) {
+        setSelectedColor(validColors[0] || '');
+      }
+    }
+  }, [selectedSize, product]);
 
   if (loading) {
     return (
@@ -321,7 +312,7 @@ export default function ProductDetailPage() {
   }
 
   const isDiscounted = product.discountPrice && product.discountPrice < product.price;
-  const discountPercentage = isDiscounted
+  const discountPercentage = isDiscounted 
     ? Math.round(((product.price - product.discountPrice!) / product.price) * 100)
     : 0;
 
@@ -380,7 +371,7 @@ export default function ProductDetailPage() {
               {product.images.length > 1 && (
                 <>
                   <IconButton
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       handlePrevImage();
                     }}
@@ -397,7 +388,7 @@ export default function ProductDetailPage() {
                     <ArrowBack />
                   </IconButton>
                   <IconButton
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       handleNextImage();
                     }}
@@ -438,7 +429,7 @@ export default function ProductDetailPage() {
                         bgcolor: selectedImage === index ? 'white' : 'rgba(255,255,255,0.5)',
                         cursor: 'pointer',
                       }}
-                      onClick={e => {
+                      onClick={(e) => {
                         e.stopPropagation();
                         setSelectedImage(index);
                       }}
@@ -494,8 +485,7 @@ export default function ProductDetailPage() {
                       borderRadius: 1,
                       overflow: 'hidden',
                       cursor: 'pointer',
-                      border:
-                        selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
+                      border: selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
                       bgcolor: '#f8f9fa',
                       display: 'flex',
                       alignItems: 'center',
@@ -523,7 +513,7 @@ export default function ProductDetailPage() {
             )}
           </Box>
         </Box>
-
+      </Box>
         {/* Product Info */}
         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
           <Box sx={{ position: 'sticky', top: 20 }}>
@@ -534,9 +524,9 @@ export default function ProductDetailPage() {
 
             {/* Rating */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Rating value={averageRating} precision={0.1} readOnly />
+              <Rating value={product.ratingsAverage} precision={0.1} readOnly />
               <Typography variant="body2" sx={{ ml: 1 }}>
-                {typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'} ({product.ratingsQuantity} đánh giá)
+                {product.ratingsAverage.toFixed(1)} ({product.ratingsQuantity} đánh giá)
               </Typography>
             </Box>
 
@@ -588,8 +578,53 @@ export default function ProductDetailPage() {
             </Box>
 
             {/* Color Picker */}
-            {product.colors.length > 0 && (
+            {uniqueColors.length > 0 && (
               <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom>
+                  {t('colors')}:
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  {uniqueColors.map((color) => (
+                    colorsForSelectedSize.includes(color) && (
+                      <Box
+                        key={color}
+                        sx={{
+                          position: 'relative',
+                          minWidth: 80,
+                          height: 40,
+                          borderRadius: 20,
+                          border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedColor === color ? '#000' : '#fff',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.2s',
+                          px: 2,
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
+                          },
+                        }}
+                        onClick={() => color && setSelectedColor(color)}
+                      >
+                        <Typography
+                          sx={{
+                            color: selectedColor === color ? '#fff' : '#000',
+                            fontWeight: 600,
+                            fontSize: 14,
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {color}
+                        </Typography>
+                        {selectedColor === color && (
+                          <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
+                        )}
+                      </Box>
+                    )
+                  ))}
+                </Box>
                 <ColorPicker
                   colors={product.colors}
                   selectedColor={selectedColor}
@@ -602,17 +637,12 @@ export default function ProductDetailPage() {
             )}
 
             {/* Size Selection */}
-            {getUniqueSizes().length > 0 && (
+            {sizesForSelectedColor.length > 0 && (
               <Box sx={{ mb: 3 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    mb: 2,
-                  }}
-                >
-                  <Typography variant="h6">{t('sizes')}:</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">
+                    {t('sizes')}:
+                  </Typography>
                   <Button
                     startIcon={<Info />}
                     onClick={() => setShowSizeGuide(true)}
@@ -621,7 +651,46 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
-                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {sizesForSelectedColor.map((size) => (
+                    <motion.div
+                      key={size}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: '50%',
+                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedSize === size ? '#000' : '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                        }}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        <Typography
+                          sx={{
+                            color: selectedSize === size ? '#fff' : '#000',
+                          fontWeight: 600,
+                          fontSize: 16,
+                        }}
+                      >
+                        {size}
+                      </Typography>
+                    </Box>
+                  </motion.div>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Stock Information */}
                 {/* Size Recommendation */}
                 <Box sx={{ mb: 2 }}>
                   <SizeRecommender
@@ -657,11 +726,7 @@ export default function ProductDetailPage() {
                           justifyContent: 'center',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
-                          opacity: selectedColor
-                            ? getStock(selectedColor, size) === 0
-                              ? 0.5
-                              : 1
-                            : 1,
+                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
                         }}
                         onClick={() => setSelectedSize(size)}
                       >
@@ -678,17 +743,15 @@ export default function ProductDetailPage() {
                     </motion.div>
                   ))}
                 </Box>
-              </Box>
-            )}
 
             {/* Stock Information */}
             {selectedColor && selectedSize && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" color="text.secondary">
-                  {t('colorSizeStock', {
+                  {t('colorSizeStock', { 
                     color: selectedColor,
-                    size: selectedSize,
-                    stock: getStock(selectedColor, selectedSize),
+                    size: selectedSize, 
+                    stock: getStock(selectedColor, selectedSize)
                   })}
                 </Typography>
               </Box>
@@ -704,7 +767,7 @@ export default function ProductDetailPage() {
                   <IconButton
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
-                    sx={{
+                    sx={{ 
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -716,11 +779,9 @@ export default function ProductDetailPage() {
                     {quantity}
                   </Typography>
                   <IconButton
-                    onClick={() =>
-                      setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))
-                    }
+                    onClick={() => setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))}
                     disabled={quantity >= getStock(selectedColor, selectedSize)}
-                    sx={{
+                    sx={{ 
                       border: '1px solid #ddd',
                       width: 40,
                       height: 40,
@@ -794,23 +855,23 @@ export default function ProductDetailPage() {
                   {t('tags')}:
                 </Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {product.tags.map(tag => (
-                    <Chip key={tag} label={tag} size="small" sx={{ mb: 1 }} />
+                  {product.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      sx={{ mb: 1 }}
+                    />
                   ))}
                 </Stack>
               </Box>
             )}
           </Box>
         </Box>
-      </Box>
 
       {/* Product Details Tabs */}
       <Box sx={{ mt: 6 }}>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
-        >
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tab label={t('description')} />
           <Tab label={t('specifications')} />
           <Tab label={t('reviews')} />
@@ -845,8 +906,7 @@ export default function ProductDetailPage() {
                       <strong>{t('status')}:</strong> {product.status}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('createdAt')}:</strong>{' '}
-                      {new Date(product.createdAt).toLocaleDateString('vi-VN')}
+                      <strong>{t('createdAt')}:</strong> {new Date(product.createdAt).toLocaleDateString('vi-VN')}
                     </Typography>
                   </Box>
                 </CardContent>
@@ -863,10 +923,10 @@ export default function ProductDetailPage() {
                       <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('colors')}:</strong> {product.colors?.join(', ') || 'No colors'}
+                      <strong>{t('colors')}:</strong> {uniqueColors.join(', ') || 'No colors'}
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('averageRating')}:</strong> {typeof product.ratingsAverage === 'number' ? product.ratingsAverage.toFixed(1) : '0.0'}/5
+                      <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
                     </Typography>
                     <Typography variant="body2" sx={{ mb: 1 }}>
                       <strong>{t('reviewCount')}:</strong> {product.ratingsQuantity}
@@ -879,34 +939,15 @@ export default function ProductDetailPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          {reviews.length === 0 ? (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
-              <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
-              <Typography variant="h6" color="text.secondary">
-                {t('noReviews')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {t('beFirstToReview')}
-              </Typography>
-            </Box>
-          ) : (
-            <Box sx={{ py: 2 }}>
-              {reviews.map((review) => (
-                <Box key={review._id} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
-                    {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <Rating value={review.rating} readOnly size="small" precision={0.5} sx={{ mr: 1 }} />
-                    <Typography variant="caption" color="text.secondary">
-                      {new Date(review.createdAt).toLocaleDateString('vi-VN')}
-                    </Typography>
-                  </Box>
-                  <Typography variant="body1" sx={{ color: '#222' }}>{review.comment}</Typography>
-                </Box>
-              ))}
-            </Box>
-          )}
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+            <Typography variant="h6" color="text.secondary">
+              {t('noReviews')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('beFirstToReview')}
+            </Typography>
+          </Box>
         </TabPanel>
       </Box>
 
@@ -975,4 +1016,4 @@ export default function ProductDetailPage() {
       </Snackbar>
     </Container>
   );
-}
+} 
