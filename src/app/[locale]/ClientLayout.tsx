@@ -8,7 +8,6 @@ import PageTransitionOverlay from '@/components/ui/PageTransitionOverlay';
 import { NextIntlClientProvider } from 'next-intl';
 import { messages } from '@/lib/i18n/messages';
 import { usePathname } from 'next/navigation';
-import { ThemeProvider } from '@/context/ThemeContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import ChatBox from '@/components/ChatBox';
 import AutoLogoutNotification from '@/components/ui/AutoLogoutNotification';
@@ -44,51 +43,57 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   }, [pathname]);
 
   return (
-    <ThemeProvider>
-      <NextIntlClientProvider locale={locale} messages={messages[locale as keyof typeof messages]}>
-        <FavoritesProvider>
-          <PageTransitionOverlay show={showOverlay} fadeType={fadeType} />
+    <NextIntlClientProvider locale={locale} messages={messages[locale as keyof typeof messages]}>
+      <FavoritesProvider>
+        <PageTransitionOverlay show={showOverlay} fadeType={fadeType} />
+        <Box
+          className="app-container"
+          suppressHydrationWarning
+          sx={{
+            // Only set background for non-manager pages to avoid overriding manager layout backgrounds
+            ...(isManagerPage ? {} : {
+              bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+            }),
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            '@media screen and (width: 1440px) and (height: 1920px)': {
+              fontSize: '1.1rem',
+            },
+          }}
+        >
+          {/* Only show Header for non-manager pages */}
+          {!isManagerPage && <Header />}
           <Box
-            className="app-container"
+            component="main"
+            className="main-content"
             suppressHydrationWarning
             sx={{
-              bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
-              minHeight: '100vh',
+              // Only set background for non-manager pages
+              ...(isManagerPage ? {} : {
+                bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+              }),
+              flex: 1,
               display: 'flex',
               flexDirection: 'column',
+              width: '100%',
+              maxWidth: 'none',
+              px: 0,
+              pt: isManagerPage ? 0 : 0, // No padding top for manager pages since they have their own header
               '@media screen and (width: 1440px) and (height: 1920px)': {
                 fontSize: '1.1rem',
               },
             }}
           >
-            <Header />
-            <Box
-              component="main"
-              className="main-content"
-              suppressHydrationWarning
-              sx={{
-                bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                width: '100%',
-                maxWidth: 'none',
-                px: 0,
-                pt: 0, // Remove padding top since header is transparent
-                '@media screen and (width: 1440px) and (height: 1920px)': {
-                  fontSize: '1.1rem',
-                },
-              }}
-            >
-              {children}
-              <ChatBox />
-            </Box>
-            {typeof window !== 'undefined' && !isManagerPage && <Footer />}
-            <AutoLogoutNotification inactivityLimit={15} warningTime={2} />
+            {children}
+            {/* Only show ChatBox for non-manager pages */}
+            {!isManagerPage && <ChatBox />}
           </Box>
-        </FavoritesProvider>
-      </NextIntlClientProvider>
-    </ThemeProvider>
+          {typeof window !== 'undefined' && !isManagerPage && <Footer />}
+          <AutoLogoutNotification inactivityLimit={15} warningTime={2} />
+        </Box>
+      </FavoritesProvider>
+    </NextIntlClientProvider>
   );
 };
 

@@ -362,7 +362,7 @@ export default function HomePage() {
         let fileName = '';
         if (img.includes('/')) {
           fileName = img.split('/').pop() || '';
-        } else {
+      } else {
           fileName = img;
         }
         
@@ -415,11 +415,11 @@ export default function HomePage() {
       let filtered: Product[] = [];
       
       // Build query parameters for all tabs
-      const queryParams = new URLSearchParams({
-        minPrice: priceRange[0].toString(),
-        maxPrice: priceRange[1].toString(),
-        ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
-        ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
+        const queryParams = new URLSearchParams({
+          minPrice: priceRange[0].toString(),
+          maxPrice: priceRange[1].toString(),
+          ...(selectedCategories.length > 0 && { category: selectedCategories.join(',') }),
+          ...(selectedBrands.length > 0 && { brand: selectedBrands.join(',') }),
         ...(searchQuery ? { search: searchQuery } : {}),
       });
       
@@ -427,9 +427,9 @@ export default function HomePage() {
       console.log('Calling API:', apiUrl);
       
       const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error('Failed to fetch products');
-      const result = await response.json();
-      filtered = result.data || [];
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const result = await response.json();
+        filtered = result.data || [];
       
       if (tabKey === 'topSelling') {
         // Top Selling: sort theo orderCount và lấy top 10
@@ -437,32 +437,32 @@ export default function HomePage() {
           (b.orderCount || 0) - (a.orderCount || 0)
         ).slice(0, 10);
       } else if (tabKey === 'newArrivals') {
-        filtered = filtered.filter((product: Product) => {
-          const labels = Array.isArray(product.label) ? product.label : [product.label];
+          filtered = filtered.filter((product: Product) => {
+            const labels = Array.isArray(product.label) ? product.label : [product.label];
           return labels?.some(
             (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
           );
-        });
-      } else if (tabKey === 'deals') {
-        filtered = filtered.filter((product: Product) => product.discountPrice != null);
-      } else if (tabKey === 'featured') {
-        filtered = filtered.filter((product: Product) => {
-          const labels = Array.isArray(product.label) ? product.label : [product.label];
+          });
+        } else if (tabKey === 'deals') {
+          filtered = filtered.filter((product: Product) => product.discountPrice != null);
+        } else if (tabKey === 'featured') {
+          filtered = filtered.filter((product: Product) => {
+            const labels = Array.isArray(product.label) ? product.label : [product.label];
           return labels?.some((l: string) =>
             ['bestseller', 'summer 2025', 'limited edition'].includes(l?.toLowerCase())
           );
-        });
-      } else if (tabKey === 'trending') {
-        // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
-        // Ở đây giả sử không có API trending
-        filtered = filtered
-          .filter((product: Product) => {
-            const labels = Array.isArray(product.label) ? product.label : [product.label];
+          });
+        } else if (tabKey === 'trending') {
+          // Nếu có API trending thì gọi, nếu không thì dùng top-selling kết hợp label
+          // Ở đây giả sử không có API trending
+          filtered = filtered
+            .filter((product: Product) => {
+              const labels = Array.isArray(product.label) ? product.label : [product.label];
             return labels?.some(
               (l: string) => l?.toLowerCase() === 'hot' || l?.toLowerCase() === 'new'
             );
-          })
-          .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
+            })
+            .sort((a, b) => (b.orderCount || 0) - (a.orderCount || 0));
       }
       
       // PHÂN LOẠI SẢN PHẨM LIB VÀ KHÁC
@@ -602,7 +602,7 @@ export default function HomePage() {
 
   // Prevent hydration mismatch
   if (!mounted) {
-    return (
+  return (
       <Box sx={{ 
         minHeight: '100vh', 
         bgcolor: '#fff',
@@ -627,11 +627,11 @@ export default function HomePage() {
       {libProducts.length > 0 && (
         <Box
           sx={{
-            maxWidth: 1200,
-            mx: 'auto',
-            width: '100%',
-            mt: 2,
-            mb: 4,
+          maxWidth: 1200,
+          mx: 'auto',
+          width: '100%',
+          mt: 2,
+          mb: 4,
           }}
         >
           <Box
@@ -774,8 +774,8 @@ export default function HomePage() {
         </Box>
       )}
       {/* PHẦN CÒN LẠI GIỮ NGUYÊN */}
-      <Box
-        sx={{
+      <Box 
+        sx={{ 
           width: '100%',
           px: 0,
           py: { xs: 2, md: 4 },
@@ -794,18 +794,18 @@ export default function HomePage() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
           >
-            <Box
-              sx={{
-                mb: isLargeScreen ? 6 : 4,
+            <Box 
+              sx={{ 
+                mb: isLargeScreen ? 6 : 4, 
                 textAlign: 'center',
                 '@media screen and (width: 1440px) and (height: 1920px)': {
                   marginBottom: '4rem',
                 },
               }}
             >
-              <Typography
-                variant="h3"
-                fontWeight={900}
+              <Typography 
+                variant="h3" 
+                fontWeight={900} 
                 gutterBottom
                 sx={{
                   '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -817,8 +817,8 @@ export default function HomePage() {
               >
                 Discover Your Style
               </Typography>
-              <Typography
-                variant="h6"
+              <Typography 
+                variant="h6" 
                 color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                 sx={{
                   '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -831,11 +831,11 @@ export default function HomePage() {
               </Typography>
             </Box>
           </motion.div>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: { xs: 'column', md: 'row' },
-              gap: { xs: 2, md: 4 },
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              flexDirection: { xs: 'column', md: 'row' }, 
+              gap: { xs: 2, md: 4 }, 
               alignItems: 'flex-start',
               '@media screen and (width: 1440px) and (height: 1920px)': {
                 gap: '3rem',
@@ -850,11 +850,11 @@ export default function HomePage() {
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
               style={{ width: '100%' }}
             >
-              <Box
-                sx={{
-                  width: { xs: '100%', md: isLargeScreen ? 320 : 220 },
-                  flexShrink: 0,
-                  mb: { xs: 4, md: 0 },
+              <Box 
+                sx={{ 
+                  width: { xs: '100%', md: isLargeScreen ? 320 : 220 }, 
+                  flexShrink: 0, 
+                  mb: { xs: 4, md: 0 }, 
                   px: { xs: 0, md: 1 },
                   ml: { md: -20 },
                   '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -864,9 +864,9 @@ export default function HomePage() {
                 }}
               >
                 <Box sx={{ position: 'sticky', top: 20 }}>
-                  <Typography
-                    variant="h6"
-                    sx={{
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
                       mb: 2,
                       color: theme === THEME.LIGHT ? '#000' : '#fff',
                       '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -877,7 +877,7 @@ export default function HomePage() {
                   >
                     Filters
                   </Typography>
-
+                  
                   {/* Search */}
                   <TextField
                     fullWidth
@@ -886,7 +886,7 @@ export default function HomePage() {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setSearchQuery(e.target.value)
                     }
-                    sx={{
+                    sx={{ 
                       mb: 3,
                       '@media screen and (width: 1440px) and (height: 1920px)': {
                         marginBottom: '2rem',
@@ -905,12 +905,12 @@ export default function HomePage() {
                       ),
                     }}
                   />
-
+                  
                   {/* Price Range */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
                         mb: 1,
                         color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -963,9 +963,9 @@ export default function HomePage() {
 
                   {/* Categories */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
                         mb: 1,
                         color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -977,19 +977,19 @@ export default function HomePage() {
                       Categories
                     </Typography>
                     <Box sx={{ position: 'relative', zIndex: 10 }}>
-                      <CategoryTreeFilter
+                    <CategoryTreeFilter
                         categories={memoizedCategoryTree}
                         selectedCategories={memoizedSelectedCategories}
-                        onCategoryChange={handleCategoryChange}
-                      />
+                      onCategoryChange={handleCategoryChange}
+                    />
                     </Box>
                   </Box>
 
                   {/* Brands */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
+                    <Typography 
+                      variant="subtitle1" 
+                      sx={{ 
                         mb: 1,
                         color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -1001,7 +1001,7 @@ export default function HomePage() {
                       Brands
                     </Typography>
                     <Box sx={{ position: 'relative', zIndex: 10 }}>
-                      <FormGroup>
+                    <FormGroup>
                         {memoizedBrands.map(brand => (
                           <Box key={brand._id} sx={{ display: 'flex', alignItems: 'center', margin: '4px 0' }}>
                             <input
@@ -1019,8 +1019,8 @@ export default function HomePage() {
                             />
                             <Typography variant="body2">{brand.name}</Typography>
                           </Box>
-                        ))}
-                      </FormGroup>
+                      ))}
+                    </FormGroup>
                     </Box>
                   </Box>
                 </Box>
@@ -1040,7 +1040,7 @@ export default function HomePage() {
                   <CircularProgress size={60} />
                 </Box>
               ) : (
-                <Box
+                <Box 
                   className="product-grid"
                   sx={{
                     display: 'grid',
@@ -1059,37 +1059,37 @@ export default function HomePage() {
                 >
                   {otherProducts.slice(0, visibleCount).length > 0 ? (
                     otherProducts.slice(0, visibleCount).map((product, idx) => {
-                      const { gender, team } = guessGenderAndTeam(product);
-                      let imgSrc = '/assets/images/placeholder.jpg';
-                      if (product.images && product.images[0]) {
-                        imgSrc = getImageSrc(product.images[0], gender, team);
-                      }
-                      return (
-                        <motion.div
+                    const { gender, team } = guessGenderAndTeam(product);
+                    let imgSrc = '/assets/images/placeholder.jpg';
+                    if (product.images && product.images[0]) {
+                      imgSrc = getImageSrc(product.images[0], gender, team);
+                    }
+                    return (
+                      <motion.div
                           key={`other-${product._id}-${idx}-${product.images?.[0] || 'no-image'}`}
-                          initial={{ opacity: 0, y: 40 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: idx * 0.07 }}
-                          style={{ display: 'flex', height: '100%' }}
-                        >
-                          <ProductCard
-                            productId={product._id}
-                            name={product.name}
-                            image={imgSrc}
-                            price={product.price}
-                            discountPrice={product.discountPrice}
-                            tags={product.tags}
-                            brand={product.brand}
-                            categories={product.categories}
-                            // @ts-expect-error: Product label may be string, not ProductLabel
-                            labels={product.label ? [product.label as string] : []}
-                            allCategories={categories}
-                            allBrands={brands}
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: idx * 0.07 }}
+                        style={{ display: 'flex', height: '100%' }}
+                      >
+                        <ProductCard
+                          productId={product._id}
+                          name={product.name}
+                          image={imgSrc}
+                          price={product.price}
+                          discountPrice={product.discountPrice}
+                          tags={product.tags}
+                          brand={product.brand}
+                          categories={product.categories}
+                          // @ts-expect-error: Product label may be string, not ProductLabel
+                          labels={product.label ? [product.label as string] : []}
+                          allCategories={categories}
+                          allBrands={brands}
                             averageRating={averageRatings[product._id] ?? 0}
-                            onAddToCart={async () => {
+                          onAddToCart={async () => {
                       try {
-                        await addToCart({
-                          productId: product._id,
+                            await addToCart({
+                              productId: product._id,
                           quantity: 1
                         });
                         // Show success message
@@ -1099,19 +1099,19 @@ export default function HomePage() {
                         // Show error message
                         showToast('Thêm vào giỏ hàng thất bại!', 'error');
                       }
-                    }}
-                            backgroundColor="#f8f9fa"
-                            colors={3}
-                            sx={{ height: '100%' }}
+                          }}
+                          backgroundColor="#f8f9fa"
+                          colors={3}
+                          sx={{ height: '100%' }}
                             onViewDetail={() => handleProductCardClick(product._id, product)}
-                          />
-                        </motion.div>
-                      );
+                        />
+                      </motion.div>
+                    );
                     })
                   ) : (
                     <Box sx={{ textAlign: 'center', py: 4, gridColumn: '1/-1' }}>
-                      <Typography
-                        variant="h6"
+                      <Typography 
+                        variant="h6" 
                         color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                         sx={{
                           '@media screen and (width: 1440px) and (height: 1920px)': {
@@ -1157,8 +1157,8 @@ export default function HomePage() {
                   justifyContent: 'center',
                 }}
               >
-                <Tabs
-                  value={tab}
+                <Tabs 
+                  value={tab} 
                   onChange={(e: React.SyntheticEvent, newValue: number) => setTab(newValue)}
                   variant="standard"
                   sx={{
@@ -1182,9 +1182,9 @@ export default function HomePage() {
                   centered
                 >
                   {TABS.map((tabItem, index) => (
-                    <Tab
-                      key={index}
-                      label={tabItem.label}
+                    <Tab 
+                      key={index} 
+                      label={tabItem.label} 
                       sx={{
                         textTransform: 'none',
                         fontWeight: 600,

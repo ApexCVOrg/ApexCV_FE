@@ -51,6 +51,29 @@ interface ApiResponse<T> {
 }
 
 export default function MessagesPage() {
+  // Add CSS to override admin layout styles
+  useEffect(() => {
+    // Override admin layout padding for this page
+    const style = document.createElement('style');
+    style.textContent = `
+      body {
+        overflow: hidden !important;
+      }
+      .admin-layout-override {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+      }
+      /* Hide red indicator for this page */
+      .MuiTabs-indicator {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
   const { getToken } = useAuth();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
@@ -85,6 +108,15 @@ export default function MessagesPage() {
       setError(null);
       try {
         const token = getToken();
+        
+        // Get user role to determine correct endpoint
+        const userStr = localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        console.log('👤 Messages page - User role:', user?.role);
+        
+        // Check if admin user accessing this page
+        const isAdminUser = user?.role === 'admin' || user?.role === 'ADMIN' || window.location.pathname.includes('/admin/');
+        
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?limit=50&status=open`,
           {
@@ -94,6 +126,42 @@ export default function MessagesPage() {
             },
           }
         );
+        
+        if (!response.ok) {
+          // Handle 403 for admin users - provide demo data
+          if (response.status === 403 && isAdminUser) {
+            console.log('🔒 Admin user got 403 on messages page, providing demo data...');
+            const mockSessions: ChatSession[] = [
+              {
+                _id: 'mock-session-1',
+                chatId: 'admin-demo-001',
+                userId: 'user-001',
+                userName: 'Nguyễn Văn A',
+                lastMessage: 'Xin chào! Tôi cần hỗ trợ về sản phẩm giày thể thao.',
+                messageCount: 5,
+                status: 'open',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              {
+                _id: 'mock-session-2',
+                chatId: 'admin-demo-003',
+                userId: 'user-003',
+                userName: 'Lê Minh C',
+                lastMessage: 'Tôi muốn đổi size áo...',
+                messageCount: 8,
+                status: 'open',
+                createdAt: new Date(Date.now() - 172800000).toISOString(),
+                updatedAt: new Date(Date.now() - 7200000).toISOString(),
+              }
+            ];
+            setSessions(mockSessions);
+            setError('🚀 Demo Mode: Đang hiển thị dữ liệu demo cho Admin.');
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         setSessions(data.data || []);
       } catch {
@@ -113,6 +181,43 @@ export default function MessagesPage() {
       setError(null);
       try {
         const token = getToken();
+        
+        // Check if this is a demo chat session
+        if (selectedChat.chatId.startsWith('admin-demo-')) {
+          console.log('📝 Loading demo messages for admin user...');
+          const mockMessages: Message[] = [
+            {
+              _id: 'msg-1',
+              content: selectedChat.chatId === 'admin-demo-001' 
+                ? 'Xin chào! Tôi cần hỗ trợ về sản phẩm giày thể thao.' 
+                : 'Xin chào! Tôi muốn đổi size áo.',
+              role: 'user',
+              timestamp: new Date(Date.now() - 300000).toISOString(),
+              senderName: selectedChat.userName,
+            },
+            {
+              _id: 'msg-2',
+              content: 'Bot: Xin chào! Cảm ơn bạn đã liên hệ với NIDAS. Tôi là bot hỗ trợ tự động. Nhân viên sẽ hỗ trợ bạn ngay.',
+              role: 'bot',
+              timestamp: new Date(Date.now() - 240000).toISOString(),
+              isBotMessage: true,
+            },
+            {
+              _id: 'msg-3',
+              content: selectedChat.chatId === 'admin-demo-001' 
+                ? 'Tôi muốn tìm giày chạy bộ size 42.' 
+                : 'Cụ thể là tôi đã mua áo size M nhưng hơi rộng.',
+              role: 'user',
+              timestamp: new Date(Date.now() - 180000).toISOString(),
+              senderName: selectedChat.userName,
+            }
+          ];
+          
+          setMessages(mockMessages);
+          setLoadingMessages(false);
+          return;
+        }
+        
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
           {
@@ -122,6 +227,11 @@ export default function MessagesPage() {
             },
           }
         );
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         const messagesData = Array.isArray(data.data) ? data.data : [];
         setMessages(messagesData);
@@ -155,6 +265,23 @@ export default function MessagesPage() {
     const messageContent = inputMessage.trim();
     setInputMessage('');
     try {
+      // Handle demo chat sessions
+      if (selectedChat.chatId.startsWith('admin-demo-')) {
+        console.log('📝 Sending demo message for admin user...');
+        const mockMessage: Message = {
+          _id: `msg-${Date.now()}`,
+          content: messageContent,
+          role: 'manager',
+          timestamp: new Date().toISOString(),
+          senderName: 'Admin Support',
+        };
+        
+        setMessages(prev => [...prev, mockMessage]);
+        setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
+        setSending(false);
+        return;
+      }
+      
       const token = getToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
@@ -189,6 +316,22 @@ export default function MessagesPage() {
       'Xin chào! Tôi là nhân viên hỗ trợ của NIDAS. Tôi sẽ hỗ trợ bạn ngay bây giờ. Bạn cần hỗ trợ gì ạ?';
 
     try {
+      // Handle demo chat sessions
+      if (selectedChat.chatId.startsWith('admin-demo-')) {
+        console.log('📝 Starting demo chat for admin user...');
+        const mockMessage: Message = {
+          _id: `msg-${Date.now()}`,
+          content: welcomeMessage,
+          role: 'manager',
+          timestamp: new Date().toISOString(),
+          senderName: 'Admin Support',
+        };
+        
+        setMessages(prev => [...prev, mockMessage]);
+        setManagerJoined(prev => new Set(prev).add(selectedChat.chatId));
+        return;
+      }
+      
       const token = getToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${selectedChat.chatId}/messages`,
@@ -233,13 +376,27 @@ export default function MessagesPage() {
     <Box
       sx={{
         position: 'fixed',
-        top: 64, // offset đúng với AppBar height
+        top: 112, // Account for admin AppBar + tabs height
         left: 0,
         width: '100vw',
-        height: 'calc(100vh - 64px)',
-        bgcolor: '#18191a',
+        height: 'calc(100vh - 112px)', // Subtract AppBar height
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#18191a' : '#f5f5f5',
         display: 'flex',
         zIndex: 1200,
+        // Remove any potential red borders
+        border: 'none',
+        outline: 'none',
+        // Ensure no red styling from parent
+        '&::before, &::after': {
+          display: 'none',
+        },
+        // Override admin layout padding
+        margin: 0,
+        padding: 0,
+        // Remove any red indicator styling
+        '& .MuiTabs-indicator': {
+          display: 'none',
+        },
       }}
     >
       {/* Sidebar chat chỉ hiện khi không mở sidebar manager trên mobile, hoặc luôn hiện trên desktop */}
@@ -247,11 +404,13 @@ export default function MessagesPage() {
         <Box
           sx={{
             width: 360,
-            bgcolor: '#23272f',
-            color: '#fff',
+            bgcolor: (theme) => theme.palette.mode === 'dark' ? '#23272f' : '#ffffff',
+            color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
             p: 2,
             overflowY: 'auto',
-            borderRight: '1.5px solid #23272f',
+            borderRight: (theme) => theme.palette.mode === 'dark' 
+              ? '1.5px solid #23272f' 
+              : '1.5px solid #e0e0e0',
             boxShadow: 3,
             display: 'flex',
             flexDirection: 'column',
@@ -262,7 +421,13 @@ export default function MessagesPage() {
           {isMobile && (
             <IconButton
               onClick={openManagerSidebar}
-              sx={{ position: 'absolute', top: 8, left: 8, zIndex: 10, color: '#fff' }}
+              sx={{ 
+                position: 'absolute', 
+                top: 8, 
+                left: 8, 
+                zIndex: 10, 
+                color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+              }}
             >
               <MenuIcon fontSize="medium" />
             </IconButton>
@@ -270,12 +435,31 @@ export default function MessagesPage() {
           {/* XÓA nút back ở đây */}
           <Typography
             variant="h6"
-            sx={{ mb: 2, fontWeight: 700, letterSpacing: 1, pl: isMobile ? 5 : 0 }}
+            sx={{ 
+              mb: 2, 
+              fontWeight: 700, 
+              letterSpacing: 1, 
+              pl: isMobile ? 5 : 0,
+              color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+            }}
           >
             Đoạn chat
           </Typography>
           {error && (
-            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+            <Typography 
+              color={error.includes('Demo Mode') ? 'warning' : 'error'} 
+              variant="body2" 
+              sx={{ 
+                mb: 2,
+                bgcolor: (theme) => error.includes('Demo Mode') 
+                  ? theme.palette.mode === 'dark' ? 'rgba(255, 152, 0, 0.1)' : 'rgba(255, 152, 0, 0.05)'
+                  : theme.palette.mode === 'dark' ? 'rgba(244, 67, 54, 0.1)' : 'rgba(244, 67, 54, 0.05)',
+                p: 1,
+                borderRadius: 1,
+                border: error.includes('Demo Mode') ? '1px solid #ff9800' : '1px solid #f44336',
+                color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+              }}
+            >
               {error}
             </Typography>
           )}
@@ -293,8 +477,12 @@ export default function MessagesPage() {
                       mb: 1,
                       alignItems: 'flex-start',
                       transition: 'background 0.2s',
-                      bgcolor: selectedChat?.chatId === chat.chatId ? '#31343b' : 'transparent',
-                      '&:hover': { bgcolor: '#2a2d34' },
+                      bgcolor: (theme) => selectedChat?.chatId === chat.chatId 
+                        ? theme.palette.mode === 'dark' ? '#31343b' : '#f0f0f0'
+                        : 'transparent',
+                      '&:hover': { 
+                        bgcolor: (theme) => theme.palette.mode === 'dark' ? '#2a2d34' : '#e8e8e8' 
+                      },
                     }}
                   >
                     <Avatar
@@ -311,9 +499,15 @@ export default function MessagesPage() {
                     </Avatar>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                        <Typography fontWeight={700} noWrap>
-                          {chat.userName}
-                        </Typography>
+                                              <Typography 
+                        fontWeight={700} 
+                        noWrap
+                        sx={{
+                          color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+                        }}
+                      >
+                        {chat.userName}
+                      </Typography>
                         {needsManagerIntervention(chat) && (
                           <Chip
                             label="Cần hỗ trợ"
@@ -328,10 +522,21 @@ export default function MessagesPage() {
                           />
                         )}
                       </Box>
-                      <Typography variant="body2" color="#b0b3b8" noWrap>
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          color: (theme) => theme.palette.mode === 'dark' ? '#b0b3b8' : '#666',
+                        }}
+                        noWrap
+                      >
                         {getLastMessage(chat.lastMessage)}
                       </Typography>
-                      <Typography variant="caption" color="#888">
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: (theme) => theme.palette.mode === 'dark' ? '#888' : '#999',
+                        }}
+                      >
                         {new Date(chat.updatedAt).toLocaleTimeString('vi-VN', {
                           hour: '2-digit',
                           minute: '2-digit',
@@ -349,8 +554,8 @@ export default function MessagesPage() {
       <Box
         sx={{
           flex: 1,
-          bgcolor: '#18191a',
-          color: '#fff',
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? '#18191a' : '#f5f5f5',
+          color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
           p: 0,
           display: 'flex',
           flexDirection: 'column',
@@ -367,22 +572,42 @@ export default function MessagesPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 2,
-                borderBottom: '1.5px solid #23272f',
+                borderBottom: (theme) => theme.palette.mode === 'dark' 
+                  ? '1.5px solid #23272f' 
+                  : '1.5px solid #e0e0e0',
                 minHeight: 80,
+                // Ensure proper spacing and no overflow
+                position: 'relative',
+                zIndex: 1,
+                // Remove any potential red styling
+                '&::before, &::after': {
+                  display: 'none',
+                },
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? '#23272f' : '#ffffff',
               }}
             >
               <Avatar sx={{ width: 48, height: 48, fontWeight: 700, bgcolor: '#1976d2' }}>
                 {selectedChat.userName?.[0]}
               </Avatar>
               <Box sx={{ flex: 1 }}>
-                <Typography variant="h6" fontWeight={700}>
+                <Typography 
+                  variant="h6" 
+                  fontWeight={700}
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+                  }}
+                >
                   {selectedChat.userName}
                 </Typography>
                 {needsManagerIntervention(selectedChat) && (
                   <Typography
                     variant="caption"
-                    color="#ff9800"
-                    sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 0.5,
+                      color: '#ff9800',
+                    }}
                   >
                     ⚠️ Chưa có nhân viên hỗ trợ
                   </Typography>
@@ -400,12 +625,19 @@ export default function MessagesPage() {
                 flexDirection: 'column',
                 gap: 1.5,
                 '::-webkit-scrollbar': { width: 0 },
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? '#18191a' : '#f5f5f5',
               }}
             >
               {loadingMessages ? (
                 <CircularProgress />
               ) : messages.length === 0 ? (
-                <Typography color="#b0b3b8">Chưa có tin nhắn nào</Typography>
+                <Typography 
+                  sx={{ 
+                    color: (theme) => theme.palette.mode === 'dark' ? '#b0b3b8' : '#666',
+                  }}
+                >
+                  Chưa có tin nhắn nào
+                </Typography>
               ) : (
                 <>
                   {messages.map(msg => (
@@ -455,7 +687,11 @@ export default function MessagesPage() {
                       </Tooltip>
                       <Typography
                         variant="caption"
-                        sx={{ ml: 1, alignSelf: 'flex-end', color: '#b0b3b8' }}
+                        sx={{ 
+                          ml: 1, 
+                          alignSelf: 'flex-end', 
+                          color: (theme) => theme.palette.mode === 'dark' ? '#b0b3b8' : '#666',
+                        }}
                       >
                         {new Date(msg.timestamp).toLocaleTimeString('vi-VN', {
                           hour: '2-digit',
@@ -498,11 +734,13 @@ export default function MessagesPage() {
               sx={{
                 px: 4,
                 py: 2,
-                borderTop: '1.5px solid #23272f',
+                borderTop: (theme) => theme.palette.mode === 'dark' 
+                  ? '1.5px solid #23272f' 
+                  : '1.5px solid #e0e0e0',
                 display: 'flex',
                 gap: 1,
                 alignItems: 'flex-end',
-                bgcolor: '#23272f',
+                bgcolor: (theme) => theme.palette.mode === 'dark' ? '#23272f' : '#ffffff',
               }}
             >
               <TextField
@@ -515,11 +753,20 @@ export default function MessagesPage() {
                 disabled={sending}
                 inputProps={{ maxLength: 1000 }}
                 sx={{
-                  bgcolor: '#23272f',
+                  bgcolor: (theme) => theme.palette.mode === 'dark' ? '#23272f' : '#f8f9fa',
                   borderRadius: 2,
-                  input: { color: '#fff' },
-                  textarea: { color: '#fff' },
-                  '& .MuiOutlinedInput-root': { border: 'none' },
+                  input: { 
+                    color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+                  },
+                  textarea: { 
+                    color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#333',
+                  },
+                  '& .MuiOutlinedInput-root': { 
+                    border: 'none',
+                    '&:hover': {
+                      bgcolor: (theme) => theme.palette.mode === 'dark' ? '#2a2d34' : '#f0f0f0',
+                    },
+                  },
                 }}
               />
               <IconButton
@@ -541,7 +788,14 @@ export default function MessagesPage() {
           </>
         ) : (
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography color="#b0b3b8" sx={{ fontSize: 22, fontWeight: 500, textAlign: 'center' }}>
+            <Typography 
+              sx={{ 
+                fontSize: 22, 
+                fontWeight: 500, 
+                textAlign: 'center',
+                color: (theme) => theme.palette.mode === 'dark' ? '#b0b3b8' : '#666',
+              }}
+            >
               Chọn một đoạn chat để xem nội dung
             </Typography>
           </Box>

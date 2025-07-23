@@ -7,12 +7,17 @@ import { AuthProvider } from '@/context/AuthContext';
 import { CartProvider } from '@/context/CartContext';
 import { HomeCartProvider } from '@/context/HomeCartContext';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ThemeProvider } from '@/context/ThemeContext';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { messages } from '@/lib/i18n/messages';
 import { hasLocale } from 'next-intl';
 import ClientLayout from './ClientLayout';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin', 'vietnamese'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export default async function LocaleLayout({
   children,
@@ -31,21 +36,23 @@ export default async function LocaleLayout({
       <body
         className={inter.className}
         style={{
-          backgroundColor: '#000', // Set dark background to prevent white showing behind transparent header
+          // Remove hardcoded background to let layouts control their own backgrounds
           minHeight: '100vh',
           margin: 0,
           padding: 0,
         }}
       >
-        <AuthProvider>
-          <CartProvider>
-            <HomeCartProvider>
-              <ToastProvider>
-                <ClientLayout locale={locale}>{children}</ClientLayout>
-              </ToastProvider>
-            </HomeCartProvider>
-          </CartProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <HomeCartProvider>
+                <ToastProvider>
+                  <ClientLayout locale={locale}>{children}</ClientLayout>
+                </ToastProvider>
+              </HomeCartProvider>
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

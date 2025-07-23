@@ -157,7 +157,7 @@ export const ROUTES = {
     CUSTOMERS: '/manager/customers',
     USERS: '/manager/users',
     SETTINGS: '/manager/settings',
-    CHAT: '/manager/chats',
+    CHATS: '/manager/chats',
   },
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
@@ -167,7 +167,7 @@ export const ROUTES = {
     CUSTOMERS: '/admin/customers',
     USERS: '/admin/users',
     SETTINGS: '/admin/settings',
-    CHAT: '/admin/chats',
+    CHATS: '/admin/chats',
     LOGS: '/admin/logs',
     COUPONS: '/admin/coupons',
   },

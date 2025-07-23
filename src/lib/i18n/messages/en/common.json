@@ -308,7 +308,8 @@
       "settings": "Settings",
       "chat": "Chat",
       "logout": "Logout",
-      "auditLog": "Audit Log"
+      "auditLog": "Audit Log",
+      "coupons": "Coupons"
     },
     "categories": {
       "title": "Categories Management",
@@ -548,7 +549,7 @@
       "notesPlaceholder": "Notes about this conversation..."
     },
     "coupons": {
-      "title": "Voucher Management",
+      "title": "Coupons",
       "addNew": "Add Coupon",
       "edit": "Edit Coupon",
       "code": "Code",
@@ -580,24 +581,19 @@
     }
   },
   "login": {
-    "title": "Sign In",
-    "username": "Username",
-    "password": "Password",
-    "rememberMe": "Remember Me",
-    "forgotPassword": "Forgot Password?",
-    "login": "Login",
-    "orLoginWith": "Or login with",
+    "title": "Login",
     "noAccount": "Don't have an account?",
     "registerNow": "Register now",
-    "emailLabel": "Email",
+    "usernameLabel": "Username",
     "passwordLabel": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
     "loggingIn": "Logging in...",
     "loginButton": "Login",
     "loginWithGoogle": "Login with Google",
     "loginWithFacebook": "Login with Facebook",
-    "usernameLabel": "Username",
-    "profile": "Profile",
-    "logout": "Logout",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
     "errors": {
       "usernameRequired": "Username is required.",
       "usernameLength": "Username must be at least 3 characters.",

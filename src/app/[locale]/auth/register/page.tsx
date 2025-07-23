@@ -27,6 +27,8 @@ import Image from 'next/image';
 
 import { useAuth } from '@/hooks/useAuth';
 import { API_ENDPOINTS } from '@/lib/constants/constants';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 // Local storage keys for form data
 const FORM_STORAGE_KEYS = {
@@ -39,6 +41,7 @@ export default function RegisterPage() {
   const t = useTranslations('register');
   const router = useRouter();
   const pathname = usePathname();
+  const { theme } = useTheme();
   useAuth();
   const locale = pathname?.split('/')[1] || 'vi';
 
@@ -679,6 +682,69 @@ export default function RegisterPage() {
     }
   };
 
+  // Theme-aware styles
+  const inputStyle = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 2,
+      '& fieldset': { 
+        borderColor: theme === THEME.LIGHT ? '#e0e0e0' : '#444', 
+        borderWidth: 1 
+      },
+      '&:hover fieldset': { 
+        borderColor: theme === THEME.LIGHT ? '#333' : '#666' 
+      },
+      '&.Mui-focused fieldset': { 
+        borderColor: theme === THEME.LIGHT ? '#333' : '#fff',
+        borderWidth: 2,
+      },
+      '&.Mui-error fieldset': { 
+        borderColor: '#d32f2f' 
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: theme === THEME.LIGHT ? '#666' : '#ccc',
+      fontWeight: 600,
+      '&.Mui-focused': { 
+        color: theme === THEME.LIGHT ? '#333' : '#fff' 
+      },
+      '&.Mui-error': { 
+        color: '#d32f2f' 
+      },
+    },
+    '& .MuiInputBase-input': {
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+    },
+    '& .MuiFormHelperText-root': { 
+      color: '#d32f2f', 
+      fontWeight: 500 
+    },
+  };
+
+  const buttonStyle = {
+    borderRadius: 2,
+    bgcolor: theme === THEME.LIGHT ? '#333' : '#fff',
+    color: theme === THEME.LIGHT ? '#fff' : '#333',
+    fontWeight: 700,
+    fontSize: '1.1rem',
+    letterSpacing: 1,
+    py: 1.5,
+    mt: 2,
+    boxShadow: theme === THEME.LIGHT 
+      ? '0 4px 12px rgba(51, 51, 51, 0.3)' 
+      : '0 4px 12px rgba(255, 255, 255, 0.2)',
+    transition: 'all 0.3s ease',
+    '&:hover': { 
+      bgcolor: theme === THEME.LIGHT ? '#555' : '#f0f0f0',
+      transform: 'translateY(-2px)',
+      boxShadow: theme === THEME.LIGHT 
+        ? '0 8px 20px rgba(51, 51, 51, 0.4)' 
+        : '0 8px 20px rgba(255, 255, 255, 0.3)',
+    },
+    '&:active': {
+      transform: 'translateY(0)',
+    },
+  };
+
   // Render step content
   const renderStepContent = (step: number) => {
     switch (step) {
@@ -698,7 +764,18 @@ export default function RegisterPage() {
               onChange={handleChange('username')}
               error={Boolean(fieldErrors.username)}
               helperText={fieldErrors.username}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
             <TextField
               label="Full Name"
@@ -709,7 +786,18 @@ export default function RegisterPage() {
               onChange={handleChange('fullName')}
               error={Boolean(fieldErrors.fullName)}
               helperText={fieldErrors.fullName}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
             <TextField
               label="Email"
@@ -721,7 +809,18 @@ export default function RegisterPage() {
               onChange={handleChange('email')}
               error={Boolean(fieldErrors.email)}
               helperText={fieldErrors.email}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
             <TextField
               label="Password"
@@ -742,7 +841,18 @@ export default function RegisterPage() {
                   </InputAdornment>
                 ),
               }}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
             <TextField
               label="Confirm Password"
@@ -763,7 +873,18 @@ export default function RegisterPage() {
                   </InputAdornment>
                 ),
               }}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
             <TextField
               label="Phone Number"
@@ -775,9 +896,23 @@ export default function RegisterPage() {
               onChange={handleChange('phone')}
               error={Boolean(fieldErrors.phone)}
               helperText={fieldErrors.phone}
-              sx={inputStyle}
+              sx={{
+                ...inputStyle,
+                '& .MuiInputLabel-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+                '& .MuiFormHelperText-root': {
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                },
+              }}
             />
-            <Button onClick={handleBasicInfoSubmit} fullWidth variant="contained" sx={buttonStyle}>
+            <Button onClick={handleBasicInfoSubmit} fullWidth variant="contained" sx={{
+              ...buttonStyle,
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+            }}>
               Continue
             </Button>
           </Box>
@@ -1192,49 +1327,85 @@ export default function RegisterPage() {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          py: 4,
-          backgroundColor: 'black',
-        }}
-      >
-        <Paper
-          elevation={3}
+    <Box sx={{
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh',
+      pt: 10, // Add padding top to prevent overflow into header
+    }}>
+      <Container maxWidth="md">
+        <Box
           sx={{
-            p: 4,
-            width: '100%',
-            backgroundColor: 'white',
-            borderRadius: 0,
-            border: '2px solid black',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            py: 4,
           }}
         >
+          <Paper
+            elevation={8}
+            sx={{
+              p: 4,
+              width: '100%',
+              bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+              borderRadius: 3,
+              border: `1px solid ${theme === THEME.LIGHT ? '#e0e0e0' : '#333'}`,
+              boxShadow: theme === THEME.LIGHT 
+                ? '0 8px 32px rgba(0,0,0,0.1)' 
+                : '0 8px 32px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(10px)',
+              '&:hover': {
+                boxShadow: theme === THEME.LIGHT 
+                  ? '0 12px 40px rgba(0,0,0,0.15)' 
+                  : '0 12px 40px rgba(0,0,0,0.6)',
+                transform: 'translateY(-2px)',
+                transition: 'all 0.3s ease',
+              },
+            }}
+          >
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Typography
               variant="h3"
-              sx={{ fontWeight: 900, letterSpacing: '-0.02em', color: 'black', mb: 1 }}
+              sx={{
+                fontWeight: 800,
+                letterSpacing: '-0.02em',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
+                mb: 1,
+                background: theme === THEME.LIGHT 
+                  ? 'linear-gradient(45deg, #333, #666)' 
+                  : 'linear-gradient(45deg, #fff, #ccc)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textAlign: 'center',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              }}
             >
               {t('title')}
             </Typography>
             <Typography
               variant="body1"
               sx={{
-                color: 'gray',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
                 textTransform: 'uppercase',
                 letterSpacing: '0.1em',
                 fontSize: '0.875rem',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
               }}
             >
               {t('subtitle')}{' '}
               <MuiLink
                 component={Link}
                 href={`/${locale}/auth/login`}
-                color="primary"
-                underline="hover"
+                sx={{
+                  color: theme === THEME.LIGHT ? '#333' : '#fff',
+                  textDecoration: 'underline',
+                  '&:hover': { 
+                    color: theme === THEME.LIGHT ? '#555' : '#ccc',
+                  },
+                }}
               >
                 {t('loginLink')}
               </MuiLink>
@@ -1248,10 +1419,16 @@ export default function RegisterPage() {
               variant="outlined"
               size="small"
               sx={{
-                borderRadius: 0,
-                borderColor: 'gray',
-                color: 'gray',
-                '&:hover': { borderColor: 'black', color: 'black' },
+                borderRadius: 2,
+                borderColor: theme === THEME.LIGHT ? '#e0e0e0' : '#444',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                transition: 'all 0.3s ease',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                '&:hover': { 
+                  borderColor: theme === THEME.LIGHT ? '#333' : '#666',
+                  color: theme === THEME.LIGHT ? '#333' : '#fff',
+                  bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#333',
+                },
               }}
             >
               Delete saved data
@@ -1277,12 +1454,18 @@ export default function RegisterPage() {
               }
               sx={{
                 mb: 2,
-                borderRadius: 0,
-                borderColor: 'black',
-                color: 'black',
-                '&:hover': {
-                  borderColor: 'black',
-                  bgcolor: 'grey.50',
+                borderRadius: 2,
+                borderColor: theme === THEME.LIGHT ? '#e0e0e0' : '#444',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                py: 1.5,
+                fontWeight: 600,
+                transition: 'all 0.3s ease',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                '&:hover': { 
+                  borderColor: theme === THEME.LIGHT ? '#333' : '#666',
+                  bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#333',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 },
               }}
             >
@@ -1290,19 +1473,27 @@ export default function RegisterPage() {
             </Button>
             <Button
               fullWidth
-              variant="outlined"
+              variant="contained"
               startIcon={<Facebook />}
               onClick={() =>
                 (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`)
               }
               sx={{
                 mb: 2,
-                borderRadius: 0,
-                borderColor: 'black',
-                color: 'black',
-                '&:hover': {
-                  borderColor: 'black',
-                  bgcolor: 'grey.50',
+                borderRadius: 2,
+                bgcolor: '#1877F2',
+                color: 'white',
+                borderColor: '#1877F2',
+                py: 1.5,
+                fontWeight: 600,
+                transition: 'all 0.3s ease',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)',
+                '&:hover': { 
+                  bgcolor: '#166FE5', 
+                  borderColor: '#166FE5',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 8px 20px rgba(24, 119, 242, 0.4)',
                 },
               }}
             >
@@ -1311,9 +1502,25 @@ export default function RegisterPage() {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-            <Box sx={{ flex: 1, height: 1, backgroundColor: 'gray' }} />
-            <Typography sx={{ mx: 2, color: 'gray' }}>{t('orRegisterWithEmail')}</Typography>
-            <Box sx={{ flex: 1, height: 1, backgroundColor: 'gray' }} />
+            <Box sx={{ 
+              flex: 1, 
+              height: 1, 
+              bgcolor: theme === THEME.LIGHT ? '#e0e0e0' : '#444' 
+            }} />
+            <Typography sx={{ 
+              mx: 2, 
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+            }}>
+              {t('orRegisterWithEmail')}
+            </Typography>
+            <Box sx={{ 
+              flex: 1, 
+              height: 1, 
+              bgcolor: theme === THEME.LIGHT ? '#e0e0e0' : '#444' 
+            }} />
           </Box>
 
           {/* Stepper */}
@@ -1339,32 +1546,61 @@ export default function RegisterPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         backgroundColor: completedSteps.has(index)
-                          ? 'green'
+                          ? '#4caf50'
                           : activeStep === index
-                            ? 'black'
-                            : 'gray',
-                        color: 'white',
+                            ? theme === THEME.LIGHT ? '#333' : '#fff'
+                            : theme === THEME.LIGHT ? '#e0e0e0' : '#444',
+                        color: completedSteps.has(index) 
+                          ? 'white' 
+                          : activeStep === index
+                            ? theme === THEME.LIGHT ? '#fff' : '#333' // Inverted colors for active step
+                            : theme === THEME.LIGHT ? '#666' : '#ccc',
                         fontSize: '1rem',
+                        fontWeight: 'bold',
                         cursor:
                           index <= activeStep || completedSteps.has(index) ? 'pointer' : 'default',
+                        transition: 'all 0.3s ease',
+                        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
                         '&:hover': {
                           backgroundColor:
                             index <= activeStep || completedSteps.has(index)
                               ? completedSteps.has(index)
                                 ? '#2e7d32'
-                                : '#333'
+                                : theme === THEME.LIGHT ? '#555' : '#f0f0f0'
                               : 'inherit',
+                          transform: 'scale(1.05)',
                         },
                       }}
                     >
-                      {completedSteps.has(index) ? <CheckCircle /> : index + 1}
+                      {completedSteps.has(index) ? (
+                        <CheckCircle sx={{ fontSize: 20 }} />
+                      ) : (
+                        <Typography
+                          sx={{
+                            fontSize: '1rem',
+                            fontWeight: 'bold',
+                            color: 'inherit',
+                            lineHeight: 1,
+                            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                          }}
+                        >
+                          {index + 1}
+                        </Typography>
+                      )}
                     </Box>
                   )}
                 >
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  <Typography variant="h6" sx={{ 
+                    fontWeight: 'bold',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  }}>
                     {step.label}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: 'gray' }}>
+                  <Typography variant="body2" sx={{ 
+                    color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  }}>
                     {step.description}
                   </Typography>
                 </StepLabel>
@@ -1379,12 +1615,16 @@ export default function RegisterPage() {
               sx={{
                 mb: 2,
                 p: 2,
-                backgroundColor: '#f8f9fa',
-                borderRadius: 1,
-                border: '1px solid #e9ecef',
+                bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#333',
+                borderRadius: 2,
+                border: `1px solid ${theme === THEME.LIGHT ? '#e9ecef' : '#444'}`,
               }}
             >
-              <Typography variant="body2" sx={{ color: 'gray', textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc', 
+                textAlign: 'center',
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+              }}>
                 💡 You can click on the completed steps to edit
               </Typography>
             </Box>
@@ -1398,9 +1638,11 @@ export default function RegisterPage() {
               sx={{
                 textAlign: 'center',
                 mt: 2,
-                p: 1,
-                backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                borderRadius: 1,
+                p: 2,
+                bgcolor: theme === THEME.LIGHT ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.2)',
+                borderRadius: 2,
+                border: `1px solid ${theme === THEME.LIGHT ? '#ffcdd2' : '#d32f2f'}`,
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
               }}
             >
               {error}
@@ -1408,14 +1650,23 @@ export default function RegisterPage() {
           )}
 
           <Box sx={{ textAlign: 'center', mt: 3 }}>
-            <Typography variant="body2" sx={{ color: 'gray' }}>
+            <Typography variant="body2" sx={{ 
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+              fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+            }}>
               {t('alreadyHaveAccount')}{' '}
               <MuiLink
                 component={Link}
                 href={`/${locale}/auth/login`}
-                color="primary"
-                underline="hover"
-                sx={{ fontWeight: 'bold' }}
+                sx={{
+                  color: theme === THEME.LIGHT ? '#333' : '#fff',
+                  textDecoration: 'underline',
+                  fontWeight: 'bold',
+                  fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                  '&:hover': { 
+                    color: theme === THEME.LIGHT ? '#555' : '#ccc',
+                  },
+                }}
               >
                 {t('signIn')}
               </MuiLink>
@@ -1424,35 +1675,6 @@ export default function RegisterPage() {
         </Paper>
       </Box>
     </Container>
+  </Box>
   );
 }
-
-const inputStyle = {
-  '& .MuiOutlinedInput-root': {
-    borderRadius: 0,
-    '& fieldset': { borderColor: 'black', borderWidth: 2 },
-    '&:hover fieldset': { borderColor: 'black' },
-    '&.Mui-focused fieldset': { borderColor: 'black' },
-    '&.Mui-error fieldset': { borderColor: 'red' },
-  },
-  '& .MuiInputLabel-root': {
-    color: 'black',
-    fontWeight: 600,
-    '&.Mui-focused': { color: 'black' },
-    '&.Mui-error': { color: 'red' },
-  },
-  '& .MuiFormHelperText-root': { color: 'red', fontWeight: 500 },
-};
-
-const buttonStyle = {
-  borderRadius: 0,
-  backgroundColor: 'black',
-  color: 'white',
-  fontWeight: 900,
-  fontSize: '1.1rem',
-  letterSpacing: '0.1em',
-  padding: '16px',
-  mt: 2,
-  '&:hover': { backgroundColor: '#333' },
-  '&:active': { backgroundColor: '#000' },
-};

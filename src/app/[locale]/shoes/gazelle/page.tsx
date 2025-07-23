@@ -42,42 +42,42 @@ const TABS = [
 
 export default function GazellePage() {
   const fetchProducts = async (sortBy: string) => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
-      const data = await res.json();
-
-      // Lọc sản phẩm theo categoryPath mong muốn
-      const desiredPath = ['Shoes', 'Adidas', 'Gazelle'];
-
-      // Thử nhiều cách filter khác nhau
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?status=active`);
+        const data = await res.json();
+        
+        // Lọc sản phẩm theo categoryPath mong muốn
+        const desiredPath = ['Shoes', 'Adidas', 'Gazelle'];
+        
+        // Thử nhiều cách filter khác nhau
       const filtered = (data.data || []).filter((item: Product) => {
-        // Cách 1: Kiểm tra nếu categoryPath là array
+          // Cách 1: Kiểm tra nếu categoryPath là array
         if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const isMatch = desiredPath.every(
             (cat, idx) => (item.categoryPath![idx] || '').toLowerCase() === cat.toLowerCase()
-          );
-          if (isMatch) return true;
-        }
-
-        // Cách 2: Kiểm tra nếu categoryPath là string
-        if (typeof item.categoryPath === 'string') {
-          const pathString = item.categoryPath.toLowerCase();
-          const desiredString = desiredPath.join('/').toLowerCase();
-          if (pathString === desiredString) return true;
-        }
-
-        // Cách 3: Kiểm tra nếu có field khác chứa category info
-        if (item.categories && Array.isArray(item.categories)) {
+            );
+            if (isMatch) return true;
+          }
+          
+          // Cách 2: Kiểm tra nếu categoryPath là string
+          if (typeof item.categoryPath === 'string') {
+            const pathString = item.categoryPath.toLowerCase();
+            const desiredString = desiredPath.join('/').toLowerCase();
+            if (pathString === desiredString) return true;
+          }
+          
+          // Cách 3: Kiểm tra nếu có field khác chứa category info
+          if (item.categories && Array.isArray(item.categories)) {
           const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
-          if (categoryNames.includes('gazelle')) return true;
-        }
-
-        // Cách 4: Kiểm tra trong name hoặc description
-        if (item.name.toLowerCase().includes('gazelle')) return true;
-
-        return false;
-      });
-
+            if (categoryNames.includes('gazelle')) return true;
+          }
+          
+          // Cách 4: Kiểm tra trong name hoặc description
+          if (item.name.toLowerCase().includes('gazelle')) return true;
+          
+          return false;
+        });
+        
       // Sort products based on sortBy
       switch (sortBy) {
         case 'price-low':
@@ -93,12 +93,12 @@ export default function GazellePage() {
               new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
           );
       }
-    } catch (e) {
-      console.error('Error fetching products:', e);
+      } catch (e) {
+        console.error('Error fetching products:', e);
       return [];
-    }
-  };
-
+      }
+    };
+  
   return (
     <ShoesPageLayout
       pageTitle="ADIDAS GAZELLE"

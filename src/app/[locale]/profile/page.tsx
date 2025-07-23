@@ -29,80 +29,120 @@ import LockIcon from '@mui/icons-material/Lock';
 import { profileService, UserProfile, Address } from '@/services/profile';
 import { styled } from '@mui/material/styles';
 
-const ProfileHeader = styled(Box)({
-  background: '#fff',
-  borderBottom: '1px solid #e0e0e0',
+const ProfileHeader = styled(Box)(({ theme }) => ({
+  background: theme.palette.mode === 'dark' 
+    ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+  borderBottom: theme.palette.mode === 'dark' 
+    ? '1px solid rgba(255, 255, 255, 0.2)'
+    : '1px solid #e0e0e0',
   padding: '48px 0 32px 0',
   textAlign: 'center',
-  color: '#222',
+  color: theme.palette.mode === 'dark' ? '#fff' : '#222',
   position: 'relative',
-});
+  backdropFilter: 'blur(20px)',
+  fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
+}));
 
 const ProfileCard = styled(Paper)(({ theme }) => ({
   borderRadius: 28,
-  boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 4px 24px rgba(0, 0, 0, 0.3)'
+    : '0 4px 24px rgba(0,0,0,0.07)',
   padding: theme.spacing(0, 0, 4, 0),
-  background: '#fff',
+  background: theme.palette.mode === 'dark'
+    ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+    : '#fff',
   maxWidth: 600,
   margin: 'auto',
   marginTop: -64,
   position: 'relative',
   zIndex: 2,
-  border: '1px solid #e0e0e0',
+  border: theme.palette.mode === 'dark'
+    ? '1px solid rgba(255, 255, 255, 0.2)'
+    : '1px solid #e0e0e0',
+  backdropFilter: 'blur(10px)',
+  fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
 }));
 
-const ModernInput = styled(TextField)({
+const ModernInput = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: 12,
-    background: '#fafafa',
+    background: theme.palette.mode === 'dark' 
+      ? 'rgba(255, 255, 255, 0.05)'
+      : '#fafafa',
     '& fieldset': {
-      borderColor: '#bdbdbd',
+      borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : '#bdbdbd',
       borderWidth: 2,
     },
     '&:hover fieldset': {
-      borderColor: '#222',
+      borderColor: theme.palette.mode === 'dark' ? 'primary.main' : '#222',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#222',
+      borderColor: theme.palette.mode === 'dark' ? 'primary.main' : '#222',
+    },
+    '& input': {
+      color: theme.palette.mode === 'dark' ? '#fff' : '#222',
+      fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
     },
   },
   '& .MuiInputLabel-root': {
-    color: '#222',
+    color: theme.palette.mode === 'dark' ? '#fff' : '#222',
     fontWeight: 600,
     fontSize: 15,
+    fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
   },
-});
+  '& .MuiInputAdornment-root': {
+    color: theme.palette.mode === 'dark' ? 'primary.main' : '#222',
+  },
+}));
 
-const ModernButton = styled(Button)({
+const ModernButton = styled(Button)(({ theme }) => ({
   borderRadius: 24,
   fontWeight: 700,
   fontSize: '1rem',
   padding: '12px 32px',
   textTransform: 'none',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-  background: '#111',
+  boxShadow: theme.palette.mode === 'dark' 
+    ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+    : '0 2px 8px rgba(0,0,0,0.08)',
+  background: theme.palette.mode === 'dark'
+    ? 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)'
+    : '#111',
   color: '#fff',
+  fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
   '&:hover': {
-    background: '#222',
+    background: theme.palette.mode === 'dark'
+      ? 'linear-gradient(45deg, #1565c0 30%, #0d47a1 90%)'
+      : '#222',
     color: '#fff',
   },
   '&.Mui-disabled': {
-    background: '#e0e0e0',
-    color: '#888',
+    background: theme.palette.mode === 'dark' ? 'rgba(25, 118, 210, 0.3)' : '#e0e0e0',
+    color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.5)' : '#888',
   },
-});
+}));
 
 const AddressCard = styled(Box)(({ theme }) => ({
-  background: '#fafafa',
+  background: theme.palette.mode === 'dark'
+    ? 'rgba(255, 255, 255, 0.05)'
+    : '#fafafa',
   borderRadius: 16,
-  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  boxShadow: theme.palette.mode === 'dark'
+    ? '0 2px 8px rgba(0, 0, 0, 0.2)'
+    : '0 2px 8px rgba(0,0,0,0.06)',
   padding: theme.spacing(2),
   marginBottom: theme.spacing(3),
   position: 'relative',
-  border: '1px solid #e0e0e0',
+  border: theme.palette.mode === 'dark'
+    ? '1px solid rgba(255, 255, 255, 0.2)'
+    : '1px solid #e0e0e0',
   transition: 'box-shadow 0.2s',
+  fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
   '&:hover': {
-    boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+    boxShadow: theme.palette.mode === 'dark'
+      ? '0 4px 16px rgba(0, 0, 0, 0.3)'
+      : '0 4px 16px rgba(0,0,0,0.12)',
   },
 }));
 
@@ -242,7 +282,13 @@ export default function ProfilePage() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', background: '#f5f5f5' }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      background: (theme) => theme.palette.mode === 'dark'
+        ? 'linear-gradient(135deg, rgba(17, 17, 27, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+        : '#f5f5f5',
+      backdropFilter: 'blur(20px)',
+    }}>
       <ProfileHeader>
         <Avatar
           src={user?.avatar}
@@ -255,7 +301,17 @@ export default function ProfilePage() {
             marginBottom: 2,
           }}
         />
-        <Typography variant="h3" sx={{ fontWeight: 900, mt: 2, letterSpacing: '-0.02em' }}>
+        <Typography variant="h3" sx={{ 
+          fontWeight: 900, 
+          mt: 2, 
+          letterSpacing: '-0.02em',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(45deg, #90caf9 30%, #42a5f5 90%)'
+            : 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
+        }}>
           {user?.fullName}
         </Typography>
         <Box sx={{ mt: 1, display: 'flex', justifyContent: 'center', gap: 1 }}>
@@ -335,7 +391,12 @@ export default function ProfilePage() {
           </Box>
 
           <Box sx={{ mt: 5 }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#222' }}>
+            <Typography variant="h6" sx={{ 
+              fontWeight: 'bold', 
+              mb: 2, 
+              color: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : '#222',
+              fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
+            }}>
               {t('addresses')}
             </Typography>
             {formData.addresses.length === 0 && (
@@ -353,7 +414,11 @@ export default function ProfilePage() {
                       startIcon={<DeleteIcon />}
                       onClick={() => handleDeleteAddress(index)}
                       size="small"
-                      sx={{ borderRadius: 12, fontWeight: 700 }}
+                      sx={{ 
+                        borderRadius: 12, 
+                        fontWeight: 700,
+                        fontFamily: "'Be Vietnam Pro', 'Inter', 'Roboto', 'Noto Sans', sans-serif",
+                      }}
                     >
                       {t('delete')}
                     </Button>
@@ -430,12 +495,15 @@ export default function ProfilePage() {
               startIcon={<LockIcon />}
               onClick={() => router.push('/auth/change-password')}
               sx={{
-                borderColor: '#666',
-                color: '#666',
+                borderColor: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : '#666',
+                color: (theme) => theme.palette.mode === 'dark' ? 'primary.main' : '#666',
+                background: 'transparent',
                 '&:hover': {
-                  borderColor: '#000',
-                  color: '#000',
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  borderColor: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : '#000',
+                  color: (theme) => theme.palette.mode === 'dark' ? 'primary.dark' : '#000',
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(25, 118, 210, 0.08)' 
+                    : 'rgba(0, 0, 0, 0.04)',
                 },
               }}
             >
@@ -452,7 +520,18 @@ export default function ProfilePage() {
                     variant="outlined"
                     startIcon={<CancelIcon />}
                     onClick={handleCancel}
-                    sx={{ background: 'white', color: '#222', borderColor: '#222' }}
+                    sx={{ 
+                      background: (theme) => theme.palette.mode === 'dark' 
+                        ? 'rgba(255, 255, 255, 0.05)' 
+                        : 'white', 
+                      color: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#222', 
+                      borderColor: (theme) => theme.palette.mode === 'dark' ? '#fff' : '#222',
+                      '&:hover': {
+                        background: (theme) => theme.palette.mode === 'dark' 
+                          ? 'rgba(255, 255, 255, 0.1)' 
+                          : 'rgba(0, 0, 0, 0.04)',
+                      },
+                    }}
                   >
                     {t('cancel')}
                   </ModernButton>

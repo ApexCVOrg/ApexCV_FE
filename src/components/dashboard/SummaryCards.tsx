@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, Typography, Box, Chip, Grid } from '@mui/material';
+import { Card, CardContent, Typography, Box, Chip, Grid, useTheme } from '@mui/material';
 import TrendingUp from '@mui/icons-material/TrendingUp';
 import LocalShipping from '@mui/icons-material/LocalShipping';
 import Inventory from '@mui/icons-material/Inventory';
@@ -27,6 +27,7 @@ interface SummaryCardProps {
   action?: string;
   extra?: React.ReactNode;
 }
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
@@ -38,70 +39,99 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   action,
   extra,
-}) => (
-  <Card
-    sx={{
-      height: '100%',
-      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-      '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: 4,
-      },
-      borderTop: `4px solid ${color}`,
-      borderRadius: 4,
-      boxShadow: 2,
-    }}
-  >
-    <CardContent sx={{ p: 3 }}>
-      <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}
-      >
-        <Box sx={{ color, opacity: 0.8 }}>{icon}</Box>
-        {trend && (
-          <Chip
-            label={`${trend.isPositive ? '+' : ''}${trend.value}%`}
-            size="small"
-            color={trend.isPositive ? 'success' : 'error'}
-            sx={{ fontSize: '0.75rem', float: 'right' }}
-          />
+}) => {
+  const theme = useTheme();
+  
+  return (
+    <Card
+      sx={{
+        height: '100%',
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: theme.palette.mode === 'dark' 
+            ? '0 8px 30px rgba(0,0,0,0.4)' 
+            : 4,
+        },
+        borderTop: `4px solid ${color}`,
+        borderRadius: 4,
+        boxShadow: theme.palette.mode === 'dark' 
+          ? '0 4px 15px rgba(0,0,0,0.2)' 
+          : 2,
+        background: theme.palette.mode === 'dark'
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0, 0, 0, 0.12)',
+      }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}
+        >
+          <Box sx={{ color, opacity: 0.8 }}>{icon}</Box>
+          {trend && (
+            <Chip
+              label={`${trend.isPositive ? '+' : ''}${trend.value}%`}
+              size="small"
+              color={trend.isPositive ? 'success' : 'error'}
+              sx={{ fontSize: '0.75rem', float: 'right' }}
+            />
+          )}
+        </Box>
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: 900,
+            letterSpacing: 1,
+            fontFamily: "'Anton', sans-serif",
+            mb: 1,
+            color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary,
+          }}
+        >
+          {value}
+        </Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            color: theme.palette.mode === 'dark' ? '#e0e0e0' : theme.palette.text.secondary,
+          }}
+        >
+          {title}
+        </Typography>
+        {subtitle && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              mt: 1, 
+              display: 'block',
+              color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary,
+            }}
+          >
+            {subtitle}
+          </Typography>
         )}
-      </Box>
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: 900,
-          letterSpacing: 1,
-          fontFamily: "'Anton', sans-serif",
-          mb: 1,
-        }}
-      >
-        {value}
-      </Typography>
-      <Typography
-        variant="body2"
-        color="text.secondary"
-        sx={{
-          fontWeight: 600,
-          fontSize: '0.875rem',
-          textTransform: 'uppercase',
-          letterSpacing: 0.5,
-        }}
-      >
-        {title}
-      </Typography>
-      {subtitle && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {subtitle}
-        </Typography>
-      )}
-      {extra && (
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {extra}
-        </Typography>
-      )}
-    </CardContent>
-  </Card>
-);
+        {extra && (
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              mt: 1, 
+              display: 'block',
+              color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary,
+            }}
+          >
+            {extra}
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
 interface SummaryCardsProps {
   data: {
@@ -115,6 +145,8 @@ interface SummaryCardsProps {
 }
 
 export default function SummaryCards({ data }: SummaryCardsProps) {
+  const theme = useTheme();
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -204,10 +236,25 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
   ];
 
   return (
-    <Grid container spacing={3} alignItems="stretch">
+    <Grid 
+      container 
+      spacing={3} 
+      alignItems="stretch"
+      justifyContent="center"
+      sx={{ 
+        maxWidth: '100%',
+        mx: 'auto',
+      }}
+    >
       {cards.map((card, index) => (
-        // @ts-expect-error: MUI Grid typing issue, item prop is valid
-        <Grid item key={index} xs={12} sm={6} md={4} lg={3} xl={2} sx={{ display: 'flex' }}>
+        <Grid 
+          key={index} 
+          sx={{ 
+            display: 'flex',
+            width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 18px)', xl: 'calc(20% - 19.2px)' },
+            minWidth: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 18px)', xl: 'calc(20% - 19.2px)' },
+          }}
+        >
           <Card
             sx={{
               width: '100%',
@@ -217,10 +264,23 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               flexDirection: 'column',
               justifyContent: 'stretch',
               transition: 'transform 0.2s, box-shadow 0.2s',
-              '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 },
+              '&:hover': { 
+                transform: 'translateY(-4px)', 
+                boxShadow: theme.palette.mode === 'dark' 
+                  ? '0 8px 30px rgba(0,0,0,0.4)' 
+                  : 4 
+              },
               borderTop: `4px solid ${card.color}`,
               borderRadius: 4,
-              boxShadow: 2,
+              boxShadow: theme.palette.mode === 'dark' 
+                ? '0 4px 15px rgba(0,0,0,0.2)' 
+                : 2,
+              background: theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+                : 'background.paper',
+              border: theme.palette.mode === 'dark'
+                ? '1px solid rgba(100, 120, 150, 0.3)'
+                : '1px solid rgba(0, 0, 0, 0.12)',
             }}
           >
             <CardContent
@@ -252,18 +312,24 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               </Box>
               <Typography
                 variant="h4"
-                sx={{ fontWeight: 900, letterSpacing: 1, fontFamily: "'Anton', sans-serif", mb: 1 }}
+                sx={{ 
+                  fontWeight: 900, 
+                  letterSpacing: 1, 
+                  fontFamily: "'Anton', sans-serif", 
+                  mb: 1,
+                  color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary,
+                }}
               >
                 {card.value}
               </Typography>
               <Typography
                 variant="body2"
-                color="text.secondary"
                 sx={{
                   fontWeight: 600,
                   fontSize: '0.875rem',
                   textTransform: 'uppercase',
                   letterSpacing: 0.5,
+                  color: theme.palette.mode === 'dark' ? '#e0e0e0' : theme.palette.text.secondary,
                 }}
               >
                 {card.title}
@@ -271,8 +337,11 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               {card.subtitle && (
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  sx={{ mt: 1, display: 'block' }}
+                  sx={{ 
+                    mt: 1, 
+                    display: 'block',
+                    color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary,
+                  }}
                 >
                   {card.subtitle}
                 </Typography>
@@ -280,8 +349,11 @@ export default function SummaryCards({ data }: SummaryCardsProps) {
               {card.extra && (
                 <Typography
                   variant="caption"
-                  color="text.secondary"
-                  sx={{ mt: 1, display: 'block' }}
+                  sx={{ 
+                    mt: 1, 
+                    display: 'block',
+                    color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary,
+                  }}
                 >
                   {card.extra}
                 </Typography>
