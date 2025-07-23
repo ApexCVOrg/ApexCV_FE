@@ -282,7 +282,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       // Thử gọi resend-verification để gửi lại OTP
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/resend-verification`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: formData.email }),
@@ -307,7 +307,7 @@ export default function RegisterPage() {
 
         // Thử gọi register lại với cùng thông tin
         const registerResponse = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.REGISTER}`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -350,7 +350,7 @@ export default function RegisterPage() {
     try {
       // Đầu tiên gọi register để tạo verification data
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}${API_ENDPOINTS.AUTH.REGISTER}`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}${API_ENDPOINTS.AUTH.REGISTER}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -470,12 +470,12 @@ export default function RegisterPage() {
       };
 
       console.log('Sending verify OTP request:', {
-        url: `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`,
+        url: `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/verify-email`,
         body: requestBody,
       });
 
       // Thử endpoint verify-email trước
-      let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`, {
+      let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -490,7 +490,7 @@ export default function RegisterPage() {
       // Nếu verify-email không hoạt động, thử verify-otp
       if (!response.ok && response.status === 404) {
         console.log('Trying verify-otp endpoint instead...');
-        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-otp`, {
+        response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/verify-otp`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -604,12 +604,12 @@ export default function RegisterPage() {
       };
 
       console.log('Sending save address request:', {
-        url: `${process.env.NEXT_PUBLIC_API_URL}/auth/save-address`,
+        url: `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/save-address`,
         body: requestBody,
       });
 
       // Chỉ lưu address vào database, không gọi lại register
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/save-address`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/save-address`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1273,7 +1273,7 @@ export default function RegisterPage() {
                 />
               }
               onClick={() =>
-                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`)
+                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/google`)
               }
               sx={{
                 mb: 2,
@@ -1293,7 +1293,7 @@ export default function RegisterPage() {
               variant="outlined"
               startIcon={<Facebook />}
               onClick={() =>
-                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/facebook`)
+                (window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/facebook`)
               }
               sx={{
                 mb: 2,

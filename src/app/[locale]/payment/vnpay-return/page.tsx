@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   CircularProgress,
@@ -24,6 +24,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import HomeIcon from '@mui/icons-material/Home';
 import PrintIcon from '@mui/icons-material/Print';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useCartContext } from '@/context/CartContext';
 
 interface OrderItem {
   index: number;
@@ -63,21 +64,38 @@ export default function VnpayReturnPage() {
   const [message, setMessage] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
+  const calledRef = useRef(false);
+  const { refreshCart } = useCartContext();
 
   useEffect(() => {
+    if (calledRef.current) return;
+    calledRef.current = true;
     // Gửi toàn bộ query lên backend để xác thực
     const fetchStatus = async () => {
       const params = Object.fromEntries(searchParams.entries());
       const query = new URLSearchParams(params).toString();
+      const token = localStorage.getItem("auth_token");
       try {
-        const res = await fetch(`/api/payment/vnpay/return?${query}`);
+        const res = await fetch(`/api/payment/vnpay/return?${query}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
         const json = await res.json();
-
+        // Kiểm tra lỗi đặc biệt
+        if (
+          res.status === 400 &&
+          (json.message?.includes('No session and no user token found') ||
+           json.message?.includes('Order data required'))
+        ) {
+          setStatus('fail');
+          setMessage('Đơn hàng đã được xử lý hoặc phiên thanh toán đã hết hạn.');
+          return;
+        }
+        
         // Kiểm tra response code từ VNPay
         const responseCode = searchParams.get('vnp_ResponseCode');
         console.log('VNPay Response Code:', responseCode);
-
-        if (json.status === 'success' && json.result?.isSuccess) {
+        
+        if (json.status === 'success' || json.result?.isSuccess) {
           setStatus('success');
           if (json.order) {
             setOrderData(json.order);
@@ -102,15 +120,11 @@ export default function VnpayReturnPage() {
           } else if (responseCode === '51') {
             setMessage('Giao dịch không thành công do: Tài khoản của quý khách không đủ số dư');
           } else if (responseCode === '65') {
-            setMessage(
-              'Giao dịch không thành công do: Tài khoản của quý khách đã vượt quá hạn mức cho phép'
-            );
+            setMessage('Giao dịch không thành công do: Tài khoản của quý khách đã vượt quá hạn mức cho phép');
           } else if (responseCode === '75') {
             setMessage('Giao dịch không thành công do: Ngân hàng thanh toán đang bảo trì');
           } else if (responseCode === '79') {
-            setMessage(
-              'Giao dịch không thành công do: Khách hàng nhập sai mật khẩu thanh toán quá số lần quy định'
-            );
+            setMessage('Giao dịch không thành công do: Khách hàng nhập sai mật khẩu thanh toán quá số lần quy định');
           } else if (responseCode === '99') {
             setMessage('Giao dịch không thành công do: Lỗi khác');
           } else {
@@ -132,6 +146,12 @@ export default function VnpayReturnPage() {
     fetchStatus();
     // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    if (status === 'success') {
+      refreshCart();
+    }
+  }, [status]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {

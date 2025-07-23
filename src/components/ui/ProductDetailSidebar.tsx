@@ -18,6 +18,8 @@ import { useCartContext } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import FavoriteButton from '@/components/ui/FavoriteButton';
 import Rating from '@mui/material/Rating';
+import ColorPicker from '@/components/ui/ColorPicker';
+import SizeRecommender from '@/components/SizeRecommender';
 
 interface ProductDetailSidebarProps {
   productId: string | null;
@@ -105,7 +107,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     }
 
     // Nếu không có product data, gọi API (fallback)
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products/${productId}`)
       .then(res => {
         if (!res.ok) throw new Error('Không tìm thấy sản phẩm');
         return res.json();
@@ -129,7 +131,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
     const fetchReviews = async () => {
       if (!product?._id) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews?product=${product._id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/reviews?product=${product._id}`);
         const data = await res.json();
         setReviews(Array.isArray(data) ? data : data.data || []);
       } catch {
@@ -412,46 +414,16 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                   {/* Color Selection */}
                   {hasColors && (
                     <Box sx={{ mb: 3 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          mb: 1,
-                        }}
-                      >
-                        <Typography variant="subtitle1" fontWeight={600} color="#1a1a1a">
-                          COLOR:
-                        </Typography>
-                        <Typography variant="body2" color="#666">
-                          Available
-                        </Typography>
-                      </Box>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        {product.colors
-                          ?.filter((color, index, self) => 
-                            index === self.findIndex(c => c === color)
-                          )
-                          .map((color, idx) => (
-                            <Box
-                              key={`${product._id}-color-${idx}-${color}`}
-                              onClick={() => setSelectedColor(color)}
-                              sx={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: '50%',
-                                border:
-                                  selectedColor === color ? '2px solid #1976d2' : '2px solid #e0e0e0',
-                                cursor: 'pointer',
-                                bgcolor: color.toLowerCase(),
-                                transition: 'all 0.2s',
-                                '&:hover': {
-                                  transform: 'scale(1.1)',
-                                },
-                              }}
-                            />
-                          ))}
-                      </Box>
+                      <ColorPicker
+                        colors={product.colors?.filter((color, index, self) => 
+                          index === self.findIndex(c => c === color)
+                        ) || []}
+                        selectedColor={selectedColor}
+                        onColorSelect={setSelectedColor}
+                        title="COLOR"
+                        size="medium"
+                        variant="circle"
+                      />
                     </Box>
                   )}
 
@@ -477,6 +449,21 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           Size Chart
                         </Typography>
                       </Box>
+                      
+                      {/* Size Recommendation */}
+                      <Box sx={{ mb: 2 }}>
+                        <SizeRecommender
+                          productId={product._id}
+                          sizes={product.sizes?.map(s => s.size) || []}
+                          categories={product.categories?.map(cat => cat.name) || []}
+                          onSizeSelect={(recommendedSize) => {
+                            if (typeof recommendedSize === 'string') {
+                              setSelectedSize(recommendedSize);
+                            }
+                          }}
+                        />
+                      </Box>
+                      
                       <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1 }}>
                         {product.sizes
                           ?.filter((size, index, self) => 

@@ -30,9 +30,7 @@ import { THEME } from '@/lib/constants/constants';
 
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
-import { useHomeCartContext } from '@/context/HomeCartContext';
-import { useCartContext } from '@/context/CartContext';
-import { useToast } from '@/components/ui/Toast';
+
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Snackbar from '@mui/material/Snackbar';
 import { ApiProduct, ApiResponse } from '@/types';
@@ -48,6 +46,7 @@ interface Product {
   label?: string;
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  colors?: string[];
   orderCount?: number; // Added for top-selling
 }
 interface Brand {
@@ -172,10 +171,7 @@ export default function HomePage() {
   // State for pagination (load more) cho từng tab
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [tabVisibleCount, setTabVisibleCount] = useState<{ [key: string]: number }>({});
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { addToHomeCart } = useHomeCartContext();
-  const { addToCart } = useCartContext();
-  const { showToast } = useToast();
+
   // State cho tabbed-product-row: chỉ hiển thị 3 sản phẩm, điều khiển bằng startIndex
   // const [tabStartIndex, setTabStartIndex] = useState<{ [key: string]: number }>({});
   // State lưu hướng chuyển động (slide direction)
@@ -206,8 +202,8 @@ export default function HomePage() {
         console.log('Fetching initial categories and brands...');
         
         const [categoriesRes, brandsRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/tree`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/categories/tree`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/brands`),
         ]);
         
         console.log('Categories response status:', categoriesRes.status);
@@ -280,7 +276,7 @@ export default function HomePage() {
         queryParams: queryParams.toString()
       });
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
       console.log('API URL:', apiUrl);
       
       const response = await fetch(apiUrl);
@@ -423,7 +419,7 @@ export default function HomePage() {
         ...(searchQuery ? { search: searchQuery } : {}),
       });
       
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
       console.log('Calling API:', apiUrl);
       
       const response = await fetch(apiUrl);
@@ -746,23 +742,10 @@ export default function HomePage() {
                     categories={product.categories}
                     // @ts-expect-error: Product label may be string, not ProductLabel
                     labels={product.label ? [product.label as string] : []}
+                    availableColors={product.colors}
                     allCategories={categories}
                     allBrands={brands}
                     averageRating={averageRatings[product._id] ?? 0}
-                    onAddToCart={async () => {
-                      try {
-                        await addToCart({
-                          productId: product._id,
-                          quantity: 1
-                        });
-                        // Show success message
-                        showToast('Đã thêm vào giỏ hàng!', 'success');
-                      } catch (error) {
-                        console.error('Add to cart error:', error);
-                        // Show error message
-                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
-                      }
-                    }}
                     backgroundColor="#f8f9fa"
                     colors={3}
                     onViewDetail={() => handleProductCardClick(product._id, product)}
@@ -1086,20 +1069,6 @@ export default function HomePage() {
                             allCategories={categories}
                             allBrands={brands}
                             averageRating={averageRatings[product._id] ?? 0}
-                            onAddToCart={async () => {
-                      try {
-                        await addToCart({
-                          productId: product._id,
-                          quantity: 1
-                        });
-                        // Show success message
-                        showToast('Đã thêm vào giỏ hàng!', 'success');
-                      } catch (error) {
-                        console.error('Add to cart error:', error);
-                        // Show error message
-                        showToast('Thêm vào giỏ hàng thất bại!', 'error');
-                      }
-                    }}
                             backgroundColor="#f8f9fa"
                             colors={3}
                             sx={{ height: '100%' }}

@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Box,
   Typography,
-  TextField,
+  Box,
   Button,
-  Paper,
-  Avatar,
-  CircularProgress,
+  TextField,
   Alert,
+  CircularProgress,
   InputAdornment,
   Chip,
+  Avatar,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
@@ -26,7 +25,11 @@ import VerifiedUser from '@mui/icons-material/VerifiedUser';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LockIcon from '@mui/icons-material/Lock';
+import Height from '@mui/icons-material/Height';
+import MonitorWeight from '@mui/icons-material/MonitorWeight';
+import Straighten from '@mui/icons-material/Straighten';
 import { profileService, UserProfile, Address } from '@/services/profile';
+import { validateProfileData } from '@/lib/utils/profileValidation';
 import { styled } from '@mui/material/styles';
 
 const ProfileHeader = styled(Box)({
@@ -38,7 +41,7 @@ const ProfileHeader = styled(Box)({
   position: 'relative',
 });
 
-const ProfileCard = styled(Paper)(({ theme }) => ({
+const ProfileCard = styled(Box)(({ theme }) => ({
   borderRadius: 28,
   boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
   padding: theme.spacing(0, 0, 4, 0),
@@ -119,6 +122,9 @@ export default function ProfilePage() {
     email: '',
     phone: '',
     addresses: [] as Address[],
+    height: '',
+    weight: '',
+    footLength: '',
   });
 
   useEffect(() => {
@@ -137,7 +143,12 @@ export default function ProfilePage() {
           email: userData.email || '',
           phone: userData.phone || '',
           addresses: userData.addresses || [],
+          height: userData.height?.toString() || '',
+          weight: userData.weight?.toString() || '',
+          footLength: userData.footLength?.toString() || '', // Keep as mm
         });
+        console.log('Loaded user data - Original footLength (mm):', userData.footLength);
+        console.log('FootLength (mm):', userData.footLength || 'N/A');
       } catch {
         setError('Failed to load user data');
       } finally {
@@ -156,16 +167,47 @@ export default function ProfilePage() {
       email: user?.email || '',
       phone: user?.phone || '',
       addresses: user?.addresses || [],
+      height: user?.height?.toString() || '',
+      weight: user?.weight?.toString() || '',
+      footLength: user?.footLength?.toString() || '', // Keep as mm
     });
   };
 
   const handleSave = async () => {
     try {
       setLoading(true);
+      setError(null);
+
+      // Prepare data for validation
+      const updateData = {
+        fullName: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        addresses: formData.addresses,
+        height: formData.height ? parseFloat(formData.height) : undefined,
+        weight: formData.weight ? parseFloat(formData.weight) : undefined,
+        footLength: formData.footLength ? parseFloat(formData.footLength) : undefined,
+      };
+
+      console.log('Form data before validation:', formData);
+      console.log('Form footLength type:', typeof formData.footLength, 'value:', formData.footLength);
+      console.log('Update data for validation:', updateData);
+      console.log('Update footLength type:', typeof updateData.footLength, 'value:', updateData.footLength);
+
+      // Validate data
+      const validation = validateProfileData(updateData);
+      console.log('Validation result:', validation);
+      
+      if (!validation.isValid) {
+        setError(validation.errors.join(', '));
+        return;
+      }
+
+      // Handle email change
       if (formData.email !== user?.email) {
         const token = localStorage.getItem('auth_token');
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/send-email-change-verification`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/send-email-change-verification`,
           {
             method: 'POST',
             headers: {
@@ -175,7 +217,7 @@ export default function ProfilePage() {
             body: JSON.stringify({ email: formData.email }),
           }
         );
-        const data = await response.json();
+        const data: { message?: string } = await response.json();
         if (!response.ok) {
           setError(data.message || 'Failed to send verification code');
           return;
@@ -184,11 +226,21 @@ export default function ProfilePage() {
         router.push('/auth/verify-email');
         return;
       }
-      const updatedUser = await profileService.updateProfile(formData);
+
+      console.log('Sending update data:', updateData);
+
+      const updatedUser = await profileService.updateProfile(updateData);
       setUser(updatedUser);
       setIsEditing(false);
-    } catch {
-      setError('Failed to update profile');
+    } catch (error: unknown) {
+      console.error('Profile update error:', error);
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        setError((error.response.data as { message: string }).message);
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Failed to update profile');
+      }
     } finally {
       setLoading(false);
     }
@@ -243,18 +295,18 @@ export default function ProfilePage() {
 
   return (
     <Box sx={{ minHeight: '100vh', background: '#f5f5f5' }}>
-      <ProfileHeader>
-        <Avatar
-          src={user?.avatar}
-          sx={{
-            width: 128,
-            height: 128,
-            margin: '0 auto',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-            border: '4px solid #fff',
-            marginBottom: 2,
-          }}
-        />
+              <ProfileHeader>
+          <Avatar
+            src={user?.avatar}
+            sx={{
+              width: 128,
+              height: 128,
+              margin: '0 auto',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+              border: '4px solid #fff',
+              marginBottom: 2,
+            }}
+          />
         <Typography variant="h3" sx={{ fontWeight: 900, mt: 2, letterSpacing: '-0.02em' }}>
           {user?.fullName}
         </Typography>
@@ -332,6 +384,71 @@ export default function ProfilePage() {
                 ),
               }}
             />
+          </Box>
+
+          <Box sx={{ mt: 5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: '#222' }}>
+              Thông tin cơ thể (cho gợi ý size)
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Cập nhật thông tin cơ thể để nhận gợi ý size chính xác hơn
+            </Typography>
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr' }, gap: 3 }}>
+              <ModernInput
+                fullWidth
+                label="Chiều cao (cm)"
+                name="height"
+                type="number"
+                value={formData.height}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                inputProps={{ min: 100, max: 250 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Height />
+                    </InputAdornment>
+                  ),
+                  endAdornment: <InputAdornment position="end">cm</InputAdornment>,
+                }}
+              />
+              <ModernInput
+                fullWidth
+                label="Cân nặng (kg)"
+                name="weight"
+                type="number"
+                value={formData.weight}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                inputProps={{ min: 20, max: 200 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <MonitorWeight />
+                    </InputAdornment>
+                  ),
+                  endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+                }}
+              />
+              <ModernInput
+                fullWidth
+                label="Chiều dài chân (mm)"
+                name="footLength"
+                type="number"
+                value={formData.footLength}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                inputProps={{ min: 150, max: 350 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Straighten />
+                    </InputAdornment>
+                  ),
+                  endAdornment: <InputAdornment position="end">mm</InputAdornment>,
+                }}
+              />
+            </Box>
           </Box>
 
           <Box sx={{ mt: 5 }}>

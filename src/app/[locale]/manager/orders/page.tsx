@@ -26,7 +26,6 @@ import {
   InputLabel,
   Select,
   Tooltip,
-   
   Card,
   CardContent,
   Divider,
@@ -52,8 +51,8 @@ interface OrderItem {
     name: string;
     images?: string[];
   };
-  size: string;
-  color: string;
+  size: string | { _id: string; size: string; sku: string; stock: number };
+  color: string | { _id: string; color: string; sku: string; stock: number };
   quantity: number;
   price: number;
 }
@@ -77,11 +76,11 @@ interface PaymentResult {
 
 interface Order {
   _id: string;
-  user: {
+  user?: {
     _id: string;
     username: string;
     email: string;
-  };
+  } | null;
   orderItems: OrderItem[];
   shippingAddress: ShippingAddress;
   paymentMethod: string;
@@ -107,23 +106,16 @@ interface OrderFormData {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
-  // Pagination states
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [totalOrders, setTotalOrders] = useState(0);
-
-  // Search and filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [paymentFilter, setPaymentFilter] = useState<string>('all');
-
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'warning' | 'info',
+  });
   const [formData, setFormData] = useState<OrderFormData>({
     orderStatus: 'pending',
     isPaid: false,
@@ -131,73 +123,44 @@ export default function OrdersPage() {
     shippingPrice: 0,
     taxPrice: 0,
   });
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error';
-  }>({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
 
-  // Search and filter function
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   const filterOrders = () => {
-    let filtered = orders || [];
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(
-        order =>
-          order.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.shippingAddress.recipientName.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Filter by order status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(order => order.orderStatus === statusFilter);
-    }
-
-    // Filter by payment status
-    if (paymentFilter !== 'all') {
-      filtered = filtered.filter(order => {
-        if (paymentFilter === 'paid') return order.isPaid;
-        if (paymentFilter === 'unpaid') return !order.isPaid;
-        return true;
-      });
-    }
-
-    setFilteredOrders(filtered);
+    return orders.filter(order => {
+      const matchesSearch = searchTerm === '' || 
+        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
   };
 
-  // Apply filters when search terms or filters change
-  useEffect(() => {
-    filterOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, statusFilter, paymentFilter, orders]);
-
-  // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
-    setPaymentFilter('all');
   };
 
-  // Fetch orders with pagination
   const fetchOrders = async () => {
-    setLoading(true);
     try {
-      const res = await api.get<Order[]>(API_ENDPOINTS.MANAGER.ORDERS, {
-        params: { page, limit },
+      setLoading(true);
+      const response = await api.get<Order[]>(API_ENDPOINTS.MANAGER.ORDERS);
+      if (response.data) {
+        setOrders(response.data);
+        setTotalPages(Math.ceil(response.data.length / 10));
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to fetch orders',
+        severity: 'error',
       });
-      setOrders(res.data);
-      setTotalOrders(res.data.length);
-      setTotalPages(Math.ceil(res.data.length / limit));
-    } catch {
-      setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -205,29 +168,25 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit]);
+  }, []);
 
-  // Handle page change
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  // Form handlers
+  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string | string[] } }) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name as string]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
+    }));
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
-    }));
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSelectChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
+      [name]: name === 'shippingPrice' || name === 'taxPrice' ? parseFloat(value) || 0 : value,
     }));
   };
 
@@ -347,6 +306,14 @@ export default function OrdersPage() {
     return orderItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const getSizeDisplay = (size: string | { _id: string; size: string; sku: string; stock: number }) => {
+    return typeof size === 'object' ? size.size : size;
+  };
+
+  const getColorDisplay = (color: string | { _id: string; color: string; sku: string; stock: number }) => {
+    return typeof color === 'object' ? color.color : color;
+  };
+
   if (loading) {
     return (
       <Box sx={{ p: 3 }}>
@@ -355,52 +322,34 @@ export default function OrdersPage() {
     );
   }
 
-  return (
-    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={3}
-        sx={{ flexWrap: 'wrap' }}
-      >
-        <Typography variant="h4" component="h1">
-          Orders Management
-        </Typography>
-      </Stack>
+  const filteredOrders = filterOrders();
 
-      {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 3, maxWidth: '100%', overflowX: 'auto' }}>
-        <Stack spacing={2}>
-          {/* Search Bar */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+  return (
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" fontWeight={700} mb={3}>
+        Orders Management
+      </Typography>
+
+      {/* Filters */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
             <TextField
-              placeholder="Search orders by customer name, email, order ID, or recipient name..."
+              label="Search Orders"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              sx={{ flexGrow: 1 }}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ minWidth: 200 }}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
+                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
               }}
             />
-            <Button
-              variant="outlined"
-              startIcon={<ClearIcon />}
-              onClick={clearFilters}
-              disabled={!searchTerm && statusFilter === 'all' && paymentFilter === 'all'}
-            >
-              Clear
-            </Button>
-          </Box>
-
-          {/* Filter Row */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel>Order Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel>Status</InputLabel>
               <Select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                label="Order Status"
+                onChange={(e) => setStatusFilter(e.target.value)}
+                label="Status"
               >
                 <MenuItem value="all">All Status</MenuItem>
                 <MenuItem value="pending">Pending</MenuItem>
@@ -410,239 +359,166 @@ export default function OrdersPage() {
                 <MenuItem value="cancelled">Cancelled</MenuItem>
               </Select>
             </FormControl>
-
-            <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>Payment</InputLabel>
-              <Select
-                value={paymentFilter}
-                onChange={e => setPaymentFilter(e.target.value)}
-                label="Payment"
-              >
-                <MenuItem value="all">All Payment</MenuItem>
-                <MenuItem value="paid">Paid</MenuItem>
-                <MenuItem value="unpaid">Unpaid</MenuItem>
-              </Select>
-            </FormControl>
-
-            {/* Results Count */}
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-              <Typography variant="body2" color="text.secondary">
-                {filteredOrders.length} of {orders.length} orders
-              </Typography>
-            </Box>
-          </Box>
-        </Stack>
-      </Paper>
-
-      {/* Orders Summary Cards */}
-      <Box
-        sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3, width: '100%', overflowX: 'auto' }}
-      >
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Total Orders
-              </Typography>
-              <Typography variant="h4">{filteredOrders.length}</Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Pending Orders
-              </Typography>
-              <Typography variant="h4" color="warning.main">
-                {filteredOrders.filter(order => order.orderStatus === 'pending').length}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Paid Orders
-              </Typography>
-              <Typography variant="h4" color="info.main">
-                {filteredOrders.filter(order => order.isPaid).length}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Delivered Orders
-              </Typography>
-              <Typography variant="h4" color="success.main">
-                {filteredOrders.filter(order => order.isDelivered).length}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
+            <Button
+              variant="outlined"
+              onClick={clearFilters}
+              startIcon={<ClearIcon />}
+            >
+              Clear Filters
+            </Button>
+          </Stack>
+        </CardContent>
+      </Card>
 
       {/* Orders Table */}
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Payment</TableCell>
-                <TableCell>Created</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredOrders.map(order => (
-                <TableRow key={order._id} hover>
-                  <TableCell>
-                    <Typography variant="body2" fontFamily="monospace">
-                      {order._id.slice(-8)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {order.user.username}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {order.user.email}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{getTotalItems(order.orderItems)} items</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {formatPrice(order.totalPrice)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      icon={getStatusIcon(order.orderStatus)}
-                      label={order.orderStatus.toUpperCase()}
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      color={getStatusColor(order.orderStatus) as any}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box>
-                      <Chip
-                        label={order.isPaid ? 'Paid' : 'Unpaid'}
-                        color={order.isPaid ? 'success' : 'warning'}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Order ID</TableCell>
+              <TableCell>Customer</TableCell>
+              <TableCell>Items</TableCell>
+              <TableCell>Total</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Payment</TableCell>
+              <TableCell>Date</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredOrders.map((order) => (
+              <TableRow key={order._id}>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={600}>
+                    {order._id.slice(-8)}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {order.user?.username || 'Guest'}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {order.user?.email}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {getTotalItems(order.orderItems)} items
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2" fontWeight={600}>
+                    {formatPrice(order.totalPrice)}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    icon={getStatusIcon(order.orderStatus)}
+                    label={order.orderStatus}
+                    color={getStatusColor(order.orderStatus) as 'success' | 'error' | 'warning' | 'default'}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={order.isPaid ? 'Paid' : 'Unpaid'}
+                    color={order.isPaid ? 'success' : 'warning'}
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {formatDate(order.createdAt)}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <Tooltip title="View Details">
+                      <IconButton
                         size="small"
-                        sx={{ mb: 0.5 }}
-                      />
-                      {order.isPaid && order.paidAt && (
-                        <Typography variant="caption" display="block" color="textSecondary">
-                          {formatDate(order.paidAt)}
-                        </Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{formatDate(order.createdAt)}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1}>
-                      <Tooltip title="View Details">
-                        <IconButton size="small" onClick={() => handleOpenDialog(order)}>
-                          <VisibilityIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Edit Order">
-                        <IconButton size="small" onClick={() => handleOpenDialog(order)}>
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="Delete Order">
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDelete(order._id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
+                        onClick={() => handleOpenDialog(order)}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Edit Order">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(order)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete Order">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(order._id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      {/* Edit Order Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+      {/* Order Details Dialog */}
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
-          {selectedOrder ? `Edit Order #${selectedOrder._id.slice(-8)}` : 'Edit Order'}
+          Order Details - {selectedOrder?._id.slice(-8)}
         </DialogTitle>
         <DialogContent>
           {selectedOrder && (
-            <Box sx={{ mt: 2 }}>
-              {/* Order Details */}
+            <Box>
+              {/* Order Info */}
               <Typography variant="h6" gutterBottom>
-                Order Details
+                Order Information
               </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-                <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    Customer
-                  </Typography>
-                  <Typography variant="body1">{selectedOrder.user.username}</Typography>
-                </Box>
-                <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    Email
-                  </Typography>
-                  <Typography variant="body1">{selectedOrder.user.email}</Typography>
-                </Box>
-                <Box sx={{ flex: '1 1 100%' }}>
-                  <Typography variant="body2" color="textSecondary">
-                    Shipping Address
-                  </Typography>
-                  <Typography variant="body1">
-                    {selectedOrder.shippingAddress.recipientName}
-                    <br />
-                    {selectedOrder.shippingAddress.street}
-                    <br />
-                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{' '}
-                    {selectedOrder.shippingAddress.postalCode}
-                    <br />
-                    {selectedOrder.shippingAddress.country}
-                    <br />
-                    Phone: {selectedOrder.shippingAddress.phone}
-                  </Typography>
-                </Box>
-              </Box>
+              <Stack direction="row" spacing={2} mb={2}>
+                <Typography variant="body2">
+                  <strong>Customer:</strong> {selectedOrder.user?.username || 'Guest'}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Email:</strong> {selectedOrder.user?.email || 'N/A'}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Date:</strong> {formatDate(selectedOrder.createdAt)}
+                </Typography>
+              </Stack>
 
-              <Divider sx={{ my: 2 }} />
+              {/* Shipping Address */}
+              <Typography variant="h6" gutterBottom>
+                Shipping Address
+              </Typography>
+              <Typography variant="body2" mb={2}>
+                {selectedOrder.shippingAddress.recipientName}<br />
+                {selectedOrder.shippingAddress.street}<br />
+                {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.postalCode}<br />
+                {selectedOrder.shippingAddress.country}<br />
+                Phone: {selectedOrder.shippingAddress.phone}
+              </Typography>
 
               {/* Order Items */}
               <Typography variant="h6" gutterBottom>
                 Order Items
               </Typography>
-              <TableContainer component={Paper} variant="outlined">
+              <TableContainer component={Paper} sx={{ mb: 2 }}>
                 <Table size="small">
                   <TableHead>
                     <TableRow>
                       <TableCell>Product</TableCell>
                       <TableCell>Size</TableCell>
                       <TableCell>Color</TableCell>
-                      <TableCell>Quantity</TableCell>
+                      <TableCell>Qty</TableCell>
                       <TableCell>Price</TableCell>
                       <TableCell>Total</TableCell>
                     </TableRow>
@@ -653,8 +529,8 @@ export default function OrdersPage() {
                         <TableCell>
                           <Typography variant="body2">{item.product.name}</Typography>
                         </TableCell>
-                        <TableCell>{item.size}</TableCell>
-                        <TableCell>{item.color}</TableCell>
+                        <TableCell>{getSizeDisplay(item.size)}</TableCell>
+                        <TableCell>{getColorDisplay(item.color)}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
                         <TableCell>{formatPrice(item.price)}</TableCell>
                         <TableCell>{formatPrice(item.price * item.quantity)}</TableCell>

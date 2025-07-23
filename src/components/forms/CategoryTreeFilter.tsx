@@ -7,6 +7,7 @@ import {
   AccordionDetails,
   Typography,
   Box,
+  Paper,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CategoryTree } from '@/types/components/category';
@@ -63,6 +64,13 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
             boxShadow: 'none',
             '&:before': { display: 'none' },
             ml: level * 2,
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            mb: 1,
+            '&:hover': {
+              borderColor: '#1976d2',
+              boxShadow: '0 2px 8px rgba(25, 118, 210, 0.1)',
+            },
           }}
         >
           <AccordionSummary
@@ -72,6 +80,9 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
               '& .MuiAccordionSummary-content': {
                 margin: '8px 0',
               },
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -80,14 +91,20 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
                 checked={isSelected}
                 onChange={handleParentCheckboxChange(category._id)}
                 onClick={handleCheckboxClick}
-                style={{ marginRight: '8px', cursor: 'pointer' }}
+                style={{ 
+                  marginRight: '8px', 
+                  cursor: 'pointer',
+                  width: '16px',
+                  height: '16px',
+                  accentColor: '#1976d2',
+                }}
               />
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 {category.name}
               </Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ pt: 0, pb: 1 }}>
+          <AccordionDetails sx={{ pt: 0, pb: 1, backgroundColor: '#fafafa' }}>
             <Box sx={{ ml: 2 }}>
               {category.children?.map(child => renderCategoryNode(child, level + 1))}
             </Box>
@@ -97,14 +114,34 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
     }
 
     return (
-      <Box key={category._id} sx={{ ml: level * 2 + 2, mb: 0.5 }}>
+      <Box 
+        key={category._id} 
+        sx={{ 
+          ml: level * 2 + 2, 
+          mb: 0.5,
+          p: 1,
+          borderRadius: '4px',
+          border: '1px solid #f0f0f0',
+          backgroundColor: '#ffffff',
+          '&:hover': {
+            borderColor: '#1976d2',
+            backgroundColor: '#f8f9fa',
+          },
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleLeafCheckboxChange(category._id)}
             onClick={handleCheckboxClick}
-            style={{ marginRight: '8px', cursor: 'pointer' }}
+            style={{ 
+              marginRight: '8px', 
+              cursor: 'pointer',
+              width: '16px',
+              height: '16px',
+              accentColor: '#1976d2',
+            }}
           />
           <Typography variant="body2">{category.name}</Typography>
         </Box>
@@ -117,7 +154,23 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
     return categories.map(category => renderCategoryNode(category));
   }, [categories, renderCategoryNode]);
 
-  return <Box>{renderedCategories}</Box>;
+  return (
+    <Paper
+      elevation={2}
+      sx={{
+        p: 2,
+        border: '2px solid #e0e0e0',
+        borderRadius: '12px',
+        backgroundColor: '#ffffff',
+        '&:hover': {
+          borderColor: '#1976d2',
+          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+        },
+      }}
+    >
+      <Box>{renderedCategories}</Box>
+    </Paper>
+  );
 });
 
 CategoryTreeFilter.displayName = 'CategoryTreeFilter';

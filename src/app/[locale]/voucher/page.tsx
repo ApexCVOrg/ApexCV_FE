@@ -75,7 +75,7 @@ export default function CouponPage() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com'}/coupon`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/coupon`)
       .then(res => res.json())
       .then(data => setCoupons(data.data || []));
   }, []);

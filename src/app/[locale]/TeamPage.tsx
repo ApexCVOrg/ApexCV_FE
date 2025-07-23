@@ -65,9 +65,9 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
       try {
         // Fetch categories with gender filter
         const categoriesRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories?gender=${gender.toLowerCase()}`
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/categories?gender=${gender.toLowerCase()}`
         );
-        const brandsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/brands`);
+        const brandsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/brands`);
 
         const [categoriesData, brandsData] = await Promise.all([
           categoriesRes.json(),
@@ -147,7 +147,7 @@ export default function TeamPage({ teamName, gender }: TeamPageProps) {
           gender: gender.toLowerCase(),
         });
 
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
