@@ -141,10 +141,10 @@ export async function createVnpayPayment(data: Record<string, unknown>): Promise
 /**
  * Lấy lịch sử refund cho 1 order cụ thể
  */
-export async function getRefundHistoryByOrder(orderId: string): Promise<any[]> {
+export async function getRefundHistoryByOrder(orderId: string): Promise<unknown[]> {
   const res = await api.get(`/refund/history?orderId=${orderId}`);
-  const data = res.data as any;
-  if (data && data.success) return data.refunds;
+  const data = res.data as unknown;
+  if (data && (data as { success?: boolean }).success) return (data as { refunds?: unknown[] }).refunds || [];
   return [];
 }
 

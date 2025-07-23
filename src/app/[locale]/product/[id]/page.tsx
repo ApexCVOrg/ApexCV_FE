@@ -33,9 +33,9 @@ import {
   ArrowBack,
   ArrowForward,
   Close,
-  Check,
   Info,
   ZoomIn,
+  Check,
 } from '@mui/icons-material';
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
@@ -45,6 +45,8 @@ import { useFavorites } from '@/hooks/useFavorites';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import ColorPicker from '@/components/ui/ColorPicker';
+import SizeRecommender from '@/components/SizeRecommender';
 
 interface Product {
   _id: string;
@@ -511,7 +513,7 @@ export default function ProductDetailPage() {
             )}
           </Box>
         </Box>
-
+      </Box>
         {/* Product Info */}
         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
           <Box sx={{ position: 'sticky', top: 20 }}>
@@ -623,6 +625,14 @@ export default function ProductDetailPage() {
                     )
                   ))}
                 </Box>
+                <ColorPicker
+                  colors={product.colors}
+                  selectedColor={selectedColor}
+                  onColorSelect={setSelectedColor}
+                  title={t('colors')}
+                  size="large"
+                  variant="circle"
+                />
               </Box>
             )}
 
@@ -667,6 +677,62 @@ export default function ProductDetailPage() {
                         <Typography
                           sx={{
                             color: selectedSize === size ? '#fff' : '#000',
+                          fontWeight: 600,
+                          fontSize: 16,
+                        }}
+                      >
+                        {size}
+                      </Typography>
+                    </Box>
+                  </motion.div>
+                  ))}
+                </Box>
+              </Box>
+            )}
+
+            {/* Stock Information */}
+                {/* Size Recommendation */}
+                <Box sx={{ mb: 2 }}>
+                  <SizeRecommender
+                    productId={product._id}
+                    sizes={getUniqueSizes()}
+                    categories={product.categories?.map(cat => cat.name) || []}
+                    onSizeSelect={(recommendedSize) => {
+                      if (typeof recommendedSize === 'string') {
+                        setSelectedSize(recommendedSize);
+                      }
+                    }}
+                  />
+                </Box>
+                
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 2,
+                  }}
+                >
+                  {getUniqueSizes().map(size => (
+                    <motion.div key={size} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Box
+                        sx={{
+                          width: 60,
+                          height: 60,
+                          borderRadius: '50%',
+                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
+                          bgcolor: selectedSize === size ? '#000' : '#fff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                        }}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        <Typography
+                          sx={{
+                            color: selectedSize === size ? '#fff' : '#000',
                             fontWeight: 600,
                             fontSize: 16,
                           }}
@@ -677,8 +743,6 @@ export default function ProductDetailPage() {
                     </motion.div>
                   ))}
                 </Box>
-              </Box>
-            )}
 
             {/* Stock Information */}
             {selectedColor && selectedSize && (
@@ -804,7 +868,6 @@ export default function ProductDetailPage() {
             )}
           </Box>
         </Box>
-      </Box>
 
       {/* Product Details Tabs */}
       <Box sx={{ mt: 6 }}>

@@ -44,6 +44,7 @@ interface Product {
   label?: string;
   brand?: { _id: string; name: string };
   categories?: { _id: string; name: string }[];
+  colors?: string[];
   orderCount?: number; // Added for top-selling
 }
 interface Brand {
@@ -732,6 +733,7 @@ export default function HomePage() {
                     categories={product.categories}
                     // @ts-expect-error: Product label may be string, not ProductLabel
                     labels={product.label ? [product.label as string] : []}
+                    availableColors={product.colors}
                     allCategories={categories}
                     allBrands={brands}
                     averageRating={averageRatings[product._id] ?? 0}

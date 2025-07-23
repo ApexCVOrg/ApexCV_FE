@@ -6,11 +6,51 @@ import { useAuth } from "@/hooks/useAuth";
 import api from "@/services/api";
 import { createVnpayPayment } from "@/services/api";
 
+interface CartItem {
+  _id: string;
+  product: {
+    _id: string;
+    name: string;
+    price: number;
+    discountPrice?: number;
+    images: string[];
+    brand?: { _id: string; name: string };
+    sizes?: { size: string; stock: number; color?: string }[];
+    colors?: string[];
+  };
+  size?: string;
+  color?: string;
+  quantity: number;
+}
+interface Address {
+  _id: string;
+  street: string;
+  city: string;
+  state?: string;
+  country?: string;
+  addressNumber?: string;
+  isDefault?: boolean;
+  phone?: string;
+  recipientName?: string;
+}
+interface UserProfile {
+  _id: string;
+  fullName?: string;
+  phone?: string;
+  addresses?: Address[];
+}
+
+// Định nghĩa interface Order nếu chưa có
+interface Order {
+  _id: string;
+  // ... các trường khác nếu cần
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { getToken } = useAuth();
-  const [cartItems, setCartItems] = useState<any[]>([]);
-  const [address, setAddress] = useState<any>(null);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [address, setAddress] = useState<Address | null>(null);
   const [userPhone, setUserPhone] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,19 +75,19 @@ export default function CheckoutPage() {
         const token = getToken();
         // Lấy cart
         const cartRes = await api.get("/carts/user", { headers: { Authorization: `Bearer ${token}` } });
-        const cartData = cartRes.data as any;
+        const cartData = cartRes.data as { cartItems: CartItem[] };
         // Lọc chỉ các sản phẩm được chọn
-        const filtered = (cartData.cartItems || []).filter((item: any) => selectedIds.includes(item._id));
+        const filtered = (cartData.cartItems || []).filter((item: CartItem) => selectedIds.includes(item._id));
         setCartItems(filtered);
         // Lấy địa chỉ user
         const userRes = await api.get("/users/profile", { headers: { Authorization: `Bearer ${token}` } });
-        const userData = userRes.data as any;
+        const userData = userRes.data as UserProfile;
         const addresses = userData.addresses || [];
         setUserPhone(userData.phone || "");
-        let mainAddress = addresses.find((a: any) => a.isDefault) || addresses[0] || null;
+        const mainAddress = addresses.find((a: Address) => a.isDefault) || addresses[0] || null;
         if (mainAddress && !mainAddress.phone && userData.phone) mainAddress.phone = userData.phone;
         setAddress(mainAddress);
-      } catch (err: any) {
+      } catch {
         setError("Lỗi khi lấy thông tin giỏ hàng hoặc địa chỉ.");
       } finally {
         setLoading(false);
@@ -67,7 +107,7 @@ export default function CheckoutPage() {
   }, []);
 
   // Helper: Lấy giá gốc đã discount (không coupon)
-  const getProductDisplayPrice = (item: any) => item.product?.discountPrice || item.product?.price || item.price || 0;
+  const getProductDisplayPrice = (item: CartItem) => item.product?.discountPrice || item.product?.price || 0;
 
   // subtotal là tổng giá sản phẩm đã discount (nếu có), không áp coupon
   const subtotal = cartItems.reduce((sum, item) => {
@@ -93,7 +133,7 @@ export default function CheckoutPage() {
   const productCouponDiscount = cartItems.reduce((total, item) => {
     const coupon = appliedCoupons[item._id];
     if (coupon && coupon.newPrice) {
-      const price = item.product?.discountPrice || item.product?.price || item.price || 0;
+      const price = item.product?.discountPrice || item.product?.price || 0;
       return total + (price - coupon.newPrice) * item.quantity;
     }
     return total;
@@ -124,7 +164,7 @@ export default function CheckoutPage() {
           shippingAddress: address,
           paymentMethod: "COD",
         }, { headers: { Authorization: `Bearer ${token}` } });
-        const order = res.data as any;
+        const order = res.data as Order;
         if (order && order._id) {
           router.push(`/order-history`);
         } else {
@@ -150,7 +190,7 @@ export default function CheckoutPage() {
               color: item.color || 'Default',
               quantity: item.quantity,
             }],
-            price: item.product?.discountPrice || item.product?.price || item.price || 0,
+            price: item.product?.discountPrice || item.product?.price || 0,
           })),
           shippingAddress: {
             fullName: address.recipientName,
@@ -174,7 +214,7 @@ export default function CheckoutPage() {
         window.location.href = paymentUrl;
         return;
       }
-    } catch (err: any) {
+    } catch {
       setError("Đặt hàng thất bại!");
     } finally {
       setPlacing(false);

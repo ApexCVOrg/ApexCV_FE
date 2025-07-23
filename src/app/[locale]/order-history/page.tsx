@@ -18,9 +18,10 @@ const PageContainer = styled(Box)`
 `;
 
 const SectionTitle = styled(Typography)`
-  font-weight: 900;
+  font-weight: 600; /* Adjusted font-weight for consistency */
   margin-bottom: 24px;
   color: #111a2f;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif; /* Ensuring consistent font family */
 `;
 
 const OrderCard = styled(Card)`
