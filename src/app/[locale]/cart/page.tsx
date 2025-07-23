@@ -39,6 +39,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { profileService } from '@/services/profile';
 import React from 'react';
 import SizeRecommender from '@/components/SizeRecommender';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 // Extend CartItem interface to include _id
 interface ProductSize {
@@ -95,13 +97,6 @@ const blackBorderStyle = {
   },
 };
 
-const commonPaperStyles = {
-  p: 4,
-  bgcolor: 'white',
-  borderRadius: 0,
-  border: '2px solid black',
-};
-
 const commonAlertStyles = {
   borderRadius: 0,
   border: '2px solid',
@@ -122,6 +117,8 @@ function CartItemOptions({ cartItem, isUpdating, handleUpdateItemOptions, t }: C
   const [localSize, setLocalSize] = useState(cartItem.size);
   const [localColor, setLocalColor] = useState(cartItem.color);
   const [pending, setPending] = useState(false);
+  const { theme } = useTheme();
+  const isDarkMode = theme === THEME.DARK;
 
   // Update local state when cartItem props change (e.g., after successful update from context)
   useEffect(() => {
@@ -186,7 +183,14 @@ function CartItemOptions({ cartItem, isUpdating, handleUpdateItemOptions, t }: C
           <Chip
             label={`${t('size')}: ${cartItem.size}`}
             size="small"
-            sx={{ borderRadius: 0, border: '1px solid black', bgcolor: 'white', color: 'black', fontWeight: 700, textTransform: 'uppercase' }}
+            sx={{ 
+              borderRadius: 0, 
+              border: `1px solid ${isDarkMode ? '#fff' : 'black'}`, 
+              bgcolor: isDarkMode ? '#333' : 'white', 
+              color: isDarkMode ? '#fff' : 'black', 
+              fontWeight: 700, 
+              textTransform: 'uppercase' 
+            }}
           />
         )
       )}
@@ -238,6 +242,7 @@ export default function CartPage() {
   const t = useTranslations('cartPage');
   const { isAuthenticated } = useAuth();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const { theme } = useTheme();
 
   const [localCartItems, setLocalCartItems] = useState<CartItemWithId[]>(cart?.cartItems as CartItemWithId[] || []);
   useEffect(() => {
@@ -261,16 +266,65 @@ export default function CartPage() {
     e.preventDefault();
   };
 
+    // Theme-aware styles
+  const isDarkMode = theme === THEME.DARK;
+  
+  const nikeTypography = {
+    fontFamily: '"Helvetica Neue", Arial, sans-serif',
+    fontWeight: 700,
+    letterSpacing: '0.02em',
+  };
+
+  const nikeButtonStyle = {
+    borderRadius: 0,
+    fontWeight: 700,
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase' as const,
+    py: 1.5,
+    fontFamily: '"Helvetica Neue", Arial, sans-serif',
+  };
+
+  const blackBorderStyle = {
+    borderRadius: 0,
+    border: `2px solid ${isDarkMode ? '#fff' : 'black'}`,
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 0,
+      '& fieldset': { borderColor: isDarkMode ? '#fff' : 'black', borderWidth: 2 },
+      '&:hover fieldset': { borderColor: isDarkMode ? '#fff' : 'black' },
+      '&.Mui-focused fieldset': { borderColor: isDarkMode ? '#fff' : 'black' },
+    },
+    '& .MuiInputLabel-root': {
+      color: isDarkMode ? '#fff' : 'black',
+      '&.Mui-focused': { color: isDarkMode ? '#fff' : 'black' },
+    },
+  };
+
+  const commonPaperStyles = {
+    p: 4,
+    bgcolor: isDarkMode ? '#1e1e1e' : 'white',
+    borderRadius: 0,
+    border: `2px solid ${isDarkMode ? '#333' : 'black'}`,
+    color: isDarkMode ? '#fff' : 'black',
+  };
+
+  const commonAlertStyles = {
+    borderRadius: 0,
+    border: '2px solid',
+    bgcolor: isDarkMode ? '#2a1a1a' : '#ffebee',
+    color: isDarkMode ? '#ffcdd2' : 'black',
+    fontWeight: 600,
+  };
+
   if (!token) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
-          <ShoppingCartIcon sx={{ fontSize: 64, color: 'black', mb: 2 }} />
+          <ShoppingCartIcon sx={{ fontSize: 64, color: isDarkMode ? '#fff' : 'black', mb: 2 }} />
           <Typography
             variant="h4"
             sx={{
               ...nikeTypography,
-              color: 'black',
+              color: isDarkMode ? '#fff' : 'black',
               mb: 2,
               textTransform: 'uppercase',
             }}
@@ -290,9 +344,9 @@ export default function CartPage() {
             }}
             sx={{
               ...nikeButtonStyle,
-              bgcolor: 'black',
-              color: 'white',
-              '&:hover': { bgcolor: 'gray.800' },
+              bgcolor: isDarkMode ? '#fff' : 'black',
+              color: isDarkMode ? 'black' : 'white',
+              '&:hover': { bgcolor: isDarkMode ? '#e0e0e0' : 'gray.800' },
               mt: 2,
             }}
           >
@@ -307,7 +361,7 @@ export default function CartPage() {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
-          <CircularProgress sx={{ color: 'black' }} />
+          <CircularProgress sx={{ color: isDarkMode ? '#fff' : 'black' }} />
         </Paper>
       </Container>
     );
@@ -319,7 +373,7 @@ export default function CartPage() {
         <Paper sx={commonPaperStyles}>
           <Alert
             severity="error"
-            sx={{ ...commonAlertStyles, borderColor: '#d32f2f', bgcolor: '#ffebee' }}
+            sx={{ ...commonAlertStyles, borderColor: '#d32f2f', bgcolor: isDarkMode ? '#2d1b1b' : '#ffebee' }}
           >
             {error}
           </Alert>
@@ -332,12 +386,12 @@ export default function CartPage() {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
-          <ShoppingCartIcon sx={{ fontSize: 64, color: 'black', mb: 2 }} />
+          <ShoppingCartIcon sx={{ fontSize: 64, color: isDarkMode ? '#fff' : 'black', mb: 2 }} />
           <Typography
             variant="h4"
             sx={{
               ...nikeTypography,
-              color: 'black',
+              color: isDarkMode ? '#fff' : 'black',
               mb: 1,
               textTransform: 'uppercase',
             }}
@@ -347,7 +401,7 @@ export default function CartPage() {
           <Typography
             variant="body1"
             sx={{
-              color: 'gray',
+              color: isDarkMode ? '#ccc' : 'gray',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
               fontSize: '0.875rem',
@@ -364,9 +418,9 @@ export default function CartPage() {
             }}
             sx={{
               ...nikeButtonStyle,
-              bgcolor: 'black',
-              color: 'white',
-              '&:hover': { bgcolor: 'gray.800' },
+              bgcolor: isDarkMode ? '#fff' : 'black',
+              color: isDarkMode ? 'black' : 'white',
+              '&:hover': { bgcolor: isDarkMode ? '#e0e0e0' : 'gray.800' },
             }}
           >
             {t('continueShopping')}
@@ -682,14 +736,19 @@ export default function CartPage() {
 
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }} onSubmit={handleFormSubmit}>
+    <Container maxWidth={false} sx={{ 
+      py: 4, 
+      px: 0,
+      bgcolor: isDarkMode ? '#121212' : 'transparent',
+      minHeight: '100vh'
+    }} onSubmit={handleFormSubmit}>
       {/* Nike-style Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, px: 3, mt: 10 }}>
         <Typography
           variant="h3"
           sx={{
             ...nikeTypography,
-            color: 'black',
+            color: isDarkMode ? '#fff' : 'black',
             mb: 1,
             textTransform: 'uppercase',
             fontSize: '2.5rem',
@@ -700,7 +759,7 @@ export default function CartPage() {
       </Box>
 
       {/* Continue Shopping Link */}
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, px: 3 }}>
         <Button
           variant="text"
           onClick={(e) => {
@@ -708,7 +767,7 @@ export default function CartPage() {
             router.push('/');
           }}
           sx={{
-            color: 'black',
+            color: isDarkMode ? '#fff' : 'black',
             textTransform: 'uppercase',
             fontWeight: 700,
             fontSize: '0.875rem',
@@ -720,7 +779,7 @@ export default function CartPage() {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, px: 3 }}>
         {/* Danh sách sản phẩm */}
         <Box sx={{ flex: { md: 2 } }}>
           <Stack spacing={3}>
@@ -732,7 +791,7 @@ export default function CartPage() {
                 onChange={handleSelectAll}
                 sx={{ p: 0, mr: 1 }}
               />
-              <Typography variant="body1" sx={{ fontWeight: 700, color: "black", userSelect: 'none' }}>
+              <Typography variant="body1" sx={{ fontWeight: 700, color: isDarkMode ? "#fff" : "black", userSelect: 'none' }}>
                 Chọn tất cả
               </Typography>
             </Box>
@@ -750,13 +809,14 @@ export default function CartPage() {
                   elevation={0}
                   sx={{
                     position: 'relative',
-                    bgcolor: 'white',
-                    border: '1px solid #e0e0e0',
+                    bgcolor: isDarkMode ? '#1e1e1e' : 'white',
+                    border: `1px solid ${isDarkMode ? '#333' : '#e0e0e0'}`,
                     p: 3,
                     display: 'flex',
                     alignItems: 'center',
                     minHeight: 240,
                     opacity: isUpdating ? 0.7 : 1,
+                    color: isDarkMode ? '#fff' : 'black',
                   }}
                 >
                   {/* Checkbox chọn sản phẩm */}
@@ -768,31 +828,31 @@ export default function CartPage() {
                     />
                   </Box>
                   {isUpdating && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        bgcolor: 'rgba(255,255,255,0.9)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 1,
-                      }}
-                    >
-                      <CircularProgress size={24} sx={{ color: 'black' }} />
+                                          <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          bgcolor: isDarkMode ? 'rgba(30,30,30,0.9)' : 'rgba(255,255,255,0.9)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          zIndex: 1,
+                        }}
+                      >
+                      <CircularProgress size={24} sx={{ color: isDarkMode ? '#fff' : 'black' }} />
                     </Box>
                   )}
                   {/* Product Image */}
                   <Box sx={{ flex: '0 0 120px', mr: 3 }}>
                     <Box
                       sx={{
-                        border: '2px solid black',
+                        border: `2px solid ${isDarkMode ? '#fff' : 'black'}`,
                         borderRadius: 0,
                         p: 1,
-                        bgcolor: '#f6f6f6',
+                        bgcolor: isDarkMode ? '#333' : '#f6f6f6',
                       }}
                     >
                       <CardMedia
@@ -822,7 +882,7 @@ export default function CartPage() {
                           component="h3"
                           sx={{
                             fontWeight: 900,
-                            color: 'black',
+                            color: isDarkMode ? '#fff' : 'black',
                             mb: 0.5,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
@@ -838,7 +898,7 @@ export default function CartPage() {
                             variant="body2"
                             sx={{
                               fontWeight: 700,
-                              color: 'gray',
+                              color: isDarkMode ? '#ccc' : 'gray',
                               mb: 1,
                               textTransform: 'uppercase',
                               letterSpacing: '0.1em',
@@ -877,7 +937,7 @@ export default function CartPage() {
                             sx={{ minWidth: 120 }}
                                 disabled={isUpdating}
                               >
-                                <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
+                                <InputLabel sx={{ color: isDarkMode ? '#fff' : 'black', fontWeight: 600 }}>
                                   {t('size')}
                                 </InputLabel>
                                 <Select
@@ -895,7 +955,10 @@ export default function CartPage() {
                                 fontWeight: 600, 
                                 textTransform: 'uppercase',
                                 '& .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: '#e0e0e0',
+                                  borderColor: isDarkMode ? '#555' : '#e0e0e0',
+                                },
+                                '& .MuiSelect-select': {
+                                  color: isDarkMode ? '#fff' : 'black',
                                 },
                               }}
                                   error={!cartItem.size}
@@ -925,9 +988,9 @@ export default function CartPage() {
                                 label={`${t('size')}: ${cartItem.size}`}
                                 size="small"
                                 sx={{
-                              border: '1px solid #e0e0e0',
-                                  bgcolor: 'white',
-                                  color: 'black',
+                              border: `1px solid ${isDarkMode ? '#555' : '#e0e0e0'}`,
+                                  bgcolor: isDarkMode ? '#333' : 'white',
+                                  color: isDarkMode ? '#fff' : 'black',
                                   fontWeight: 700,
                                   textTransform: 'uppercase',
                                 }}
@@ -939,7 +1002,7 @@ export default function CartPage() {
                         {cartItem.size && cartItem.color && cartItem.product?.sizes && (
                           <Typography
                             variant="body2"
-                            sx={{ color: 'gray', fontWeight: 600, mb: 1 }}
+                            sx={{ color: isDarkMode ? '#ccc' : 'gray', fontWeight: 600, mb: 1 }}
                           >
                             {(() => {
                               const stock = cartItem.product.sizes.find(
@@ -957,13 +1020,29 @@ export default function CartPage() {
                             label="Coupon"
                             value={couponInputs[cartItem._id] || ''}
                             onChange={e => setCouponInputs(v => ({ ...v, [cartItem._id]: e.target.value.toUpperCase() }))}
-                            sx={{ width: 150, fontSize: 13 }}
+                            sx={{ 
+                              width: 150, 
+                              fontSize: 13,
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: isDarkMode ? '#555' : '#e0e0e0' },
+                                '& input': { color: isDarkMode ? '#fff' : 'black' },
+                              },
+                              '& .MuiInputLabel-root': {
+                                color: isDarkMode ? '#ccc' : 'black',
+                              },
+                            }}
                             inputProps={{ style: { textTransform: 'uppercase', fontSize: 13 } }}
                           />
                           <Button
                             variant="outlined"
                             size="small"
-                            sx={{ minWidth: 60, fontSize: 13, p: '2px 8px' }}
+                            sx={{ 
+                              minWidth: 60, 
+                              fontSize: 13, 
+                              p: '2px 8px',
+                              borderColor: isDarkMode ? '#555' : '#e0e0e0',
+                              color: isDarkMode ? '#fff' : 'black',
+                            }}
                             onClick={() => handleApplyCoupon(cartItem)}
                             disabled={applyingCouponId === cartItem._id}
                           >
@@ -977,8 +1056,8 @@ export default function CartPage() {
                               mt: 1, mb: 1,
                               borderRadius: 0,
                               border: '1px solid #d32f2f',
-                              bgcolor: '#ffebee',
-                              color: 'black',
+                              bgcolor: isDarkMode ? '#2a1a1a' : '#ffebee',
+                              color: isDarkMode ? '#ffcdd2' : 'black',
                               fontWeight: 600,
                               fontSize: '0.75rem',
                             }}
@@ -993,8 +1072,8 @@ export default function CartPage() {
                               mt: 1, mb: 1,
                               borderRadius: 0,
                               border: '1px solid #2e7d32',
-                              bgcolor: '#edf7ed',
-                              color: 'black',
+                              bgcolor: isDarkMode ? '#1a2a1a' : '#edf7ed',
+                              color: isDarkMode ? '#c8e6c9' : 'black',
                               fontWeight: 400,
                               fontSize: '0.75rem',
                               display: 'flex',
@@ -1046,7 +1125,12 @@ export default function CartPage() {
                           <IconButton
                             onClick={() => handleQuantityChange(cartItem._id, cartItem.quantity - 1)}
                             disabled={isUpdating || cartItem.quantity <= 1}
-                            sx={{ border: '1px solid #e0e0e0', color: 'black', p: '2px', fontSize: 13 }}
+                            sx={{ 
+                              border: `1px solid ${isDarkMode ? '#555' : '#e0e0e0'}`, 
+                              color: isDarkMode ? '#fff' : 'black', 
+                              p: '2px', 
+                              fontSize: 13 
+                            }}
                             size="small"
                           >
                             <RemoveIcon fontSize="small" />
@@ -1059,7 +1143,15 @@ export default function CartPage() {
                               handleQuantityChange(cartItem._id, newQuantity);
                             }}
                             size="small"
-                            sx={{ width: 50, mx: 0.5, fontSize: 13 }}
+                            sx={{ 
+                              width: 50, 
+                              mx: 0.5, 
+                              fontSize: 13,
+                              '& .MuiOutlinedInput-root': {
+                                '& fieldset': { borderColor: isDarkMode ? '#555' : '#e0e0e0' },
+                                '& input': { color: isDarkMode ? '#fff' : 'black' },
+                              },
+                            }}
                             inputProps={{
                               min: 1,
                               max: maxQuantity,
@@ -1074,7 +1166,12 @@ export default function CartPage() {
                               }
                             }}
                             disabled={isUpdating || cartItem.quantity >= maxQuantity}
-                            sx={{ border: '1px solid #e0e0e0', color: 'black', p: '2px', fontSize: 13 }}
+                            sx={{ 
+                              border: `1px solid ${isDarkMode ? '#555' : '#e0e0e0'}`, 
+                              color: isDarkMode ? '#fff' : 'black', 
+                              p: '2px', 
+                              fontSize: 13 
+                            }}
                             size="small"
                           >
                             <AddIcon fontSize="small" />
@@ -1087,7 +1184,7 @@ export default function CartPage() {
                             <>
                               <Typography
                                 variant="h6"
-                                sx={{ color: 'black', fontWeight: 900, letterSpacing: '0.02em' }}
+                                sx={{ color: isDarkMode ? '#fff' : 'black', fontWeight: 900, letterSpacing: '0.02em' }}
                               >
                                 {discountedPrice.toLocaleString('vi-VN', {
                                   style: 'currency',
@@ -1096,7 +1193,7 @@ export default function CartPage() {
                               </Typography>
                               <Typography
                                 variant="body2"
-                                sx={{ color: 'gray', textDecoration: 'line-through', fontWeight: 600 }}
+                                sx={{ color: isDarkMode ? '#ccc' : 'gray', textDecoration: 'line-through', fontWeight: 600 }}
                               >
                                 {originalPrice.toLocaleString('vi-VN', {
                                   style: 'currency',
@@ -1106,8 +1203,8 @@ export default function CartPage() {
                               <Chip
                                 label={`- ${Math.round(100 - (discountedPrice / originalPrice) * 100)}%`}
                                 sx={{
-                                  bgcolor: 'black',
-                                  color: 'white',
+                                  bgcolor: isDarkMode ? '#fff' : 'black',
+                                  color: isDarkMode ? 'black' : 'white',
                                   fontWeight: 700,
                                   borderRadius: 0,
                                   ml: 1,
@@ -1117,7 +1214,7 @@ export default function CartPage() {
                           ) : (
                             <Typography
                               variant="h6"
-                              sx={{ color: 'black', fontWeight: 900, letterSpacing: '0.02em' }}
+                              sx={{ color: isDarkMode ? '#fff' : 'black', fontWeight: 900, letterSpacing: '0.02em' }}
                             >
                               {originalPrice.toLocaleString('vi-VN', {
                                 style: 'currency',
@@ -1136,7 +1233,7 @@ export default function CartPage() {
                                 mb: 1,
                                 borderRadius: 0,
                                 border: '1px solid #ed6c02',
-                                bgcolor: '#fff4e5',
+                                bgcolor: isDarkMode ? '#2a1f0b' : '#fff4e5',
                                 color: '#ed6c02',
                                 fontWeight: 600,
                                 fontSize: '0.75rem',
@@ -1181,7 +1278,7 @@ export default function CartPage() {
                       position: 'absolute',
                       top: 8,
                       right: 8,
-                      color: 'black',
+                      color: isDarkMode ? '#fff' : 'black',
                       '&:hover': { color: 'red' },
                     }}
                   >
@@ -1198,17 +1295,18 @@ export default function CartPage() {
           <Paper
             elevation={0}
             sx={{
-              bgcolor: 'white',
-              border: '1px solid #e0e0e0',
+              bgcolor: isDarkMode ? '#1e1e1e' : 'white',
+              border: `1px solid ${isDarkMode ? '#333' : '#e0e0e0'}`,
               p: 3,
               height: 'fit-content',
+              color: isDarkMode ? '#fff' : 'black',
             }}
           >
             <Typography
               variant="h5"
               sx={{
                 ...nikeTypography,
-                color: 'black',
+                color: isDarkMode ? '#fff' : 'black',
                 mb: 3,
                 textTransform: 'uppercase',
                 textAlign: 'center',
@@ -1225,7 +1323,7 @@ export default function CartPage() {
                   mb: 2,
                   borderRadius: 0,
                   border: "1px solid #ed6c02",
-                  bgcolor: "#fff4e5",
+                  bgcolor: isDarkMode ? "#2a1f0b" : "#fff4e5",
                   color: "#ed6c02",
                   fontWeight: 600,
                   fontSize: '0.875rem',
@@ -1243,7 +1341,7 @@ export default function CartPage() {
             )}
 
             <Box sx={{ position: 'relative', my: 3 }}>
-              <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
+              <Divider sx={{ borderColor: isDarkMode ? '#fff' : 'black', borderWidth: 2 }} />
             </Box>
 
             <Stack spacing={2}>
@@ -1263,10 +1361,11 @@ export default function CartPage() {
                   },
                   boxShadow: 'none',
                   '&:before': { display: 'none' },
+                  bgcolor: 'transparent',
                 }}
               >
                 <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
+                  expandIcon={<ExpandMoreIcon sx={{ color: isDarkMode ? '#fff' : 'black' }} />}
                   sx={{
                     p: 0,
                     '& .MuiAccordionSummary-content': {
@@ -1277,7 +1376,7 @@ export default function CartPage() {
                   <Typography
                     sx={{
                       ...nikeTypography,
-                      color: 'black',
+                      color: isDarkMode ? '#fff' : 'black',
                       textTransform: 'uppercase',
                       fontSize: '0.875rem',
                     }}
@@ -1293,7 +1392,11 @@ export default function CartPage() {
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         borderRadius: 0,
-                        '& fieldset': { borderColor: '#e0e0e0' },
+                        '& fieldset': { borderColor: isDarkMode ? '#555' : '#e0e0e0' },
+                        '& input': { color: isDarkMode ? '#fff' : 'black' },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: isDarkMode ? '#ccc' : 'black',
                       },
                     }}
                   />
@@ -1303,10 +1406,10 @@ export default function CartPage() {
               {/* Summary Details */}
               <Stack spacing={2}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ ...nikeTypography, color: 'black', textTransform: 'uppercase' }}>
+                  <Typography sx={{ ...nikeTypography, color: isDarkMode ? '#fff' : 'black', textTransform: 'uppercase' }}>
                     {t('subtotal')}:
                   </Typography>
-                  <Typography sx={{ fontWeight: 700, color: 'black' }}>
+                  <Typography sx={{ fontWeight: 700, color: isDarkMode ? '#fff' : 'black' }}>
                     {productSubtotal.toLocaleString('vi-VN', {
                       style: 'currency',
                       currency: 'VND',
@@ -1315,10 +1418,10 @@ export default function CartPage() {
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography sx={{ ...nikeTypography, color: 'black', textTransform: 'uppercase' }}>
+                  <Typography sx={{ ...nikeTypography, color: isDarkMode ? '#fff' : 'black', textTransform: 'uppercase' }}>
                     {t('shippingFee')}:
                   </Typography>
-                  <Typography sx={{ fontWeight: 700, color: 'black' }}>
+                  <Typography sx={{ fontWeight: 700, color: isDarkMode ? '#fff' : 'black' }}>
                     {shippingFee.toLocaleString('vi-VN', {
                       style: 'currency',
                       currency: 'VND',
@@ -1327,7 +1430,7 @@ export default function CartPage() {
                 </Box>
                 {productCouponDiscount > 0 && (
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography sx={{ fontWeight: 700, color: 'black', textTransform: 'uppercase' }}>
+                    <Typography sx={{ fontWeight: 700, color: isDarkMode ? '#fff' : 'black', textTransform: 'uppercase' }}>
                       Giảm giá sản phẩm (coupon):
                     </Typography>
                     <Typography sx={{ fontWeight: 700, color: 'error.main' }}>
@@ -1337,7 +1440,7 @@ export default function CartPage() {
                 )}
 
                 <Box sx={{ position: 'relative', my: 2 }}>
-                  <Divider sx={{ borderColor: 'black', borderWidth: 2 }} />
+                  <Divider sx={{ borderColor: isDarkMode ? '#fff' : 'black', borderWidth: 2 }} />
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -1345,7 +1448,7 @@ export default function CartPage() {
                     variant="h6"
                     sx={{
                       ...nikeTypography,
-                      color: 'black',
+                      color: isDarkMode ? '#fff' : 'black',
                       textTransform: 'uppercase',
                       letterSpacing: '0.02em',
                     }}
@@ -1356,7 +1459,7 @@ export default function CartPage() {
                     variant="h6"
                     sx={{
                       ...nikeTypography,
-                      color: 'black',
+                      color: isDarkMode ? '#fff' : 'black',
                       letterSpacing: '0.02em',
                     }}
                   >
@@ -1386,12 +1489,12 @@ export default function CartPage() {
                       disabled={isProcessingPayment || hasIncompleteSelectedItems || selectedItems.size === 0}
                       sx={{
                         ...nikeButtonStyle,
-                        bgcolor: 'black',
-                        color: 'white',
-                        '&:hover': { bgcolor: 'gray.800' },
+                        bgcolor: isDarkMode ? '#fff' : 'black',
+                        color: isDarkMode ? 'black' : 'white',
+                        '&:hover': { bgcolor: isDarkMode ? '#e0e0e0' : 'gray.800' },
                         '&.Mui-disabled': {
-                          bgcolor: 'gray.400',
-                          color: 'gray.600',
+                          bgcolor: isDarkMode ? '#555' : 'gray.400',
+                          color: isDarkMode ? '#999' : 'gray.600',
                         },
                       }}
                     >
@@ -1403,7 +1506,7 @@ export default function CartPage() {
                 <Typography
                   sx={{
                     textAlign: 'center',
-                    color: '#666',
+                    color: isDarkMode ? '#ccc' : '#666',
                     fontWeight: 600,
                     textTransform: 'uppercase',
                   }}
@@ -1437,12 +1540,12 @@ export default function CartPage() {
                   onClick={handleClearCart}
                   sx={{
                     ...nikeButtonStyle,
-                    color: 'black',
+                    color: isDarkMode ? '#fff' : 'black',
                     border: '2px solid transparent',
                     mt: 2,
                     '&:hover': {
-                      bgcolor: 'black',
-                      color: 'white',
+                      bgcolor: isDarkMode ? '#fff' : 'black',
+                      color: isDarkMode ? 'black' : 'white',
                     },
                   }}
                 >
