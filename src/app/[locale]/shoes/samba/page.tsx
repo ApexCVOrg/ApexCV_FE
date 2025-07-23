@@ -39,12 +39,12 @@ export default function SambaPage() {
         sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
-      const data = await res.json();
-
+        const data = await res.json();
+        
       // Lọc sản phẩm samba
       const filtered = (data.data || []).filter((item: ApiProduct) => {
         // Kiểm tra categoryPath
-        if (Array.isArray(item.categoryPath)) {
+          if (Array.isArray(item.categoryPath)) {
           const hasSamba = item.categoryPath.some((cat: string) =>
             cat.toLowerCase().includes('samba')
           );
@@ -65,11 +65,11 @@ export default function SambaPage() {
         }
 
         // Kiểm tra trong name
-        if (item.name.toLowerCase().includes('samba')) return true;
-
-        return false;
-      });
-      
+          if (item.name.toLowerCase().includes('samba')) return true;
+          
+          return false;
+        });
+        
       // Client-side sorting as fallback if API sorting doesn't work
       const sorted = sortProductsClientSide(filtered, sortBy);
       

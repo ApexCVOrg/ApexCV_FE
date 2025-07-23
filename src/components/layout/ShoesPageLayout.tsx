@@ -14,6 +14,8 @@ import Link from 'next/link';
 import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useParams, usePathname } from 'next/navigation';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 import api from '@/services/api';
 
 interface Product {
@@ -52,10 +54,11 @@ export default function ShoesPageLayout({
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
   const [error, setError] = useState<string | null>(null);
+  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
   const { locale } = useParams();
   const pathname = usePathname();
   const productCount = products.length;
-  const [averageRatings, setAverageRatings] = useState<Record<string, number>>({});
+  const { theme } = useTheme();
 
   // Get current tab from pathname
   const currentTab = pathname.split('/').pop() || '';
@@ -94,7 +97,14 @@ export default function ShoesPageLayout({
   }, [products]);
 
   return (
-    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', mt: 10, position: 'relative' }}>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', 
+      minHeight: '100vh', 
+      position: 'relative',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      width: '100%',
+      pt: 9, // Increased padding top to ensure no whitespace
+    }}>
       {/* Banner ở phía sau */}
       <Box
         sx={{
@@ -104,6 +114,8 @@ export default function ShoesPageLayout({
           right: 0,
           height: 400,
           zIndex: 1,
+          mt: -9, // Compensate for the padding top
+          bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', // Ensure banner area has theme background
         }}
       >
         <img
@@ -138,29 +150,39 @@ export default function ShoesPageLayout({
             <Link href={`/${locale}`} style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Home
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Link href="/shoes" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Shoes
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Typography
               component="span"
               sx={{
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? 'text.primary' : '#fff',
                 fontWeight: 500,
                 textDecoration: 'underline',
                 textUnderlineOffset: '4px',
@@ -171,11 +193,26 @@ export default function ShoesPageLayout({
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
+            <Typography 
+              variant="h3" 
+              component="h1" 
+              sx={{ 
+                fontWeight: 'bold', 
+                mb: 0,
+                color: theme === THEME.LIGHT ? '#000' : '#fff'
+              }}
+            >
               {pageTitle}
             </Typography>
             {productCount > 0 && (
-              <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  ml: 1 
+                }}
+              >
                 [{productCount}]
               </Typography>
             )}
@@ -203,9 +240,15 @@ export default function ShoesPageLayout({
                   <Box
                     sx={{
                       border: 0,
-                      borderBottom: tab.value === currentTab ? '4px solid #000' : 'none',
-                      bgcolor: tab.value === currentTab ? '#000' : '#fff',
-                      color: tab.value === currentTab ? '#fff' : '#111',
+                      borderBottom: tab.value === currentTab 
+                        ? `4px solid ${theme === THEME.LIGHT ? '#000' : '#fff'}` 
+                        : 'none',
+                      bgcolor: tab.value === currentTab 
+                        ? (theme === THEME.LIGHT ? '#000' : '#fff') 
+                        : (theme === THEME.LIGHT ? '#fff' : '#1a1a1a'),
+                      color: tab.value === currentTab 
+                        ? (theme === THEME.LIGHT ? '#fff' : '#000') 
+                        : (theme === THEME.LIGHT ? '#111' : '#fff'),
                       fontWeight: tab.value === currentTab ? 700 : 500,
                       textAlign: 'center',
                       cursor: 'pointer',
@@ -216,12 +259,16 @@ export default function ShoesPageLayout({
                       maxWidth: 220,
                       mx: 0.5,
                       '&:hover': {
-                        borderBottom: '4px solid #000',
-                        bgcolor: tab.value === currentTab ? '#000' : '#f5f5f5',
-                        color: '#000',
+                        borderBottom: `4px solid ${theme === THEME.LIGHT ? '#000' : '#fff'}`,
+                        bgcolor: tab.value === currentTab 
+                          ? (theme === THEME.LIGHT ? '#000' : '#fff') 
+                          : (theme === THEME.LIGHT ? '#f5f5f5' : '#333'),
+                        color: theme === THEME.LIGHT ? '#000' : '#fff',
                         fontWeight: 700,
                         transform: 'scale(1.04)',
-                        boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
+                        boxShadow: theme === THEME.LIGHT 
+                          ? '0 4px 24px 0 rgba(0,0,0,0.08)' 
+                          : '0 4px 24px 0 rgba(255,255,255,0.1)',
                       },
                     }}
                   >
@@ -238,8 +285,12 @@ export default function ShoesPageLayout({
                         fontWeight: tab.value === currentTab ? 700 : 600,
                         fontSize: '1.1rem',
                         letterSpacing: 1,
-                        bgcolor: tab.value === currentTab ? '#000' : '#fff',
-                        color: tab.value === currentTab ? '#fff' : '#111',
+                        bgcolor: tab.value === currentTab 
+                          ? (theme === THEME.LIGHT ? '#000' : '#fff') 
+                          : (theme === THEME.LIGHT ? '#fff' : '#1a1a1a'),
+                        color: tab.value === currentTab 
+                          ? (theme === THEME.LIGHT ? '#fff' : '#000') 
+                          : (theme === THEME.LIGHT ? '#111' : '#fff'),
                         textTransform: 'uppercase',
                       }}
                     >
@@ -259,9 +310,47 @@ export default function ShoesPageLayout({
         sx={{ mb: 3, position: 'relative', zIndex: 2, mt: 6, px: { xs: 1, md: 4 } }}
       >
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl 
+            sx={{ 
+              minWidth: 200,
+              '& .MuiInputLabel-root': {
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: theme === THEME.LIGHT ? '#ddd' : '#444',
+                },
+                '&:hover fieldset': {
+                  borderColor: theme === THEME.LIGHT ? '#999' : '#666',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: theme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                },
+              },
+              '& .MuiSelect-select': {
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
+              },
+            }}
+          >
             <InputLabel>Sort By</InputLabel>
-            <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
+            <Select 
+              value={sortBy} 
+              label="Sort By" 
+              onChange={e => setSortBy(e.target.value)}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    '& .MuiMenuItem-root': {
+                      '&:hover': {
+                        bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                      },
+                    },
+                  },
+                },
+              }}
+            >
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="price-low">Price: Low to High</MenuItem>
               <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -272,7 +361,17 @@ export default function ShoesPageLayout({
 
         {/* Product Grid */}
         {error && (
-          <Typography variant="body1" sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              textAlign: 'center', 
+              color: 'error.main', 
+              py: 2,
+              bgcolor: theme === THEME.LIGHT ? '#ffebee' : '#3d1f1f',
+              borderRadius: 1,
+              px: 2,
+            }}
+          >
             {error}
           </Typography>
         )}
@@ -285,12 +384,20 @@ export default function ShoesPageLayout({
               minHeight: '50vh',
             }}
           >
-            <CircularProgress />
+            <CircularProgress sx={{ color: theme === THEME.LIGHT ? '#1976d2' : '#90caf9' }} />
           </Box>
         ) : (
           <>
             {products.length === 0 && (
-              <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4,
+                  color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                  fontSize: '1.1rem',
+                }}
+              >
                 {emptyMessage}
               </Typography>
             )}
@@ -348,3 +455,4 @@ export default function ShoesPageLayout({
     </Box>
   );
 }
+ 

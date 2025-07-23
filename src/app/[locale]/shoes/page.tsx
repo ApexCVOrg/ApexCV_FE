@@ -7,6 +7,8 @@ import { Star, TrendingUp, LocalShipping } from "@mui/icons-material";
 import ProductCard from "@/components/card";
 import { useState, useEffect } from "react";
 import api from "@/services/api";
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -26,6 +28,9 @@ interface Product {
 export default function ShoesPage() {
   const [trendingShoes, setTrendingShoes] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Theme hook
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchTrendingShoes = async () => {
@@ -64,7 +69,11 @@ export default function ShoesPage() {
   }, []);
 
   return (
-    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh' }}>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh'
+    }}>
       {/* Hero Banner */}
       <Box
         sx={{
@@ -77,7 +86,7 @@ export default function ShoesPage() {
           py: 0,
           mt: 10, // tăng margin top để tránh bị che bởi header
           mx: 'calc(-50vw + 50%)',
-          background: '#fff',
+          background: theme === THEME.LIGHT ? '#fff' : '#000',
         }}
       >
         <Link href="/shoes/adizero" style={{ width: '100vw', display: 'block' }}>
@@ -102,7 +111,7 @@ export default function ShoesPage() {
       {/* Đã xoá mục Shop by Category theo yêu cầu */}
 
       {/* Featured Collection - Adidas Style */}
-      <Box sx={{ bgcolor: '#fff', py: 8, mt: 6 }}>
+      <Box sx={{ bgcolor: theme === THEME.LIGHT ? '#fff' : '#000', py: 8, mt: 6 }}>
         <Container maxWidth="lg">
           <Typography
             variant="h3"
@@ -110,7 +119,7 @@ export default function ShoesPage() {
               fontWeight: 'bold',
               mb: 6,
               textAlign: 'center',
-              color: '#111',
+              color: theme === THEME.LIGHT ? '#111' : '#fff',
               letterSpacing: 2,
               textTransform: 'uppercase',
               fontFamily: 'Arial Black, Arial, sans-serif',
@@ -156,15 +165,15 @@ export default function ShoesPage() {
               <Box key={item.name} flex="1 1 260px" maxWidth={320} minWidth={200}>
                 <Card
                   sx={{
-                    bgcolor: '#fff',
-                    border: '2px solid #111',
+                    bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                    border: `2px solid ${theme === THEME.LIGHT ? '#111' : '#fff'}`,
                     borderRadius: 4,
                     boxShadow: 'none',
                     transition: '0.3s',
                     '&:hover': {
-                      bgcolor: '#111',
-                      color: '#fff',
-                      borderColor: '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#111' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000',
+                      borderColor: theme === THEME.LIGHT ? '#fff' : '#000',
                     },
                     textAlign: 'center',
                     p: 2,
@@ -255,20 +264,20 @@ export default function ShoesPage() {
       </Box>
 
       {/* Trending Shoes - Using ProductCard Component */}
-      <Box sx={{ bgcolor: 'white', py: 8 }}>
+      <Box sx={{ bgcolor: theme === THEME.LIGHT ? 'white' : '#1a1a1a', py: 8 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: 'center', mb: 6 }}>
             <Typography variant="h3" sx={{ 
               fontWeight: "bold", 
               mb: 2,
-              color: 'text.primary',
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
               textTransform: 'uppercase',
               letterSpacing: 2
             }}>
               Trending Shoes
             </Typography>
             <Typography variant="body1" sx={{ 
-              color: 'text.secondary', 
+              color: theme === THEME.LIGHT ? '#666' : '#ccc', 
               maxWidth: 600, 
               mx: 'auto',
               fontSize: '1.1rem'
@@ -312,16 +321,16 @@ export default function ShoesPage() {
       </Box>
 
       {/* Features Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: 8 }}>
+      <Box sx={{ bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', py: 8 }}>
         <Container maxWidth="lg">
           <Box display="flex" flexWrap="wrap" gap={4} justifyContent="center">
             <Box flex="1 1 300px" maxWidth={400} minWidth={220}>
               <Box sx={{ textAlign: 'center', p: 3 }}>
                 <LocalShipping sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                   Free Shipping
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                <Typography variant="body1" sx={{ color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Free shipping on orders over $50
                 </Typography>
               </Box>
@@ -329,10 +338,10 @@ export default function ShoesPage() {
             <Box flex="1 1 300px" maxWidth={400} minWidth={220}>
               <Box sx={{ textAlign: 'center', p: 3 }}>
                 <TrendingUp sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                   Best Quality
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                <Typography variant="body1" sx={{ color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Premium materials and craftsmanship
                 </Typography>
               </Box>
@@ -340,10 +349,10 @@ export default function ShoesPage() {
             <Box flex="1 1 300px" maxWidth={400} minWidth={220}>
               <Box sx={{ textAlign: 'center', p: 3 }}>
                 <Star sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                   Customer Reviews
                 </Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                <Typography variant="body1" sx={{ color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Trusted by thousands of customers
                 </Typography>
               </Box>

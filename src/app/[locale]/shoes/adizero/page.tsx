@@ -5,6 +5,8 @@ import Link from "next/link";
 import ProductCard from "@/components/card";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -22,6 +24,7 @@ export default function AdizeroPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -50,23 +53,23 @@ export default function AdizeroPage() {
             );
             if (isMatch) return true;
           }
-
+          
           // Cách 2: Kiểm tra nếu categoryPath là string
           if (item.categoryPath && typeof item.categoryPath === 'string') {
             const pathString = (item.categoryPath as string).toLowerCase();
             const desiredString = desiredPath.join('/').toLowerCase();
             if (pathString === desiredString) return true;
           }
-
+          
           // Cách 3: Kiểm tra nếu có field khác chứa category info
           if (item.categories && Array.isArray(item.categories)) {
             const categoryNames = item.categories.map((cat: { _id: string; name: string }) => cat.name.toLowerCase());
             if (categoryNames.includes('adizero')) return true;
           }
-
+          
           // Cách 4: Kiểm tra trong name hoặc description
           if (item.name.toLowerCase().includes('adizero')) return true;
-
+          
           return false;
         });
         
@@ -83,7 +86,13 @@ export default function AdizeroPage() {
   }, [sortBy]);
 
   return (
-    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', mt: 10, position: 'relative' }}>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', 
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh', 
+      pt: 10, // Add padding top instead of margin top
+      position: 'relative' 
+    }}>
       {/* Banner */}
       <Box
         sx={{
@@ -144,7 +153,7 @@ export default function AdizeroPage() {
           </Typography>
         </Box>
       </Box>
-
+      
       {/* Breadcrumb */}
       <Box sx={{ position: 'relative', zIndex: 2 }}>
         <Box sx={{ px: { xs: 2, md: 6 }, pt: 4, pb: 2 }}>
@@ -165,29 +174,39 @@ export default function AdizeroPage() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Home
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Link href="/shoes" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Shoes
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Typography
               component="span"
               sx={{
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
                 fontWeight: 500,
                 textDecoration: 'underline',
                 textUnderlineOffset: '4px',
@@ -198,16 +217,24 @@ export default function AdizeroPage() {
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
+            <Typography variant="h3" component="h1" sx={{ 
+              fontWeight: 'bold', 
+              mb: 0,
+              color: theme === THEME.LIGHT ? '#000' : '#fff'
+            }}>
               ADIDAS ADIZERO
             </Typography>
-            <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
+            <Typography variant="body2" sx={{ 
+              color: theme === THEME.LIGHT ? '#000' : '#fff', 
+              fontWeight: 400, 
+              ml: 1 
+            }}>
               [{products.length}]
             </Typography>
           </Box>
         </Box>
       </Box>
-
+      
       {/* Filter Bar */}
       <Container
         maxWidth="lg"
@@ -224,13 +251,17 @@ export default function AdizeroPage() {
             </Select>
           </FormControl>
         </Box>
-
+        
         {/* Product List */}
         <Box display="flex" flexWrap="wrap" gap={6} justifyContent="center" alignItems="stretch">
           {loading ? (
             <Typography
               variant="h6"
-              sx={{ color: 'text.secondary', textAlign: 'center', width: '100%' }}
+              sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc', 
+                textAlign: 'center', 
+                width: '100%' 
+              }}
             >
               Loading...
             </Typography>
@@ -263,10 +294,15 @@ export default function AdizeroPage() {
             ))
           ) : (
             <Box sx={{ textAlign: 'center', py: 8, width: '100%' }}>
-              <Typography variant="h5" sx={{ color: 'text.secondary', mb: 2 }}>
+              <Typography variant="h5" sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc', 
+                mb: 2 
+              }}>
                 Không tìm thấy sản phẩm Adizero
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+              <Typography variant="body1" sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc' 
+              }}>
                 Sản phẩm có thể đang được cập nhật hoặc tạm thời không có sẵn.
               </Typography>
             </Box>
@@ -275,4 +311,4 @@ export default function AdizeroPage() {
       </Container>
     </Box>
   );
-}
+} 

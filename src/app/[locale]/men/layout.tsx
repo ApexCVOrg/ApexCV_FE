@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { Box } from '@mui/material';
 import TeamLayout from '../../../components/layout/TeamLayout';
 import { usePathname } from 'next/navigation';
 
@@ -21,8 +22,10 @@ export default function MenLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <TeamLayout section="men" title="PICK YOUR TEAM" hideTabs={hideTabs}>
-      {children}
-    </TeamLayout>
+    <Box sx={{ width: '100%', maxWidth: '100%', margin: 0, padding: 0 }}>
+      <TeamLayout section="men" title="PICK YOUR TEAM" hideTabs={hideTabs}>
+        {children}
+      </TeamLayout>
+    </Box>
   );
 }

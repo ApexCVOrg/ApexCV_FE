@@ -19,7 +19,6 @@ import {
   ListItemButton,
   ListItemText,
   Badge,
-  useTheme,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   TextField,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -43,6 +42,8 @@ import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
 import HeaderMenuShoes from './HeaderMenuShoes';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -65,8 +66,6 @@ const Header = () => {
   const pathname = usePathname();
   const router = useRouter();
   const isMobile = useMediaQuery('(max-width:900px)');
-  const muiTheme = useTheme();
-  const isDarkMode = muiTheme.palette.mode === 'dark';
   const tHeader = useTranslations('header');
   const { isAuthenticated, logout, getCurrentUser } = useAuth();
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
@@ -85,7 +84,10 @@ const Header = () => {
   // Thêm state cho mega menu shoes
   const [showShoesMenu, setShowShoesMenu] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const { theme } = useTheme();
+
+  // Check if we're on the homepage
+  const isHomePage = pathname === ROUTES.HOME || pathname === '/en' || pathname === '/';
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -144,20 +146,20 @@ const Header = () => {
     } else {
       // If no user in context, try to get from token
       if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-        const token = localStorage.getItem('auth_token');
-        if (token) {
-          try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(
-              atob(base64)
-                .split('')
-                .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-                .join('')
-            );
-            const payload = JSON.parse(jsonPayload);
-            setUserRole(payload.role);
-          } catch {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const jsonPayload = decodeURIComponent(
+            atob(base64)
+              .split('')
+              .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+              .join('')
+          );
+          const payload = JSON.parse(jsonPayload);
+          setUserRole(payload.role);
+        } catch {
             setUserRole(null);
           }
         } else {
@@ -350,11 +352,13 @@ const Header = () => {
         position="fixed"
         suppressHydrationWarning
         sx={{
-          bgcolor: 'white',
-          color: '#000',
-          borderBottom: '1px solid #e0e0e0',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          px: { xs: 1, md: 2 },
+          bgcolor: 'transparent !important',
+          color: isHomePage ? '#fff' : (theme === THEME.LIGHT ? '#000' : '#fff'),
+          borderBottom: 'none',
+          boxShadow: 'none !important',
+          px: 0,
+          py: 0,
+          m: 0,
           width: '100%',
           left: 0,
           top: 0,
@@ -362,37 +366,68 @@ const Header = () => {
           height: { xs: '64px', sm: '64px', md: '64px' }, // Responsive height
           transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
           transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
+          '& .MuiToolbar-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
+          },
+          '& .MuiPaper-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+          },
+          '&::before, &::after': {
+            display: 'none !important',
+          },
         }}
         elevation={0}
+        style={{
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          border: 'none',
+          margin: 0,
+          padding: 0,
+        }}
       >
         <Toolbar
           suppressHydrationWarning
           sx={{
             minHeight: { xs: '64px !important', sm: '64px !important', md: '64px !important' },
             height: { xs: '64px', sm: '64px', md: '64px' },
-            px: { xs: 1, md: 2 },
+            px: { xs: 2, md: 3 }, // Adjusted padding
+            py: 0,
+            m: 0,
             width: '100%',
-            maxWidth: 1920,
+            maxWidth: 1400, // Reduced max width for better centering
             mx: 'auto',
-            bgcolor: 'white',
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
+            justifyContent: 'space-between', // Better space distribution
+            pr: { xs: 2, md: 4 }, // Extra right padding to avoid scrollbar
           }}
         >
           {/* Logo - Left */}
-          <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 120 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            minWidth: 120,
+            flexShrink: 0, // Prevent logo from shrinking
+          }}>
             <Typography
               variant="h4"
               component={Link}
               href={ROUTES.HOME}
               sx={{
                 textDecoration: 'none',
-                color: 'inherit',
+                color: isHomePage ? '#fff' : 'inherit',
                 fontWeight: 900,
                 letterSpacing: 6,
                 fontFamily: "'Anton', sans-serif",
                 cursor: 'pointer',
+                fontSize: { xs: '1.5rem', md: '2rem' }, // Responsive font size
               }}
             >
               NIDAS
@@ -413,9 +448,18 @@ const Header = () => {
                 zIndex: 1,
                 minWidth: 0,
                 flexWrap: 'wrap',
+                maxWidth: '60%', // Limit width to prevent overlap
               }}
             >
-              <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', minWidth: 0 }}>
+              <Stack 
+                direction="row" 
+                spacing={{ xs: 1, md: 2 }} 
+                sx={{ 
+                  flexWrap: 'wrap', 
+                  minWidth: 0,
+                  justifyContent: 'center',
+                }}
+              >
                 {NAV_LINKS.map(({ title, href, submenu }, i) => {
                   return i === 0 ? (
                     <Box
@@ -433,6 +477,10 @@ const Header = () => {
                           textTransform: 'uppercase',
                           cursor: 'pointer',
                           position: 'relative',
+                          color: isHomePage ? '#fff' : 'inherit',
+                          '&:hover': {
+                            color: isHomePage ? '#fff' : 'inherit',
+                          },
                           '&::after': {
                             content: '""',
                             position: 'absolute',
@@ -479,6 +527,10 @@ const Header = () => {
                           textTransform: 'uppercase',
                           cursor: 'pointer',
                           position: 'relative',
+                          color: isHomePage ? '#fff' : 'inherit',
+                          '&:hover': {
+                            color: isHomePage ? '#fff' : 'inherit',
+                          },
                           '&::after': {
                             content: '""',
                             position: 'absolute',
@@ -599,27 +651,30 @@ const Header = () => {
               position: 'relative',
               zIndex: 1200,
               flexWrap: 'wrap',
-              gap: { xs: 1, md: 2 },
-              width: { xs: '100%', sm: 'auto' },
-              maxWidth: '100vw',
+              gap: { xs: 1, md: 1.5 }, // Reduced gap
+              width: { xs: 'auto', sm: 'auto' },
+              maxWidth: '35%', // Limit width to prevent scrollbar overlap
+              flexShrink: 0, // Prevent shrinking
             }}
           >
-            <ThemeToggle />
+            <ThemeToggle color={isHomePage ? '#fff' : undefined} />
             {/* Nút đổi ngôn ngữ */}
             <Button
               variant="outlined"
               size="small"
               onClick={toggleLanguage}
               sx={{
-                color: '#000',
-                borderColor: '#000',
+                color: isHomePage ? '#fff' : 'inherit',
+                borderColor: isHomePage ? '#fff' : 'inherit',
                 textTransform: 'uppercase',
-                minWidth: 48,
+                minWidth: 40, // Reduced min width
+                maxWidth: 48,
                 fontWeight: 'bold',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem', // Smaller font
+                px: 1, // Reduced padding
                 '&:hover': {
-                  borderColor: '#000',
-                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderColor: isHomePage ? '#fff' : 'inherit',
+                  backgroundColor: isHomePage ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
                 },
               }}
             >
@@ -628,12 +683,15 @@ const Header = () => {
             <IconButton
               aria-label="cart"
               color="inherit"
-              size="large"
+              size="medium" // Changed from large to medium
               onClick={() => router.push(ROUTES.CART)}
-              sx={{ color: '#000' }}
+              sx={{ 
+                color: isHomePage ? '#fff' : 'inherit',
+                p: 0.5, // Reduced padding
+              }}
             >
               <Badge badgeContent={cartItemCount} color="secondary">
-                <ShoppingCartIcon />
+                <ShoppingCartIcon fontSize="small" />
               </Badge>
             </IconButton>
 
@@ -643,7 +701,7 @@ const Header = () => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2, mr: 10, color: '#000' }}
+                  sx={{ ml: 2, mr: 10, color: isHomePage ? '#fff' : 'inherit' }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
@@ -751,13 +809,17 @@ const Header = () => {
                 <Button
                   variant="outlined"
                   color="inherit"
+                  size="small" // Added size prop
                   onClick={() => router.push(ROUTES.LOGIN)}
                   sx={{ 
-                    color: '#000', 
-                    borderColor: '#000',
+                    color: isHomePage ? '#fff' : 'inherit', 
+                    borderColor: isHomePage ? '#fff' : 'inherit',
+                    fontSize: '0.75rem', // Smaller font
+                    px: 1.5, // Reduced padding
+                    minWidth: 'auto', // Allow natural width
                     '&:hover': {
-                      borderColor: '#000',
-                      backgroundColor: 'rgba(0,0,0,0.05)',
+                      borderColor: isHomePage ? '#fff' : 'inherit',
+                      backgroundColor: isHomePage ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
                     }
                   }}
                 >
@@ -766,7 +828,13 @@ const Header = () => {
                 <Button
                   variant="contained"
                   color="primary"
+                  size="small" // Added size prop
                   onClick={() => router.push(ROUTES.REGISTER)}
+                  sx={{
+                    fontSize: '0.75rem', // Smaller font
+                    px: 1.5, // Reduced padding
+                    minWidth: 'auto', // Allow natural width
+                  }}
                 >
                   {tRegister('register')}
                 </Button>
@@ -778,11 +846,14 @@ const Header = () => {
               <IconButton
                 aria-label="menu"
                 color="inherit"
-                size="large"
+                size="medium" // Changed from large to medium
                 onClick={toggleDrawer(true)}
-                sx={{ color: '#000' }}
+                sx={{ 
+                  color: isHomePage ? '#fff' : 'inherit',
+                  p: 0.5, // Reduced padding
+                }}
               >
-                <MenuIcon />
+                <MenuIcon fontSize="small" />
               </IconButton>
             )}
           </Box>

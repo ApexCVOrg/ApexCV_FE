@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, Typography, Box, useTheme } from '@mui/material';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface OrderStatusData {
@@ -17,9 +17,14 @@ interface OrderStatsProps {
 }
 
 export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsProps) {
+  const theme = useTheme();
+  
   // Default values if data is null or undefined
   const safeOrderStatusData = orderStatusData || [];
   const safeTotalOrders = totalOrders || 0;
+
+  // Debug: Log data to console
+
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CustomTooltip = ({ active, payload }: any) => {
@@ -30,17 +35,28 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
       return (
         <Box
           sx={{
-            bgcolor: 'background.paper',
-            border: '1px solid #ccc',
-            borderRadius: 1,
+            background: theme.palette.mode === 'dark'
+              ? 'rgba(30, 40, 60, 0.95)'
+              : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            border: theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
+            borderRadius: 3,
             p: 2,
-            boxShadow: 2,
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 10px 30px rgba(0, 0, 0, 0.4)'
+              : '0 10px 30px rgba(0, 0, 0, 0.2)',
           }}
         >
-          <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
+          <Typography variant="body2" sx={{ 
+            fontWeight: 600, 
+            mb: 1,
+            color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary
+          }}>
             {data.name}
           </Typography>
-          <Typography variant="body2" color="primary">
+          <Typography variant="body2" sx={{ color: '#6a82fb', fontWeight: 600 }}>
             {data.value} orders ({percentage}%)
           </Typography>
         </Box>
@@ -62,8 +78,16 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
             gap: 1,
             p: 1,
             borderRadius: 1,
-            bgcolor: 'background.paper',
-            border: '1px solid #f0f0f0',
+            background: theme.palette.mode === 'dark' 
+              ? 'rgba(60, 70, 90, 0.8)' 
+              : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            border: theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 4px 15px rgba(0,0,0,0.3)'
+              : '0 4px 15px rgba(0,0,0,0.1)',
           }}
         >
           <Box
@@ -74,10 +98,15 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
               borderRadius: '50%',
             }}
           />
-          <Typography variant="caption" sx={{ fontWeight: 600 }}>
+          <Typography variant="caption" sx={{ 
+            fontWeight: 600,
+            color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary
+          }}>
             {entry.value}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" sx={{ 
+            color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary
+          }}>
             (
             {safeTotalOrders > 0
               ? ((entry.payload.value / safeTotalOrders) * 100).toFixed(1)
@@ -94,7 +123,22 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
       sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3, width: '100%' }}
     >
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
-        <Card sx={{ height: '100%', minHeight: 400, flex: 1, maxWidth: 600, width: '100%' }}>
+        <Card sx={{ 
+          height: '100%', 
+          minHeight: 400, 
+          flex: 1, 
+          maxWidth: 600, 
+          width: '100%',
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'background.paper',
+          border: theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0, 0, 0, 0.12)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 8px 30px rgba(0,0,0,0.3)'
+            : 4,
+        }}>
           <CardContent sx={{ p: 3 }}>
             <Typography
               variant="h6"
@@ -103,6 +147,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                 mb: 3,
                 textTransform: 'uppercase',
                 letterSpacing: 1,
+                color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary,
               }}
             >
               Order Status Distribution
@@ -144,7 +189,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                   alignItems: 'center',
                   justifyContent: 'center',
                   height: 250,
-                  color: 'text.secondary',
+                  color: theme.palette.mode === 'dark' ? '#b0b0b0' : 'text.secondary',
                 }}
               >
                 <Typography variant="h6" sx={{ mb: 2 }}>
@@ -159,8 +204,23 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
         </Card>
       </Box>
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex' }}>
-        <Card sx={{ height: '100%', minHeight: 400, flex: 1, maxWidth: 600, width: '100%' }}>
-          <CardContent sx={{ p: 3 }}>
+        <Card sx={{ 
+          height: '100%', 
+          minHeight: 400, 
+          flex: 1, 
+          maxWidth: 600, 
+          width: '100%',
+          background: theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'background.paper',
+          border: theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0, 0, 0, 0.12)',
+          boxShadow: theme.palette.mode === 'dark'
+            ? '0 8px 30px rgba(0,0,0,0.3)'
+            : 4,
+        }}>
+          <CardContent sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography
               variant="h6"
               sx={{
@@ -168,13 +228,14 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                 mb: 3,
                 textTransform: 'uppercase',
                 letterSpacing: 1,
+                color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary,
               }}
             >
               Order Summary
             </Typography>
             {safeOrderStatusData.length > 0 ? (
-              <>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
                   {safeOrderStatusData.map((status, index) => (
                     <Box
                       key={index}
@@ -184,7 +245,10 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                         justifyContent: 'space-between',
                         p: 2,
                         borderRadius: 2,
-                        bgcolor: 'background.paper',
+                        background: theme.palette.mode === 'dark' 
+                          ? 'rgba(60, 70, 90, 0.8)' 
+                          : 'rgba(255, 255, 255, 0.9)',
+                        backdropFilter: 'blur(10px)',
                         border: `2px solid ${status.color}`,
                         transition: 'transform 0.2s ease-in-out',
                         '&:hover': {
@@ -195,10 +259,15 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         <Box sx={{ color: status.color }}>{status.icon}</Box>
                         <Box>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600,
+                            color: theme.palette.mode === 'dark' ? '#ffffff' : theme.palette.text.primary
+                          }}>
                             {status.name}
                           </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          <Typography variant="caption" sx={{ 
+                            color: theme.palette.mode === 'dark' ? '#b0b0b0' : theme.palette.text.secondary
+                          }}>
                             {safeTotalOrders > 0
                               ? ((status.value / safeTotalOrders) * 100).toFixed(1)
                               : '0.0'}
@@ -224,9 +293,10 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     mt: 3,
                     p: 2,
                     borderRadius: 2,
-                    bgcolor: 'primary.main',
+                    background: 'linear-gradient(135deg, #6a82fb, #fc5c7d)',
                     color: 'white',
                     textAlign: 'center',
+                    boxShadow: '0 8px 25px rgba(106, 130, 251, 0.4)',
                   }}
                 >
                   <Typography variant="h5" sx={{ fontWeight: 900 }}>
@@ -236,7 +306,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                     Total Orders
                   </Typography>
                 </Box>
-              </>
+              </Box>
             ) : (
               <Box
                 sx={{
@@ -245,7 +315,7 @@ export default function OrderStats({ orderStatusData, totalOrders }: OrderStatsP
                   alignItems: 'center',
                   justifyContent: 'center',
                   height: 300,
-                  color: 'text.secondary',
+                  color: theme.palette.mode === 'dark' ? '#b0b0b0' : 'text.secondary',
                 }}
               >
                 <Typography variant="h6" sx={{ mb: 2 }}>

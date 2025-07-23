@@ -277,6 +277,17 @@ export default function OrdersPage() {
     }
   };
 
+  // Cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Remove hide scrollbar style when component unmounts
+      const style = document.getElementById('hide-scrollbar-style');
+      if (style) {
+        style.remove();
+      }
+    };
+  }, []);
+
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this order?')) return;
     try {
@@ -356,29 +367,77 @@ export default function OrdersPage() {
   }
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: 1400, 
+      mx: 'auto', 
+      p: { xs: 2, md: 4 },
+      pt: { xs: 4, md: 6 },
+      overflowX: 'auto' 
+    }}>
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        mb={3}
-        sx={{ flexWrap: 'wrap' }}
+        mb={4}
+        sx={{ 
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
       >
-        <Typography variant="h4" component="h1">
-          Orders Management
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{
+            fontWeight: 800,
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
+            letterSpacing: '0.5px',
+            color: 'text.primary',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+          }}
+        >
+          Admin Orders Management
         </Typography>
       </Stack>
 
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 3, maxWidth: '100%', overflowX: 'auto' }}>
-        <Stack spacing={2}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Stack spacing={3}>
           {/* Search Bar */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
               placeholder="Search orders by customer name, email, order ID, or recipient name..."
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              sx={{ flexGrow: 1 }}
+              sx={{ 
+                flexGrow: 1,
+                minWidth: 250,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'error.main',
+                    },
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
               }}
@@ -388,19 +447,73 @@ export default function OrdersPage() {
               startIcon={<ClearIcon />}
               onClick={clearFilters}
               disabled={!searchTerm && statusFilter === 'all' && paymentFilter === 'all'}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                py: 1.5,
+                fontWeight: 500,
+                textTransform: 'none',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                borderColor: 'error.main',
+                color: 'error.main',
+                '&:hover': {
+                  borderColor: 'error.dark',
+                  backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
             >
               Clear
             </Button>
           </Box>
 
           {/* Filter Row */}
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel>Order Status</InputLabel>
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 3, 
+            flexWrap: 'wrap', 
+            alignItems: 'center',
+            width: '100%',
+            overflowX: 'auto',
+          }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                Order Status
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 150,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'error.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                label="Order Status"
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">All Status</MenuItem>
                 <MenuItem value="pending">Pending</MenuItem>
@@ -410,23 +523,69 @@ export default function OrdersPage() {
                 <MenuItem value="cancelled">Cancelled</MenuItem>
               </Select>
             </FormControl>
+            </Box>
 
-            <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>Payment</InputLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                Payment
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 120,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'error.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={paymentFilter}
                 onChange={e => setPaymentFilter(e.target.value)}
-                label="Payment"
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">All Payment</MenuItem>
                 <MenuItem value="paid">Paid</MenuItem>
                 <MenuItem value="unpaid">Unpaid</MenuItem>
               </Select>
             </FormControl>
+            </Box>
 
             {/* Results Count */}
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              ml: 'auto',
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.08)' 
+                : 'rgba(0,0,0,0.04)',
+            }}>
+              <Typography variant="body2" color="text.secondary" sx={{ 
+                fontWeight: 500,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 {filteredOrders.length} of {orders.length} orders
               </Typography>
             </Box>
@@ -436,49 +595,170 @@ export default function OrdersPage() {
 
       {/* Orders Summary Cards */}
       <Box
-        sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mb: 3, width: '100%', overflowX: 'auto' }}
+        sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3, 
+          mb: 3, 
+          width: '100%', 
+          overflowX: 'auto',
+          justifyContent: 'center',
+        }}
       >
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
                 Total Orders
               </Typography>
-              <Typography variant="h4">{filteredOrders.length}</Typography>
+              <Typography 
+                variant="h4"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredOrders.length}
+              </Typography>
             </CardContent>
           </Card>
         </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
                 Pending Orders
               </Typography>
-              <Typography variant="h4" color="warning.main">
+              <Typography 
+                variant="h4" 
+                color="warning.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
                 {filteredOrders.filter(order => order.orderStatus === 'pending').length}
               </Typography>
             </CardContent>
           </Card>
         </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
                 Paid Orders
               </Typography>
-              <Typography variant="h4" color="info.main">
+              <Typography 
+                variant="h4" 
+                color="info.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
                 {filteredOrders.filter(order => order.isPaid).length}
               </Typography>
             </CardContent>
           </Card>
         </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
                 Delivered Orders
               </Typography>
-              <Typography variant="h4" color="success.main">
+              <Typography 
+                variant="h4" 
+                color="success.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
                 {filteredOrders.filter(order => order.isDelivered).length}
               </Typography>
             </CardContent>
@@ -487,44 +767,194 @@ export default function OrdersPage() {
       </Box>
 
       {/* Orders Table */}
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+      <Paper sx={{ 
+        width: '100%', 
+        overflow: 'hidden',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
         <TableContainer>
           <Table stickyHeader>
             <TableHead>
-              <TableRow>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Customer</TableCell>
-                <TableCell>Items</TableCell>
-                <TableCell>Total</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Payment</TableCell>
-                <TableCell>Created</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableRow sx={{ 
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.08)' 
+                  : 'rgba(0,0,0,0.08)' 
+              }}>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Order ID
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Customer
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Items
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Total
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Status
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Payment
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Created
+                </TableCell>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredOrders.map(order => (
                 <TableRow key={order._id} hover>
                   <TableCell>
-                    <Typography variant="body2" fontFamily="monospace">
+                    <Typography 
+                      variant="body2" 
+                      fontFamily="monospace"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
                       {order._id.slice(-8)}
                     </Typography>
                   </TableCell>
                   <TableCell>
                     <Box>
-                      <Typography variant="body2" fontWeight="medium">
+                      <Typography 
+                        variant="body2" 
+                        fontWeight="medium"
+                        sx={{
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}
+                      >
                         {order.user.username}
                       </Typography>
-                      <Typography variant="caption" color="textSecondary">
+                      <Typography 
+                        variant="caption" 
+                        color="textSecondary"
+                        sx={{
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}
+                      >
                         {order.user.email}
                       </Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">{getTotalItems(order.orderItems)} items</Typography>
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {getTotalItems(order.orderItems)} items
+                    </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
+                    <Typography 
+                      variant="body2" 
+                      fontWeight="medium"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
                       {formatPrice(order.totalPrice)}
                     </Typography>
                   </TableCell>
@@ -546,24 +976,60 @@ export default function OrdersPage() {
                         sx={{ mb: 0.5 }}
                       />
                       {order.isPaid && order.paidAt && (
-                        <Typography variant="caption" display="block" color="textSecondary">
+                        <Typography 
+                          variant="caption" 
+                          display="block" 
+                          color="textSecondary"
+                          sx={{
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}
+                        >
                           {formatDate(order.paidAt)}
                         </Typography>
                       )}
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">{formatDate(order.createdAt)}</Typography>
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {formatDate(order.createdAt)}
+                    </Typography>
                   </TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
                       <Tooltip title="View Details">
-                        <IconButton size="small" onClick={() => handleOpenDialog(order)}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenDialog(order)}
+                          sx={{
+                            color: 'error.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
                           <VisibilityIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Edit Order">
-                        <IconButton size="small" onClick={() => handleOpenDialog(order)}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenDialog(order)}
+                          sx={{
+                            color: 'error.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
@@ -572,6 +1038,13 @@ export default function OrdersPage() {
                           size="small"
                           color="error"
                           onClick={() => handleDelete(order._id)}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -586,15 +1059,129 @@ export default function OrdersPage() {
       </Paper>
 
       {/* Edit Order Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        maxWidth="lg" 
+        fullWidth
+        disableScrollLock={true}
+        hideBackdrop={false}
+        sx={{
+          '& .MuiDialog-container': {
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            paddingTop: '5vh',
+          },
+          '& .MuiDialog-paper': {
+            margin: 'auto',
+          },
+          '& .MuiDialog-scrollPaper': {
+            alignItems: 'flex-start',
+            paddingTop: '5vh',
+          }
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }
+          }
+        }}
+
+        PaperProps={{
+          sx: {
+            maxHeight: '85vh',
+            height: 'auto',
+            width: '100%',
+            maxWidth: { xs: '95%', sm: '90%', md: '1000px' },
+            margin: { xs: 1, sm: 2, md: 3 },
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            borderRadius: 3,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }
+        }}
+        scroll="body"
+      >
+        <DialogTitle sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          py: 3,
+          px: 4,
+        }}>
+          <Typography variant="h5" component="div" sx={{
+            fontWeight: 700,
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            color: 'text.primary'
+          }}>
           {selectedOrder ? `Edit Order #${selectedOrder._id.slice(-8)}` : 'Edit Order'}
+          </Typography>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ 
+          p: 0,
+          flex: 1,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(30, 40, 60, 0.3)'
+              : 'rgba(0, 0, 0, 0.05)',
+            borderRadius: '10px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(211, 47, 47, 0.6) 0%, rgba(183, 28, 28, 0.8) 100%)'
+              : 'linear-gradient(135deg, rgba(211, 47, 47, 0.4) 0%, rgba(183, 28, 28, 0.6) 100%)',
+            borderRadius: '10px',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(211, 47, 47, 0.3)'
+              : '1px solid rgba(211, 47, 47, 0.3)',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(231, 67, 67, 0.8) 0%, rgba(211, 47, 47, 1) 100%)'
+              : 'linear-gradient(135deg, rgba(211, 47, 47, 0.6) 0%, rgba(183, 28, 28, 0.8) 100%)',
+          },
+          '&::-webkit-scrollbar-thumb:active': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(251, 87, 87, 1) 0%, rgba(231, 67, 67, 1) 100%)'
+              : 'linear-gradient(135deg, rgba(211, 47, 47, 0.8) 0%, rgba(183, 28, 28, 1) 100%)',
+          },
+          // Firefox scrollbar
+          scrollbarWidth: 'thin',
+          scrollbarColor: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(211, 47, 47, 0.6) rgba(30, 40, 60, 0.3)'
+            : 'rgba(211, 47, 47, 0.4) rgba(0, 0, 0, 0.05)',
+        }}>
           {selectedOrder && (
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ 
+              p: 4,
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(20, 25, 35, 0.8) 0%, rgba(15, 20, 30, 0.8) 100%)'
+                : 'linear-gradient(135deg, rgba(252, 254, 255, 0.8) 0%, rgba(245, 248, 252, 0.8) 100%)',
+            }}>
               {/* Order Details */}
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ 
+                fontWeight: 600,
+                color: 'text.primary',
+                mb: 2
+              }}>
                 Order Details
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
@@ -632,37 +1219,242 @@ export default function OrdersPage() {
               <Divider sx={{ my: 2 }} />
 
               {/* Order Items */}
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ 
+                fontWeight: 600,
+                color: 'text.primary',
+                mb: 2
+              }}>
                 Order Items
               </Typography>
-              <TableContainer component={Paper} variant="outlined">
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Product</TableCell>
-                      <TableCell>Size</TableCell>
-                      <TableCell>Color</TableCell>
-                      <TableCell>Quantity</TableCell>
-                      <TableCell>Price</TableCell>
-                      <TableCell>Total</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              <Box sx={{ 
+                border: (theme) => theme.palette.mode === 'dark'
+                  ? '1px solid rgba(100, 120, 150, 0.3)'
+                  : '1px solid rgba(0,0,0,0.12)',
+                borderRadius: 3,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.8) 0%, rgba(30, 40, 60, 0.8) 100%)'
+                  : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%)',
+                p: 3
+              }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  gap: 3
+                }}>
                     {selectedOrder.orderItems.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Typography variant="body2">{item.product.name}</Typography>
-                        </TableCell>
-                        <TableCell>{item.size}</TableCell>
-                        <TableCell>{item.color}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{formatPrice(item.price)}</TableCell>
-                        <TableCell>{formatPrice(item.price * item.quantity)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    <Box key={index} sx={{
+                      p: 3,
+                      background: (theme) => theme.palette.mode === 'dark'
+                        ? 'linear-gradient(135deg, rgba(40, 50, 70, 0.9) 0%, rgba(30, 40, 60, 0.9) 100%)'
+                        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 252, 255, 0.95) 100%)',
+                      border: (theme) => theme.palette.mode === 'dark'
+                        ? '1px solid rgba(100, 120, 150, 0.25)'
+                        : '1px solid rgba(0,0,0,0.06)',
+                      borderRadius: 3,
+                      boxShadow: (theme) => theme.palette.mode === 'dark'
+                        ? '0 4px 15px rgba(0,0,0,0.25)'
+                        : '0 4px 15px rgba(0,0,0,0.08)',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: (theme) => theme.palette.mode === 'dark'
+                          ? '0 8px 25px rgba(0,0,0,0.4)'
+                          : '0 8px 25px rgba(0,0,0,0.12)',
+                      },
+                      transition: 'all 0.3s ease-in-out'
+                    }}>
+                      {/* Product Header */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" sx={{ 
+                          fontWeight: 700,
+                          color: 'text.primary',
+                          mb: 1,
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          {item.product.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{
+                          fontStyle: 'italic',
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          Product #{index + 1}
+                        </Typography>
+                      </Box>
+
+                      {/* Product Details Grid */}
+                      <Box sx={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: { 
+                          xs: 'repeat(2, 1fr)', 
+                          sm: 'repeat(4, 1fr)' 
+                        },
+                        gap: 3,
+                        mb: 2
+                      }}>
+                        {/* Size */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(211, 47, 47, 0.1)'
+                            : 'rgba(211, 47, 47, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(211, 47, 47, 0.3)'
+                            : '1px solid rgba(211, 47, 47, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Size
+                          </Typography>
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600,
+                            color: 'error.main',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {typeof item.size === 'object' && item.size ? 
+                              (item.size.size || item.size.name || 'Custom') : 
+                              item.size || 'Standard'}
+                          </Typography>
+                        </Box>
+                        
+                        {/* Color */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(156, 39, 176, 0.1)'
+                            : 'rgba(156, 39, 176, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(156, 39, 176, 0.3)'
+                            : '1px solid rgba(156, 39, 176, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Color
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                            <Box sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: typeof item.color === 'object' && item.color ?
+                                (item.color.color || item.color.name || '#9c27b0') :
+                                (item.color || '#9c27b0'),
+                              border: '2px solid rgba(0,0,0,0.1)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }} />
+                            <Typography variant="body1" sx={{ 
+                              fontWeight: 600,
+                              color: '#9c27b0',
+                              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                            }}>
+                              {typeof item.color === 'object' && item.color ? 
+                                (item.color.color || item.color.name || 'Custom') : 
+                                item.color || 'Default'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        {/* Quantity */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(255, 152, 0, 0.1)'
+                            : 'rgba(255, 152, 0, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(255, 152, 0, 0.3)'
+                            : '1px solid rgba(255, 152, 0, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Quantity
+                          </Typography>
+                          <Typography variant="h5" sx={{ 
+                            fontWeight: 700,
+                            color: '#ff9800',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {item.quantity}
+                          </Typography>
+                        </Box>
+                        
+                        {/* Unit Price */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(76, 175, 80, 0.1)'
+                            : 'rgba(76, 175, 80, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(76, 175, 80, 0.3)'
+                            : '1px solid rgba(76, 175, 80, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Unit Price
+                          </Typography>
+                          <Typography variant="h6" sx={{ 
+                            fontWeight: 700,
+                            color: 'success.main',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {formatPrice(item.price)}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Total Price Highlight */}
+                      <Box sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        background: (theme) => theme.palette.mode === 'dark'
+                          ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(67, 160, 71, 0.15) 100%)'
+                          : 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(67, 160, 71, 0.08) 100%)',
+                        border: (theme) => theme.palette.mode === 'dark'
+                          ? '2px solid rgba(76, 175, 80, 0.4)'
+                          : '2px solid rgba(76, 175, 80, 0.2)',
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ 
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          Item Total
+                        </Typography>
+                        <Typography variant="h4" sx={{ 
+                          fontWeight: 800,
+                          color: 'success.main',
+                          mt: 0.5,
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          {formatPrice(item.price * item.quantity)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
 
               <Divider sx={{ my: 2 }} />
 
@@ -746,9 +1538,63 @@ export default function OrdersPage() {
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained">
+        <DialogActions sx={{
+          flexShrink: 0,
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderTop: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          px: 4,
+          py: 3,
+          gap: 2,
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 1,
+        }}>
+          <Button 
+            onClick={handleCloseDialog}
+            variant="outlined"
+            sx={{
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              borderColor: 'error.main',
+              color: 'error.main',
+              '&:hover': {
+                borderColor: 'error.dark',
+                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained"
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+              boxShadow: '0 3px 5px 2px rgba(244, 67, 54, .3)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 6px 10px 4px rgba(244, 67, 54, .3)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             Update Order
           </Button>
         </DialogActions>
@@ -770,8 +1616,31 @@ export default function OrdersPage() {
       </Snackbar>
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-        <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        mt: 4,
+        p: 2,
+        borderRadius: 2,
+        backgroundColor: (theme) => theme.palette.mode === 'dark' 
+          ? 'rgba(255,255,255,0.05)' 
+          : 'rgba(0,0,0,0.02)',
+      }}>
+        <Pagination 
+          count={totalPages} 
+          page={page} 
+          onChange={handlePageChange} 
+          color="primary"
+          sx={{
+            '& .MuiPaginationItem-root': {
+              borderRadius: 1,
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+              },
+            },
+          }}
+        />
       </Box>
     </Box>
   );

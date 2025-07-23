@@ -32,6 +32,7 @@ import {
   FormatListBulleted as TemplateIcon,
   Note as NoteIcon,
   Settings as SettingsIcon,
+  Chat as ChatIcon,
 } from '@mui/icons-material';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
@@ -132,18 +133,68 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}`, {
+      // Get user role to determine correct endpoint
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      console.log('👤 User data:', user);
+      console.log('🏷️ User role:', user?.role);
+      
+      // Handle demo chat sessions for admin users
+      if (user?.role === 'admin' && typeof chatId === 'string' && chatId.startsWith('admin-demo-')) {
+        console.log('📝 Loading demo chat session for admin user...');
+        const mockSession: ChatSession = {
+          _id: 'mock-session-1',
+          chatId: chatId,
+          userId: 'demo-user-001',
+          userName: chatId === 'admin-demo-001' ? 'Nguyễn Văn A' : 
+                   chatId === 'admin-demo-002' ? 'Trần Thị B' : 'Lê Minh C',
+          status: chatId === 'admin-demo-002' ? 'closed' : 
+                  chatId === 'admin-demo-003' ? 'pending' : 'active',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setSession(mockSession);
+        return;
+      }
+      
+      const endpoint = user?.role === 'admin' ? 'admin' : 'manager';
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/chats/${chatId}`;
+      
+      // Try admin endpoint first, fallback to manager if needed
+      let response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
+      // If admin endpoint doesn't exist, try manager endpoint
+      if (response.status === 404 && endpoint === 'admin') {
+        console.log('🔄 Admin endpoint not found, trying manager endpoint...');
+        apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}`;
+        response = await fetch(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
+      // Handle 403 for admin users
+      if (response.status === 403 && user?.role === 'admin') {
+        console.log('🔒 Admin user cannot access manager endpoint, redirecting to chat list...');
+        setError('Admin không có quyền truy cập chi tiết chat này. Quay lại danh sách chat.');
+        setTimeout(() => {
+          router.push('/admin/chats');
+        }, 3000);
+        return;
+      }
+
       if (response.status === 404) {
         setError('Chat session không tồn tại hoặc đã bị xóa.');
         // Redirect back to chat sessions list after a delay
         setTimeout(() => {
-          router.push('/manager/chats');
+          router.push('/admin/chats');
         }, 3000);
         return;
       }
@@ -171,15 +222,79 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
-        {
+      // Get user role to determine correct endpoint
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // Handle demo chat sessions for admin users
+      if (user?.role === 'admin' && typeof chatId === 'string' && chatId.startsWith('admin-demo-')) {
+        console.log('📝 Loading demo messages for admin user...');
+        const mockMessages: Message[] = [
+          {
+            _id: 'msg-1',
+            content: chatId === 'admin-demo-001' ? 'Xin chào! Tôi cần hỗ trợ về sản phẩm giày thể thao.' :
+                     chatId === 'admin-demo-002' ? 'Xin chào! Sản phẩm có size nào?' : 
+                     'Xin chào! Tôi muốn đổi size áo.',
+            sender: 'user',
+            timestamp: new Date(Date.now() - 300000).toISOString(),
+            senderName: chatId === 'admin-demo-001' ? 'Nguyễn Văn A' : 
+                        chatId === 'admin-demo-002' ? 'Trần Thị B' : 'Lê Minh C',
+          },
+          {
+            _id: 'msg-2',
+            content: 'Xin chào! Cảm ơn bạn đã liên hệ. Tôi sẽ hỗ trợ bạn ngay.',
+            sender: 'manager',
+            timestamp: new Date(Date.now() - 240000).toISOString(),
+            senderName: 'Admin Support',
+          },
+          {
+            _id: 'msg-3',
+            content: chatId === 'admin-demo-001' ? 'Tôi muốn tìm giày chạy bộ size 42.' :
+                     chatId === 'admin-demo-002' ? 'Cảm ơn bạn đã hỗ trợ! Sản phẩm rất tốt.' :
+                     'Cụ thể là tôi đã mua áo size M nhưng hơi rộng.',
+            sender: 'user',
+            timestamp: new Date(Date.now() - 180000).toISOString(),
+            senderName: chatId === 'admin-demo-001' ? 'Nguyễn Văn A' : 
+                        chatId === 'admin-demo-002' ? 'Trần Thị B' : 'Lê Minh C',
+          }
+        ];
+        
+        setMessages(mockMessages);
+        setLoading(false);
+        return;
+      }
+      
+      const endpoint = user?.role === 'admin' ? 'admin' : 'manager';
+      
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/chats/${chatId}/messages`;
+      
+      // Try admin endpoint first, fallback to manager if needed
+      let response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // If admin endpoint doesn't exist, try manager endpoint
+      if (response.status === 404 && endpoint === 'admin') {
+        console.log('🔄 Admin endpoint not found, trying manager endpoint...');
+        apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`;
+        response = await fetch(apiUrl, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        }
-      );
+        });
+      }
+
+      // Handle 403 for admin users
+      if (response.status === 403 && user?.role === 'admin') {
+        console.log('🔒 Admin user cannot access manager messages');
+        setMessages([]);
+        setLoading(false);
+        return;
+      }
 
       if (response.status === 404) {
         setError('Chat session không tồn tại hoặc đã bị xóa.');
@@ -219,17 +334,63 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`,
-        {
+      // Get user role to determine correct endpoint
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // Handle demo chat sessions for admin users
+      if (user?.role === 'admin' && typeof chatId === 'string' && chatId.startsWith('admin-demo-')) {
+        console.log('📝 Simulating message send for admin demo chat...');
+        const mockMessage: Message = {
+          _id: `msg-${Date.now()}`,
+          content: messageContent,
+          sender: 'manager',
+          timestamp: new Date().toISOString(),
+          senderName: 'Admin Support',
+        };
+        
+        setMessages(prev => [...prev, mockMessage]);
+        setSuccess('Tin nhắn demo đã được gửi!');
+        setSending(false);
+        return;
+      }
+      
+      const endpoint = user?.role === 'admin' ? 'admin' : 'manager';
+      
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/chats/${chatId}/messages`;
+      
+      // Try admin endpoint first, fallback to manager if needed
+      let response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: messageContent }),
+      });
+
+      // If admin endpoint doesn't exist, try manager endpoint
+      if (response.status === 404 && endpoint === 'admin') {
+        console.log('🔄 Admin endpoint not found, trying manager endpoint...');
+        apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/messages`;
+        response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ content: messageContent }),
-        }
-      );
+        });
+      }
+
+      // Handle 403 for admin users
+      if (response.status === 403 && user?.role === 'admin') {
+        console.log('🔒 Admin user cannot send messages via manager endpoint');
+        setError('Admin không có quyền gửi tin nhắn trong chat này.');
+        setInputMessage(messageContent);
+        setSending(false);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -258,16 +419,60 @@ const ChatDetailPage = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`,
-        {
+      // Get user role to determine correct endpoint
+      const userStr = localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      
+      // Handle demo chat sessions for admin users
+      if (user?.role === 'admin' && typeof chatId === 'string' && chatId.startsWith('admin-demo-')) {
+        console.log('📝 Simulating chat close for admin demo chat...');
+        setSuccess('Demo chat session đã được đóng!');
+        setCloseDialogOpen(false);
+
+        // Update session status
+        if (session) {
+          setSession({ ...session, status: 'closed' });
+        }
+
+        // Redirect after a delay
+        setTimeout(() => {
+          router.push('/admin/chats');
+        }, 2000);
+        return;
+      }
+      
+      const endpoint = user?.role === 'admin' ? 'admin' : 'manager';
+      
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/admin/chats/${chatId}/close`;
+      
+      // Try admin endpoint first, fallback to manager if needed
+      let response = await fetch(apiUrl, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // If admin endpoint doesn't exist, try manager endpoint
+      if (response.status === 404 && endpoint === 'admin') {
+        console.log('🔄 Admin endpoint not found, trying manager endpoint...');
+        apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/manager/chats/${chatId}/close`;
+        response = await fetch(apiUrl, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        }
-      );
+        });
+      }
+
+      // Handle 403 for admin users
+      if (response.status === 403 && user?.role === 'admin') {
+        console.log('🔒 Admin user cannot close chat via manager endpoint');
+        setError('Admin không có quyền đóng chat này.');
+        return;
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -283,7 +488,7 @@ const ChatDetailPage = () => {
 
       // Redirect after a delay
       setTimeout(() => {
-        router.push('/manager/chats');
+        router.push('/admin/chats');
       }, 2000);
     } catch (err) {
       console.error('Error closing chat session:', err);
@@ -376,51 +581,137 @@ const ChatDetailPage = () => {
   }
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box 
+      sx={{ 
+        height: '100vh', 
+        display: 'flex', 
+        flexDirection: 'column',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(17, 17, 27, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+          : 'linear-gradient(135deg, rgba(248, 250, 252, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%)',
+        backdropFilter: 'blur(20px)',
+      }}
+    >
       {/* Header */}
       <Paper
         elevation={1}
         sx={{
-          p: 2,
+          p: 3,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+          backdropFilter: 'blur(10px)',
+          border: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(25, 118, 210, 0.3)'
+            : '1px solid rgba(25, 118, 210, 0.2)',
+          borderRadius: 0,
+          boxShadow: '0 8px 32px rgba(25, 118, 210, 0.1)',
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <IconButton onClick={() => router.push('/manager/chats')}>
+          <IconButton 
+            onClick={() => router.push('/admin/chats')}
+            sx={{
+              backgroundColor: (theme) => theme.palette.mode === 'dark'
+                ? 'rgba(25, 118, 210, 0.1)'
+                : 'rgba(25, 118, 210, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.main',
+              borderRadius: 2,
+              '&:hover': {
+                backgroundColor: 'primary.main',
+                color: 'white',
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <ArrowBackIcon />
           </IconButton>
           <Box>
-            <Typography variant="h6" fontWeight={600}>
+            <Typography 
+              variant="h6" 
+              fontWeight={700}
+              sx={{
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #90caf9 30%, #42a5f5 90%)'
+                  : 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
               Chat với {session?.userName || 'Khách hàng'}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}
+            >
               ID: {chatId}
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {session && (
             <Chip
               label={getStatusText(session.status)}
               color={getStatusColor(session.status) as 'success' | 'default' | 'warning'}
               size="small"
+              sx={{
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}
             />
           )}
-          <IconButton onClick={() => setSidebarOpen(!sidebarOpen)}>
+          <IconButton 
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            sx={{
+              backgroundColor: (theme) => theme.palette.mode === 'dark'
+                ? 'rgba(25, 118, 210, 0.1)'
+                : 'rgba(25, 118, 210, 0.05)',
+              border: '1px solid',
+              borderColor: 'primary.main',
+              borderRadius: 2,
+              '&:hover': {
+                backgroundColor: 'primary.main',
+                color: 'white',
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             <SettingsIcon />
           </IconButton>
           {session?.status === 'active' && (
             <Button
-              variant="outlined"
+              variant="contained"
               color="error"
               size="small"
               onClick={() => setCloseDialogOpen(true)}
               startIcon={<CloseIcon />}
+              sx={{
+                textTransform: 'none',
+                borderRadius: 2,
+                fontWeight: 600,
+                px: 3,
+                py: 1,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                boxShadow: '0 3px 5px 2px rgba(244, 67, 54, .3)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 10px 4px rgba(244, 67, 54, .3)',
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
             >
               Đóng chat
             </Button>
@@ -437,16 +728,63 @@ const ChatDetailPage = () => {
             sx={{
               flex: 1,
               overflowY: 'auto',
-              p: 2,
-              backgroundColor: '#f8f9fa',
+              p: 3,
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(20, 20, 30, 0.9) 0%, rgba(10, 10, 20, 0.9) 100%)'
+                : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(240, 242, 247, 0.9) 100%)',
               display: 'flex',
               flexDirection: 'column',
-              gap: 1,
+              gap: 2,
+              '&::-webkit-scrollbar': {
+                width: 8,
+              },
+              '&::-webkit-scrollbar-track': {
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(0, 0, 0, 0.1)',
+                borderRadius: 4,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'primary.main',
+                borderRadius: 4,
+                '&:hover': {
+                  background: 'primary.dark',
+                },
+              },
             }}
           >
             {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  '& .MuiAlert-message': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }
+                }}
+              >
                 {error}
+              </Alert>
+            )}
+
+            {/* Admin Demo Notice */}
+            {mounted && (() => {
+              const userStr = localStorage.getItem('user');
+              const user = userStr ? JSON.parse(userStr) : null;
+              return user?.role === 'admin' && typeof chatId === 'string' && chatId.startsWith('admin-demo-');
+            })() && (
+              <Alert 
+                severity="info" 
+                sx={{ 
+                  mb: 3,
+                  borderRadius: 2,
+                  '& .MuiAlert-message': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }
+                }}
+              >
+                🚀 <strong>Admin Demo Mode:</strong> Đây là chat demo. Tin nhắn và thao tác chỉ mang tính chất mô phỏng.
               </Alert>
             )}
 
@@ -457,13 +795,31 @@ const ChatDetailPage = () => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   height: '100%',
+                  flexDirection: 'column',
+                  gap: 2,
                 }}
               >
                 <CircularProgress />
+                <Typography 
+                  variant="body2"
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}
+                >
+                  Đang tải tin nhắn...
+                </Typography>
               </Box>
             ) : !Array.isArray(messages) || messages.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography variant="body2" color="text.secondary">
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <ChatIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+                <Typography 
+                  variant="h6" 
+                  color="text.secondary"
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    fontWeight: 600
+                  }}
+                >
                   Chưa có tin nhắn nào
                 </Typography>
               </Box>
@@ -481,31 +837,43 @@ const ChatDetailPage = () => {
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
-                      maxWidth: '70%',
+                      maxWidth: '75%',
                       alignItems: message.sender === 'manager' ? 'flex-end' : 'flex-start',
                     }}
                   >
                     <Paper
-                      elevation={1}
+                      elevation={3}
                       sx={{
-                        p: 1.5,
-                        backgroundColor: message.sender === 'manager' ? '#1976d2' : 'white',
+                        p: 2,
+                        backgroundColor: message.sender === 'manager' 
+                          ? (theme) => theme.palette.mode === 'dark'
+                            ? 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)'
+                            : 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)'
+                          : (theme) => theme.palette.mode === 'dark'
+                            ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+                            : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
                         color: message.sender === 'manager' ? 'white' : 'text.primary',
-                        borderRadius: 2,
-                        borderBottomLeftRadius: message.sender === 'manager' ? 2 : 0,
-                        borderBottomRightRadius: message.sender === 'manager' ? 0 : 2,
-                        boxShadow:
-                          message.sender === 'manager'
-                            ? '0 2px 8px rgba(25, 118, 210, 0.3)'
-                            : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                        borderRadius: 3,
+                        borderBottomLeftRadius: message.sender === 'manager' ? 3 : 6,
+                        borderBottomRightRadius: message.sender === 'manager' ? 6 : 3,
+                        backdropFilter: 'blur(10px)',
+                        border: message.sender === 'manager' 
+                          ? 'none'
+                          : (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(25, 118, 210, 0.3)'
+                            : '1px solid rgba(25, 118, 210, 0.2)',
+                        boxShadow: message.sender === 'manager'
+                          ? '0 8px 32px rgba(25, 118, 210, 0.3)'
+                          : '0 4px 16px rgba(0, 0, 0, 0.1)',
                       }}
                     >
                       <Typography
-                        variant="body2"
+                        variant="body1"
                         sx={{
                           wordBreak: 'break-word',
-                          lineHeight: 1.5,
+                          lineHeight: 1.6,
                           whiteSpace: 'pre-wrap',
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
                         }}
                       >
                         {message.content}
@@ -514,10 +882,11 @@ const ChatDetailPage = () => {
                     <Typography
                       variant="caption"
                       sx={{
-                        mt: 0.5,
+                        mt: 1,
                         color: 'text.secondary',
                         fontSize: '0.75rem',
-                        opacity: 0.7,
+                        opacity: 0.8,
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
                       }}
                     >
                       {formatDate(message.timestamp)}
@@ -532,13 +901,17 @@ const ChatDetailPage = () => {
           {/* Input Area */}
           <Box
             sx={{
-              p: 2,
-              borderTop: '1px solid',
-              borderColor: 'divider',
-              backgroundColor: 'white',
+              p: 3,
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+              backdropFilter: 'blur(10px)',
+              borderTop: (theme) => theme.palette.mode === 'dark'
+                ? '1px solid rgba(25, 118, 210, 0.3)'
+                : '1px solid rgba(25, 118, 210, 0.2)',
             }}
           >
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
               <TextField
                 ref={inputRef}
                 fullWidth
@@ -552,7 +925,22 @@ const ChatDetailPage = () => {
                 inputProps={{ maxLength: 1000 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
+                    borderRadius: 3,
+                    background: (theme) => theme.palette.mode === 'dark'
+                      ? 'rgba(255, 255, 255, 0.05)'
+                      : 'rgba(255, 255, 255, 0.8)',
+                    backdropFilter: 'blur(10px)',
+                    border: (theme) => theme.palette.mode === 'dark'
+                      ? '1px solid rgba(25, 118, 210, 0.3)'
+                      : '1px solid rgba(25, 118, 210, 0.2)',
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                      borderWidth: 2,
+                    },
                   },
                 }}
               />
@@ -560,23 +948,38 @@ const ChatDetailPage = () => {
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || sending || session?.status === 'closed'}
                 sx={{
-                  backgroundColor: '#1976d2',
+                  minWidth: 48,
+                  height: 48,
+                  borderRadius: 3,
+                  background: 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)',
                   color: 'white',
-                  minWidth: 40,
-                  height: 40,
+                  boxShadow: '0 3px 5px 2px rgba(25, 118, 210, .3)',
                   '&:hover': {
-                    backgroundColor: '#1565c0',
+                    background: 'linear-gradient(45deg, #1565c0 30%, #0d47a1 90%)',
+                    transform: 'translateY(-1px)',
+                    boxShadow: '0 6px 10px 4px rgba(25, 118, 210, .3)',
                   },
                   '&:disabled': {
                     backgroundColor: '#e0e0e0',
                     color: '#9e9e9e',
+                    transform: 'none',
+                    boxShadow: 'none',
                   },
+                  transition: 'all 0.2s ease-in-out'
                 }}
               >
                 {sending ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
               </IconButton>
             </Box>
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+            <Typography 
+              variant="caption" 
+              color="text.secondary" 
+              sx={{ 
+                mt: 1, 
+                display: 'block',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}
+            >
               {inputMessage.length}/1000 ký tự
             </Typography>
           </Box>
@@ -589,51 +992,107 @@ const ChatDetailPage = () => {
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
           sx={{
-            width: 300,
+            width: 350,
             flexShrink: 0,
             '& .MuiDrawer-paper': {
-              width: 300,
+              width: 350,
               boxSizing: 'border-box',
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+                : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: (theme) => theme.palette.mode === 'dark'
+                ? '1px solid rgba(25, 118, 210, 0.3)'
+                : '1px solid rgba(25, 118, 210, 0.2)',
             },
           }}
         >
-          <Box sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+          <Box sx={{ p: 3 }}>
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                mb: 3,
+                fontWeight: 700,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #90caf9 30%, #42a5f5 90%)'
+                  : 'linear-gradient(45deg, #1976d2 30%, #1565c0 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
               Công cụ
             </Typography>
 
             {/* Quick Templates */}
             <Typography
-              variant="subtitle2"
-              sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+              variant="subtitle1"
+              sx={{ 
+                mb: 2, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}
             >
               <TemplateIcon fontSize="small" />
               Mẫu tin nhắn nhanh
             </Typography>
             <List dense>
               {quickTemplates.map(template => (
-                <ListItem key={template.id} disablePadding>
+                <ListItem key={template.id} disablePadding sx={{ mb: 1 }}>
                   <ListItemButton
                     onClick={() => insertTemplate(template)}
-                    sx={{ borderRadius: 1, mb: 0.5 }}
+                    sx={{ 
+                      borderRadius: 2, 
+                      background: (theme) => theme.palette.mode === 'dark'
+                        ? 'rgba(255, 255, 255, 0.05)'
+                        : 'rgba(255, 255, 255, 0.8)',
+                      backdropFilter: 'blur(10px)',
+                      border: (theme) => theme.palette.mode === 'dark'
+                        ? '1px solid rgba(25, 118, 210, 0.3)'
+                        : '1px solid rgba(25, 118, 210, 0.2)',
+                      '&:hover': {
+                        backgroundColor: (theme) => theme.palette.mode === 'dark'
+                          ? 'rgba(25, 118, 210, 0.1)'
+                          : 'rgba(25, 118, 210, 0.05)',
+                        transform: 'translateY(-1px)',
+                      },
+                      transition: 'all 0.2s ease-in-out'
+                    }}
                   >
                     <ListItemText
                       primary={template.title}
                       secondary={template.content.substring(0, 50) + '...'}
-                      primaryTypographyProps={{ fontSize: '0.875rem' }}
-                      secondaryTypographyProps={{ fontSize: '0.75rem' }}
+                      primaryTypographyProps={{ 
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                      secondaryTypographyProps={{ 
+                        fontSize: '0.75rem',
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
                     />
                   </ListItemButton>
                 </ListItem>
               ))}
             </List>
 
-            <Divider sx={{ my: 2 }} />
+            <Divider sx={{ my: 3 }} />
 
             {/* Notes */}
             <Typography
-              variant="subtitle2"
-              sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}
+              variant="subtitle1"
+              sx={{ 
+                mb: 2, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}
             >
               <NoteIcon fontSize="small" />
               Ghi chú nội bộ
@@ -649,6 +1108,15 @@ const ChatDetailPage = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   fontSize: '0.875rem',
+                  borderRadius: 2,
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.05)'
+                    : 'rgba(255, 255, 255, 0.8)',
+                  backdropFilter: 'blur(10px)',
+                  border: (theme) => theme.palette.mode === 'dark'
+                    ? '1px solid rgba(25, 118, 210, 0.3)'
+                    : '1px solid rgba(25, 118, 210, 0.2)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
                 },
               }}
             />
@@ -656,17 +1124,113 @@ const ChatDetailPage = () => {
         </Drawer>
       </Box>
 
-      {/* Close Dialog */}
-      <Dialog open={closeDialogOpen} onClose={() => setCloseDialogOpen(false)}>
-        <DialogTitle>Xác nhận đóng chat</DialogTitle>
-        <DialogContent>
-          <Typography>
+      {/* Close Dialog - keeping existing styling */}
+      <Dialog 
+        open={closeDialogOpen} 
+        onClose={() => setCloseDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(244, 67, 54, 0.3)'
+              : '1px solid rgba(244, 67, 54, 0.2)',
+            borderRadius: 3,
+            boxShadow: '0 20px 60px rgba(244, 67, 54, 0.3)',
+          }
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(50, 25, 25, 0.95) 0%, rgba(60, 30, 30, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 245, 245, 0.95) 0%, rgba(252, 240, 240, 0.95) 100%)',
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(244, 67, 54, 0.3)'
+            : '1px solid rgba(244, 67, 54, 0.2)',
+          py: 3,
+          px: 4,
+        }}>
+          <Typography variant="h6" sx={{
+            fontWeight: 700,
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            color: 'text.primary'
+          }}>
+            Xác nhận đóng chat
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{
+          p: 4,
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(35, 20, 20, 0.8) 0%, rgba(30, 15, 15, 0.8) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 252, 252, 0.8) 0%, rgba(252, 245, 245, 0.8) 100%)',
+        }}>
+          <Typography sx={{
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+          }}>
             Bạn có chắc chắn muốn đóng chat session này? Hành động này không thể hoàn tác.
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCloseDialogOpen(false)}>Hủy</Button>
-          <Button onClick={closeChatSession} color="error" variant="contained">
+        <DialogActions sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(50, 25, 25, 0.95) 0%, rgba(60, 30, 30, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(255, 245, 245, 0.95) 0%, rgba(252, 240, 240, 0.95) 100%)',
+          borderTop: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(244, 67, 54, 0.3)'
+            : '1px solid rgba(244, 67, 54, 0.2)',
+          px: 4,
+          py: 3,
+          gap: 2,
+        }}>
+          <Button 
+            onClick={() => setCloseDialogOpen(false)}
+            variant="outlined"
+            sx={{
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              '&:hover': {
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            Hủy
+          </Button>
+          <Button 
+            onClick={closeChatSession} 
+            variant="contained"
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+              boxShadow: '0 3px 5px 2px rgba(244, 67, 54, .3)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 6px 10px 4px rgba(244, 67, 54, .3)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             Đóng chat
           </Button>
         </DialogActions>
