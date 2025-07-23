@@ -127,14 +127,6 @@ export const ROUTES = {
   COLLECTION_ORIGINALS: '/collections/originals',
   COLLECTION_SPORTSWEAR: '/collections/sportswear',
   PROMO: '/promo',
-  SALE: {
-    ROOT: '/sale',
-    MEN_SALE: '/sale/men-sale',
-    WOMEN_SALE: '/sale/women-sale',
-    KIDS_SALE: '/sale/kids-sale',
-    ACCESSORIES_SALE: '/sale/accessories-sale',
-    FLASH_SALE: '/sale/flash-sale',
-  },
   CART: '/cart',
   OUTLET: {
     ROOT: '/outlet',

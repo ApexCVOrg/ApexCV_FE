@@ -86,6 +86,9 @@ const Header = () => {
   const [hideHeader, setHideHeader] = useState(false);
   const { theme } = useTheme();
 
+  // Check if we're on the main page (homepage)
+  const isMainPage = pathname === '/' || pathname === '/en' || pathname === '/vi' || pathname.endsWith('/page');
+
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
 
@@ -227,17 +230,6 @@ const Header = () => {
       ]
     },
     {
-      title: tHeader('sale.title'),
-      href: ROUTES.SALE.ROOT,
-      submenu: [
-        { title: tHeader('sale.men'), href: ROUTES.SALE.MEN_SALE },
-        { title: tHeader('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
-        { title: tHeader('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
-        { title: tHeader('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
-        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE },
-      ],
-    },
-    {
       title: tHeader('outlet.title'),
       href: ROUTES.OUTLET.ROOT,
       submenu: [
@@ -350,7 +342,7 @@ const Header = () => {
         suppressHydrationWarning
         sx={{
           bgcolor: 'transparent !important',
-          color: theme === THEME.LIGHT ? '#000' : '#fff',
+          color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
           borderBottom: 'none',
           boxShadow: 'none !important',
           px: 0,
@@ -635,15 +627,15 @@ const Header = () => {
               size="small"
               onClick={toggleLanguage}
               sx={{
-                color: theme === THEME.LIGHT ? '#000' : '#fff',
-                borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
                 textTransform: 'uppercase',
                 minWidth: 48,
                 fontWeight: 'bold',
                 fontSize: '0.875rem',
                 '&:hover': {
-                  borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
-                  backgroundColor: theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
+                  borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                  backgroundColor: theme === THEME.LIGHT && isMainPage ? 'rgba(255,255,255,0.1)' : theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                 },
               }}
             >
@@ -654,7 +646,7 @@ const Header = () => {
               color="inherit"
               size="large"
               onClick={() => router.push(ROUTES.CART)}
-              sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}
+              sx={{ color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
             >
               <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
@@ -667,7 +659,7 @@ const Header = () => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2, mr: 10, color: theme === THEME.LIGHT ? '#000' : '#fff' }}
+                  sx={{ ml: 2, mr: 10, color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
@@ -777,11 +769,11 @@ const Header = () => {
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
                   sx={{ 
-                    color: theme === THEME.LIGHT ? '#000' : '#fff', 
-                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff', 
+                    borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
-                      backgroundColor: theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
+                      borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                      backgroundColor: theme === THEME.LIGHT && isMainPage ? 'rgba(255,255,255,0.1)' : theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                     }
                   }}
                 >
@@ -804,7 +796,7 @@ const Header = () => {
                 color="inherit"
                 size="large"
                 onClick={toggleDrawer(true)}
-                sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}
+                sx={{ color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
               >
                 <MenuIcon />
               </IconButton>
