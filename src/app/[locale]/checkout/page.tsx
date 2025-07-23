@@ -143,6 +143,10 @@ export default function CheckoutPage() {
   const total = subtotal + shippingFee - shippingDiscount - productCouponDiscount;
 
   const handlePlaceOrder = async () => {
+    // Clear dữ liệu cũ trước khi thanh toán
+    localStorage.removeItem("appliedCoupons");
+    localStorage.removeItem("selectedCartItemIds");
+    localStorage.removeItem("shippingDiscount");
     if (!address) {
       setError("Bạn chưa có thông tin địa chỉ, hãy cập nhật!");
       router.push("/profile");
