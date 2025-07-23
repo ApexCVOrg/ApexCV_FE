@@ -4,8 +4,15 @@ import AccessoriesPageLayout from "@/components/layout/AccessoriesPageLayout";
 import { convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
 
+const TABS = [
+  { label: "BAGS", value: "bags", image: "https://res.cloudinary.com/dqmb4e2et/image/upload/v1753093478/Mini_Airliner_Bag_Blue_JC8302_01_00_standard_qv8iwo.avif" },
+  { label: "HATS", value: "hats", image: "https://res.cloudinary.com/dqmb4e2et/image/upload/v1753093480/Golf_Performance_Crestable_Cap_Black_IM9184_01_standard_pjozkk.avif" },
+  { label: "SOCKS", value: "socks", image: "https://res.cloudinary.com/dqmb4e2et/image/upload/v1753093481/Mid_Cut_Crew_Socks_3_Pairs_White_IJ0733_01_01_00_standard_b3j0iv.avif" },
+  { label: "EYEWEARS", value: "eyewears", image: "https://res.cloudinary.com/dqmb4e2et/image/upload/v1753094816/Sport_Sunglasses_adidas_DUNAMIS_Antique_Black_IV1298_01_hover_standard_whlnza.avif" }
+];
+
 export default function EyewearsPage() {
-  const fetchProducts = async (sortBy: string) => {
+  const fetchProducts = async (sortBy: string, gender?: string) => {
     const { apiSortBy, sortOrder } = convertSortParams(sortBy);
     
     try {
@@ -20,6 +27,30 @@ export default function EyewearsPage() {
       
       // Lọc sản phẩm eyewears
       const filtered = (data.data || []).filter((item: ApiProduct) => {
+        // First: Filter by gender if specified
+        if (gender && gender !== 'all') {
+          let hasGender = false;
+          
+          // Check categoryPath for gender - look for structure like ['Accessories', 'Men', 'Eyewears']
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
+            hasGender = item.categoryPath.some((cat: string) =>
+              cat.toLowerCase() === gender.toLowerCase()
+            );
+          }
+          
+          // Check tags for gender if not found in categoryPath
+          if (!hasGender && item.tags && Array.isArray(item.tags)) {
+            hasGender = item.tags.some((tag: string) =>
+              tag.toLowerCase() === gender.toLowerCase()
+            );
+          }
+          
+          if (!hasGender) {
+            return false;
+          }
+        }
+        
+        // Second: Filter by category (eyewears)
         // Kiểm tra categoryPath
         if (item.categoryPath && Array.isArray(item.categoryPath)) {
           const hasEyewear = item.categoryPath.some(
@@ -62,7 +93,6 @@ export default function EyewearsPage() {
         tags: item.tags || [],
         brand: item.brand || { _id: '', name: 'Unknown Brand' },
         categories: item.categories || [],
-        categoryPath: item.categoryPath,
         createdAt: item.createdAt || new Date().toISOString(),
       }));
       
@@ -78,7 +108,7 @@ export default function EyewearsPage() {
       category="Eyewears"
       fetchProducts={fetchProducts}
       emptyMessage="No eyewears found."
-      tabs={[]} // Removed tabs as per new_code
+      tabs={TABS}
     />
   );
 } 
