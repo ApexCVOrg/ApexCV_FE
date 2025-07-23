@@ -101,12 +101,14 @@ export default function ProductsPage() {
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
 
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [brandFilter, setBrandFilter] = useState<string>('all');
 
+  // Form data
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
@@ -121,6 +123,7 @@ export default function ProductsPage() {
     status: 'active',
   });
 
+  // Snackbar state
   const [snackbar, setSnackbar] = useState<{
     open: boolean;
     message: string;
@@ -139,10 +142,10 @@ export default function ProductsPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         product =>
-          product.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (product.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
+          (product.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
           product._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.brand?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+          (product.brand?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
       );
     }
 
@@ -153,8 +156,8 @@ export default function ProductsPage() {
 
     // Filter by category
     if (categoryFilter !== 'all') {
-      filtered = filtered.filter(product => 
-        product.categories?.some(cat => cat._id === categoryFilter) || false
+      filtered = filtered.filter(product =>
+        product.categories?.some(cat => cat._id === categoryFilter)
       );
     }
 
@@ -187,23 +190,22 @@ export default function ProductsPage() {
       const res = await api.get<Product[]>(API_ENDPOINTS.MANAGER.PRODUCTS, {
         params: { page, limit },
       });
-      setProducts(res.data);
-      setTotalPages(Math.ceil(res.data.length / limit));
-    } catch (error) {
-      console.error('Error fetching products:', error);
+              setProducts(res.data);
+        setTotalPages(Math.ceil(res.data.length / limit));
+    } catch {
       setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch categories and brands
   const fetchCategoriesAndBrands = async () => {
     try {
       const [categoriesRes, brandsRes] = await Promise.all([
         api.get<Category[]>(API_ENDPOINTS.CATEGORIES),
         api.get<Brand[]>(API_ENDPOINTS.BRANDS),
       ]);
+      console.log('Fetched categories:', categoriesRes.data); // Debug log
       setCategories(categoriesRes.data);
       setBrands(brandsRes.data);
     } catch (error) {
@@ -231,13 +233,24 @@ export default function ProductsPage() {
     }));
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleSelectChange = (e: any) => {
+  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string | string[] } }) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name as string]: value,
-    }));
+    
+    console.log('Select change - name:', name, 'value:', value); // Debug log
+    
+    // Special handling for categories to ensure it's always an array
+    if (name === 'categories') {
+      console.log('Categories selected:', value); // Debug log
+      setFormData(prev => ({
+        ...prev,
+        categories: Array.isArray(value) ? value : [value],
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name as string]: value,
+      }));
+    }
   };
 
   const handleOpenDialog = (product?: Product) => {
@@ -296,6 +309,8 @@ export default function ProductsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form data being submitted:', formData); // Debug log
+    
     try {
       if (selectedProduct) {
         // Update existing product
@@ -337,8 +352,7 @@ export default function ProductsPage() {
         severity: 'success',
       });
       fetchProducts();
-    } catch (error) {
-      console.error('Error deleting product:', error);
+    } catch {
       setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: 'error' });
     }
   };
@@ -365,15 +379,15 @@ export default function ProductsPage() {
   };
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'VND',
+      currency: 'USD',
     }).format(price);
   };
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
         <CircularProgress />
       </Box>
     );
@@ -395,7 +409,7 @@ export default function ProductsPage() {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => handleOpenDialog()}
-          sx={{ bgcolor: '#000', '&:hover': { bgcolor: '#333' } }}
+          sx={{ mt: { xs: 2, sm: 0 } }}
         >
           Add Product
         </Button>
@@ -540,9 +554,9 @@ export default function ProductsPage() {
             <TableHead>
               <TableRow>
                 <TableCell>Image</TableCell>
-                <TableCell>Name</TableCell>
+                <TableCell>Product Name</TableCell>
                 <TableCell>Brand</TableCell>
-                <TableCell>Categories</TableCell>
+                <TableCell>Category</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Created</TableCell>
@@ -555,48 +569,46 @@ export default function ProductsPage() {
                   <TableCell>
                     <Avatar
                       src={product.images[0]}
-                      variant="rounded"
-                      sx={{ width: 60, height: 60 }}
+                      alt={product.name}
+                      sx={{ width: 50, height: 50 }}
                     >
                       <ImageIcon />
                     </Avatar>
                   </TableCell>
                   <TableCell>
-                    <Box>
-                                        <Typography variant="body2" fontWeight="medium">
-                    {product.name || 'Unknown Product'}
-                  </Typography>
-                      <Typography variant="caption" color="textSecondary">
-                        {product.description?.substring(0, 50)}...
-                      </Typography>
-                    </Box>
+                    <Typography variant="body2" fontWeight="medium">
+                      {product.name || 'Unknown Product'}
+                    </Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      ID: {product._id.slice(-8)}
+                    </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2">{product.brand?.name || 'Unknown Brand'}</Typography>
+                    <Typography variant="body2">
+                      {product.brand?.name || 'No Brand'}
+                    </Typography>
                   </TableCell>
                   <TableCell>
-                    <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                       {product.categories?.map(category => (
                         <Chip
                           key={category._id}
-                          label={category.name || 'Unknown Category'}
+                          label={category.name}
                           size="small"
-                          sx={{ mb: 0.5 }}
+                          variant="outlined"
                         />
-                      ))}
-                    </Stack>
+                      )) || <Typography variant="caption">No Categories</Typography>}
+                    </Box>
                   </TableCell>
                   <TableCell>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {formatPrice(product.price)}
+                    <Typography variant="body2" fontWeight="medium">
+                      {formatPrice(product.price)}
+                    </Typography>
+                    {product.discountPrice && product.discountPrice > 0 && (
+                      <Typography variant="caption" color="error">
+                        {formatPrice(product.discountPrice)}
                       </Typography>
-                      {product.discountPrice && (
-                        <Typography variant="caption" color="error">
-                          {formatPrice(product.discountPrice)}
-                        </Typography>
-                      )}
-                    </Box>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -736,6 +748,24 @@ export default function ProductsPage() {
                     value={formData.categories}
                     onChange={handleSelectChange}
                     label="Categories"
+                    renderValue={(selected) => {
+                      console.log('Render value - selected:', selected, 'categories:', categories); // Debug log
+                      return (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((value) => {
+                            const category = categories.find(cat => cat._id === value);
+                            console.log('Finding category for value:', value, 'found:', category); // Debug log
+                            return (
+                              <Chip 
+                                key={value} 
+                                label={category?.name || `Unknown (${value})`} 
+                                size="small" 
+                              />
+                            );
+                          })}
+                        </Box>
+                      );
+                    }}
                   >
                     {categories?.map(category => (
                       <MenuItem key={category._id} value={category._id}>
@@ -744,6 +774,10 @@ export default function ProductsPage() {
                     ))}
                   </Select>
                 </FormControl>
+                {/* Debug display */}
+                <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                  Selected categories: {formData.categories.length} - {formData.categories.join(', ')}
+                </Typography>
               </Box>
             </Box>
           </Box>
