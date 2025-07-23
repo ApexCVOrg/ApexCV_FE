@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Paper, Typography, Box, Button, Chip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Alert, CircularProgress } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
 import styled from '@emotion/styled';
-import Image from 'next/image'; // Use next/image for optimized images
 
 interface RefundRequest {
   _id: string;
@@ -87,16 +86,6 @@ const ImagePreviewContainer = styled(Box)`
   margin-top: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
-`;
-
-const StyledImage = styled(Image)`
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid #ddd;
-  transition: transform 0.2s ease;
-  &:hover {
-    transform: scale(1.05);
-  }
 `;
 
 const ActionButtonsContainer = styled(Box)`
