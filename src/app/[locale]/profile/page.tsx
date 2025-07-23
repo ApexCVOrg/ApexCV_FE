@@ -43,7 +43,7 @@ const ProfileHeader = styled(Box)(({ theme }) => ({
     ? 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}`,
-  padding: '48px 0 32px 0',
+  padding: '80px 0 32px 0',
   textAlign: 'center',
   color: '#fff',
   position: 'relative',
@@ -70,7 +70,7 @@ const ProfileCard = styled(Box)(({ theme }) => ({
   background: theme.palette.mode === 'dark' ? '#1a1a1a' : '#fff',
   maxWidth: 800,
   margin: 'auto',
-  marginTop: -64,
+  marginTop: -32,
   position: 'relative',
   zIndex: 2,
   border: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}`,
