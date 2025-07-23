@@ -42,6 +42,7 @@ interface WebSocketServiceInterface {
   onUnreadCountChange(handler: (count: number) => void): () => void;
   sendTyping(chatId: string, isTyping: boolean): void;
   onConnectionChange(handler: () => void): () => void;
+  getWebSocket(): WebSocket | null;
 }
 
 class WebSocketService implements WebSocketServiceInterface {
@@ -265,6 +266,10 @@ class WebSocketService implements WebSocketServiceInterface {
       this.ws = null;
     }
   }
+
+  public getWebSocket() {
+    return this.ws;
+  }
 }
 
 // Create singleton instance with lazy initialization
@@ -285,6 +290,7 @@ const getWebSocketService = (): WebSocketServiceInterface => {
       onUnreadCountChange: () => () => {},
       sendTyping: () => {},
       onConnectionChange: () => () => {},
+      getWebSocket: () => null,
     };
   }
 

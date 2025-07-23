@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cartService, Cart, CartItem, AddToCartRequest } from '@/services/cart';
 import { useAuthContext } from './AuthContext';
+import websocketService from '@/services/websocket';
 
 interface CartContextProps {
   cart: Cart | null;
@@ -140,6 +141,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setCart(null);
     }
   }, [token, fetchCart]);
+
+  // Lắng nghe realtime cart_update từ WebSocket
+  useEffect(() => {
+    const handleCartUpdate = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'cart_update') {
+          refreshCart();
+        }
+      } catch {}
+    };
+    const ws = websocketService.getWebSocket && websocketService.getWebSocket();
+    if (ws) {
+      ws.addEventListener('message', handleCartUpdate);
+    }
+    return () => {
+      const ws = websocketService.getWebSocket && websocketService.getWebSocket();
+      if (ws) {
+        ws.removeEventListener('message', handleCartUpdate);
+      }
+    };
+  }, [refreshCart]);
 
   const value: CartContextProps = {
     cart,
