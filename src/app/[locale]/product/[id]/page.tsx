@@ -651,46 +651,7 @@ export default function ProductDetailPage() {
                     {t('sizeGuide')}
                   </Button>
                 </Box>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-                  {sizesForSelectedColor.map((size) => (
-                    <motion.div
-                      key={size}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Box
-                        sx={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: '50%',
-                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
-                          bgcolor: selectedSize === size ? '#000' : '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
-                        }}
-                        onClick={() => setSelectedSize(size)}
-                      >
-                        <Typography
-                          sx={{
-                            color: selectedSize === size ? '#fff' : '#000',
-                          fontWeight: 600,
-                          fontSize: 16,
-                        }}
-                      >
-                        {size}
-                      </Typography>
-                    </Box>
-                  </motion.div>
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-            {/* Stock Information */}
+                
                 {/* Size Recommendation */}
                 <Box sx={{ mb: 2 }}>
                   <SizeRecommender
@@ -705,15 +666,13 @@ export default function ProductDetailPage() {
                   />
                 </Box>
                 
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                  }}
-                >
-                  {getUniqueSizes().map(size => (
-                    <motion.div key={size} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {sizesForSelectedColor.map((size) => (
+                    <motion.div
+                      key={size}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       <Box
                         sx={{
                           width: 60,
@@ -743,6 +702,8 @@ export default function ProductDetailPage() {
                     </motion.div>
                   ))}
                 </Box>
+              </Box>
+            )}
 
             {/* Stock Information */}
             {selectedColor && selectedSize && (
