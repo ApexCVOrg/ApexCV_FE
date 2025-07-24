@@ -294,6 +294,7 @@ const ChatSessionsPage = () => {
   // Fetch data on mount and when dependencies change
   useEffect(() => {
     fetchChatSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, rowsPerPage, searchTerm, statusFilter, isAuthenticated]);
 
   // Handle pagination
@@ -770,7 +771,7 @@ const ChatSessionsPage = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                  sessions.map((session, index) => (
+                  sessions.map((session) => (
                     <TableRow 
                       key={session._id} 
                       hover

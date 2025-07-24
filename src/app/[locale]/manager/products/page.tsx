@@ -32,7 +32,6 @@ import {
   Pagination,
   CircularProgress,
   Avatar,
-  useTheme,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -89,7 +88,6 @@ interface Brand {
 }
 
 export default function ProductsPage() {
-  const theme = useTheme();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

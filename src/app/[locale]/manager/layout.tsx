@@ -9,7 +9,6 @@ import {
   Typography,
   Avatar,
   IconButton,
-  useTheme,
   Button,
   Stack,
   Menu,
@@ -21,7 +20,6 @@ import {
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
-import { useTheme as useCustomTheme } from '@/hooks/useTheme';
 import { ROUTES } from '@/lib/constants/constants';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
@@ -46,8 +44,6 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   const t = useTranslations('manager.layout');
-  const theme = useTheme();
-  const { theme: currentTheme } = useCustomTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [language, setLanguage] = useState<Language>('en');

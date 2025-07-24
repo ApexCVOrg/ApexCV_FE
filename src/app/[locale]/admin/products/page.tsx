@@ -26,7 +26,6 @@ import {
   InputLabel,
   Select,
   Pagination,
-  useTheme,
   Avatar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -87,7 +86,6 @@ interface Brand {
 }
 
 export default function ProductsPage() {
-  const theme = useTheme();
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -131,13 +129,7 @@ export default function ProductsPage() {
     message: '',
     severity: 'success',
   });
-  const [colorInput, setColorInput] = useState('');
-  const [imageInput, setImageInput] = useState('');
-
   const t = useTranslations('manager.products');
-
-  // 1. Get subCategories (categories with parentCategory != null)
-  const subCategories = categories.filter(cat => cat.parentCategory);
 
   // Search and filter function
   const filterProducts = () => {
@@ -346,33 +338,7 @@ export default function ProductsPage() {
     }
   };
 
-  // Handler động cho tags/colors/images/sizes
-  const handleAddTag = (type: 'tags' | 'colors', value: string) => {
-    if (!value) return;
-    setFormData(prev => ({ ...prev, [type]: [...prev[type], value] }));
-  };
-  const handleDeleteTag = (type: 'tags' | 'colors', idx: number) => {
-    setFormData(prev => ({ ...prev, [type]: prev[type].filter((_, i) => i !== idx) }));
-  };
-  const handleAddImage = (url: string) => {
-    if (!url) return;
-    setFormData(prev => ({ ...prev, images: [...prev.images, url] }));
-  };
-  const handleDeleteImage = (idx: number) => {
-    setFormData(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== idx) }));
-  };
-  const handleAddSize = () => {
-    setFormData(prev => ({ ...prev, sizes: [...prev.sizes, { size: '', stock: 0 }] }));
-  };
-  const handleSizeChange = (idx: number, field: 'size' | 'stock', value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      sizes: prev.sizes.map((s, i) => (i === idx ? { ...s, [field]: value } : s)),
-    }));
-  };
-  const handleDeleteSize = (idx: number) => {
-    setFormData(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== idx) }));
-  };
+
 
   // Helper: Lấy tên brand từ objectId hoặc object
   const getBrandName = (brand: string | Brand | undefined) => {
@@ -387,8 +353,7 @@ export default function ProductsPage() {
   };
 
   // Helper: Lấy tên category dạng parent-sub
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getCategoryDisplay = (cat: any) => {
+  const getCategoryDisplay = (cat: string | Category | { _id: string; name: string; parentCategory?: { name: string } }) => {
     if (!cat) return '';
     
     // If cat is a string (ID), find the category object
@@ -404,10 +369,11 @@ export default function ProductsPage() {
     
     // If cat is an object
     if (typeof cat === 'object' && cat !== null) {
-      if (cat.parentCategory && cat.parentCategory.name) {
-        return `${cat.parentCategory.name} - ${cat.name}`;
+      const categoryObj = cat as { name: string; parentCategory?: { name: string } };
+      if (categoryObj.parentCategory && categoryObj.parentCategory.name) {
+        return `${categoryObj.parentCategory.name} - ${categoryObj.name}`;
       }
-      return cat.name || 'Unknown Category';
+      return categoryObj.name || 'Unknown Category';
     }
     
     return String(cat);

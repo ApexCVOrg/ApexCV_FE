@@ -105,14 +105,14 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const ImagePreviewContainer = styled(Box)(({ theme }) => ({
+const ImagePreviewContainer = styled(Box)({
   display: 'flex',
   gap: 16,
   marginBottom: 24,
   flexWrap: 'wrap',
   justifyContent: 'flex-start',
   width: '100%',
-}));
+});
 
 const ImageWrapper = styled(Box)(({ theme }) => ({
   position: 'relative',

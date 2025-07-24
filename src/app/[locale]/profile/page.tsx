@@ -11,8 +11,6 @@ import {
   InputAdornment,
   Chip,
   Avatar,
-  useTheme,
-  useMediaQuery,
   Container,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
@@ -212,9 +210,8 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const { isAuthenticated } = useAuth();
   const router = useRouter();
-  const theme = useTheme();
+
   const { theme: customTheme } = useCustomTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);

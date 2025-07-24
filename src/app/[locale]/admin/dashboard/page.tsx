@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Paper, Typography, Box, useTheme, Button, CircularProgress } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import { Typography, Box, useTheme, CircularProgress } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -91,8 +89,34 @@ export default function DashboardPage() {
   };
 
   // Transform backend data to frontend format
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const transformBackendData = (backendData: any): DashboardData => {
+  const transformBackendData = (backendData: {
+    summary?: {
+      lowStockProducts: number;
+      todaySales: number;
+      deliveredOrders: number;
+      conversionRate: number;
+      orderCompletionRate: number;
+      cancelledOrders: number;
+    };
+    salesChart?: Array<{
+      month: string;
+      revenue: number;
+      orders: number;
+    }>;
+    topProducts?: Array<{
+      _id: string;
+      name: string;
+      image: string;
+      totalSold: number;
+      revenue: number;
+      category: string;
+    }>;
+    orderStats?: Array<{
+      status: string;
+      count: number;
+      color: string;
+    }>;
+  }): DashboardData => {
     // Danh sách 12 tháng
     const months = [
       'January',
@@ -125,16 +149,22 @@ export default function DashboardPage() {
 
     return {
       summary: {
-        lowStockProducts: backendData.lowStockCount,
-        todaySales: backendData.todaySales,
-        deliveredOrders: backendData.deliveredOrders,
-        conversionRate: backendData.conversionRate,
-        orderCompletionRate: backendData.completionRate,
-        cancelledOrders: backendData.cancelledOrders,
+        lowStockProducts: backendData.summary?.lowStockProducts || 0,
+        todaySales: backendData.summary?.todaySales || 0,
+        deliveredOrders: backendData.summary?.deliveredOrders || 0,
+        conversionRate: backendData.summary?.conversionRate || 0,
+        orderCompletionRate: backendData.summary?.orderCompletionRate || 0,
+        cancelledOrders: backendData.summary?.cancelledOrders || 0,
       },
       salesChart: fullSalesChart,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      topProducts: backendData.topProducts.map((product: any) => ({
+      topProducts: (backendData.topProducts || []).map((product: {
+        _id: string;
+        name: string;
+        image: string;
+        totalSold: number;
+        revenue: number;
+        category: string;
+      }) => ({
         _id: product._id,
         name: product.name,
         image: product.image,
@@ -142,9 +172,8 @@ export default function DashboardPage() {
         totalRevenue: product.revenue,
         category: product.category,
       })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       orderStats: backendData.orderStats && backendData.orderStats.length >= 5 
-        ? backendData.orderStats.map((stat: any) => ({
+        ? backendData.orderStats.map((stat: { status: string; count: number; color: string }) => ({
             name: getStatusName(stat.status),
             value: stat.count,
             color: stat.color,
@@ -185,7 +214,7 @@ export default function DashboardPage() {
           ],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       totalOrders: backendData.orderStats && backendData.orderStats.length >= 5
-        ? backendData.orderStats.reduce((sum: number, stat: any) => sum + stat.count, 0)
+        ? backendData.orderStats.reduce((sum: number, stat: { count: number }) => sum + stat.count, 0)
         : 34, // Mock total for testing
     };
   };

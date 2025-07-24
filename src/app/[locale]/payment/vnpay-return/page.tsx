@@ -15,7 +15,7 @@ import {
   CardContent,
   IconButton,
   Snackbar,
-  useTheme as useMuiTheme
+
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -80,7 +80,6 @@ export default function VnpayReturnPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { theme: currentTheme } = useTheme();
-  const muiTheme = useMuiTheme();
   const [status, setStatus] = useState<'pending' | 'success' | 'fail'>('pending');
   const [message, setMessage] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);

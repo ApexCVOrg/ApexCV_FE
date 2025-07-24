@@ -10,7 +10,6 @@ import {
   RadioGroup, 
   FormControlLabel, 
   FormControl, 
-  FormLabel, 
   Alert, 
   Divider, 
   Avatar,
@@ -20,8 +19,7 @@ import {
   Chip,
   IconButton,
   Stack,
-  LinearProgress,
-  useTheme as useMuiTheme
+  LinearProgress
 } from "@mui/material";
 import { Inter, Roboto } from 'next/font/google';
 
@@ -98,7 +96,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { getToken } = useAuth();
   const { theme: currentTheme } = useTheme();
-  const muiTheme = useMuiTheme();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [address, setAddress] = useState<Address | null>(null);
   const [userPhone, setUserPhone] = useState("");

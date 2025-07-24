@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Card, Button, Stack, Snackbar, useMediaQuery, Container } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
-import { useTheme as useAppTheme } from '@/hooks/useTheme';
-import { THEME } from '@/lib/constants/constants';
+
 
 interface Coupon {
   code: string;
@@ -74,7 +73,6 @@ export default function CouponPage() {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const theme = useTheme();
-  const { theme: appTheme } = useAppTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
