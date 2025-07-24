@@ -583,6 +583,7 @@ const Header = () => {
               alignItems: 'center',
               minWidth: 0,
               ml: 'auto',
+              mr: { xs: 0, md: 4 },
               position: 'relative',
               zIndex: 1200,
               flexWrap: 'wrap',

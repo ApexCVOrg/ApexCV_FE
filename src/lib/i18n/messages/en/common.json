@@ -598,6 +598,8 @@
     "usernameLabel": "Username",
     "profile": "Profile",
     "logout": "Logout",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
     "errors": {
       "usernameRequired": "Username is required.",
       "usernameLength": "Username must be at least 3 characters.",

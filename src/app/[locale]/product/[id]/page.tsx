@@ -33,20 +33,19 @@ import {
   ArrowBack,
   ArrowForward,
   Close,
+  Check,
   Info,
   ZoomIn,
-  Check,
 } from '@mui/icons-material';
 import { useTranslations } from 'next-intl';
 import { useAuthContext } from '@/context/AuthContext';
 import { useCartContext } from '@/context/CartContext';
-import { useFavorites } from '@/hooks/useFavorites';
 // import FavoriteButton from '@/components/ui/FavoriteButton';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import api from '@/services/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import ColorPicker from '@/components/ui/ColorPicker';
-import SizeRecommender from '@/components/SizeRecommender';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -88,13 +87,21 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+interface Review {
+  _id: string;
+  user: { _id: string; fullName?: string; avatar?: string } | string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 export default function ProductDetailPage() {
   const params = useParams();
   const t = useTranslations('productDetail');
   const { token } = useAuthContext();
   const { refreshCart } = useCartContext();
-  const { isFavorite, toggleFavorite } = useFavorites();
-
+  const { theme } = useTheme();
+  
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -110,8 +117,11 @@ export default function ProductDetailPage() {
   }>({ open: false, message: '', severity: 'success' });
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [autoScroll] = useState(true);
   const autoScrollRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
 
   const productId = params.id as string;
 
@@ -158,6 +168,35 @@ export default function ProductDetailPage() {
       }
     };
   }, [autoScroll, product?.images]);
+
+  // Fetch reviews for this product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product?._id) return;
+      try {
+        const res = await api.get(`/reviews?product=${product._id}`);
+        setReviews(res.data as Review[]);
+      } catch {
+        setReviews([]);
+      }
+    };
+    fetchReviews();
+  }, [product?._id]);
+
+  // Fetch average rating for this product
+  useEffect(() => {
+    const fetchAverage = async () => {
+      if (!productId) return;
+      try {
+        const res = await api.get(`/reviews/average/${productId}`);
+        const data = res.data as { average: number };
+        setAverageRating(data.average || 0);
+      } catch {
+        setAverageRating(0);
+      }
+    };
+    fetchAverage();
+  }, [productId]);
 
   const handleAddToCart = async () => {
     if (!token) {
@@ -317,20 +356,33 @@ export default function ProductDetailPage() {
     : 0;
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4, mt: 10 }}>
+    <Box sx={{
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh',
+      width: '100%',
+      pt: 0,
+      pb: 4,
+    }}>
+      <Container maxWidth="lg" sx={{ 
+        py: 4, 
+        bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        color: theme === THEME.LIGHT ? '#000' : '#fff',
+      }}>
       {/* Breadcrumbs */}
-      <Breadcrumbs sx={{ mb: 3 }}>
-        <Link href="/" color="inherit" underline="hover">
+      <Breadcrumbs sx={{ mb: 3, pt: 4 }}>
+        <Link href="/" color="inherit" underline="hover" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
           Trang chủ
         </Link>
         <Link
           href={`/${product.categories?.[0]?.name?.toLowerCase() || 'products'}`}
           color="inherit"
           underline="hover"
+          sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}
         >
           {product.categories?.[0]?.name || 'Products'}
         </Link>
-        <Typography color="text.primary">{product.name}</Typography>
+        <Typography color="text.primary" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}>{product.name}</Typography>
       </Breadcrumbs>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -345,7 +397,7 @@ export default function ProductDetailPage() {
                 height: 500,
                 borderRadius: 2,
                 overflow: 'hidden',
-                bgcolor: '#f8f9fa',
+                bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a',
                 cursor: 'pointer',
               }}
               onClick={handleImageClick}
@@ -486,7 +538,7 @@ export default function ProductDetailPage() {
                       overflow: 'hidden',
                       cursor: 'pointer',
                       border: selectedImage === index ? '2px solid #1976d2' : '2px solid transparent',
-                      bgcolor: '#f8f9fa',
+                      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -513,7 +565,7 @@ export default function ProductDetailPage() {
             )}
           </Box>
         </Box>
-      </Box>
+
         {/* Product Info */}
         <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
           <Box sx={{ position: 'sticky', top: 100 }}>
@@ -524,9 +576,9 @@ export default function ProductDetailPage() {
 
             {/* Rating */}
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Rating value={product.ratingsAverage} precision={0.1} readOnly />
+              <Rating value={averageRating} precision={0.1} readOnly />
               <Typography variant="body2" sx={{ ml: 1 }}>
-                {product.ratingsAverage.toFixed(1)} ({product.ratingsQuantity} đánh giá)
+                {typeof averageRating === 'number' ? averageRating.toFixed(1) : '0.0'} ({product.ratingsQuantity} đánh giá)
               </Typography>
             </Box>
 
@@ -593,25 +645,27 @@ export default function ProductDetailPage() {
                           minWidth: 80,
                           height: 40,
                           borderRadius: 20,
-                          border: selectedColor === color ? '2px solid #000' : '2px solid #ddd',
-                          bgcolor: selectedColor === color ? '#000' : '#fff',
+                          border: selectedColor === color ? '3px solid #fff' : `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                          bgcolor: selectedColor === color ? '#fff' : (theme === THEME.LIGHT ? '#fff' : '#333'),
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          transition: 'all 0.2s',
+                          transition: 'all 0.3s ease',
                           px: 2,
+                          boxShadow: selectedColor === color ? '0 4px 12px rgba(255,255,255,0.3)' : '0 2px 8px rgba(0,0,0,0.2)',
                           '&:hover': {
                             transform: 'scale(1.05)',
-                            bgcolor: selectedColor === color ? '#333' : '#f5f5f5',
+                            bgcolor: selectedColor === color ? '#f0f0f0' : (theme === THEME.LIGHT ? '#f5f5f5' : '#444'),
+                            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
                           },
                         }}
                         onClick={() => color && setSelectedColor(color)}
                       >
                         <Typography
                           sx={{
-                            color: selectedColor === color ? '#fff' : '#000',
-                            fontWeight: 600,
+                            color: selectedColor === color ? '#000' : (theme === THEME.LIGHT ? '#000' : '#fff'),
+                            fontWeight: 700,
                             fontSize: 14,
                             textTransform: 'capitalize',
                           }}
@@ -619,20 +673,12 @@ export default function ProductDetailPage() {
                           {color}
                         </Typography>
                         {selectedColor === color && (
-                          <Check sx={{ color: 'white', fontSize: 16, ml: 1 }} />
+                          <Check sx={{ color: '#000', fontSize: 18, ml: 1, fontWeight: 'bold' }} />
                         )}
                       </Box>
                     )
                   ))}
                 </Box>
-                <ColorPicker
-                  colors={product.colors}
-                  selectedColor={selectedColor}
-                  onColorSelect={setSelectedColor}
-                  title={t('colors')}
-                  size="large"
-                  variant="circle"
-                />
               </Box>
             )}
 
@@ -663,77 +709,27 @@ export default function ProductDetailPage() {
                           width: 60,
                           height: 60,
                           borderRadius: '50%',
-                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
-                          bgcolor: selectedSize === size ? '#000' : '#fff',
+                          border: selectedSize === size ? '3px solid #fff' : `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                          bgcolor: selectedSize === size ? '#fff' : (theme === THEME.LIGHT ? '#fff' : '#333'),
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
-                          transition: 'all 0.2s',
+                          transition: 'all 0.3s ease',
                           opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
+                          boxShadow: selectedSize === size ? '0 4px 12px rgba(255,255,255,0.3)' : '0 2px 8px rgba(0,0,0,0.2)',
+                          '&:hover': {
+                            transform: 'scale(1.05)',
+                            bgcolor: selectedSize === size ? '#f0f0f0' : (theme === THEME.LIGHT ? '#f5f5f5' : '#444'),
+                            boxShadow: '0 6px 16px rgba(0,0,0,0.3)',
+                          },
                         }}
                         onClick={() => setSelectedSize(size)}
                       >
                         <Typography
                           sx={{
-                            color: selectedSize === size ? '#fff' : '#000',
-                          fontWeight: 600,
-                          fontSize: 16,
-                        }}
-                      >
-                        {size}
-                      </Typography>
-                    </Box>
-                  </motion.div>
-                  ))}
-                </Box>
-              </Box>
-            )}
-
-            {/* Stock Information */}
-                {/* Size Recommendation */}
-                <Box sx={{ mb: 2 }}>
-                  <SizeRecommender
-                    productId={product._id}
-                    sizes={getUniqueSizes()}
-                    categories={product.categories?.map(cat => cat.name) || []}
-                    onSizeSelect={(recommendedSize) => {
-                      if (typeof recommendedSize === 'string') {
-                        setSelectedSize(recommendedSize);
-                      }
-                    }}
-                  />
-                </Box>
-                
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                  }}
-                >
-                  {getUniqueSizes().map(size => (
-                    <motion.div key={size} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Box
-                        sx={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: '50%',
-                          border: selectedSize === size ? '2px solid #000' : '2px solid #ddd',
-                          bgcolor: selectedSize === size ? '#000' : '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          opacity: selectedColor ? (getStock(selectedColor, size) === 0 ? 0.5 : 1) : 1,
-                        }}
-                        onClick={() => setSelectedSize(size)}
-                      >
-                        <Typography
-                          sx={{
-                            color: selectedSize === size ? '#fff' : '#000',
-                            fontWeight: 600,
+                            color: selectedSize === size ? '#000' : (theme === THEME.LIGHT ? '#000' : '#fff'),
+                            fontWeight: 700,
                             fontSize: 16,
                           }}
                         >
@@ -743,6 +739,8 @@ export default function ProductDetailPage() {
                     </motion.div>
                   ))}
                 </Box>
+              </Box>
+            )}
 
             {/* Stock Information */}
             {selectedColor && selectedSize && (
@@ -768,23 +766,49 @@ export default function ProductDetailPage() {
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
                     sx={{ 
-                      border: '1px solid #ddd',
-                      width: 40,
-                      height: 40,
+                      border: `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                      width: 45,
+                      height: 45,
+                      color: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#fff' : '#333',
+                      borderRadius: '50%',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#444',
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                      },
+                      '&:disabled': {
+                        opacity: 0.5,
+                        cursor: 'not-allowed',
+                      },
                     }}
                   >
                     -
                   </IconButton>
-                  <Typography variant="h6" sx={{ minWidth: 40, textAlign: 'center' }}>
+                  <Typography variant="h6" sx={{ minWidth: 40, textAlign: 'center', fontWeight: 700 }}>
                     {quantity}
                   </Typography>
                   <IconButton
                     onClick={() => setQuantity(Math.min(getStock(selectedColor, selectedSize), quantity + 1))}
                     disabled={quantity >= getStock(selectedColor, selectedSize)}
                     sx={{ 
-                      border: '1px solid #ddd',
-                      width: 40,
-                      height: 40,
+                      border: `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                      width: 45,
+                      height: 45,
+                      color: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#fff' : '#333',
+                      borderRadius: '50%',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#444',
+                        transform: 'scale(1.05)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                      },
+                      '&:disabled': {
+                        opacity: 0.5,
+                        cursor: 'not-allowed',
+                      },
                     }}
                   >
                     +
@@ -802,28 +826,64 @@ export default function ProductDetailPage() {
                 onClick={handleAddToCart}
                 sx={{
                   flex: 1,
-                  py: 1.5,
-                  bgcolor: '#000',
+                  py: 2,
+                  bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                  color: theme === THEME.LIGHT ? '#fff' : '#000',
                   borderRadius: 3,
-                  '&:hover': { bgcolor: '#333' },
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  '&:hover': { 
+                    bgcolor: theme === THEME.LIGHT ? '#333' : '#f0f0f0',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 8px 20px rgba(0,0,0,0.4)',
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  },
                 }}
               >
                 {t('addToCart')}
               </Button>
               <IconButton
                 sx={{
-                  border: '1px solid #ddd',
-                  color: isFavorite(product?._id || '') ? '#ff3b30' : '#000',
-                  '&:hover': { bgcolor: '#f5f5f5' },
+                  border: `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                  color: isFavorite ? '#ff3b30' : (theme === THEME.LIGHT ? '#000' : '#fff'),
+                  bgcolor: theme === THEME.LIGHT ? '#fff' : '#333',
+                  width: 50,
+                  height: 50,
+                  borderRadius: '50%',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  '&:hover': { 
+                    bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#444',
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  },
                 }}
-                onClick={() => product?._id && toggleFavorite(product._id)}
+                onClick={() => setIsFavorite(!isFavorite)}
               >
                 <Favorite />
               </IconButton>
               <IconButton
                 sx={{
-                  border: '1px solid #ddd',
-                  '&:hover': { bgcolor: '#f5f5f5' },
+                  border: `2px solid ${theme === THEME.LIGHT ? '#ddd' : '#666'}`,
+                  color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  bgcolor: theme === THEME.LIGHT ? '#fff' : '#333',
+                  width: 50,
+                  height: 50,
+                  borderRadius: '50%',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+                  '&:hover': { 
+                    bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#444',
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                  },
                 }}
               >
                 <Share />
@@ -868,10 +928,14 @@ export default function ProductDetailPage() {
             )}
           </Box>
         </Box>
+      </Box>
 
       {/* Product Details Tabs */}
       <Box sx={{ mt: 6 }}>
-        <Tabs value={tabValue} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ 
+          borderBottom: 1, 
+          borderColor: theme === THEME.LIGHT ? 'divider' : '#444' 
+        }}>
           <Tab label={t('description')} />
           <Tab label={t('specifications')} />
           <Tab label={t('reviews')} />
@@ -886,26 +950,26 @@ export default function ProductDetailPage() {
         <TabPanel value={tabValue} index={1}>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
-              <Card>
+              <Card sx={{ bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a' }}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                     {t('basicInfo')}
                   </Typography>
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('productName')}:</strong> {product.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('brand')}:</strong> {product.brand?.name || 'Unknown Brand'}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('categories')}:</strong>{' '}
                       {product.categories?.map(cat => cat.name).join(', ') || 'No categories'}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('status')}:</strong> {product.status}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('createdAt')}:</strong> {new Date(product.createdAt).toLocaleDateString('vi-VN')}
                     </Typography>
                   </Box>
@@ -913,22 +977,22 @@ export default function ProductDetailPage() {
               </Card>
             </Box>
             <Box sx={{ flex: { xs: '1 1 100%', md: '1 1 50%' } }}>
-              <Card>
+              <Card sx={{ bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a', color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                 <CardContent>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                     {t('technicalInfo')}
                   </Typography>
                   <Box sx={{ mt: 2 }}>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('availableSizes')}:</strong> {getUniqueSizes().join(', ')}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('colors')}:</strong> {uniqueColors.join(', ') || 'No colors'}
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
-                      <strong>{t('averageRating')}:</strong> {product.ratingsAverage.toFixed(1)}/5
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
+                      <strong>{t('averageRating')}:</strong> {typeof product.ratingsAverage === 'number' ? product.ratingsAverage.toFixed(1) : '0.0'}/5
                     </Typography>
-                    <Typography variant="body2" sx={{ mb: 1 }}>
+                    <Typography variant="body2" sx={{ mb: 1, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
                       <strong>{t('reviewCount')}:</strong> {product.ratingsQuantity}
                     </Typography>
                   </Box>
@@ -939,15 +1003,40 @@ export default function ProductDetailPage() {
         </TabPanel>
 
         <TabPanel value={tabValue} index={2}>
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
-            <Typography variant="h6" color="text.secondary">
-              {t('noReviews')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {t('beFirstToReview')}
-            </Typography>
-          </Box>
+          {reviews.length === 0 ? (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Star sx={{ fontSize: 60, color: '#ddd', mb: 2 }} />
+              <Typography variant="h6" color="text.secondary">
+                {t('noReviews')}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {t('beFirstToReview')}
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ py: 2 }}>
+              {reviews.map((review) => (
+                <Box key={review._id} sx={{ 
+                  mb: 3, 
+                  p: 2, 
+                  border: `1px solid ${theme === THEME.LIGHT ? '#eee' : '#444'}`, 
+                  borderRadius: 2, 
+                  background: theme === THEME.LIGHT ? '#fafafa' : '#1a1a1a' 
+                }}>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5, color: theme === THEME.LIGHT ? '#000' : '#fff' }}>
+                    {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                    <Rating value={review.rating} readOnly size="small" precision={0.5} sx={{ mr: 1 }} />
+                    <Typography variant="caption" color="text.secondary" sx={{ color: theme === THEME.LIGHT ? '#666' : '#aaa' }}>
+                      {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                    </Typography>
+                  </Box>
+                  <Typography variant="body1" sx={{ color: theme === THEME.LIGHT ? '#222' : '#fff' }}>{review.comment}</Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
         </TabPanel>
       </Box>
 
@@ -1015,5 +1104,6 @@ export default function ProductDetailPage() {
         </Alert>
       </Snackbar>
     </Container>
+    </Box>
   );
 } 

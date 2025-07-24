@@ -26,6 +26,7 @@ import {
   InputLabel,
   Select,
   Tooltip,
+   
   Card,
   CardContent,
   Divider,
@@ -51,8 +52,8 @@ interface OrderItem {
     name: string;
     images?: string[];
   };
-  size: string | { _id: string; size: string; sku: string; stock: number };
-  color: string | { _id: string; color: string; sku: string; stock: number };
+  size: string | { size?: string; name?: string };
+  color: string | { color?: string; name?: string };
   quantity: number;
   price: number;
 }
@@ -76,11 +77,11 @@ interface PaymentResult {
 
 interface Order {
   _id: string;
-  user?: {
+  user: {
     _id: string;
     username: string;
     email: string;
-  } | null;
+  };
   orderItems: OrderItem[];
   shippingAddress: ShippingAddress;
   paymentMethod: string;
@@ -106,16 +107,23 @@ interface OrderFormData {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error' | 'warning' | 'info',
-  });
+
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [totalOrders, setTotalOrders] = useState(0);
+
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [paymentFilter, setPaymentFilter] = useState<string>('all');
+
   const [formData, setFormData] = useState<OrderFormData>({
     orderStatus: 'pending',
     isPaid: false,
@@ -123,44 +131,73 @@ export default function OrdersPage() {
     shippingPrice: 0,
     taxPrice: 0,
   });
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-  // Filter states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-
+  // Search and filter function
   const filterOrders = () => {
-    return orders.filter(order => {
-      const matchesSearch = searchTerm === '' || 
-        order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesStatus = statusFilter === 'all' || order.orderStatus === statusFilter;
-      
-      return matchesSearch && matchesStatus;
-    });
+    let filtered = orders || [];
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(
+        order =>
+          order.user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.shippingAddress.recipientName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by order status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.orderStatus === statusFilter);
+    }
+
+    // Filter by payment status
+    if (paymentFilter !== 'all') {
+      filtered = filtered.filter(order => {
+        if (paymentFilter === 'paid') return order.isPaid;
+        if (paymentFilter === 'unpaid') return !order.isPaid;
+        return true;
+      });
+    }
+
+    setFilteredOrders(filtered);
   };
 
+  // Apply filters when search terms or filters change
+  useEffect(() => {
+    filterOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, statusFilter, paymentFilter, orders]);
+
+  // Clear all filters
   const clearFilters = () => {
     setSearchTerm('');
     setStatusFilter('all');
+    setPaymentFilter('all');
   };
 
+  // Fetch orders with pagination
   const fetchOrders = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await api.get<Order[]>(API_ENDPOINTS.MANAGER.ORDERS);
-      if (response.data) {
-        setOrders(response.data);
-        setTotalPages(Math.ceil(response.data.length / 10));
-      }
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      setSnackbar({
-        open: true,
-        message: 'Failed to fetch orders',
-        severity: 'error',
+      const res = await api.get<Order[]>(API_ENDPOINTS.MANAGER.ORDERS, {
+        params: { page, limit },
       });
+      setOrders(res.data);
+      setTotalOrders(res.data.length);
+      setTotalPages(Math.ceil(res.data.length / limit));
+    } catch {
+      setSnackbar({ open: true, message: ERROR_MESSAGES.NETWORK_ERROR, severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -168,25 +205,29 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit]);
 
+  // Handle page change
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string; value: string | string[] } }) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name as string]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
-    }));
-  };
-
+  // Form handlers
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'shippingPrice' || name === 'taxPrice' ? parseFloat(value) || 0 : value,
+      [name]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
+    }));
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSelectChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'isPaid' || name === 'isDelivered' ? value === 'true' : value,
     }));
   };
 
@@ -235,6 +276,13 @@ export default function OrdersPage() {
       });
     }
   };
+
+  // Cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Cleanup function if needed
+    };
+  }, []);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this order?')) return;
@@ -306,14 +354,6 @@ export default function OrdersPage() {
     return orderItems.reduce((total, item) => total + item.quantity, 0);
   };
 
-  const getSizeDisplay = (size: string | { _id: string; size: string; sku: string; stock: number }) => {
-    return typeof size === 'object' ? size.size : size;
-  };
-
-  const getColorDisplay = (color: string | { _id: string; color: string; sku: string; stock: number }) => {
-    return typeof color === 'object' ? color.color : color;
-  };
-
   if (loading) {
     return (
       <Box sx={{ p: 3 }}>
@@ -322,34 +362,150 @@ export default function OrdersPage() {
     );
   }
 
-  const filteredOrders = filterOrders();
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" fontWeight={700} mb={3}>
-        Orders Management
-      </Typography>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: 1400, 
+      mx: 'auto', 
+      p: { xs: 2, md: 4 },
+      pt: { xs: 4, md: 6 },
+      overflowX: 'auto' 
+    }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+        sx={{ 
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{
+            fontWeight: 800,
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
+            letterSpacing: '0.5px',
+            color: 'text.primary',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+          }}
+        >
+          Orders Management
+        </Typography>
+      </Stack>
 
-      {/* Filters */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+      {/* Search and Filter Section */}
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Stack spacing={3}>
+          {/* Search Bar */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
-              label="Search Orders"
+              placeholder="Search orders by customer name, email, order ID, or recipient name..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              size="small"
-              sx={{ minWidth: 200 }}
+              onChange={e => setSearchTerm(e.target.value)}
+              sx={{ 
+                flexGrow: 1,
+                minWidth: 250,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}
               InputProps={{
-                startAdornment: <SearchIcon sx={{ mr: 1, color: 'text.secondary' }} />,
+                startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
               }}
             />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status</InputLabel>
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={clearFilters}
+              disabled={!searchTerm && statusFilter === 'all' && paymentFilter === 'all'}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                py: 1.5,
+                fontWeight: 500,
+                textTransform: 'none',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
+            >
+              Clear
+            </Button>
+          </Box>
+
+          {/* Filter Row */}
+          <Box sx={{ 
+            display: 'flex', 
+            gap: 3, 
+            flexWrap: 'wrap', 
+            alignItems: 'center',
+            width: '100%',
+            overflowX: 'auto',
+          }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                Order Status
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 150,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                label="Status"
+                onChange={e => setStatusFilter(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">All Status</MenuItem>
                 <MenuItem value="pending">Pending</MenuItem>
@@ -359,186 +515,918 @@ export default function OrdersPage() {
                 <MenuItem value="cancelled">Cancelled</MenuItem>
               </Select>
             </FormControl>
-            <Button
-              variant="outlined"
-              onClick={clearFilters}
-              startIcon={<ClearIcon />}
-            >
-              Clear Filters
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
+            </Box>
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                Payment
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 120,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
+              <Select
+                value={paymentFilter}
+                onChange={e => setPaymentFilter(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
+              >
+                <MenuItem value="all">All Payment</MenuItem>
+                <MenuItem value="paid">Paid</MenuItem>
+                <MenuItem value="unpaid">Unpaid</MenuItem>
+              </Select>
+            </FormControl>
+            </Box>
+
+            {/* Results Count */}
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              ml: 'auto',
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.08)' 
+                : 'rgba(0,0,0,0.04)',
+            }}>
+              <Typography variant="body2" color="text.secondary" sx={{ 
+                fontWeight: 500,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {filteredOrders.length} of {orders.length} orders
+              </Typography>
+            </Box>
+          </Box>
+        </Stack>
+      </Paper>
+
+      {/* Orders Summary Cards */}
+      <Box
+        sx={{ 
+          display: 'flex', 
+          flexWrap: 'wrap', 
+          gap: 3, 
+          mb: 3, 
+          width: '100%', 
+          overflowX: 'auto',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                Total Orders
+              </Typography>
+              <Typography 
+                variant="h4"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredOrders.length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                Pending Orders
+              </Typography>
+              <Typography 
+                variant="h4" 
+                color="warning.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredOrders.filter(order => order.orderStatus === 'pending').length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                Paid Orders
+              </Typography>
+              <Typography 
+                variant="h4" 
+                color="info.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredOrders.filter(order => order.isPaid).length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+        <Box sx={{ flex: '1 1 200px', minWidth: '200px', maxWidth: '250px' }}>
+          <Card sx={{
+            borderRadius: 3,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+            background: (theme) => theme.palette.mode === 'dark' 
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.06)',
+            '&:hover': {
+              transform: 'translateY(-2px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+            },
+            transition: 'all 0.3s ease-in-out',
+          }}>
+            <CardContent sx={{ p: 3 }}>
+              <Typography 
+                color="textSecondary" 
+                gutterBottom
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                Delivered Orders
+              </Typography>
+              <Typography 
+                variant="h4" 
+                color="success.main"
+                sx={{
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  fontWeight: 700,
+                }}
+              >
+                {filteredOrders.filter(order => order.isDelivered).length}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Box>
+      </Box>
 
       {/* Orders Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Customer</TableCell>
-              <TableCell>Items</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Payment</TableCell>
-              <TableCell>Date</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredOrders.map((order) => (
-              <TableRow key={order._id}>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={600}>
-                    {order._id.slice(-8)}
-                  </Typography>
+      <Paper sx={{ 
+        width: '100%', 
+        overflow: 'hidden',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <TableContainer>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow sx={{ 
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.08)' 
+                  : 'rgba(0,0,0,0.08)' 
+              }}>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Order ID
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {order.user?.username || 'Guest'}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {order.user?.email}
-                  </Typography>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Customer
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {getTotalItems(order.orderItems)} items
-                  </Typography>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Items
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={600}>
-                    {formatPrice(order.totalPrice)}
-                  </Typography>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Total
                 </TableCell>
-                <TableCell>
-                  <Chip
-                    icon={getStatusIcon(order.orderStatus)}
-                    label={order.orderStatus}
-                    color={getStatusColor(order.orderStatus) as 'success' | 'error' | 'warning' | 'default'}
-                    size="small"
-                  />
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Status
                 </TableCell>
-                <TableCell>
-                  <Chip
-                    label={order.isPaid ? 'Paid' : 'Unpaid'}
-                    color={order.isPaid ? 'success' : 'warning'}
-                    size="small"
-                  />
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Payment
                 </TableCell>
-                <TableCell>
-                  <Typography variant="body2">
-                    {formatDate(order.createdAt)}
-                  </Typography>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Created
                 </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <Tooltip title="View Details">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(order)}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Edit Order">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(order)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Delete Order">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDelete(order._id)}
-                        color="error"
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
+                <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.1)'
+                    : '2px solid rgba(0,0,0,0.15)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.08)' 
+                    : 'rgba(0,0,0,0.08)',
+                }}>
+                  Actions
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {filteredOrders.map(order => (
+                <TableRow key={order._id} hover>
+                  <TableCell>
+                    <Typography 
+                      variant="body2" 
+                      fontFamily="monospace"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {order._id.slice(-8)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Typography 
+                        variant="body2" 
+                        fontWeight="medium"
+                        sx={{
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}
+                      >
+                        {order.user.username}
+                      </Typography>
+                      <Typography 
+                        variant="caption" 
+                        color="textSecondary"
+                        sx={{
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}
+                      >
+                        {order.user.email}
+                      </Typography>
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {getTotalItems(order.orderItems)} items
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography 
+                      variant="body2" 
+                      fontWeight="medium"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {formatPrice(order.totalPrice)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      icon={getStatusIcon(order.orderStatus)}
+                      label={order.orderStatus.toUpperCase()}
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      color={getStatusColor(order.orderStatus) as any}
+                      size="small"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box>
+                      <Chip
+                        label={order.isPaid ? 'Paid' : 'Unpaid'}
+                        color={order.isPaid ? 'success' : 'warning'}
+                        size="small"
+                        sx={{ mb: 0.5 }}
+                      />
+                      {order.isPaid && order.paidAt && (
+                        <Typography 
+                          variant="caption" 
+                          display="block" 
+                          color="textSecondary"
+                          sx={{
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}
+                        >
+                          {formatDate(order.paidAt)}
+                        </Typography>
+                      )}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
+                      {formatDate(order.createdAt)}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={1}>
+                      <Tooltip title="View Details">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenDialog(order)}
+                          sx={{
+                            color: 'primary.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Edit Order">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleOpenDialog(order)}
+                          sx={{
+                            color: 'primary.main',
+                            '&:hover': {
+                              backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete Order">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => handleDelete(order._id)}
+                          sx={{
+                            '&:hover': {
+                              backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                              transform: 'scale(1.1)',
+                            },
+                            transition: 'all 0.2s ease-in-out',
+                          }}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
 
-      {/* Order Details Dialog */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        maxWidth="md"
+      {/* Edit Order Dialog */}
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        maxWidth="lg" 
         fullWidth
+        sx={{
+          '& .MuiDialog-container': {
+            alignItems: 'center',
+          },
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }
+          }
+        }}
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            borderRadius: 3,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }
+        }}
+        scroll="body"
       >
-        <DialogTitle>
-          Order Details - {selectedOrder?._id.slice(-8)}
+        <DialogTitle sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          py: 3,
+          px: 4,
+        }}>
+          <Typography variant="h5" sx={{
+            fontWeight: 700,
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            color: 'text.primary'
+          }}>
+          {selectedOrder ? `Edit Order #${selectedOrder._id.slice(-8)}` : 'Edit Order'}
+          </Typography>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ 
+          p: 4,
+          maxHeight: '60vh',
+          overflowY: 'auto',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(20, 25, 35, 0.8) 0%, rgba(15, 20, 30, 0.8) 100%)'
+            : 'linear-gradient(135deg, rgba(252, 254, 255, 0.8) 0%, rgba(245, 248, 252, 0.8) 100%)',
+          // Custom scrollbar styling
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(30, 40, 60, 0.3)'
+              : 'rgba(0, 0, 0, 0.05)',
+            borderRadius: '10px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(100, 120, 150, 0.6) 0%, rgba(80, 100, 130, 0.8) 100%)'
+              : 'linear-gradient(135deg, rgba(25, 118, 210, 0.4) 0%, rgba(21, 101, 192, 0.6) 100%)',
+            borderRadius: '10px',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(25, 118, 210, 0.3)',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(120, 140, 170, 0.8) 0%, rgba(100, 120, 150, 1) 100%)'
+              : 'linear-gradient(135deg, rgba(25, 118, 210, 0.6) 0%, rgba(21, 101, 192, 0.8) 100%)',
+          },
+          '&::-webkit-scrollbar-thumb:active': {
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(140, 160, 190, 1) 0%, rgba(120, 140, 170, 1) 100%)'
+              : 'linear-gradient(135deg, rgba(25, 118, 210, 0.8) 0%, rgba(21, 101, 192, 1) 100%)',
+          },
+          // Firefox scrollbar
+          scrollbarWidth: 'thin',
+          scrollbarColor: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(100, 120, 150, 0.6) rgba(30, 40, 60, 0.3)'
+            : 'rgba(25, 118, 210, 0.4) rgba(0, 0, 0, 0.05)',
+        }}>
           {selectedOrder && (
-            <Box>
-              {/* Order Info */}
+            <Box sx={{ 
+              p: 4,
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(20, 25, 35, 0.8) 0%, rgba(15, 20, 30, 0.8) 100%)'
+                : 'linear-gradient(135deg, rgba(252, 254, 255, 0.8) 0%, rgba(245, 248, 252, 0.8) 100%)',
+            }}>
+              {/* Order Details */}
               <Typography variant="h6" gutterBottom>
-                Order Information
+                Order Details
               </Typography>
-              <Stack direction="row" spacing={2} mb={2}>
-                <Typography variant="body2">
-                  <strong>Customer:</strong> {selectedOrder.user?.username || 'Guest'}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Email:</strong> {selectedOrder.user?.email || 'N/A'}
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Date:</strong> {formatDate(selectedOrder.createdAt)}
-                </Typography>
-              </Stack>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
+                <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+                  <Typography variant="body2" color="textSecondary">
+                    Customer
+                  </Typography>
+                  <Typography variant="body1">{selectedOrder.user.username}</Typography>
+                </Box>
+                <Box sx={{ flex: '1 1 300px', minWidth: '300px' }}>
+                  <Typography variant="body2" color="textSecondary">
+                    Email
+                  </Typography>
+                  <Typography variant="body1">{selectedOrder.user.email}</Typography>
+                </Box>
+                <Box sx={{ flex: '1 1 100%' }}>
+                  <Typography variant="body2" color="textSecondary">
+                    Shipping Address
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedOrder.shippingAddress.recipientName}
+                    <br />
+                    {selectedOrder.shippingAddress.street}
+                    <br />
+                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{' '}
+                    {selectedOrder.shippingAddress.postalCode}
+                    <br />
+                    {selectedOrder.shippingAddress.country}
+                    <br />
+                    Phone: {selectedOrder.shippingAddress.phone}
+                  </Typography>
+                </Box>
+              </Box>
 
-              {/* Shipping Address */}
-              <Typography variant="h6" gutterBottom>
-                Shipping Address
-              </Typography>
-              <Typography variant="body2" mb={2}>
-                {selectedOrder.shippingAddress.recipientName}<br />
-                {selectedOrder.shippingAddress.street}<br />
-                {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.postalCode}<br />
-                {selectedOrder.shippingAddress.country}<br />
-                Phone: {selectedOrder.shippingAddress.phone}
-              </Typography>
+              <Divider sx={{ my: 2 }} />
 
               {/* Order Items */}
-              <Typography variant="h6" gutterBottom>
+              <Typography variant="h6" gutterBottom sx={{ 
+                fontWeight: 600,
+                color: 'text.primary',
+                mb: 2
+              }}>
                 Order Items
               </Typography>
-              <TableContainer component={Paper} sx={{ mb: 2 }}>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Product</TableCell>
-                      <TableCell>Size</TableCell>
-                      <TableCell>Color</TableCell>
-                      <TableCell>Qty</TableCell>
-                      <TableCell>Price</TableCell>
-                      <TableCell>Total</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
+              <Box sx={{ 
+                border: (theme) => theme.palette.mode === 'dark'
+                  ? '1px solid rgba(100, 120, 150, 0.3)'
+                  : '1px solid rgba(0,0,0,0.12)',
+                borderRadius: 3,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.8) 0%, rgba(30, 40, 60, 0.8) 100%)'
+                  : 'linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%)',
+                p: 3
+              }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  gap: 3
+                }}>
                     {selectedOrder.orderItems.map((item, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <Typography variant="body2">{item.product.name}</Typography>
-                        </TableCell>
-                        <TableCell>{getSizeDisplay(item.size)}</TableCell>
-                        <TableCell>{getColorDisplay(item.color)}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>{formatPrice(item.price)}</TableCell>
-                        <TableCell>{formatPrice(item.price * item.quantity)}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    <Box key={index} sx={{
+                      p: 3,
+                      background: (theme) => theme.palette.mode === 'dark'
+                        ? 'linear-gradient(135deg, rgba(40, 50, 70, 0.9) 0%, rgba(30, 40, 60, 0.9) 100%)'
+                        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(250, 252, 255, 0.95) 100%)',
+                      border: (theme) => theme.palette.mode === 'dark'
+                        ? '1px solid rgba(100, 120, 150, 0.25)'
+                        : '1px solid rgba(0,0,0,0.06)',
+                      borderRadius: 3,
+                      boxShadow: (theme) => theme.palette.mode === 'dark'
+                        ? '0 4px 15px rgba(0,0,0,0.25)'
+                        : '0 4px 15px rgba(0,0,0,0.08)',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: (theme) => theme.palette.mode === 'dark'
+                          ? '0 8px 25px rgba(0,0,0,0.4)'
+                          : '0 8px 25px rgba(0,0,0,0.12)',
+                      },
+                      transition: 'all 0.3s ease-in-out'
+                    }}>
+                      {/* Product Header */}
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" sx={{ 
+                          fontWeight: 700,
+                          color: 'text.primary',
+                          mb: 1,
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          {item.product.name}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{
+                          fontStyle: 'italic',
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          Product #{index + 1}
+                        </Typography>
+                      </Box>
+
+                      {/* Product Details Grid */}
+                      <Box sx={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: { 
+                          xs: 'repeat(2, 1fr)', 
+                          sm: 'repeat(4, 1fr)' 
+                        },
+                        gap: 3,
+                        mb: 2
+                      }}>
+                        {/* Size */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(25, 118, 210, 0.1)'
+                            : 'rgba(25, 118, 210, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(25, 118, 210, 0.3)'
+                            : '1px solid rgba(25, 118, 210, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Size
+                          </Typography>
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600,
+                            color: 'primary.main',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {typeof item.size === 'object' && item.size ? 
+                              (item.size.size || item.size.name || 'Custom') : 
+                              item.size || 'Standard'}
+                          </Typography>
+                        </Box>
+                        
+                        {/* Color */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(156, 39, 176, 0.1)'
+                            : 'rgba(156, 39, 176, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(156, 39, 176, 0.3)'
+                            : '1px solid rgba(156, 39, 176, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Color
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                            <Box sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: typeof item.color === 'object' && item.color ?
+                                (item.color.color || item.color.name || '#9c27b0') :
+                                (item.color || '#9c27b0'),
+                              border: '2px solid rgba(0,0,0,0.1)',
+                              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            }} />
+                            <Typography variant="body1" sx={{ 
+                              fontWeight: 600,
+                              color: '#9c27b0',
+                              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                            }}>
+                              {typeof item.color === 'object' && item.color ? 
+                                (item.color.color || item.color.name || 'Custom') : 
+                                item.color || 'Default'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        {/* Quantity */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(255, 152, 0, 0.1)'
+                            : 'rgba(255, 152, 0, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(255, 152, 0, 0.3)'
+                            : '1px solid rgba(255, 152, 0, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Quantity
+                          </Typography>
+                          <Typography variant="h5" sx={{ 
+                            fontWeight: 700,
+                            color: '#ff9800',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {item.quantity}
+                          </Typography>
+                        </Box>
+                        
+                        {/* Unit Price */}
+                        <Box sx={{
+                          p: 2,
+                          borderRadius: 2,
+                          background: (theme) => theme.palette.mode === 'dark'
+                            ? 'rgba(76, 175, 80, 0.1)'
+                            : 'rgba(76, 175, 80, 0.05)',
+                          border: (theme) => theme.palette.mode === 'dark'
+                            ? '1px solid rgba(76, 175, 80, 0.3)'
+                            : '1px solid rgba(76, 175, 80, 0.15)',
+                        }}>
+                          <Typography variant="caption" color="text.secondary" sx={{ 
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            Unit Price
+                          </Typography>
+                          <Typography variant="h6" sx={{ 
+                            fontWeight: 700,
+                            color: 'success.main',
+                            mt: 0.5,
+                            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                          }}>
+                            {formatPrice(item.price)}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Total Price Highlight */}
+                      <Box sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        background: (theme) => theme.palette.mode === 'dark'
+                          ? 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(67, 160, 71, 0.15) 100%)'
+                          : 'linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(67, 160, 71, 0.08) 100%)',
+                        border: (theme) => theme.palette.mode === 'dark'
+                          ? '2px solid rgba(76, 175, 80, 0.4)'
+                          : '2px solid rgba(76, 175, 80, 0.2)',
+                        textAlign: 'center'
+                      }}>
+                        <Typography variant="caption" color="text.secondary" sx={{ 
+                          fontWeight: 600,
+                          textTransform: 'uppercase',
+                          letterSpacing: '1px',
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          Item Total
+                        </Typography>
+                        <Typography variant="h4" sx={{ 
+                          fontWeight: 800,
+                          color: 'success.main',
+                          mt: 0.5,
+                          fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        }}>
+                          {formatPrice(item.price * item.quantity)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
 
               <Divider sx={{ my: 2 }} />
 
@@ -622,9 +1510,55 @@ export default function OrdersPage() {
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained">
+        <DialogActions sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderTop: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          px: 4,
+          py: 3,
+          gap: 2,
+        }}>
+          <Button 
+            onClick={handleCloseDialog}
+            variant="outlined"
+            sx={{
+              px: 3,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              '&:hover': {
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            variant="contained"
+            sx={{
+              px: 4,
+              py: 1.5,
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+              boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+              '&:hover': {
+                background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+                transform: 'translateY(-1px)',
+                boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .3)',
+              },
+              transition: 'all 0.2s ease-in-out'
+            }}
+          >
             Update Order
           </Button>
         </DialogActions>
@@ -646,8 +1580,31 @@ export default function OrdersPage() {
       </Snackbar>
 
       {/* Pagination */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-        <Pagination count={totalPages} page={page} onChange={handlePageChange} color="primary" />
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        mt: 4,
+        p: 2,
+        borderRadius: 2,
+        backgroundColor: (theme) => theme.palette.mode === 'dark' 
+          ? 'rgba(255,255,255,0.05)' 
+          : 'rgba(0,0,0,0.02)',
+      }}>
+        <Pagination 
+          count={totalPages} 
+          page={page} 
+          onChange={handlePageChange} 
+          color="primary"
+          sx={{
+            '& .MuiPaginationItem-root': {
+              borderRadius: 1,
+              fontWeight: 500,
+              '&:hover': {
+                backgroundColor: 'rgba(25, 118, 210, 0.08)',
+              },
+            },
+          }}
+        />
       </Box>
     </Box>
   );
