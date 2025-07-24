@@ -1,10 +1,8 @@
 "use client";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { TextField, Button, Paper, Typography, Box, Alert, Chip, CircularProgress, IconButton } from "@mui/material";
+import { TextField, Button, Paper, Typography, Box, Alert, Chip, CircularProgress, IconButton, useTheme as useMuiTheme } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
-import { useTheme } from "@/hooks/useTheme";
-import { THEME } from "@/lib/constants/constants";
 import ImageIcon from "@mui/icons-material/Image";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
@@ -13,82 +11,50 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import styled from '@emotion/styled';
 
 // Styled components for a cleaner structure and reusable styles
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Paper)({
   maxWidth: 600,
   margin: '60px auto',
   padding: 40,
   borderRadius: 12,
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 10px 30px rgba(0, 0, 0, 0.1)' 
-    : '0 10px 30px rgba(0, 0, 0, 0.5)',
-  border: `1px solid ${theme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
-  backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-}));
+});
 
-const Title = styled(Typography)(({ theme }) => ({
+const Title = styled(Typography)({
   fontWeight: 600,
-  color: theme.palette.mode === 'light' ? '#212121' : '#fff',
   marginBottom: 24,
   textAlign: 'center',
   fontSize: '2.2rem',
   letterSpacing: '-0.5px',
   fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-}));
+});
 
-const SectionTitle = styled(Typography)(({ theme }) => ({
+const SectionTitle = styled(Typography)({
   fontWeight: 700,
-  color: theme.palette.mode === 'light' ? '#424242' : '#fff',
   marginBottom: 16,
   fontSize: '1.1rem',
   alignSelf: 'flex-start',
-}));
+});
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
+const StyledTextField = styled(TextField)({
   marginBottom: '24px !important',
   '& .MuiOutlinedInput-root': {
     borderRadius: 10,
-    backgroundColor: theme.palette.mode === 'light' ? '#fcfcfc' : '#2a2a2a',
-    color: theme.palette.mode === 'light' ? '#000' : '#fff',
     '& fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#e0e0e0' : '#444',
       transition: 'border-color 0.3s ease',
     },
-    '&:hover fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#90caf9' : '#666',
-    },
-    '&.Mui-focused fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
-      borderWidth: 2,
-    },
   },
-  '& .MuiInputLabel-root.Mui-focused': {
-    color: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
-  },
-  '& .MuiInputLabel-root': {
-    color: theme.palette.mode === 'light' ? '#666' : '#ccc',
-  },
-  '& .MuiInputBase-input': {
-    color: theme.palette.mode === 'light' ? '#000' : '#fff',
-  },
-}));
+});
 
-const StyledButton = styled(Button)(({ theme }) => ({
+const StyledButton = styled(Button)({
   borderRadius: 10,
   fontWeight: 700,
   padding: '14px 28px',
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 6px 15px rgba(0,0,0,0.1)' 
-    : '0 6px 15px rgba(0,0,0,0.3)',
   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
   textTransform: 'uppercase',
   '&:hover': {
     transform: 'translateY(-3px)',
-    boxShadow: theme.palette.mode === 'light' 
-      ? '0 8px 20px rgba(0,0,0,0.15)' 
-      : '0 8px 20px rgba(0,0,0,0.5)',
   },
   '&.MuiButton-containedError': {
     backgroundColor: '#f44336',
@@ -97,13 +63,10 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
   },
   '&.MuiButton-containedPrimary': {
-    backgroundColor: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
-    color: theme.palette.mode === 'light' ? '#fff' : '#000',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
     },
   },
-}));
+});
 
 const ImagePreviewContainer = styled(Box)({
   display: 'flex',
@@ -114,21 +77,17 @@ const ImagePreviewContainer = styled(Box)({
   width: '100%',
 });
 
-const ImageWrapper = styled(Box)(({ theme }) => ({
+const ImageWrapper = styled(Box)({
   position: 'relative',
   width: 100,
   height: 100,
   borderRadius: 10,
   overflow: 'hidden',
-  border: `1px solid ${theme.palette.mode === 'light' ? '#cfd8dc' : '#444'}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: theme.palette.mode === 'light' ? '#eceff1' : '#2a2a2a',
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 2px 5px rgba(0,0,0,0.05)' 
-    : '0 2px 5px rgba(0,0,0,0.2)',
-}));
+  boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
+});
 
 const PreviewImage = styled('img')({
   width: '100%',
@@ -136,22 +95,20 @@ const PreviewImage = styled('img')({
   objectFit: 'cover',
 });
 
-const RemoveImageButton = styled(IconButton)(({ theme }) => ({
+const RemoveImageButton = styled(IconButton)({
   position: 'absolute',
   top: -10,
   right: -10,
-  backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
   border: '1px solid #ef5350',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'light' ? '#ffebee' : '#2a2a2a',
   },
   '& .MuiSvgIcon-root': {
     color: '#ef5350',
     fontSize: 20,
   },
-}));
+});
 
-const AddImageButton = styled(StyledButton)(({ theme }) => ({
+const AddImageButton = styled(StyledButton)({
   width: 100,
   height: 100,
   minWidth: 'unset',
@@ -160,13 +117,13 @@ const AddImageButton = styled(StyledButton)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  border: `2px dashed ${theme.palette.mode === 'light' ? '#90caf9' : '#666'}`,
-  color: theme.palette.mode === 'light' ? '#64b5f6' : '#ccc',
-  backgroundColor: theme.palette.mode === 'light' ? '#e3f2fd' : '#2a2a2a',
+  border: '2px dashed #90caf9',
+  color: '#64b5f6',
+  backgroundColor: '#e3f2fd',
   '&:hover': {
-    borderColor: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
-    color: theme.palette.mode === 'light' ? '#1976d2' : '#fff',
-    backgroundColor: theme.palette.mode === 'light' ? '#bbdefb' : '#333',
+    borderColor: '#2196f3',
+    color: '#1976d2',
+    backgroundColor: '#bbdefb',
     transform: 'translateY(-2px)',
   },
   '& .MuiSvgIcon-root': {
@@ -177,7 +134,7 @@ const AddImageButton = styled(StyledButton)(({ theme }) => ({
     fontSize: '0.75rem',
     fontWeight: 600,
   },
-}));
+});
 
 const ChipContainer = styled(Box)({
   display: 'flex',
@@ -188,49 +145,37 @@ const ChipContainer = styled(Box)({
   justifyContent: 'flex-start',
 });
 
-const StyledChip = styled(Chip)(({ theme }) => ({
+const StyledChip = styled(Chip)({
   fontWeight: 600,
   padding: '8px 12px',
   borderRadius: 20,
   transition: 'all 0.2s ease-in-out',
   '&.MuiChip-filledPrimary': {
-    backgroundColor: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
-    color: theme.palette.mode === 'light' ? '#fff' : '#000',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
     },
   },
   '&.MuiChip-outlined': {
-    borderColor: theme.palette.mode === 'light' ? '#9e9e9e' : '#666',
-    color: theme.palette.mode === 'light' ? '#616161' : '#ccc',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#f5f5f5' : '#333',
-      borderColor: theme.palette.mode === 'light' ? '#757575' : '#888',
     },
   },
-}));
+});
 
-const InfoBox = styled(Box)(({ theme }) => ({
+const InfoBox = styled(Box)({
   width: '100%',
   marginBottom: 30,
   padding: 20,
-  backgroundColor: theme.palette.mode === 'light' ? '#f8f9fa' : '#2a2a2a',
   borderRadius: 10,
-  border: `1px solid ${theme.palette.mode === 'light' ? '#e9ecef' : '#444'}`,
-  boxShadow: theme.palette.mode === 'light' 
-    ? 'inset 0 1px 3px rgba(0,0,0,0.05)' 
-    : 'inset 0 1px 3px rgba(0,0,0,0.2)',
-}));
+  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)',
+});
 
-const StatusAlert = styled(Alert)(({ theme }) => ({
+const StatusAlert = styled(Alert)({
   borderRadius: 10,
   marginBottom: 24,
   fontWeight: 600,
-  backgroundColor: theme.palette.mode === 'light' ? undefined : '#1a1a1a',
   '& .MuiAlert-icon': {
     fontSize: 28,
   },
-}));
+});
 
 interface Order {
   _id: string;
@@ -250,7 +195,7 @@ export default function RefundRequestPage() {
   const router = useRouter();
   const { orderId } = useParams();
   const { getToken } = useAuth();
-  const { theme } = useTheme();
+  const muiTheme = useMuiTheme();
   const [amount, setAmount] = useState(0);
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -311,15 +256,23 @@ export default function RefundRequestPage() {
   if (isRejectedLimit) {
     return (
       <Box sx={{
-        backgroundColor: theme === THEME.LIGHT ? '#fff' : '#000',
-        color: theme === THEME.LIGHT ? '#000' : '#fff',
+        backgroundColor: muiTheme.palette.mode === 'light' ? '#fff' : '#000',
+        color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
         minHeight: '100vh',
         width: '100%',
       }}>
-        <StyledPaper>
+        <StyledPaper sx={{
+          boxShadow: muiTheme.palette.mode === 'light' 
+            ? '0 10px 30px rgba(0, 0, 0, 0.1)' 
+            : '0 10px 30px rgba(0, 0, 0, 0.5)',
+          border: `1px solid ${muiTheme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+          backgroundColor: muiTheme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+        }}>
           <ErrorOutlineIcon sx={{ fontSize: 70, color: "#ef4444", mb: 3 }} />
           <Title variant="h5" sx={{ color: '#ef4444' }}>Yêu cầu hoàn tiền bị từ chối</Title>
-          <StatusAlert severity="error">
+          <StatusAlert severity="error" sx={{
+            backgroundColor: muiTheme.palette.mode === 'light' ? undefined : '#1a1a1a',
+          }}>
             Bạn đã bị từ chối hoàn tiền **3 lần** cho đơn hàng này.
           </StatusAlert>
           {lastRejectReason && (
@@ -327,7 +280,7 @@ export default function RefundRequestPage() {
               mb: 3, 
               width: '100%', 
               borderRadius: '10px',
-              backgroundColor: theme === THEME.LIGHT ? undefined : '#1a1a1a',
+              backgroundColor: muiTheme.palette.mode === 'light' ? undefined : '#1a1a1a',
             }}>
               **Lý do từ chối lần cuối:** {lastRejectReason}
             </Alert>
@@ -404,20 +357,28 @@ export default function RefundRequestPage() {
   if (success) {
     return (
       <Box sx={{
-        backgroundColor: theme === THEME.LIGHT ? '#fff' : '#000',
-        color: theme === THEME.LIGHT ? '#000' : '#fff',
+        backgroundColor: muiTheme.palette.mode === 'light' ? '#fff' : '#000',
+        color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
         minHeight: '100vh',
         width: '100%',
       }}>
-        <StyledPaper>
+        <StyledPaper sx={{
+          boxShadow: muiTheme.palette.mode === 'light' 
+            ? '0 10px 30px rgba(0, 0, 0, 0.1)' 
+            : '0 10px 30px rgba(0, 0, 0, 0.5)',
+          border: `1px solid ${muiTheme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+          backgroundColor: muiTheme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+        }}>
           <CheckCircleOutlineIcon sx={{ fontSize: 70, color: "#4caf50", mb: 3 }} />
           <Title variant="h5" sx={{ color: '#4caf50' }}>Yêu cầu hoàn tiền đã được gửi!</Title>
-          <StatusAlert severity="success">
+          <StatusAlert severity="success" sx={{
+            backgroundColor: muiTheme.palette.mode === 'light' ? undefined : '#1a1a1a',
+          }}>
             Yêu cầu của bạn đã được tiếp nhận và đang chờ quản lý xem xét.
           </StatusAlert>
           <Typography variant="body1" sx={{ 
             mb: 4, 
-            color: theme === THEME.LIGHT ? '#616161' : '#ccc', 
+            color: muiTheme.palette.mode === 'light' ? '#616161' : '#ccc', 
             textAlign: 'center' 
           }}>
             Chúng tôi sẽ phản hồi yêu cầu của bạn trong thời gian sớm nhất.
@@ -437,34 +398,48 @@ export default function RefundRequestPage() {
 
   return (
     <Box sx={{
-      backgroundColor: theme === THEME.LIGHT ? '#fff' : '#000',
-      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      backgroundColor: muiTheme.palette.mode === 'light' ? '#fff' : '#000',
+      color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
       minHeight: '100vh',
       width: '100%',
     }}>
-      <StyledPaper>
-        <Title variant="h5">Yêu cầu hoàn tiền</Title>
+      <StyledPaper sx={{
+        boxShadow: muiTheme.palette.mode === 'light' 
+          ? '0 10px 30px rgba(0, 0, 0, 0.1)' 
+          : '0 10px 30px rgba(0, 0, 0, 0.5)',
+        border: `1px solid ${muiTheme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+        backgroundColor: muiTheme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+      }}>
+        <Title variant="h5" sx={{
+          color: muiTheme.palette.mode === 'light' ? '#212121' : '#fff',
+        }}>Yêu cầu hoàn tiền</Title>
         {order && (
-          <InfoBox>
+          <InfoBox sx={{
+            backgroundColor: muiTheme.palette.mode === 'light' ? '#f8f9fa' : '#2a2a2a',
+            border: `1px solid ${muiTheme.palette.mode === 'light' ? '#e9ecef' : '#444'}`,
+            boxShadow: muiTheme.palette.mode === 'light' 
+              ? 'inset 0 1px 3px rgba(0,0,0,0.05)' 
+              : 'inset 0 1px 3px rgba(0,0,0,0.2)',
+          }}>
             <Typography variant="body1" sx={{ 
               mb: 0.5, 
               fontWeight: 500, 
-              color: theme === THEME.LIGHT ? '#333' : '#fff' 
+              color: muiTheme.palette.mode === 'light' ? '#333' : '#fff' 
             }}>
               **Mã đơn hàng:** <Box component="span" sx={{ 
                 fontWeight: 700, 
-                color: theme === THEME.LIGHT ? '#2d3748' : '#fff' 
+                color: muiTheme.palette.mode === 'light' ? '#2d3748' : '#fff' 
               }}>#{order._id?.slice(-8).toUpperCase()}</Box>
             </Typography>
             <Typography variant="body2" sx={{ 
               mb: 0.5, 
-              color: theme === THEME.LIGHT ? '#616161' : '#ccc' 
+              color: muiTheme.palette.mode === 'light' ? '#616161' : '#ccc' 
             }}>
               **Ngày đặt:** {order.createdAt ? new Date(order.createdAt).toLocaleString("vi-VN") : "N/A"}
             </Typography>
             <Typography variant="body1" sx={{ 
               fontWeight: 500, 
-              color: theme === THEME.LIGHT ? '#333' : '#fff' 
+              color: muiTheme.palette.mode === 'light' ? '#333' : '#fff' 
             }}>
               **Tổng giá trị đơn hàng:** <Box component="span" sx={{ 
                 fontWeight: 700, 
@@ -479,14 +454,16 @@ export default function RefundRequestPage() {
             mb: 3, 
             borderRadius: '10px', 
             width: '100%',
-            backgroundColor: theme === THEME.LIGHT ? undefined : '#1a1a1a',
+            backgroundColor: muiTheme.palette.mode === 'light' ? undefined : '#1a1a1a',
           }}>
             {error}
           </Alert>
         )}
 
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <SectionTitle>Số tiền muốn hoàn</SectionTitle>
+          <SectionTitle sx={{
+            color: muiTheme.palette.mode === 'light' ? '#424242' : '#fff',
+          }}>Số tiền muốn hoàn</SectionTitle>
           <StyledTextField
             label="Số tiền hoàn lại"
             type="text" // Use text to display formatted currency, handle conversion internally if needed
@@ -497,9 +474,36 @@ export default function RefundRequestPage() {
               readOnly: true,
               style: { fontWeight: 700, color: '#e53e3e' }
             }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: muiTheme.palette.mode === 'light' ? '#fcfcfc' : '#2a2a2a',
+                color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
+                '& fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#e0e0e0' : '#444',
+                },
+                '&:hover fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#90caf9' : '#666',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#2196f3' : '#fff',
+                  borderWidth: 2,
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: muiTheme.palette.mode === 'light' ? '#2196f3' : '#fff',
+              },
+              '& .MuiInputLabel-root': {
+                color: muiTheme.palette.mode === 'light' ? '#666' : '#ccc',
+              },
+              '& .MuiInputBase-input': {
+                color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
+              },
+            }}
           />
 
-          <SectionTitle>Lý do hoàn tiền</SectionTitle>
+          <SectionTitle sx={{
+            color: muiTheme.palette.mode === 'light' ? '#424242' : '#fff',
+          }}>Lý do hoàn tiền</SectionTitle>
           <ChipContainer>
             {["Sản phẩm lỗi", "Thiếu hàng", "Giao nhầm", "Không đúng mô tả", "Khác"].map(sample => (
               <StyledChip
@@ -508,6 +512,23 @@ export default function RefundRequestPage() {
                 onClick={() => handleReasonSample(sample)}
                 variant={reason === sample ? "filled" : "outlined"}
                 color={reason === sample ? "primary" : "default"}
+                sx={{
+                  '&.MuiChip-filledPrimary': {
+                    backgroundColor: muiTheme.palette.mode === 'light' ? '#111a2f' : '#fff',
+                    color: muiTheme.palette.mode === 'light' ? '#fff' : '#000',
+                    '&:hover': {
+                      backgroundColor: muiTheme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
+                    },
+                  },
+                  '&.MuiChip-outlined': {
+                    borderColor: muiTheme.palette.mode === 'light' ? '#9e9e9e' : '#666',
+                    color: muiTheme.palette.mode === 'light' ? '#616161' : '#ccc',
+                    '&:hover': {
+                      backgroundColor: muiTheme.palette.mode === 'light' ? '#f5f5f5' : '#333',
+                      borderColor: muiTheme.palette.mode === 'light' ? '#757575' : '#888',
+                    },
+                  },
+                }}
               />
             ))}
           </ChipContainer>
@@ -520,14 +541,52 @@ export default function RefundRequestPage() {
             minRows={4}
             placeholder="Ví dụ: Sản phẩm bị rách ở phần cổ áo, màu sắc không giống hình mẫu..."
             required
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: muiTheme.palette.mode === 'light' ? '#fcfcfc' : '#2a2a2a',
+                color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
+                '& fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#e0e0e0' : '#444',
+                },
+                '&:hover fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#90caf9' : '#666',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: muiTheme.palette.mode === 'light' ? '#2196f3' : '#fff',
+                  borderWidth: 2,
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: muiTheme.palette.mode === 'light' ? '#2196f3' : '#fff',
+              },
+              '& .MuiInputLabel-root': {
+                color: muiTheme.palette.mode === 'light' ? '#666' : '#ccc',
+              },
+              '& .MuiInputBase-input': {
+                color: muiTheme.palette.mode === 'light' ? '#000' : '#fff',
+              },
+            }}
           />
 
-          <SectionTitle>Ảnh minh chứng (tối đa 3 ảnh)</SectionTitle>
+          <SectionTitle sx={{
+            color: muiTheme.palette.mode === 'light' ? '#424242' : '#fff',
+          }}>Ảnh minh chứng (tối đa 3 ảnh)</SectionTitle>
           <ImagePreviewContainer>
             {imagePreviews.map((url, idx) => (
-              <ImageWrapper key={idx}>
+              <ImageWrapper key={idx} sx={{
+                border: `1px solid ${muiTheme.palette.mode === 'light' ? '#cfd8dc' : '#444'}`,
+                backgroundColor: muiTheme.palette.mode === 'light' ? '#eceff1' : '#2a2a2a',
+                boxShadow: muiTheme.palette.mode === 'light' 
+                  ? '0 2px 5px rgba(0,0,0,0.05)' 
+                  : '0 2px 5px rgba(0,0,0,0.2)',
+              }}>
                 <PreviewImage src={url} alt={`refund-img-${idx}`} />
-                <RemoveImageButton size="small" onClick={() => handleRemoveImage(idx)}>
+                <RemoveImageButton size="small" onClick={() => handleRemoveImage(idx)} sx={{
+                  backgroundColor: muiTheme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+                  '&:hover': {
+                    backgroundColor: muiTheme.palette.mode === 'light' ? '#ffebee' : '#2a2a2a',
+                  },
+                }}>
                   <DeleteIcon />
                 </RemoveImageButton>
               </ImageWrapper>
@@ -536,6 +595,16 @@ export default function RefundRequestPage() {
               <AddImageButton
                 variant="outlined"
                 onClick={() => fileInputRef.current?.click()}
+                sx={{
+                  border: `2px dashed ${muiTheme.palette.mode === 'light' ? '#90caf9' : '#666'}`,
+                  color: muiTheme.palette.mode === 'light' ? '#64b5f6' : '#ccc',
+                  backgroundColor: muiTheme.palette.mode === 'light' ? '#e3f2fd' : '#2a2a2a',
+                  '&:hover': {
+                    borderColor: muiTheme.palette.mode === 'light' ? '#2196f3' : '#fff',
+                    color: muiTheme.palette.mode === 'light' ? '#1976d2' : '#fff',
+                    backgroundColor: muiTheme.palette.mode === 'light' ? '#bbdefb' : '#333',
+                  },
+                }}
               >
                 <ImageIcon />
                 <span>Thêm ảnh</span>
@@ -557,7 +626,17 @@ export default function RefundRequestPage() {
             color="error"
             fullWidth
             disabled={loading || !reason || amount <= 0}
-            sx={{ mt: 3 }}
+            sx={{ 
+              mt: 3,
+              boxShadow: muiTheme.palette.mode === 'light' 
+                ? '0 6px 15px rgba(0,0,0,0.1)' 
+                : '0 6px 15px rgba(0,0,0,0.3)',
+              '&:hover': {
+                boxShadow: muiTheme.palette.mode === 'light' 
+                  ? '0 8px 20px rgba(0,0,0,0.15)' 
+                  : '0 8px 20px rgba(0,0,0,0.5)',
+              },
+            }}
           >
             {loading ? (
               <CircularProgress size={24} color="inherit" />
