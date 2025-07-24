@@ -701,12 +701,23 @@ export default function VnpayReturnPage() {
                     fontWeight: 700,
                     mb: 2,
                     textTransform: 'uppercase',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: isDarkMode ? 'white' : '#1a1a1a',
+                    fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                   }}
                 >
-                  Địa chỉ giao hàng
+                  <ReceiptIcon sx={{ color: '#4a9eff' }} />
+                  ĐỊA CHỈ GIAO HÀNG
                 </Typography>
 
-                <Card sx={{ mb: 4, borderRadius: 0, border: '2px solid black' }}>
+                <Card sx={{ 
+                  mb: 4, 
+                  borderRadius: 2, 
+                  border: `1px solid ${isDarkMode ? '#2d2d44' : '#e0e0e0'}`,
+                  bgcolor: isDarkMode ? '#2a2a3e' : '#ffffff'
+                }}>
                   <CardContent>
                     {orderData.shippingAddress ? (
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -724,11 +735,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Họ tên:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.fullName || 'N/A'}
                           </Typography>
                         </Box>
@@ -747,11 +767,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Điện thoại:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.phone || 'N/A'}
                           </Typography>
                         </Box>
@@ -770,11 +799,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Địa chỉ:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.street || 'N/A'}
                           </Typography>
                         </Box>
@@ -793,11 +831,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Thành phố:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.city || 'N/A'}
                           </Typography>
                         </Box>
@@ -816,11 +863,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Quận/Huyện:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.state || 'N/A'}
                           </Typography>
                         </Box>
@@ -839,11 +895,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Mã bưu điện:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.postalCode || 'N/A'}
                           </Typography>
                         </Box>
@@ -862,11 +927,20 @@ export default function VnpayReturnPage() {
                               fontWeight: 700,
                               minWidth: { xs: 'auto', sm: 80 },
                               width: { xs: '100%', sm: 'auto' },
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                             }}
                           >
                             Quốc gia:
                           </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                          <Typography 
+                            variant="body1" 
+                            sx={{ 
+                              fontWeight: 600,
+                              color: isDarkMode ? 'white' : '#1a1a1a',
+                              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                            }}
+                          >
                             {orderData.shippingAddress.country || 'N/A'}
                           </Typography>
                         </Box>
@@ -874,7 +948,12 @@ export default function VnpayReturnPage() {
                     ) : (
                       <Typography
                         variant="body1"
-                        sx={{ textAlign: 'center', color: 'gray', fontStyle: 'italic' }}
+                        sx={{ 
+                          textAlign: 'center', 
+                          color: isDarkMode ? '#b8b8b8' : 'gray', 
+                          fontStyle: 'italic',
+                          fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                        }}
                       >
                         Không có thông tin địa chỉ giao hàng
                       </Typography>
@@ -883,35 +962,83 @@ export default function VnpayReturnPage() {
                 </Card>
 
                 {/* Payment Info */}
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 700,
+                    mb: 2,
+                    textTransform: 'uppercase',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    color: isDarkMode ? 'white' : '#1a1a1a',
+                    fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                  }}
+                >
+                  <ReceiptIcon sx={{ color: '#4a9eff' }} />
+                  Thông tin thanh toán
+                </Typography>
+
                 <Card
-                  sx={{ mb: 4, borderRadius: 0, border: '2px solid black', bgcolor: '#f8f9fa' }}
+                  sx={{ 
+                    mb: 4, 
+                    borderRadius: 2, 
+                    border: `1px solid ${isDarkMode ? '#2d2d44' : '#e0e0e0'}`,
+                    bgcolor: isDarkMode ? '#2a2a3e' : '#ffffff'
+                  }}
                 >
                   <CardContent>
                     <Box
                       sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}
                     >
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Phương thức thanh toán
                         </Typography>
                         <Chip
                           label={orderData.paymentMethod || 'N/A'}
                           sx={{
-                            borderRadius: 0,
+                            borderRadius: 2,
                             fontWeight: 700,
-                            bgcolor: 'black',
-                            color: 'white',
+                            bgcolor: isDarkMode ? '#1e1e2e' : '#f5f5f5',
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`,
+                            '&:hover': {
+                              bgcolor: isDarkMode ? '#2d2d44' : '#e0e0e0'
+                            }
                           }}
                         />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Trạng thái thanh toán
                         </Typography>
                         <Chip
                           label={orderData.paymentStatus || 'N/A'}
                           color="success"
-                          sx={{ borderRadius: 0, fontWeight: 700 }}
+                          sx={{ 
+                            borderRadius: 2, 
+                            fontWeight: 700,
+                            bgcolor: isDarkMode ? '#1b3a1b' : '#4caf50',
+                            color: isDarkMode ? '#4caf50' : 'white',
+                            border: `1px solid ${isDarkMode ? '#2d5a2d' : '#4caf50'}`
+                          }}
                         />
                       </Box>
                     </Box>

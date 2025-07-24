@@ -225,6 +225,23 @@ function CartItemOptions({ cartItem, isUpdating, handleUpdateItemOptions, t }: C
 }
 
 export default function CartPage() {
+  // Add CSS animation for pulse effect
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.2); }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
+
   const { cart, loading, error, updateCartItem, removeFromCart, clearCart, refreshCart } = useCartContext();
   const { token } = useAuthContext();
   const router = useRouter();
@@ -317,7 +334,7 @@ export default function CartPage() {
 
   if (!token) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ py: 4, width: '100%' }}>
         <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
           <ShoppingCartIcon sx={{ fontSize: 64, color: isDarkMode ? '#fff' : 'black', mb: 2 }} />
           <Typography
@@ -353,80 +370,191 @@ export default function CartPage() {
             {t('login')}
           </Button>
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ py: 4, width: '100%' }}>
         <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
           <CircularProgress sx={{ color: isDarkMode ? '#fff' : 'black' }} />
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ py: 4, width: '100%' }}>
         <Paper sx={commonPaperStyles}>
           <Alert
             severity="error"
             sx={{ ...commonAlertStyles, borderColor: '#d32f2f', bgcolor: isDarkMode ? '#2d1b1b' : '#ffebee' }}
           >
             {error}
-          </Alert>
-        </Paper>
-      </Container>
-    );
-  }
+                      </Alert>
+          </Paper>
+        </Box>
+      );
+    }
 
   if (!cart || cart.cartItems.length === 0) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Paper sx={{ ...commonPaperStyles, textAlign: 'center' }}>
-          <ShoppingCartIcon sx={{ fontSize: 64, color: isDarkMode ? '#fff' : 'black', mb: 2 }} />
-          <Typography
-            variant="h4"
-            sx={{
-              ...nikeTypography,
-              color: isDarkMode ? '#fff' : 'black',
-              mb: 1,
-              textTransform: 'uppercase',
-            }}
-          >
-            {t('cartEmpty')}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{
-              color: isDarkMode ? '#ccc' : 'gray',
-              textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontSize: '0.875rem',
-              mb: 3,
-            }}
-          >
-            {t('noProductsInCart')}
-          </Typography>
-          <Button
-            variant="contained"
-            onClick={(e) => {
-              e.preventDefault();
-              router.push('/');
-            }}
-            sx={{
-              ...nikeButtonStyle,
-              bgcolor: isDarkMode ? '#fff' : 'black',
-              color: isDarkMode ? 'black' : 'white',
-              '&:hover': { bgcolor: isDarkMode ? '#e0e0e0' : 'gray.800' },
-            }}
-          >
-            {t('continueShopping')}
-          </Button>
+      <Box sx={{ 
+        py: 8, 
+        px: 0,
+        bgcolor: isDarkMode ? '#121212' : 'transparent',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '100%'
+      }}>
+        <Paper sx={{ 
+          ...commonPaperStyles, 
+          textAlign: 'center',
+          maxWidth: 500,
+          width: '100%',
+          p: 6,
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Background decorative element */}
+          <Box sx={{
+            position: 'absolute',
+            top: -50,
+            right: -50,
+            width: 200,
+            height: 200,
+            borderRadius: '50%',
+            bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)',
+            zIndex: 0
+          }} />
+          
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            {/* Shopping cart icon with better styling */}
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mb: 4
+            }}>
+              <Box sx={{
+                width: 120,
+                height: 120,
+                borderRadius: '50%',
+                bgcolor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: `3px solid ${isDarkMode ? '#333' : '#e0e0e0'}`,
+                mb: 3
+              }}>
+                <ShoppingCartIcon sx={{ 
+                  fontSize: 60, 
+                  color: isDarkMode ? '#fff' : 'black',
+                  opacity: 0.7
+                }} />
+              </Box>
+            </Box>
+
+            {/* Main title with Vietnamese-friendly font */}
+            <Typography
+              variant="h3"
+              sx={{
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 800,
+                color: isDarkMode ? '#fff' : 'black',
+                mb: 2,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.5rem' },
+                lineHeight: 1.2,
+                textShadow: isDarkMode ? '0 2px 4px rgba(0,0,0,0.3)' : 'none'
+              }}
+            >
+              {t('cartEmpty')}
+            </Typography>
+
+            {/* Subtitle with better typography */}
+            <Typography
+              variant="h6"
+              sx={{
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 400,
+                color: isDarkMode ? '#aaa' : '#666',
+                textTransform: 'none',
+                letterSpacing: '0.02em',
+                fontSize: { xs: '1rem', sm: '1.125rem' },
+                mb: 4,
+                lineHeight: 1.5,
+                maxWidth: 400,
+                mx: 'auto'
+              }}
+            >
+              {t('noProductsInCart')}
+            </Typography>
+
+            {/* Continue shopping button with enhanced styling */}
+            <Button
+              variant="contained"
+              onClick={(e) => {
+                e.preventDefault();
+                router.push('/');
+              }}
+              sx={{
+                fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                fontSize: '0.875rem',
+                py: 2,
+                px: 4,
+                borderRadius: '8px',
+                bgcolor: isDarkMode ? '#fff' : 'black',
+                color: isDarkMode ? 'black' : 'white',
+                border: `2px solid ${isDarkMode ? '#fff' : 'black'}`,
+                transition: 'all 0.3s ease',
+                '&:hover': { 
+                  bgcolor: isDarkMode ? '#e0e0e0' : 'gray.800',
+                  transform: 'translateY(-2px)',
+                  boxShadow: isDarkMode 
+                    ? '0 8px 25px rgba(255,255,255,0.2)' 
+                    : '0 8px 25px rgba(0,0,0,0.15)'
+                },
+                '&:active': {
+                  transform: 'translateY(0)',
+                  boxShadow: 'none'
+                }
+              }}
+            >
+              {t('continueShopping')}
+            </Button>
+
+            {/* Additional decorative elements */}
+            <Box sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 2,
+              mt: 4,
+              opacity: 0.3
+            }}>
+              {[1, 2, 3].map((i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: isDarkMode ? '#fff' : 'black',
+                    animation: `pulse 2s infinite ${i * 0.3}s`
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
         </Paper>
-      </Container>
+      </Box>
     );
   }
 
@@ -736,14 +864,15 @@ export default function CartPage() {
 
 
   return (
-    <Container maxWidth={false} sx={{ 
+    <Box sx={{ 
       py: 4, 
       px: 0,
       bgcolor: isDarkMode ? '#121212' : 'transparent',
-      minHeight: '100vh'
+      minHeight: '100vh',
+      width: '100%'
     }} onSubmit={handleFormSubmit}>
       {/* Nike-style Header */}
-      <Box sx={{ mb: 4, px: 3, mt: 10 }}>
+      <Box sx={{ mb: 4, px: 0, mt: 10 }}>
         <Typography
           variant="h3"
           sx={{
@@ -759,7 +888,7 @@ export default function CartPage() {
       </Box>
 
       {/* Continue Shopping Link */}
-      <Box sx={{ mb: 3, px: 3 }}>
+      <Box sx={{ mb: 3, px: 0 }}>
         <Button
           variant="text"
           onClick={(e) => {
@@ -779,7 +908,7 @@ export default function CartPage() {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, px: 3 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, gap: 4, px: 0 }}>
         {/* Danh sách sản phẩm */}
         <Box sx={{ flex: { lg: 2.5 } }}>
           <Stack spacing={3}>
@@ -1513,6 +1642,6 @@ export default function CartPage() {
           </Paper>
         </Box>
       </Box>
-    </Container>
+    </Box>
   );
 }
