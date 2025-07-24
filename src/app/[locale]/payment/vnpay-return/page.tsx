@@ -15,6 +15,7 @@ import {
   CardContent,
   IconButton,
   Snackbar,
+  useTheme as useMuiTheme
 } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -24,7 +25,25 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import HomeIcon from '@mui/icons-material/Home';
 import PrintIcon from '@mui/icons-material/Print';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { Inter, Roboto } from 'next/font/google';
 import { useCartContext } from '@/context/CartContext';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
+
+// Khởi tạo font cho tiếng Việt
+const inter = Inter({ 
+  subsets: ['latin', 'vietnamese'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-inter'
+});
+
+const roboto = Roboto({ 
+  subsets: ['latin', 'vietnamese'],
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
+  variable: '--font-roboto'
+});
 
 interface OrderItem {
   index: number;
@@ -60,12 +79,16 @@ interface OrderData {
 export default function VnpayReturnPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { theme: currentTheme } = useTheme();
+  const muiTheme = useMuiTheme();
   const [status, setStatus] = useState<'pending' | 'success' | 'fail'>('pending');
   const [message, setMessage] = useState<string>('');
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [copied, setCopied] = useState(false);
   const calledRef = useRef(false);
   const { refreshCart } = useCartContext();
+
+  const isDarkMode = currentTheme === THEME.DARK;
 
   useEffect(() => {
     if (calledRef.current) return;
@@ -211,36 +234,68 @@ export default function VnpayReturnPage() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Paper
-        elevation={3}
-        sx={{
-          p: 4,
-          borderRadius: 0,
-          border: '2px solid black',
-          bgcolor: 'white',
-        }}
-      >
+    <Box
+      className={`${inter.variable} ${roboto.variable}`}
+      sx={{
+        minHeight: '100vh',
+        background: isDarkMode 
+          ? 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)'
+          : 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)',
+        pt: 8,
+        pb: 4,
+        fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }}
+    >
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Paper
+          elevation={8}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            overflow: 'hidden',
+            background: isDarkMode ? '#1e1e2e' : '#ffffff',
+            backdropFilter: 'blur(10px)',
+            border: `1px solid ${isDarkMode ? '#2d2d44' : '#e0e0e0'}`,
+            fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+          }}
+        >
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        <Box
+          sx={{
+            background: isDarkMode 
+              ? 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%)'
+              : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white',
+            p: 3,
+            textAlign: 'center',
+            borderBottom: `1px solid ${isDarkMode ? '#2d2d44' : '#e0e0e0'}`,
+            borderRadius: 3,
+            mb: 4
+          }}
+        >
+          <ReceiptIcon sx={{ fontSize: 40, mb: 1, color: '#4a9eff' }} />
           <Typography
-            variant="h3"
+            variant="h4"
             sx={{
               fontWeight: 900,
               mb: 1,
-              textTransform: 'uppercase',
-              letterSpacing: '0.02em',
+              color: 'white',
+              fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              letterSpacing: '-0.02em',
+              textTransform: 'uppercase'
             }}
           >
             Kết quả thanh toán
           </Typography>
           <Typography
-            variant="h6"
+            variant="body1"
             sx={{
-              color: 'gray',
+              opacity: 0.8,
+              color: '#b8b8b8',
+              fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+              fontWeight: 400,
               textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontWeight: 600,
+              letterSpacing: '0.1em'
             }}
           >
             VNPAY Payment Result
@@ -250,11 +305,25 @@ export default function VnpayReturnPage() {
         {/* Status Section */}
         {status === 'pending' && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
-            <CircularProgress sx={{ color: 'black', mb: 2 }} size={60} />
-            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+            <CircularProgress sx={{ color: '#4a9eff', mb: 2 }} size={60} />
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                fontWeight: 600, 
+                mb: 1,
+                color: isDarkMode ? 'white' : '#1a1a1a',
+                fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+              }}
+            >
               Đang xử lý thanh toán...
             </Typography>
-            <Typography variant="body2" sx={{ color: 'gray' }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: isDarkMode ? '#b8b8b8' : 'gray',
+                fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+              }}
+            >
               Vui lòng chờ trong giây lát
             </Typography>
           </Box>
@@ -267,21 +336,35 @@ export default function VnpayReturnPage() {
               severity="success"
               sx={{
                 mb: 4,
-                borderRadius: 0,
-                border: '2px solid #4caf50',
-                bgcolor: '#f1f8e9',
-                color: '#2e7d32',
+                borderRadius: 2,
+                bgcolor: isDarkMode ? '#1b3a1b' : '#f1f8e9',
+                color: isDarkMode ? '#4caf50' : '#2e7d32',
                 fontWeight: 700,
                 fontSize: '1.1rem',
+                border: `1px solid ${isDarkMode ? '#2d5a2d' : '#4caf50'}`,
+                '& .MuiAlert-icon': { fontSize: 28, color: '#4caf50' }
               }}
               icon={<CheckCircleIcon sx={{ fontSize: 28 }} />}
             >
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 900, mb: 1 }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    fontWeight: 900, 
+                    mb: 1,
+                    fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                  }}
+                >
                   {message || 'Thanh toán thành công!'}
                 </Typography>
                 {orderData && (
-                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                    }}
+                  >
                     Đơn hàng #{orderData._id?.slice(-8) || 'N/A'} -{' '}
                     {orderData.items && Array.isArray(orderData.items) ? orderData.items.length : 0}{' '}
                     sản phẩm
@@ -303,14 +386,21 @@ export default function VnpayReturnPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
+                    color: isDarkMode ? 'white' : '#1a1a1a',
+                    fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                   }}
                 >
-                  <ReceiptIcon sx={{ fontSize: 28 }} />
+                  <ReceiptIcon sx={{ fontSize: 28, color: '#4a9eff' }} />
                   Thông tin đơn hàng
                 </Typography>
 
                 {/* Order Summary */}
-                <Card sx={{ mb: 3, borderRadius: 0, border: '2px solid black' }}>
+                <Card sx={{ 
+                  mb: 3, 
+                  borderRadius: 2, 
+                  border: `1px solid ${isDarkMode ? '#2d2d44' : '#e0e0e0'}`,
+                  bgcolor: isDarkMode ? '#2a2a3e' : '#f8f9fa'
+                }}>
                   <CardContent>
                     <Box
                       sx={{
@@ -320,7 +410,15 @@ export default function VnpayReturnPage() {
                       }}
                     >
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Mã đơn hàng
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -329,11 +427,12 @@ export default function VnpayReturnPage() {
                             sx={{
                               fontFamily: 'monospace',
                               fontSize: { xs: '0.9rem', md: '1.1rem' },
-                              bgcolor: '#f5f5f5',
+                              bgcolor: isDarkMode ? '#1e1e2e' : '#f5f5f5',
+                              color: isDarkMode ? 'white' : '#1a1a1a',
                               px: 2,
                               py: 1,
-                              borderRadius: 0,
-                              border: '1px solid #ddd',
+                              borderRadius: 2,
+                              border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`,
                               flex: 1,
                               wordBreak: 'break-all',
                             }}
@@ -346,16 +445,17 @@ export default function VnpayReturnPage() {
                               size="small"
                               sx={{
                                 ml: 1,
-                                border: '1px solid #ddd',
-                                borderRadius: 0,
+                                border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`,
+                                borderRadius: 2,
+                                color: isDarkMode ? 'white' : '#1a1a1a',
                                 '&:hover': {
-                                  bgcolor: 'black',
+                                  bgcolor: '#4a9eff',
                                   color: 'white',
                                 },
                               }}
                             >
                               {copied ? (
-                                <CheckCircleIcon sx={{ color: 'green', fontSize: 20 }} />
+                                <CheckCircleIcon sx={{ color: '#4caf50', fontSize: 20 }} />
                               ) : (
                                 <ContentCopyIcon sx={{ fontSize: 20 }} />
                               )}
@@ -364,18 +464,46 @@ export default function VnpayReturnPage() {
                         </Box>
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Ngày đặt hàng
                         </Typography>
-                        <Typography variant="body1">
+                        <Typography 
+                          variant="body1"
+                          sx={{
+                            color: isDarkMode ? '#b8b8b8' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           {orderData.createdAt ? formatDate(orderData.createdAt) : 'N/A'}
                         </Typography>
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Tổng sản phẩm
                         </Typography>
-                        <Typography variant="body1">
+                        <Typography 
+                          variant="body1"
+                          sx={{
+                            color: isDarkMode ? '#b8b8b8' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           {orderData.items && Array.isArray(orderData.items)
                             ? orderData.items.length
                             : 0}{' '}
@@ -383,10 +511,25 @@ export default function VnpayReturnPage() {
                         </Typography>
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                        <Typography 
+                          variant="h6" 
+                          sx={{ 
+                            fontWeight: 700, 
+                            mb: 1,
+                            color: isDarkMode ? 'white' : '#1a1a1a',
+                            fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           Tổng tiền
                         </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 900, color: 'black' }}>
+                        <Typography 
+                          variant="h5" 
+                          sx={{ 
+                            fontWeight: 900, 
+                            color: isDarkMode ? '#4a9eff' : '#1a1a1a',
+                            fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                          }}
+                        >
                           {formatCurrency(orderData.totalPrice || 0)}
                         </Typography>
                       </Box>
@@ -403,9 +546,11 @@ export default function VnpayReturnPage() {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 1,
+                    color: isDarkMode ? 'white' : '#1a1a1a',
+                    fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                   }}
                 >
-                  <ShoppingCartIcon />
+                  <ShoppingCartIcon sx={{ color: '#4a9eff' }} />
                   Chi tiết sản phẩm
                 </Typography>
 
@@ -414,7 +559,11 @@ export default function VnpayReturnPage() {
                   Array.isArray(orderData.items) &&
                   orderData.items.length > 0 ? (
                     orderData.items.map((item, index) => (
-                      <Card key={index} sx={{ borderRadius: 0, border: '1px solid #ddd' }}>
+                      <Card key={index} sx={{ 
+                        borderRadius: 2, 
+                        border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`,
+                        bgcolor: isDarkMode ? '#2a2a3e' : '#ffffff'
+                      }}>
                         <CardContent>
                           <Box
                             sx={{
@@ -425,43 +574,105 @@ export default function VnpayReturnPage() {
                             }}
                           >
                             <Box sx={{ flex: { md: 6 } }}>
-                              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  fontWeight: 700, 
+                                  mb: 1,
+                                  color: isDarkMode ? 'white' : '#1a1a1a',
+                                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 {item.productName}
                               </Typography>
                               <Stack direction="row" spacing={1}>
                                 <Chip
                                   label={`Size: ${item.size}`}
                                   size="small"
-                                  sx={{ borderRadius: 0, fontWeight: 600 }}
+                                  sx={{ 
+                                    borderRadius: 2, 
+                                    fontWeight: 600,
+                                    bgcolor: isDarkMode ? '#1e1e2e' : '#f5f5f5',
+                                    color: isDarkMode ? 'white' : '#1a1a1a',
+                                    border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`
+                                  }}
                                 />
                                 <Chip
                                   label={`Màu: ${item.color}`}
                                   size="small"
-                                  sx={{ borderRadius: 0, fontWeight: 600 }}
+                                  sx={{ 
+                                    borderRadius: 2, 
+                                    fontWeight: 600,
+                                    bgcolor: isDarkMode ? '#1e1e2e' : '#f5f5f5',
+                                    color: isDarkMode ? 'white' : '#1a1a1a',
+                                    border: `1px solid ${isDarkMode ? '#2d2d44' : '#ddd'}`
+                                  }}
                                 />
                               </Stack>
                             </Box>
                             <Box sx={{ flex: { md: 2 }, textAlign: { xs: 'left', md: 'center' } }}>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 600,
+                                  color: isDarkMode ? '#b8b8b8' : '#1a1a1a',
+                                  fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 Số lượng
                               </Typography>
-                              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  fontWeight: 700,
+                                  color: isDarkMode ? 'white' : '#1a1a1a',
+                                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 {item.quantity}
                               </Typography>
                             </Box>
                             <Box sx={{ flex: { md: 2 }, textAlign: { xs: 'left', md: 'center' } }}>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 600,
+                                  color: isDarkMode ? '#b8b8b8' : '#1a1a1a',
+                                  fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 Đơn giá
                               </Typography>
-                              <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                              <Typography 
+                                variant="body1" 
+                                sx={{ 
+                                  fontWeight: 700,
+                                  color: isDarkMode ? 'white' : '#1a1a1a',
+                                  fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 {formatCurrency(item.price)}
                               </Typography>
                             </Box>
                             <Box sx={{ flex: { md: 2 }, textAlign: { xs: 'left', md: 'center' } }}>
-                              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontWeight: 600,
+                                  color: isDarkMode ? '#b8b8b8' : '#1a1a1a',
+                                  fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 Thành tiền
                               </Typography>
-                              <Typography variant="h6" sx={{ fontWeight: 900, color: 'black' }}>
+                              <Typography 
+                                variant="h6" 
+                                sx={{ 
+                                  fontWeight: 900, 
+                                  color: isDarkMode ? '#4a9eff' : '#1a1a1a',
+                                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                                }}
+                              >
                                 {formatCurrency(item.totalItemPrice)}
                               </Typography>
                             </Box>
@@ -716,20 +927,34 @@ export default function VnpayReturnPage() {
             severity="error"
             sx={{
               mb: 4,
-              borderRadius: 0,
-              border: '2px solid #d32f2f',
-              bgcolor: '#ffebee',
-              color: '#d32f2f',
+              borderRadius: 2,
+              bgcolor: isDarkMode ? '#2d1b1b' : '#ffebee',
+              color: isDarkMode ? '#ff6b6b' : '#d32f2f',
               fontWeight: 700,
               fontSize: '1.1rem',
+              border: `1px solid ${isDarkMode ? '#4a1f1f' : '#d32f2f'}`,
+              '& .MuiAlert-icon': { fontSize: 28, color: '#ff6b6b' }
             }}
             icon={<ErrorIcon sx={{ fontSize: 28 }} />}
           >
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 900, mb: 1 }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 900, 
+                  mb: 1,
+                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}
+              >
                 {message || 'Thanh toán thất bại!'}
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+                }}
+              >
                 Vui lòng kiểm tra lại thông tin thanh toán hoặc liên hệ hỗ trợ
               </Typography>
             </Box>
@@ -744,14 +969,17 @@ export default function VnpayReturnPage() {
               startIcon={<HomeIcon />}
               onClick={() => router.push('/')}
               sx={{
-                borderRadius: 0,
+                borderRadius: 2,
                 fontWeight: 700,
-                bgcolor: 'black',
+                bgcolor: isDarkMode ? '#4a9eff' : '#1a1a1a',
                 color: 'white',
-                '&:hover': { bgcolor: 'gray.800' },
+                '&:hover': { 
+                  bgcolor: isDarkMode ? '#3a8eef' : '#2a2a2a' 
+                },
                 textTransform: 'uppercase',
                 px: 3,
                 py: 1.5,
+                fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
               }}
             >
               Về trang chủ
@@ -763,18 +991,19 @@ export default function VnpayReturnPage() {
                 startIcon={<PrintIcon />}
                 onClick={handlePrint}
                 sx={{
-                  borderRadius: 0,
+                  borderRadius: 2,
                   fontWeight: 700,
-                  borderColor: 'black',
-                  color: 'black',
+                  borderColor: isDarkMode ? '#4a9eff' : '#1a1a1a',
+                  color: isDarkMode ? '#4a9eff' : '#1a1a1a',
                   '&:hover': {
-                    borderColor: 'black',
-                    bgcolor: 'black',
+                    borderColor: isDarkMode ? '#4a9eff' : '#1a1a1a',
+                    bgcolor: isDarkMode ? '#4a9eff' : '#1a1a1a',
                     color: 'white',
                   },
                   textTransform: 'uppercase',
                   px: 3,
                   py: 1.5,
+                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                 }}
               >
                 In hóa đơn
@@ -786,18 +1015,19 @@ export default function VnpayReturnPage() {
                 variant="outlined"
                 onClick={() => router.push('/cart')}
                 sx={{
-                  borderRadius: 0,
+                  borderRadius: 2,
                   fontWeight: 700,
-                  borderColor: '#d32f2f',
-                  color: '#d32f2f',
+                  borderColor: '#ff6b6b',
+                  color: '#ff6b6b',
                   '&:hover': {
-                    borderColor: '#d32f2f',
-                    bgcolor: '#d32f2f',
+                    borderColor: '#ff6b6b',
+                    bgcolor: '#ff6b6b',
                     color: 'white',
                   },
                   textTransform: 'uppercase',
                   px: 3,
                   py: 1.5,
+                  fontFamily: 'var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
                 }}
               >
                 Thử lại
@@ -861,7 +1091,7 @@ export default function VnpayReturnPage() {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         sx={{
           '& .MuiSnackbarContent-root': {
-            bgcolor: 'black',
+            bgcolor: isDarkMode ? '#1e1e2e' : 'black',
             color: 'white',
             fontWeight: 600,
             borderRadius: 0,
@@ -869,5 +1099,6 @@ export default function VnpayReturnPage() {
         }}
       />
     </Container>
+  </Box>
   );
 }
