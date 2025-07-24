@@ -850,91 +850,6 @@ export default function CartPage() {
                         )}
                         {/* Size and Color Selection */}
                         <CartItemOptions cartItem={cartItem} isUpdating={isUpdating} handleUpdateItemOptions={handleUpdateItemOptions} t={t} />
-
-                        <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-                          {cartItem.product?.sizes && cartItem.product?.sizes.length > 0 ? (
-                            <>
-                              {/* Size Recommendation */}
-                              <Box sx={{ mb: 1, width: '100%' }}>
-                                <SizeRecommender
-                                  productId={cartItem.product._id}
-                                  sizes={cartItem.product.sizes.map(s => s.size)}
-                                  categories={cartItem.product.brand ? [cartItem.product.brand.name] : []}
-                                  onSizeSelect={(recommendedSize) => {
-                                    if (typeof recommendedSize === 'string') {
-                                      handleUpdateItemOptions(
-                                        cartItem._id,
-                                        recommendedSize,
-                                        cartItem.color
-                                      );
-                                    }
-                                  }}
-                                />
-                              </Box>
-                              
-                              <FormControl
-                                size="small"
-                            sx={{ minWidth: 120 }}
-                                disabled={isUpdating}
-                              >
-                                <InputLabel sx={{ color: 'black', fontWeight: 600 }}>
-                                  {t('size')}
-                                </InputLabel>
-                                <Select
-                                  value={cartItem.size || ''}
-                                  label={t('size')}
-                              onChange={(e) => {
-                                e.preventDefault();
-                                    handleUpdateItemOptions(
-                                      cartItem._id,
-                                      e.target.value,
-                                      cartItem.color
-                                );
-                              }}
-                              sx={{ 
-                                fontWeight: 600, 
-                                textTransform: 'uppercase',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  borderColor: '#e0e0e0',
-                                },
-                              }}
-                                  error={!cartItem.size}
-                                >
-                                  {cartItem.product?.sizes
-                                    ?.filter(
-                                      sz =>
-                                        !cartItem.color ||
-                                        ('color' in sz && sz.color === cartItem.color)
-                                    )
-                                    .map((sz: ProductSize) => (
-                                      <MenuItem
-                                        key={sz.size + ('color' in sz && sz.color ? sz.color : '')}
-                                        value={sz.size}
-                                        disabled={sz.stock === 0}
-                                        sx={{ fontWeight: 600, textTransform: 'uppercase' }}
-                                      >
-                                        {sz.size}
-                                      </MenuItem>
-                                    ))}
-                                </Select>
-                              </FormControl>
-                            </>
-                          ) : (
-                            cartItem.size && (
-                              <Chip
-                                label={`${t('size')}: ${cartItem.size}`}
-                                size="small"
-                                sx={{
-                              border: '1px solid #e0e0e0',
-                                  bgcolor: 'white',
-                                  color: 'black',
-                                  fontWeight: 700,
-                                  textTransform: 'uppercase',
-                                }}
-                              />
-                            )
-                          )}
-                        </Box>
                         {/* Hiển thị tồn kho */}
                         {cartItem.size && cartItem.color && cartItem.product?.sizes && (
                           <Typography
@@ -1149,25 +1064,7 @@ export default function CartPage() {
                                   : 'Vui lòng chọn màu để thanh toán'}
                             </Alert>
                           )}
-                        {/* Size Recommendation - Stays at the bottom of the product info box */}
-                        {cartItem.product?.sizes && cartItem.product?.sizes.length > 0 && (
-                          <Box sx={{ mt: 2, width: '100%' }}>
-                            <SizeRecommender
-                              productId={cartItem.product._id}
-                              sizes={cartItem.product.sizes.map(s => s.size)}
-                              categories={cartItem.product.brand ? [cartItem.product.brand.name] : []}
-                              onSizeSelect={(recommendedSize) => {
-                                if (typeof recommendedSize === 'string') {
-                                  handleUpdateItemOptions(
-                                    cartItem._id,
-                                    recommendedSize,
-                                    cartItem.color
-                                  );
-                                }
-                              }}
-                            />
-                          </Box>
-                        )}
+
                       </Box>
                     </Box>
                   </Box>
