@@ -348,6 +348,7 @@
       "users": "Người Dùng",
       "customers": "Khách Hàng",
       "settings": "Cài Đặt",
+      "coupons": "Mã Giảm Giá",
       "chat": "Chat",
       "logout": "Đăng Xuất",
       "coupons": "Mã Giảm Giá",
@@ -636,6 +637,8 @@
     "loginWithFacebook": "Đăng nhập với Facebook",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
+    "termsOfService": "Điều khoản dịch vụ",
+    "privacyPolicy": "Chính sách bảo mật",
     "errors": {
       "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng.",
       "usernameRequired": "Vui lòng nhập tên đăng nhập.",
@@ -844,6 +847,7 @@
     }
   },
   "profile": {
+    "personalInfo": "Thông tin cá nhân",
     "fullName": "Họ và tên",
     "email": "Email",
     "phone": "Số điện thoại",

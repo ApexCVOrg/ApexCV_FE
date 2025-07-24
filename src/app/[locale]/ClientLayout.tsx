@@ -12,6 +12,8 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import ChatBox from '@/components/ChatBox';
 import AutoLogoutNotification from '@/components/ui/AutoLogoutNotification';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface ClientLayoutProps {
   locale: string;
@@ -24,6 +26,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
   const [fadeType, setFadeType] = useState<'in' | 'out'>('in');
   const prevPathname = useRef(pathname);
   const isManagerPage = pathname?.includes('/manager') || pathname?.includes('/admin');
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (prevPathname.current !== pathname) {
@@ -49,7 +52,7 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
             className="app-container"
             suppressHydrationWarning
             sx={{
-              bgcolor: '#fff',
+              bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
               minHeight: '100vh',
               display: 'flex',
               flexDirection: 'column',
@@ -64,15 +67,14 @@ const ClientLayout: React.FC<ClientLayoutProps> = ({ locale, children }) => {
               className="main-content"
               suppressHydrationWarning
               sx={{
-                bgcolor: '#fff',
+                bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
                 flex: 1,
                 display: 'flex',
                 flexDirection: 'column',
                 width: '100%',
                 maxWidth: 'none',
                 px: 0,
-                // Add responsive padding-top to prevent header overlap
-                pt: { xs: '64px', sm: '64px', md: '64px' }, // Match header height
+                pt: 0, // Remove padding top since header is transparent
                 '@media screen and (width: 1440px) and (height: 1920px)': {
                   fontSize: '1.1rem',
                 },

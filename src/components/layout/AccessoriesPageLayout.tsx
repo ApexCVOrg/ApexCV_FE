@@ -4,6 +4,8 @@ import { Box, Container, Typography, CircularProgress, FormControl, InputLabel, 
 import ProductCard from "@/components/card";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useLocale } from 'next-intl';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -17,8 +19,6 @@ interface Product {
   categoryPath?: string[];
   createdAt: string;
 }
-
-
 
 interface AccessoriesPageLayoutProps {
   pageTitle: string;
@@ -46,6 +46,7 @@ export default function AccessoriesPageLayout({
   const [gender, setGender] = useState('all');
   const [productCount, setProductCount] = useState(0);
   const locale = useLocale();
+  const { theme } = useTheme();
 
   // Get current tab from URL path
   const currentTab = typeof window !== 'undefined' ? window.location.pathname.split('/').pop() || '' : '';
@@ -70,60 +71,145 @@ export default function AccessoriesPageLayout({
   }, [fetchProducts, sortBy, gender]);
 
   return (
-    <Box sx={{ bgcolor: "#f8f9fa", minHeight: "100vh", mt: 10, position: 'relative' }}>
-      {/* Banner ở phía sau */}
       <Box sx={{ 
-        position: 'absolute', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
+      minHeight: '100vh', 
+      pt: 10, // Changed from mt: 10 to pt: 10 to eliminate whitespace
+      position: 'relative',
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+    }}>
+      {/* Banner background with overlay - below header */}
+      <Box
+        sx={{
+          width: '100vw',
         height: 400, 
-        zIndex: 1 
-      }}>
+          mx: 'calc(-50vw + 50%)',
+          position: 'relative',
+          overflow: 'hidden',
+          zIndex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000', // Theme background for whitespace
+        }}
+      >
         <img 
           src={bannerImage} 
           alt={bannerAlt} 
           style={{ 
             width: '100%', 
             height: '100%', 
-            objectFit: 'cover' 
+            objectFit: 'cover',
+            display: 'block',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
           }} 
         />
-      </Box>
-      
-      {/* Breadcrumb và navigation ở phía trên banner */}
-      <Box sx={{ position: 'relative', zIndex: 2 }}>
-        {/* Breadcrumb */}
-        <Box sx={{ px: { xs: 2, md: 6 }, pt: 4, pb: 2 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            bgcolor: 'rgba(0,0,0,0.45)',
+            zIndex: 2,
+          }}
+        />
+        {/* Breadcrumb and heading over banner, above overlay */}
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 3,
+            width: '100%',
+            maxWidth: '1600px',
+            mx: 'auto',
+            px: { xs: 2, md: 6 },
+          }}
+        >
+          <Box sx={{ pt: 4, pb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, gap: 1 }}>
-            <Link href="/accessories" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'white', fontWeight: 700, marginRight: 2 }}>
-              <ArrowBackIosIcon fontSize="small" sx={{ mr: 0.5 }} /> BACK
+              <Link
+                href="/accessories"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  textDecoration: 'none',
+                  color: '#fff',
+                  fontWeight: 700,
+                  marginRight: 2,
+                }}
+              >
+                <ArrowBackIosIcon fontSize="small" sx={{ mr: 0.5, color: '#fff' }} /> BACK
             </Link>
             <Link href={`/${locale}`} style={{ textDecoration: 'none' }}>
-              <Typography component="span" sx={{ color: 'white', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Home</Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    color: '#fff',
+                    fontWeight: 400,
+                    fontSize: '1rem',
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  Home
+                </Typography>
             </Link>
-            <Typography component="span" sx={{ color: 'white', mx: 0.5 }}>/</Typography>
+              <Typography component="span" sx={{ color: '#fff', mx: 0.5 }}>
+                /
+              </Typography>
             <Link href="/accessories" style={{ textDecoration: 'none' }}>
-              <Typography component="span" sx={{ color: 'white', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}>Accessories</Typography>
+                <Typography
+                  component="span"
+                  sx={{
+                    color: '#fff',
+                    fontWeight: 400,
+                    fontSize: '1rem',
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  Accessories
+                </Typography>
             </Link>
-            <Typography component="span" sx={{ color: 'white', mx: 0.5 }}>/</Typography>
-            <Typography component="span" sx={{ color: 'white', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px', fontSize: '1rem' }}>{category}</Typography>
+              <Typography component="span" sx={{ color: '#fff', mx: 0.5 }}>
+                /
+              </Typography>
+              <Typography
+                component="span"
+                sx={{
+                  color: '#fff',
+                  fontWeight: 500,
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px',
+                  fontSize: '1rem',
+                }}
+              >
+                {category}
+              </Typography>
           </Box>
+            {/* Heading & description */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0, color: 'white' }}>
+              <Typography
+                variant="h3"
+                component="h1"
+                sx={{ fontWeight: 'bold', mb: 0, color: '#fff' }}
+              >
               {pageTitle}
             </Typography>
             {productCount > 0 && (
-              <Typography variant="body2" sx={{ color: 'white', fontWeight: 400, ml: 1 }}>
+                <Typography variant="body2" sx={{ color: 'grey.300', fontWeight: 400, ml: 1 }}>
                 [{productCount}]
               </Typography>
             )}
+            </Box>
+          </Box>
           </Box>
         </Box>
         
         {/* Tab Card Navigation */}
         {tabs.length > 0 && (
-          <Container maxWidth="xl" sx={{ mb: 4 }}>
+        <Container maxWidth="xl" sx={{ mb: 4, mt: -8, position: 'relative', zIndex: 4 }}>
             <Box sx={{ 
               display: 'flex', 
               gap: { xs: 1, sm: 2, md: 3 }, 
@@ -137,9 +223,9 @@ export default function AccessoriesPageLayout({
                 <Link key={tab.value} href={`/accessories/${tab.value}`} style={{ textDecoration: 'none' }} sx={{ flex: { xs: '1 1 calc(50% - 8px)', md: '1 1 200px' } }}>
                   <Box sx={{
                     border: 0,
-                    borderBottom: tab.value === currentTab ? '4px solid #000' : 'none',
-                    bgcolor: tab.value === currentTab ? '#000' : '#fff',
-                    color: tab.value === currentTab ? '#fff' : '#111',
+                  borderBottom: tab.value === currentTab ? `4px solid ${theme === THEME.LIGHT ? '#000' : '#fff'}` : 'none',
+                  bgcolor: tab.value === currentTab ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#fff' : '#1a1a1a'),
+                  color: tab.value === currentTab ? (theme === THEME.LIGHT ? '#fff' : '#000') : (theme === THEME.LIGHT ? '#111' : '#fff'),
                     fontWeight: tab.value === currentTab ? 700 : 500,
                     textAlign: 'center',
                     cursor: 'pointer',
@@ -153,9 +239,9 @@ export default function AccessoriesPageLayout({
                     overflow: 'hidden',
                     boxShadow: tab.value === currentTab ? '0 8px 32px rgba(0,0,0,0.15)' : '0 4px 16px rgba(0,0,0,0.08)',
                     '&:hover': {
-                      borderBottom: '4px solid #000',
-                      bgcolor: tab.value === currentTab ? '#000' : '#f5f5f5',
-                      color: '#000',
+                    borderBottom: `4px solid ${theme === THEME.LIGHT ? '#000' : '#fff'}`,
+                    bgcolor: tab.value === currentTab ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#f5f5f5' : '#333'),
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                       fontWeight: 700,
                       transform: 'translateY(-4px) scale(1.02)',
                       boxShadow: '0 12px 40px rgba(0,0,0,0.15)'
@@ -184,8 +270,8 @@ export default function AccessoriesPageLayout({
                       fontWeight: tab.value === currentTab ? 700 : 600, 
                       fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' }, 
                       letterSpacing: { xs: 0.5, sm: 1 }, 
-                      bgcolor: tab.value === currentTab ? '#000' : '#fff', 
-                      color: tab.value === currentTab ? '#fff' : '#111', 
+                    bgcolor: tab.value === currentTab ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#fff' : '#1a1a1a'), 
+                    color: tab.value === currentTab ? (theme === THEME.LIGHT ? '#fff' : '#000') : (theme === THEME.LIGHT ? '#111' : '#fff'), 
                       textTransform: 'uppercase',
                       transition: 'all 0.3s ease'
                     }}>
@@ -197,36 +283,109 @@ export default function AccessoriesPageLayout({
             </Box>
           </Container>
         )}
-      </Box>
       
       {/* Sort Bar */}
-      <Container maxWidth="xl" sx={{ mb: 3, position: 'relative', zIndex: 2, mt: 6, px: { xs: 2, md: 6 } }}>
-        <Box sx={{ 
-          mb: 3, 
+      <Box
+        sx={{
+          mb: 2,
           display: 'flex', 
           justifyContent: 'flex-end', 
           alignItems: 'center', 
-          gap: 2,
-          pr: { xs: 0, sm: 0, md: 0 }
-        }}>
-          <FormControl sx={{ minWidth: 150 }}>
+          mt: 5,
+          px: { xs: 2, sm: 3, md: 4 },
+          maxWidth: '1600px',
+          width: '100%',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        }}
+      >
+        <FormControl 
+          sx={{ 
+            minWidth: 150,
+            mr: 2,
+            '& .MuiInputLabel-root': {
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#ddd' : '#444',
+              },
+              '&:hover fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#999' : '#666',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+              },
+            },
+            '& .MuiSelect-select': {
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            },
+          }}
+        >
             <InputLabel>Gender</InputLabel>
             <Select 
               value={gender} 
               label="Gender" 
               onChange={(e) => setGender(e.target.value)}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                  color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  '& .MuiMenuItem-root': {
+                    '&:hover': {
+                      bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                    },
+                  },
+                },
+              },
+            }}
             >
               <MenuItem value="all">All</MenuItem>
               <MenuItem value="men">Men</MenuItem>
               <MenuItem value="women">Women</MenuItem>
             </Select>
           </FormControl>
-          <FormControl sx={{ minWidth: 200 }}>
+        <FormControl 
+          sx={{ 
+            minWidth: 200, 
+            mr: { xs: 3, sm: 6, md: 8 },
+            '& .MuiInputLabel-root': {
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#ddd' : '#444',
+              },
+              '&:hover fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#999' : '#666',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+              },
+            },
+            '& .MuiSelect-select': {
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            },
+          }}
+        >
             <InputLabel>Sort By</InputLabel>
             <Select 
               value={sortBy} 
               label="Sort By" 
               onChange={(e) => setSortBy(e.target.value)}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                  color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  '& .MuiMenuItem-root': {
+                    '&:hover': {
+                      bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                    },
+                  },
+                },
+              },
+            }}
             >
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="price-low">Price: Low to High</MenuItem>
@@ -236,33 +395,77 @@ export default function AccessoriesPageLayout({
           </FormControl>
         </Box>
         
-        {/* Products Grid */}
+      {/* Product Grid */}
+      <Container
+        maxWidth={false}
+        sx={{ 
+          py: 4, 
+          px: { xs: 2, sm: 3, md: 4 }, 
+          maxWidth: '1600px', 
+          width: '100%',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        }}
+      >
+        {error && (
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              textAlign: 'center', 
+              color: 'error.main', 
+              py: 2,
+              bgcolor: theme === THEME.LIGHT ? '#ffebee' : '#3d1f1f',
+              borderRadius: 1,
+              px: 2,
+            }}
+          >
+            {error}
+          </Typography>
+        )}
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-            <CircularProgress size={60} sx={{ color: 'black' }} />
-          </Box>
-        ) : error ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-            <Typography color="error" variant="h6">{error}</Typography>
-          </Box>
-        ) : products.length === 0 ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
-            <Typography variant="h5" color="text.secondary">{emptyMessage}</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '50vh',
+            }}
+          >
+            <CircularProgress sx={{ color: theme === THEME.LIGHT ? '#1976d2' : '#90caf9' }} />
           </Box>
         ) : (
-          <Box sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap',
-            gap: 3,
-            justifyContent: 'center',
-            width: '100%'
-          }}>
-            {products.map((product) => (
-              <Box key={product._id} sx={{ 
-                display: 'flex', 
+          <>
+            {products.length === 0 && (
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4,
+                  color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                  fontSize: '1.1rem',
+                }}
+              >
+                {emptyMessage}
+              </Typography>
+            )}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: 'repeat(3, 1fr)',
+                  lg: 'repeat(4, 1fr)',
+                },
+                gap: { xs: 2, sm: 3 },
+                width: '100%',
                 justifyContent: 'center',
-                width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)', lg: 'calc(25% - 18px)' }
-              }}>
+              }}
+            >
+              {products.map(product => (
+                <Box
+                  key={product._id}
+                  sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}
+                >
                 <ProductCard
                   _id={product._id}
                   productId={product._id}
@@ -288,6 +491,7 @@ export default function AccessoriesPageLayout({
               </Box>
             ))}
           </Box>
+          </>
         )}
       </Container>
     </Box>

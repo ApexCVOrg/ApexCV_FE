@@ -41,8 +41,8 @@ export default function HatsPage() {
         if (gender && gender !== 'all') {
           let hasGender = false;
           
-          // Check categoryPath for gender
-          if (Array.isArray(item.categoryPath)) {
+          // Check categoryPath for gender - look for structure like ['Accessories', 'Men', 'Hats']
+          if (item.categoryPath && Array.isArray(item.categoryPath)) {
             hasGender = item.categoryPath.some((cat: string) =>
               cat.toLowerCase() === gender.toLowerCase()
             );

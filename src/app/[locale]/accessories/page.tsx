@@ -6,6 +6,8 @@ import ProductCard from "@/components/card";
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -44,6 +46,9 @@ export default function AccessoriesPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
+  
+  // Theme hook
+  const { theme } = useTheme();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -129,14 +134,25 @@ export default function AccessoriesPage() {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        color: theme === THEME.LIGHT ? '#000' : '#fff'
+      }}>
         <Typography color="error">{error}</Typography>
       </Box>
     );
   }
 
   return (
-    <>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh'
+    }}>
       {/* Hero Banner */}
       <Box
         sx={{
@@ -264,7 +280,7 @@ export default function AccessoriesPage() {
       </Box>
       <Container maxWidth="xl" disableGutters>
         {/* Categories Section */}
-        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
+        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: theme === THEME.LIGHT ? '#fff' : '#000' }}>
           <Container maxWidth="lg">
             <Typography 
               variant="h3" 
@@ -273,7 +289,7 @@ export default function AccessoriesPage() {
               sx={{
                 fontWeight: 'bold',
                 mb: 2,
-                color: 'text.primary'
+                color: theme === THEME.LIGHT ? '#000' : '#fff'
               }}
             >
               MUA SẮM THEO DANH MỤC
@@ -282,7 +298,7 @@ export default function AccessoriesPage() {
               variant="h6" 
               align="center" 
               sx={{
-                color: 'text.secondary',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
                 mb: 6,
                 fontWeight: 300
               }}
@@ -312,13 +328,14 @@ export default function AccessoriesPage() {
                       overflow: 'hidden',
                       maxWidth: '360px',
                       mx: 'auto',
+                      bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
                       '&:hover': {
                         transform: 'translateY(-8px)',
-                        boxShadow: '0 12px 24px rgba(0,0,0,0.15)'
+                        boxShadow: theme === THEME.LIGHT ? '0 12px 24px rgba(0,0,0,0.15)' : '0 12px 24px rgba(255,255,255,0.1)'
                       }
                     }}
                   >
-                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333' }}>
                       <CardMedia
                         component="img"
                         image={category.image}
@@ -378,7 +395,7 @@ export default function AccessoriesPage() {
         </Box>
 
         {/* Featured Products */}
-        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
+        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a' }}>
           <Container maxWidth="lg">
             <Box sx={{ 
               display: 'flex', 
@@ -394,7 +411,7 @@ export default function AccessoriesPage() {
                   component="h2"
                   sx={{
                     fontWeight: 'bold',
-                    color: 'text.primary',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     mb: 1
                   }}
                 >
@@ -403,7 +420,7 @@ export default function AccessoriesPage() {
                 <Typography 
                   variant="h6" 
                   sx={{
-                    color: 'text.secondary',
+                    color: theme === THEME.LIGHT ? '#666' : '#ccc',
                     fontWeight: 300
                   }}
                 >
@@ -418,7 +435,7 @@ export default function AccessoriesPage() {
                 alignItems: 'center',
                 minHeight: '300px'
               }}>
-                <CircularProgress size={60} sx={{ color: 'black' }}/>
+                <CircularProgress size={60} sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}/>
               </Box>
             )}
             {error && (
@@ -436,12 +453,12 @@ export default function AccessoriesPage() {
                   variant="outlined" 
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white'
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000'
                     }
                   }}
                 >
@@ -457,19 +474,19 @@ export default function AccessoriesPage() {
                 minHeight: '300px',
                 justifyContent: 'center'
               }}>
-                <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
+                <Typography variant="h5" align="center" sx={{ mb: 2, color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Không tìm thấy sản phẩm nào
                 </Typography>
                 <Button 
                   variant="outlined" 
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white'
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000'
                     }
                   }}
                 >
@@ -489,9 +506,12 @@ export default function AccessoriesPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
+                    bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    boxShadow: theme === THEME.LIGHT ? '0 2px 12px rgba(0,0,0,0.2)' : '0 2px 12px rgba(255,255,255,0.2)',
+                    '&:hover': { 
+                      bgcolor: theme === THEME.LIGHT ? 'white' : 'black'
+                    },
                     '&.Mui-disabled': { opacity: 0 }
                   }}
                 >
@@ -508,9 +528,12 @@ export default function AccessoriesPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
+                    bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    boxShadow: theme === THEME.LIGHT ? '0 2px 12px rgba(0,0,0,0.2)' : '0 2px 12px rgba(255,255,255,0.2)',
+                    '&:hover': { 
+                      bgcolor: theme === THEME.LIGHT ? 'white' : 'black'
+                    },
                     '&.Mui-disabled': { opacity: 0 }
                   }}
                 >
@@ -572,11 +595,11 @@ export default function AccessoriesPage() {
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#ccc' : '#666'),
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#999' : '#999'),
                           transform: 'scale(1.2)'
                         }
                       }}
@@ -588,6 +611,6 @@ export default function AccessoriesPage() {
           </Container>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 } 

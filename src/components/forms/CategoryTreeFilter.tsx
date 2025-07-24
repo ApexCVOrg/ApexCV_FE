@@ -11,6 +11,8 @@ import {
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { CategoryTree } from '@/types/components/category';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface CategoryTreeFilterProps {
   categories: CategoryTree[];
@@ -23,6 +25,9 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
   selectedCategories,
   onCategoryChange,
 }) => {
+  const { theme } = useTheme();
+  const isDark = theme === THEME.DARK;
+  
   console.log('CategoryTreeFilter render:', { categories: categories.length, selectedCategories });
   
   // Memoize the onCategoryChange handler to prevent child re-renders
@@ -64,24 +69,27 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
             boxShadow: 'none',
             '&:before': { display: 'none' },
             ml: level * 2,
-            border: '1px solid #e0e0e0',
+            border: `1px solid ${isDark ? '#444' : '#e0e0e0'}`,
             borderRadius: '8px',
             mb: 1,
+            backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
             '&:hover': {
-              borderColor: '#1976d2',
-              boxShadow: '0 2px 8px rgba(25, 118, 210, 0.1)',
+              borderColor: isDark ? '#666' : '#1976d2',
+              boxShadow: isDark 
+                ? '0 2px 8px rgba(255, 255, 255, 0.1)' 
+                : '0 2px 8px rgba(25, 118, 210, 0.1)',
             },
           }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
+            expandIcon={<ExpandMoreIcon sx={{ color: isDark ? '#ccc' : '#666' }} />}
             sx={{
               minHeight: '40px',
               '& .MuiAccordionSummary-content': {
                 margin: '8px 0',
               },
               '&:hover': {
-                backgroundColor: '#f5f5f5',
+                backgroundColor: isDark ? '#2a2a2a' : '#f5f5f5',
               },
             }}
           >
@@ -96,15 +104,25 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
                   cursor: 'pointer',
                   width: '16px',
                   height: '16px',
-                  accentColor: '#1976d2',
+                  accentColor: isDark ? '#90caf9' : '#1976d2',
                 }}
               />
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontWeight: 500,
+                  color: isDark ? '#e0e0e0' : '#333',
+                }}
+              >
                 {category.name}
               </Typography>
             </Box>
           </AccordionSummary>
-          <AccordionDetails sx={{ pt: 0, pb: 1, backgroundColor: '#fafafa' }}>
+          <AccordionDetails sx={{ 
+            pt: 0, 
+            pb: 1, 
+            backgroundColor: isDark ? '#111' : '#fafafa' 
+          }}>
             <Box sx={{ ml: 2 }}>
               {category.children?.map(child => renderCategoryNode(child, level + 1))}
             </Box>
@@ -121,11 +139,11 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
           mb: 0.5,
           p: 1,
           borderRadius: '4px',
-          border: '1px solid #f0f0f0',
-          backgroundColor: '#ffffff',
+          border: `1px solid ${isDark ? '#333' : '#f0f0f0'}`,
+          backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
           '&:hover': {
-            borderColor: '#1976d2',
-            backgroundColor: '#f8f9fa',
+            borderColor: isDark ? '#666' : '#1976d2',
+            backgroundColor: isDark ? '#2a2a2a' : '#f8f9fa',
           },
         }}
       >
@@ -140,14 +158,19 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
               cursor: 'pointer',
               width: '16px',
               height: '16px',
-              accentColor: '#1976d2',
+              accentColor: isDark ? '#90caf9' : '#1976d2',
             }}
           />
-          <Typography variant="body2">{category.name}</Typography>
+          <Typography 
+            variant="body2"
+            sx={{ color: isDark ? '#e0e0e0' : '#333' }}
+          >
+            {category.name}
+          </Typography>
         </Box>
       </Box>
     );
-  }, [selectedCategories, handleParentCheckboxChange, handleLeafCheckboxChange, handleCheckboxClick]);
+  }, [selectedCategories, handleParentCheckboxChange, handleLeafCheckboxChange, handleCheckboxClick, isDark]);
 
   // Memoize the rendered categories
   const renderedCategories = useMemo(() => {
@@ -159,12 +182,14 @@ const CategoryTreeFilter: React.FC<CategoryTreeFilterProps> = React.memo(({
       elevation={2}
       sx={{
         p: 2,
-        border: '2px solid #e0e0e0',
+        border: `2px solid ${isDark ? '#444' : '#e0e0e0'}`,
         borderRadius: '12px',
-        backgroundColor: '#ffffff',
+        backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
         '&:hover': {
-          borderColor: '#1976d2',
-          boxShadow: '0 4px 12px rgba(25, 118, 210, 0.15)',
+          borderColor: isDark ? '#666' : '#1976d2',
+          boxShadow: isDark 
+            ? '0 4px 12px rgba(255, 255, 255, 0.1)' 
+            : '0 4px 12px rgba(25, 118, 210, 0.15)',
         },
       }}
     >

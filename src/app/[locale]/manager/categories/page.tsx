@@ -154,7 +154,7 @@ export default function CategoriesPage() {
 
   // Handle form input changes
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string; value: string } }
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -263,18 +263,57 @@ export default function CategoriesPage() {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: 1400, 
+      mx: 'auto', 
+      p: { xs: 2, md: 4 },
+      pt: { xs: 4, md: 6 },
+      overflowX: 'auto' 
+    }}>
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        mb={3}
-        sx={{ flexWrap: 'wrap' }}
+        mb={4}
+        sx={{ 
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold">
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{
+            fontWeight: 800,
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
+            letterSpacing: '0.5px',
+            color: 'text.primary',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+          }}
+        >
           {t('title')}
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          onClick={() => handleOpenDialog()}
+          sx={{
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            fontWeight: 600,
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&:hover': {
+              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+              transform: 'translateY(-1px)',
+            },
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
           {t('addNew')}
         </Button>
       </Stack>
@@ -286,15 +325,43 @@ export default function CategoriesPage() {
       )}
 
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, maxWidth: '100%', overflowX: 'auto' }}>
-        <Stack spacing={2}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Stack spacing={3}>
           {/* Search Bar */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
               placeholder={t('search.searchCategories')}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              sx={{ flexGrow: 1 }}
+              sx={{ 
+                flexGrow: 1,
+                minWidth: 250,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
               }}
@@ -304,6 +371,18 @@ export default function CategoriesPage() {
               startIcon={<ClearIcon />}
               onClick={clearFilters}
               disabled={!searchTerm && statusFilter === 'all'}
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                py: 1.5,
+                fontWeight: 500,
+                textTransform: 'none',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
             >
               {t('search.clearFilters')}
             </Button>
@@ -313,29 +392,74 @@ export default function CategoriesPage() {
           <Box
             sx={{
               display: 'flex',
-              gap: 2,
+              gap: 3,
               flexWrap: 'wrap',
               alignItems: 'center',
               width: '100%',
               overflowX: 'auto',
             }}
           >
-            <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
-                label="Status"
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
               >
-                <MenuItem value="all">{t('search.allStatus')}</MenuItem>
-                <MenuItem value="active">{t('status.active')}</MenuItem>
-                <MenuItem value="inactive">{t('status.inactive')}</MenuItem>
-              </Select>
-            </FormControl>
+                Status
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 150,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
+                <Select
+                  value={statusFilter}
+                  onChange={e => setStatusFilter(e.target.value)}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
+                >
+                  <MenuItem value="all">{t('search.allStatus')}</MenuItem>
+                  <MenuItem value="active">{t('status.active')}</MenuItem>
+                  <MenuItem value="inactive">{t('status.inactive')}</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
             {/* Results Count */}
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              ml: 'auto',
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.08)' 
+                : 'rgba(0,0,0,0.04)',
+            }}>
+              <Typography variant="body2" color="text.secondary" sx={{ 
+                fontWeight: 500,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 {t('search.resultsCount', {
                   filtered: filteredCategories.length,
                   total: totalCategories,
@@ -347,16 +471,79 @@ export default function CategoriesPage() {
         </Stack>
       </Paper>
 
-      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
+      <TableContainer component={Paper} sx={{ 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
         <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>{t('name')}</TableCell>
-              <TableCell>{t('description')}</TableCell>
-              <TableCell>{t('parentCategory')}</TableCell>
-              <TableCell>{t('statusLabel')}</TableCell>
-              <TableCell>{t('createdAt')}</TableCell>
-              <TableCell align="right">{t('actions')}</TableCell>
+            <TableRow sx={{ 
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.05)' 
+                : 'rgba(0,0,0,0.02)' 
+            }}>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('name')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('description')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('parentCategory')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('statusLabel')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('createdAt')}
+              </TableCell>
+              <TableCell align="right" sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: '2px solid rgba(0,0,0,0.1)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
+                {t('actions')}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -394,7 +581,15 @@ export default function CategoriesPage() {
                     <IconButton
                       size="small"
                       onClick={() => handleOpenDialog(category)}
-                      sx={{ mr: 1 }}
+                      sx={{ 
+                        mr: 1,
+                        color: 'primary.main',
+                        '&:hover': {
+                          backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                          transform: 'scale(1.1)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                      }}
                     >
                       <EditIcon />
                     </IconButton>
@@ -403,7 +598,14 @@ export default function CategoriesPage() {
                       onClick={() =>
                         handleDelete(typeof category._id === 'string' ? category._id : '')
                       }
-                      color="error"
+                      sx={{
+                        color: 'error.main',
+                        '&:hover': {
+                          backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                          transform: 'scale(1.1)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                      }}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -417,7 +619,16 @@ export default function CategoriesPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: 4,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: (theme) => theme.palette.mode === 'dark' 
+            ? 'rgba(255,255,255,0.05)' 
+            : 'rgba(0,0,0,0.02)',
+        }}>
           <Pagination
             count={totalPages}
             page={page}
@@ -425,15 +636,114 @@ export default function CategoriesPage() {
             color="primary"
             showFirstButton
             showLastButton
+            sx={{
+              '& .MuiPaginationItem-root': {
+                borderRadius: 1,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                },
+              },
+            }}
           />
         </Box>
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedCategory ? t('editCategory') : t('addCategory')}</DialogTitle>
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        maxWidth="sm" 
+        fullWidth
+        sx={{
+          '& .MuiDialog-container': {
+            alignItems: 'center',
+          },
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }
+          }
+        }}
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            borderRadius: 3,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          py: 3,
+          px: 4,
+        }}>
+          <Typography variant="h5" sx={{
+            fontWeight: 700,
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            color: 'text.primary'
+          }}>
+            {selectedCategory ? t('editCategory') : t('addCategory')}
+          </Typography>
+        </DialogTitle>
         <form onSubmit={handleSubmit}>
-          <DialogContent>
+          <DialogContent sx={{ 
+            p: 4,
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(20, 25, 35, 0.8) 0%, rgba(15, 20, 30, 0.8) 100%)'
+              : 'linear-gradient(135deg, rgba(252, 254, 255, 0.8) 0%, rgba(245, 248, 252, 0.8) 100%)',
+            // Custom scrollbar styling
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'rgba(30, 40, 60, 0.3)'
+                : 'rgba(0, 0, 0, 0.05)',
+              borderRadius: '10px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(100, 120, 150, 0.6) 0%, rgba(80, 100, 130, 0.8) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.4) 0%, rgba(21, 101, 192, 0.6) 100%)',
+              borderRadius: '10px',
+              border: (theme) => theme.palette.mode === 'dark'
+                ? '1px solid rgba(100, 120, 150, 0.3)'
+                : '1px solid rgba(25, 118, 210, 0.3)',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(120, 140, 170, 0.8) 0%, rgba(100, 120, 150, 1) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.6) 0%, rgba(21, 101, 192, 0.8) 100%)',
+            },
+            '&::-webkit-scrollbar-thumb:active': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(140, 160, 190, 1) 0%, rgba(120, 140, 170, 1) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.8) 0%, rgba(21, 101, 192, 1) 100%)',
+            },
+            // Firefox scrollbar
+            scrollbarWidth: 'thin',
+            scrollbarColor: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(100, 120, 150, 0.6) rgba(30, 40, 60, 0.3)'
+              : 'rgba(25, 118, 210, 0.4) rgba(0, 0, 0, 0.05)',
+          }}>
             <Stack spacing={3}>
               <TextField
                 name="name"
@@ -442,6 +752,18 @@ export default function CategoriesPage() {
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
               <TextField
@@ -452,51 +774,145 @@ export default function CategoriesPage() {
                 multiline
                 rows={3}
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
-              <TextField
-                name="parentCategory"
-                label={t('parentCategory')}
-                value={formData.parentCategory || ''}
-                onChange={handleInputChange}
-                select
-                SelectProps={{ native: true }}
-                fullWidth
-              >
-                <option value="">{t('none')}</option>
-                {categories
-                  .filter(cat => {
-                    // Chỉ lấy các category không có parentCategory hoặc parentCategory là null/undefined
-                    return (
-                      !cat.parentCategory ||
-                      (typeof cat.parentCategory === 'string' && cat.parentCategory === '') ||
-                      (typeof cat.parentCategory === 'object' && cat.parentCategory === null)
-                    );
-                  })
-                  .map(parentCat => (
-                    <option key={parentCat._id} value={parentCat._id}>
-                      {parentCat.name}
-                    </option>
-                  ))}
-              </TextField>
+              <FormControl fullWidth sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}>
+                <InputLabel>{t('parentCategory')}</InputLabel>
+                <Select
+                  name="parentCategory"
+                  value={formData.parentCategory || ''}
+                  onChange={handleInputChange}
+                  label={t('parentCategory')}
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}
+                >
+                  <MenuItem value="" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('none')}
+                  </MenuItem>
+                  {categories
+                    .filter(cat => {
+                      // Chỉ lấy các category không có parentCategory hoặc parentCategory là null/undefined
+                      return (
+                        !cat.parentCategory ||
+                        (typeof cat.parentCategory === 'string' && cat.parentCategory === '') ||
+                        (typeof cat.parentCategory === 'object' && cat.parentCategory === null)
+                      );
+                    })
+                    .map(parentCat => (
+                      <MenuItem key={parentCat._id} value={parentCat._id} sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}>
+                        {parentCat.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
 
-              <TextField
-                name="status"
-                label={t('statusLabel')}
-                value={formData.status}
-                onChange={handleInputChange}
-                select
-                SelectProps={{ native: true }}
-                fullWidth
-              >
-                <option value="active">{t('status.active')}</option>
-                <option value="inactive">{t('status.inactive')}</option>
-              </TextField>
+              <FormControl fullWidth sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}>
+                <InputLabel>{t('statusLabel')}</InputLabel>
+                <Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  label={t('statusLabel')}
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}
+                >
+                  <MenuItem value="active" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('status.active')}
+                  </MenuItem>
+                  <MenuItem value="inactive" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('status.inactive')}
+                  </MenuItem>
+                </Select>
+              </FormControl>
             </Stack>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>{t('cancel')}</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+            borderTop: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            px: 4,
+            py: 3,
+            gap: 2,
+          }}>
+            <Button 
+              onClick={handleCloseDialog}
+              variant="outlined"
+              sx={{
+                px: 3,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              {t('cancel')}
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained"
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .3)',
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
               {selectedCategory ? t('update') : t('create')}
             </Button>
           </DialogActions>
