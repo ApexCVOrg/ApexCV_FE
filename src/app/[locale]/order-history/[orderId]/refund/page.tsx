@@ -18,11 +18,9 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   margin: '60px auto',
   padding: 40,
   borderRadius: 12,
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 10px 30px rgba(0, 0, 0, 0.1)' 
-    : '0 10px 30px rgba(0, 0, 0, 0.5)',
-  border: `1px solid ${theme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
-  backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+  border: '1px solid #e0e0e0',
+  backgroundColor: '#ffffff',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
@@ -30,7 +28,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const Title = styled(Typography)(({ theme }) => ({
   fontWeight: 600,
-  color: theme.palette.mode === 'light' ? '#212121' : '#fff',
+  color: '#212121',
   marginBottom: 24,
   textAlign: 'center',
   fontSize: '2.2rem',
@@ -40,7 +38,7 @@ const Title = styled(Typography)(({ theme }) => ({
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  color: theme.palette.mode === 'light' ? '#424242' : '#fff',
+  color: '#424242',
   marginBottom: 16,
   fontSize: '1.1rem',
   alignSelf: 'flex-start',
@@ -50,28 +48,28 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: '24px !important',
   '& .MuiOutlinedInput-root': {
     borderRadius: 10,
-    backgroundColor: theme.palette.mode === 'light' ? '#fcfcfc' : '#2a2a2a',
-    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+    backgroundColor: '#fcfcfc',
+    color: '#000',
     '& fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#e0e0e0' : '#444',
+      borderColor: '#e0e0e0',
       transition: 'border-color 0.3s ease',
     },
     '&:hover fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#90caf9' : '#666',
+      borderColor: '#90caf9',
     },
     '&.Mui-focused fieldset': {
-      borderColor: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
+      borderColor: '#2196f3',
       borderWidth: 2,
     },
   },
   '& .MuiInputLabel-root.Mui-focused': {
-    color: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
+    color: '#2196f3',
   },
   '& .MuiInputLabel-root': {
-    color: theme.palette.mode === 'light' ? '#666' : '#ccc',
+    color: '#666',
   },
   '& .MuiInputBase-input': {
-    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+    color: '#000',
   },
 }));
 
@@ -79,16 +77,12 @@ const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: 10,
   fontWeight: 700,
   padding: '14px 28px',
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 6px 15px rgba(0,0,0,0.1)' 
-    : '0 6px 15px rgba(0,0,0,0.3)',
+  boxShadow: '0 6px 15px rgba(0,0,0,0.1)',
   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
   textTransform: 'uppercase',
   '&:hover': {
     transform: 'translateY(-3px)',
-    boxShadow: theme.palette.mode === 'light' 
-      ? '0 8px 20px rgba(0,0,0,0.15)' 
-      : '0 8px 20px rgba(0,0,0,0.5)',
+    boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
   },
   '&.MuiButton-containedError': {
     backgroundColor: '#f44336',
@@ -97,10 +91,10 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
   },
   '&.MuiButton-containedPrimary': {
-    backgroundColor: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
-    color: theme.palette.mode === 'light' ? '#fff' : '#000',
+    backgroundColor: '#111a2f',
+    color: '#fff',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
+      backgroundColor: '#222c4c',
     },
   },
 }));
@@ -120,14 +114,12 @@ const ImageWrapper = styled(Box)(({ theme }) => ({
   height: 100,
   borderRadius: 10,
   overflow: 'hidden',
-  border: `1px solid ${theme.palette.mode === 'light' ? '#cfd8dc' : '#444'}`,
+  border: '1px solid #cfd8dc',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: theme.palette.mode === 'light' ? '#eceff1' : '#2a2a2a',
-  boxShadow: theme.palette.mode === 'light' 
-    ? '0 2px 5px rgba(0,0,0,0.05)' 
-    : '0 2px 5px rgba(0,0,0,0.2)',
+  backgroundColor: '#eceff1',
+  boxShadow: '0 2px 5px rgba(0,0,0,0.05)',
 }));
 
 const PreviewImage = styled('img')({
@@ -140,10 +132,10 @@ const RemoveImageButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
   top: -10,
   right: -10,
-  backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1a1a1a',
+  backgroundColor: '#ffffff',
   border: '1px solid #ef5350',
   '&:hover': {
-    backgroundColor: theme.palette.mode === 'light' ? '#ffebee' : '#2a2a2a',
+    backgroundColor: '#ffebee',
   },
   '& .MuiSvgIcon-root': {
     color: '#ef5350',
@@ -160,13 +152,13 @@ const AddImageButton = styled(StyledButton)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  border: `2px dashed ${theme.palette.mode === 'light' ? '#90caf9' : '#666'}`,
-  color: theme.palette.mode === 'light' ? '#64b5f6' : '#ccc',
-  backgroundColor: theme.palette.mode === 'light' ? '#e3f2fd' : '#2a2a2a',
+  border: '2px dashed #90caf9',
+  color: '#64b5f6',
+  backgroundColor: '#e3f2fd',
   '&:hover': {
-    borderColor: theme.palette.mode === 'light' ? '#2196f3' : '#fff',
-    color: theme.palette.mode === 'light' ? '#1976d2' : '#fff',
-    backgroundColor: theme.palette.mode === 'light' ? '#bbdefb' : '#333',
+    borderColor: '#2196f3',
+    color: '#1976d2',
+    backgroundColor: '#bbdefb',
     transform: 'translateY(-2px)',
   },
   '& .MuiSvgIcon-root': {
@@ -194,18 +186,18 @@ const StyledChip = styled(Chip)(({ theme }) => ({
   borderRadius: 20,
   transition: 'all 0.2s ease-in-out',
   '&.MuiChip-filledPrimary': {
-    backgroundColor: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
-    color: theme.palette.mode === 'light' ? '#fff' : '#000',
+    backgroundColor: '#111a2f',
+    color: '#fff',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
+      backgroundColor: '#222c4c',
     },
   },
   '&.MuiChip-outlined': {
-    borderColor: theme.palette.mode === 'light' ? '#9e9e9e' : '#666',
-    color: theme.palette.mode === 'light' ? '#616161' : '#ccc',
+    borderColor: '#9e9e9e',
+    color: '#616161',
     '&:hover': {
-      backgroundColor: theme.palette.mode === 'light' ? '#f5f5f5' : '#333',
-      borderColor: theme.palette.mode === 'light' ? '#757575' : '#888',
+      backgroundColor: '#f5f5f5',
+      borderColor: '#757575',
     },
   },
 }));
@@ -214,19 +206,16 @@ const InfoBox = styled(Box)(({ theme }) => ({
   width: '100%',
   marginBottom: 30,
   padding: 20,
-  backgroundColor: theme.palette.mode === 'light' ? '#f8f9fa' : '#2a2a2a',
+  backgroundColor: '#f8f9fa',
   borderRadius: 10,
-  border: `1px solid ${theme.palette.mode === 'light' ? '#e9ecef' : '#444'}`,
-  boxShadow: theme.palette.mode === 'light' 
-    ? 'inset 0 1px 3px rgba(0,0,0,0.05)' 
-    : 'inset 0 1px 3px rgba(0,0,0,0.2)',
+  border: '1px solid #e9ecef',
+  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.05)',
 }));
 
 const StatusAlert = styled(Alert)(({ theme }) => ({
   borderRadius: 10,
   marginBottom: 24,
   fontWeight: 600,
-  backgroundColor: theme.palette.mode === 'light' ? undefined : '#1a1a1a',
   '& .MuiAlert-icon': {
     fontSize: 28,
   },
