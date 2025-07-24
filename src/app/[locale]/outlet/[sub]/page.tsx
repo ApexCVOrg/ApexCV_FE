@@ -23,6 +23,8 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import HomeIcon from '@mui/icons-material/Home';
 import ProductCard from '@/components/card/index';
+import { useTheme as useCustomTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -56,6 +58,7 @@ export default function OutletSubCategoryPage() {
   const { sub } = useParams();
   const router = useRouter();
   const theme = useTheme();
+  const { theme: customTheme } = useCustomTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -128,17 +131,29 @@ export default function OutletSubCategoryPage() {
   const categoryDisplayName = CATEGORY_DISPLAY_NAMES[sub as string] || (sub as string) || 'Unknown';
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Breadcrumbs */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Breadcrumbs 
-          aria-label="breadcrumb" 
-          sx={{ mb: 4, '& .MuiBreadcrumbs-separator': { mx: 1 } }}
+    <Box sx={{ 
+      minHeight: '100vh',
+      bgcolor: customTheme === THEME.LIGHT ? '#fff' : '#000',
+      color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    }}>
+      <Container maxWidth="xl" sx={{ py: 4, pt: 10 }}>
+        {/* Breadcrumbs */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
         >
+          <Breadcrumbs 
+            aria-label="breadcrumb" 
+            sx={{ 
+              mb: 4, 
+              '& .MuiBreadcrumbs-separator': { mx: 1 },
+              '& .MuiBreadcrumbs-ol': {
+                color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
+              }
+            }}
+          >
           <Link
             color="inherit"
             href="/"
@@ -188,7 +203,9 @@ export default function OutletSubCategoryPage() {
           sx={{ 
             fontWeight: 900, 
             mb: 2,
-            background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+            background: customTheme === THEME.LIGHT 
+              ? 'linear-gradient(45deg, #1976d2, #42a5f5)'
+              : 'linear-gradient(45deg, #90caf9, #64b5f6)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -200,7 +217,7 @@ export default function OutletSubCategoryPage() {
           variant="h6" 
           sx={{ 
             mb: 6, 
-            color: 'text.secondary',
+            color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
             maxWidth: 600
           }}
         >
@@ -222,21 +239,48 @@ export default function OutletSubCategoryPage() {
           flexWrap: 'wrap',
           gap: 2
         }}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" sx={{ 
+            fontWeight: 600,
+            color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+          }}>
             {products.length} sản phẩm • Trang {currentPage} / {totalPages}
           </Typography>
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl sx={{ 
+            minWidth: 200,
+            '& .MuiInputLabel-root': {
+              color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: customTheme === THEME.LIGHT ? '#ddd' : '#444',
+              },
+              '&:hover fieldset': {
+                borderColor: customTheme === THEME.LIGHT ? '#999' : '#666',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+              },
+            },
+            '& .MuiSelect-select': {
+              color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+            },
+          }}>
             <InputLabel>Sort By</InputLabel>
             <Select 
               value={sortBy} 
               label="Sort By" 
               onChange={e => setSortBy(e.target.value)}
-              sx={{
-                '& .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#e0e0e0',
-                },
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: '#1976d2',
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: customTheme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                    color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+                    '& .MuiMenuItem-root': {
+                      '&:hover': {
+                        bgcolor: customTheme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                      },
+                    },
+                  },
                 },
               }}
             >
@@ -257,7 +301,7 @@ export default function OutletSubCategoryPage() {
           alignItems: 'center', 
           minHeight: 400 
         }}>
-          <CircularProgress size={60} />
+          <CircularProgress size={60} sx={{ color: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9' }} />
         </Box>
       )}
 
@@ -333,13 +377,14 @@ export default function OutletSubCategoryPage() {
               onClick={handlePrevPage}
               disabled={currentPage === 1}
               sx={{
-                border: '2px solid #e0e0e0',
+                border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
+                color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                 '&:hover': {
-                  borderColor: '#1976d2',
-                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                  backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                 },
                 '&.Mui-disabled': {
-                  borderColor: '#f0f0f0',
+                  borderColor: customTheme === THEME.LIGHT ? '#f0f0f0' : '#333',
                 }
               }}
             >
@@ -356,19 +401,20 @@ export default function OutletSubCategoryPage() {
               size={isMobile ? "small" : "medium"}
               sx={{
                 '& .MuiPaginationItem-root': {
-                  border: '2px solid #e0e0e0',
+                  border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
                   fontWeight: 600,
+                  color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                   '&:hover': {
-                    borderColor: '#1976d2',
-                    backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                    borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                    backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                   },
                 },
                 '& .Mui-selected': {
-                  backgroundColor: '#1976d2 !important',
-                  color: 'white !important',
-                  borderColor: '#1976d2 !important',
+                  backgroundColor: customTheme === THEME.LIGHT ? '#1976d2 !important' : '#90caf9 !important',
+                  color: customTheme === THEME.LIGHT ? 'white !important' : '#000 !important',
+                  borderColor: customTheme === THEME.LIGHT ? '#1976d2 !important' : '#90caf9 !important',
                   '&:hover': {
-                    backgroundColor: '#1565c0 !important',
+                    backgroundColor: customTheme === THEME.LIGHT ? '#1565c0 !important' : '#64b5f6 !important',
                   },
                 },
               }}
@@ -379,13 +425,14 @@ export default function OutletSubCategoryPage() {
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
               sx={{
-                border: '2px solid #e0e0e0',
+                border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
+                color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                 '&:hover': {
-                  borderColor: '#1976d2',
-                  backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                  borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                  backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                 },
                 '&.Mui-disabled': {
-                  borderColor: '#f0f0f0',
+                  borderColor: customTheme === THEME.LIGHT ? '#f0f0f0' : '#333',
                 }
               }}
             >
@@ -399,7 +446,7 @@ export default function OutletSubCategoryPage() {
             sx={{ 
               textAlign: 'center', 
               mt: 2, 
-              color: 'text.secondary',
+              color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
               fontWeight: 500
             }}
           >
@@ -418,14 +465,20 @@ export default function OutletSubCategoryPage() {
           <Box sx={{ 
             textAlign: 'center', 
             py: 8,
-            backgroundColor: '#f8f9fa',
+            backgroundColor: customTheme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a',
             borderRadius: 2,
-            border: '2px dashed #e0e0e0'
+            border: `2px dashed ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`
           }}>
-            <Typography variant="h5" sx={{ color: 'text.secondary', mb: 2 }}>
+            <Typography variant="h5" sx={{ 
+              color: customTheme === THEME.LIGHT ? '#666' : '#ccc', 
+              mb: 2 
+            }}>
               Không tìm thấy sản phẩm
             </Typography>
-            <Typography variant="body1" sx={{ color: 'text.secondary', mb: 3 }}>
+            <Typography variant="body1" sx={{ 
+              color: customTheme === THEME.LIGHT ? '#666' : '#ccc', 
+              mb: 3 
+            }}>
               Hiện tại không có sản phẩm {categoryDisplayName.toLowerCase()} trong Outlet
             </Typography>
             <Link
@@ -436,7 +489,7 @@ export default function OutletSubCategoryPage() {
               }}
               sx={{ 
                 textDecoration: 'none',
-                color: '#1976d2',
+                color: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
                 fontWeight: 600,
                 '&:hover': { textDecoration: 'underline' }
               }}
@@ -446,6 +499,7 @@ export default function OutletSubCategoryPage() {
           </Box>
         </motion.div>
       )}
-    </Container>
+      </Container>
+    </Box>
   );
 }

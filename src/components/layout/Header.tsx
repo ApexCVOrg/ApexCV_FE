@@ -19,6 +19,10 @@ import {
   ListItemButton,
   ListItemText,
   Badge,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  TextField,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  InputAdornment,
   Menu,
   ListItemIcon,
 } from '@mui/material';
@@ -38,6 +42,8 @@ import { useCartContext } from '@/context/CartContext';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useFavorites } from '@/hooks/useFavorites';
 import HeaderMenuShoes from './HeaderMenuShoes';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -78,6 +84,10 @@ const Header = () => {
   // Thêm state cho mega menu shoes
   const [showShoesMenu, setShowShoesMenu] = useState(false);
   const [hideHeader, setHideHeader] = useState(false);
+  const { theme } = useTheme();
+
+  // Check if we're on the main page (homepage)
+  const isMainPage = pathname === '/' || pathname === '/en' || pathname === '/vi' || pathname.endsWith('/page');
 
   // Tính background header dựa vào scrollY
   const bannerHeight = 400; // hoặc 60vh, tuỳ ý
@@ -220,48 +230,8 @@ const Header = () => {
       ]
     },
     {
-      title: tHeader('sale.title'),
-      href: ROUTES.SALE.ROOT,
-      submenu: [
-        { title: tHeader('sale.men'), href: ROUTES.SALE.MEN_SALE },
-        { title: tHeader('sale.women'), href: ROUTES.SALE.WOMEN_SALE },
-        { title: tHeader('sale.kids'), href: ROUTES.SALE.KIDS_SALE },
-        { title: tHeader('sale.accessories'), href: ROUTES.SALE.ACCESSORIES_SALE },
-        { title: tHeader('sale.flash'), href: ROUTES.SALE.FLASH_SALE },
-      ],
-    },
-    {
       title: tHeader('outlet.title'),
       href: ROUTES.OUTLET.ROOT,
-      submenu: [
-        {
-          title: tHeader('outlet.men.title'),
-          children: [
-            { title: tHeader('outlet.men.shoes'), href: ROUTES.OUTLET.MEN_SHOES },
-            { title: tHeader('outlet.men.clothing'), href: ROUTES.OUTLET.MEN_CLOTHING },
-            { title: tHeader('outlet.men.accessories'), href: ROUTES.OUTLET.MEN_ACCESSORIES },
-            { title: tHeader('outlet.men.all'), href: ROUTES.OUTLET.MEN },
-          ],
-        },
-        {
-          title: tHeader('outlet.women.title'),
-          children: [
-            { title: tHeader('outlet.women.shoes'), href: ROUTES.OUTLET.WOMEN_SHOES },
-            { title: tHeader('outlet.women.clothing'), href: ROUTES.OUTLET.WOMEN_CLOTHING },
-            { title: tHeader('outlet.women.accessories'), href: ROUTES.OUTLET.WOMEN_ACCESSORIES },
-            { title: tHeader('outlet.women.all'), href: ROUTES.OUTLET.WOMEN },
-          ],
-        },
-        {
-          title: tHeader('outlet.kids.title'),
-          children: [
-            { title: tHeader('outlet.kids.shoes'), href: ROUTES.OUTLET.KIDS_SHOES },
-            { title: tHeader('outlet.kids.clothing'), href: ROUTES.OUTLET.KIDS_CLOTHING },
-            { title: tHeader('outlet.kids.accessories'), href: ROUTES.OUTLET.KIDS_ACCESSORIES },
-            { title: tHeader('outlet.kids.all'), href: ROUTES.OUTLET.KIDS },
-          ],
-        },
-      ],
     },
   ];
 
@@ -342,11 +312,13 @@ const Header = () => {
         position="fixed"
         suppressHydrationWarning
         sx={{
-          bgcolor: 'white',
-          color: '#000',
-          borderBottom: '1px solid #e0e0e0',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          px: { xs: 1, md: 2 },
+          bgcolor: 'transparent !important',
+          color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+          borderBottom: 'none',
+          boxShadow: 'none !important',
+          px: 0,
+          py: 0,
+          m: 0,
           width: '100%',
           left: 0,
           top: 0,
@@ -354,8 +326,27 @@ const Header = () => {
           height: { xs: '64px', sm: '64px', md: '64px' }, // Responsive height
           transition: 'background 0.4s, box-shadow 0.4s, transform 0.4s cubic-bezier(.4,1.2,.6,1)',
           transform: hideHeader ? 'translateY(-100%)' : 'translateY(0)',
+          '& .MuiToolbar-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
+          },
+          '& .MuiPaper-root': {
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+          },
+          '&::before, &::after': {
+            display: 'none !important',
+          },
         }}
         elevation={0}
+        style={{
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          border: 'none',
+          margin: 0,
+          padding: 0,
+        }}
       >
         <Toolbar
           suppressHydrationWarning
@@ -363,10 +354,14 @@ const Header = () => {
             minHeight: { xs: '64px !important', sm: '64px !important', md: '64px !important' },
             height: { xs: '64px', sm: '64px', md: '64px' },
             px: { xs: 1, md: 2 },
+            py: 0,
+            m: 0,
             width: '100%',
             maxWidth: 1920,
             mx: 'auto',
-            bgcolor: 'white',
+            bgcolor: 'transparent !important',
+            boxShadow: 'none !important',
+            border: 'none !important',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
@@ -588,6 +583,7 @@ const Header = () => {
               alignItems: 'center',
               minWidth: 0,
               ml: 'auto',
+              mr: { xs: 0, md: 4 },
               position: 'relative',
               zIndex: 1200,
               flexWrap: 'wrap',
@@ -603,15 +599,15 @@ const Header = () => {
               size="small"
               onClick={toggleLanguage}
               sx={{
-                color: '#000',
-                borderColor: '#000',
+                color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
                 textTransform: 'uppercase',
                 minWidth: 48,
                 fontWeight: 'bold',
                 fontSize: '0.875rem',
                 '&:hover': {
-                  borderColor: '#000',
-                  backgroundColor: 'rgba(0,0,0,0.05)',
+                  borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                  backgroundColor: theme === THEME.LIGHT && isMainPage ? 'rgba(255,255,255,0.1)' : theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                 },
               }}
             >
@@ -622,7 +618,7 @@ const Header = () => {
               color="inherit"
               size="large"
               onClick={() => router.push(ROUTES.CART)}
-              sx={{ color: '#000' }}
+              sx={{ color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
             >
               <Badge badgeContent={cartItemCount} color="secondary">
                 <ShoppingCartIcon />
@@ -635,7 +631,7 @@ const Header = () => {
                 <IconButton
                   onClick={handleClickProfile}
                   size="small"
-                  sx={{ ml: 2, mr: 10, color: '#000' }}
+                  sx={{ ml: 2, mr: 10, color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
                   aria-controls={openProfile ? 'account-menu' : undefined}
                   aria-haspopup="true"
                   aria-expanded={openProfile ? 'true' : undefined}
@@ -745,11 +741,11 @@ const Header = () => {
                   color="inherit"
                   onClick={() => router.push(ROUTES.LOGIN)}
                   sx={{ 
-                    color: '#000', 
-                    borderColor: '#000',
+                    color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff', 
+                    borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: '#000',
-                      backgroundColor: 'rgba(0,0,0,0.05)',
+                      borderColor: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff',
+                      backgroundColor: theme === THEME.LIGHT && isMainPage ? 'rgba(255,255,255,0.1)' : theme === THEME.LIGHT ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)',
                     }
                   }}
                 >
@@ -772,7 +768,7 @@ const Header = () => {
                 color="inherit"
                 size="large"
                 onClick={toggleDrawer(true)}
-                sx={{ color: '#000' }}
+                sx={{ color: theme === THEME.LIGHT && isMainPage ? '#fff' : theme === THEME.LIGHT ? '#000' : '#fff' }}
               >
                 <MenuIcon />
               </IconButton>

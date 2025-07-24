@@ -16,6 +16,8 @@ import { HeroBanner } from '@/components/banner';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -47,6 +49,9 @@ export default function KidsPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
+  
+  // Theme hook
+  const { theme } = useTheme();
 
 
 
@@ -137,7 +142,11 @@ export default function KidsPage() {
   }
 
   return (
-    <>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh'
+    }}>
       {/* Hero Banner */}
       <HeroBanner
         imageSrc="/assets/images/kids/banner/global_smiley_commercial_ss25_launch_kids_glp_banner_hero_4_d_49322caabb.avif"
@@ -149,7 +158,7 @@ export default function KidsPage() {
       />
       <Container maxWidth="xl" disableGutters>
         {/* Categories Section */}
-        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
+        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: theme === THEME.LIGHT ? '#fff' : '#000' }}>
           <Container maxWidth="lg">
             <Typography
               variant="h3"
@@ -158,7 +167,7 @@ export default function KidsPage() {
               sx={{
                 fontWeight: 'bold',
                 mb: 2,
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
               }}
             >
               MUA SẮM THEO DANH MỤC
@@ -167,7 +176,7 @@ export default function KidsPage() {
               variant="h6"
               align="center"
               sx={{
-                color: 'text.secondary',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
                 mb: 6,
                 fontWeight: 300,
               }}
@@ -214,7 +223,7 @@ export default function KidsPage() {
                       },
                     }}
                   >
-                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333' }}>
                       <CardMedia
                         component="img"
                         image={category.image}
@@ -274,7 +283,7 @@ export default function KidsPage() {
         </Box>
 
         {/* Featured Products */}
-        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
+        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a' }}>
           <Container maxWidth="lg">
             <Box
               sx={{
@@ -292,7 +301,7 @@ export default function KidsPage() {
                   component="h2"
                   sx={{
                     fontWeight: 'bold',
-                    color: 'text.primary',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     mb: 1,
                   }}
                 >
@@ -301,7 +310,7 @@ export default function KidsPage() {
                 <Typography
                   variant="h6"
                   sx={{
-                    color: 'text.secondary',
+                    color: theme === THEME.LIGHT ? '#666' : '#ccc',
                     fontWeight: 300,
                   }}
                 >
@@ -318,7 +327,7 @@ export default function KidsPage() {
                   minHeight: '300px',
                 }}
               >
-                <CircularProgress size={60} sx={{ color: 'black' }} />
+                <CircularProgress size={60} sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }} />
               </Box>
             )}
             {error && (
@@ -338,12 +347,12 @@ export default function KidsPage() {
                   variant="outlined"
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white',
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000',
                     },
                   }}
                 >
@@ -361,19 +370,19 @@ export default function KidsPage() {
                   justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
+                <Typography variant="h5" align="center" sx={{ mb: 2, color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Không tìm thấy sản phẩm nào
                 </Typography>
                 <Button
                   variant="outlined"
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white',
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000',
                     },
                   }}
                 >
@@ -393,9 +402,13 @@ export default function KidsPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
+                    '&:hover': { 
+                      bgcolor: theme === THEME.LIGHT ? 'white' : 'rgba(0,0,0,0.9)',
+                      color: theme === THEME.LIGHT ? '#000' : '#fff'
+                    },
                     '&.Mui-disabled': { opacity: 0 },
                   }}
                 >
@@ -412,9 +425,13 @@ export default function KidsPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
+                    '&:hover': { 
+                      bgcolor: theme === THEME.LIGHT ? 'white' : 'rgba(0,0,0,0.9)',
+                      color: theme === THEME.LIGHT ? '#000' : '#fff'
+                    },
                     '&.Mui-disabled': { opacity: 0 },
                   }}
                 >
@@ -483,11 +500,11 @@ export default function KidsPage() {
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#ccc' : '#666'),
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#999' : '#888'),
                           transform: 'scale(1.2)',
                         },
                       }}
@@ -499,6 +516,6 @@ export default function KidsPage() {
           </Container>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 }

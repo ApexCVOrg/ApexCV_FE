@@ -21,6 +21,8 @@ import { useRouter } from 'next/navigation';
 import ProductCard from '@/components/card';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 import api from '@/services/api';
 import { useEffect } from 'react';
 
@@ -28,6 +30,8 @@ export default function FavoritesPage() {
   const t = useTranslations('favorites');
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === THEME.DARK;
   const { favorites, favoritesCount, loading, error, clearAllFavorites } = useFavorites();
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [clearing, setClearing] = useState(false);
@@ -82,16 +86,49 @@ export default function FavoritesPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Box 
+      sx={{ 
+        backgroundColor: isDark ? '#000' : '#fff',
+        minHeight: '100vh',
+        width: '100%',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflowY: 'auto',
+        zIndex: 1,
+      }}
+    >
+      <Container 
+        maxWidth="xl" 
+        sx={{ 
+          py: 4,
+          pt: 12, // Add top padding to avoid header overlap
+          backgroundColor: 'transparent',
+        }}
+      >
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <FavoriteIcon sx={{ fontSize: 32, color: 'error.main' }} />
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 'bold',
+              color: isDark ? '#e0e0e0' : '#333',
+            }}
+          >
             {t('title')}
           </Typography>
           {favoritesCount > 0 && (
-            <Typography variant="h6" color="text.secondary">
+            <Typography 
+              variant="h6" 
+              sx={{ 
+                color: isDark ? '#ccc' : '#666',
+              }}
+            >
               ({favoritesCount} {t('items')})
             </Typography>
           )}
@@ -104,7 +141,15 @@ export default function FavoritesPage() {
               color="error"
               startIcon={<DeleteIcon />}
               onClick={() => setClearDialogOpen(true)}
-              sx={{ minWidth: 120 }}
+              sx={{ 
+                minWidth: 120,
+                borderColor: isDark ? '#d32f2f' : undefined,
+                color: isDark ? '#f44336' : undefined,
+                '&:hover': {
+                  borderColor: isDark ? '#f44336' : undefined,
+                  backgroundColor: isDark ? 'rgba(244, 67, 54, 0.08)' : undefined,
+                },
+              }}
             >
               {t('clearAll')}
             </Button>
@@ -114,7 +159,17 @@ export default function FavoritesPage() {
 
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 3,
+            backgroundColor: isDark ? '#1a1a1a' : undefined,
+            color: isDark ? '#e0e0e0' : undefined,
+            '& .MuiAlert-icon': {
+              color: isDark ? '#f44336' : undefined,
+            },
+          }}
+        >
           {error}
         </Alert>
       )}
@@ -122,7 +177,12 @@ export default function FavoritesPage() {
       {/* Loading State */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress size={60} />
+          <CircularProgress 
+            size={60} 
+            sx={{ 
+              color: isDark ? '#90caf9' : '#1976d2',
+            }}
+          />
         </Box>
       )}
 
@@ -137,18 +197,42 @@ export default function FavoritesPage() {
             textAlign: 'center',
           }}
         >
-          <FavoriteIcon sx={{ fontSize: 80, color: 'grey.400', mb: 2 }} />
-          <Typography variant="h5" color="text.secondary" gutterBottom>
+          <FavoriteIcon sx={{ 
+            fontSize: 80, 
+            color: isDark ? '#666' : '#ccc', 
+            mb: 2 
+          }} />
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              color: isDark ? '#ccc' : '#666',
+              mb: 1,
+            }}
+            gutterBottom
+          >
             {t('emptyTitle')}
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 400 }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: isDark ? '#999' : '#666',
+              mb: 3, 
+              maxWidth: 400 
+            }}
+          >
             {t('emptyDescription')}
           </Typography>
           <Button
             variant="contained"
             color="primary"
             onClick={() => router.push('/')}
-            sx={{ minWidth: 200 }}
+            sx={{ 
+              minWidth: 200,
+              backgroundColor: isDark ? '#90caf9' : '#1976d2',
+              '&:hover': {
+                backgroundColor: isDark ? '#64b5f6' : '#1565c0',
+              },
+            }}
           >
             {t('startShopping')}
           </Button>
@@ -189,13 +273,35 @@ export default function FavoritesPage() {
       )}
 
       {/* Clear All Dialog */}
-      <Dialog open={clearDialogOpen} onClose={() => setClearDialogOpen(false)}>
-        <DialogTitle>{t('clearAllConfirmTitle')}</DialogTitle>
+      <Dialog 
+        open={clearDialogOpen} 
+        onClose={() => setClearDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: isDark ? '#1a1a1a' : '#fff',
+            color: isDark ? '#e0e0e0' : '#333',
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: isDark ? '#e0e0e0' : '#333' }}>
+          {t('clearAllConfirmTitle')}
+        </DialogTitle>
         <DialogContent>
-          <Typography>{t('clearAllConfirmMessage', { count: favoritesCount })}</Typography>
+          <Typography sx={{ color: isDark ? '#ccc' : '#666' }}>
+            {t('clearAllConfirmMessage', { count: favoritesCount })}
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setClearDialogOpen(false)} disabled={clearing}>
+          <Button 
+            onClick={() => setClearDialogOpen(false)} 
+            disabled={clearing}
+            sx={{ 
+              color: isDark ? '#90caf9' : '#1976d2',
+              '&:hover': {
+                backgroundColor: isDark ? 'rgba(144, 202, 249, 0.08)' : undefined,
+              },
+            }}
+          >
             {t('cancel')}
           </Button>
           <Button
@@ -204,11 +310,18 @@ export default function FavoritesPage() {
             variant="contained"
             disabled={clearing}
             startIcon={clearing ? <CircularProgress size={16} /> : <DeleteIcon />}
+            sx={{ 
+              backgroundColor: isDark ? '#d32f2f' : undefined,
+              '&:hover': {
+                backgroundColor: isDark ? '#c62828' : undefined,
+              },
+            }}
           >
             {clearing ? t('clearing') : t('clearAll')}
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+      </Container>
+    </Box>
   );
 }

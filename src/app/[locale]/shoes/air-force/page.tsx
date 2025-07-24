@@ -5,6 +5,8 @@ import Link from "next/link";
 import ProductCard from "@/components/card";
 import { sortProductsClientSide, convertSortParams } from "@/lib/utils/sortUtils";
 import { ApiProduct } from '@/types';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -22,6 +24,7 @@ export default function AirForcePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('newest');
+  const { theme } = useTheme();
 
   // Function to fix image URLs
   const fixImageUrl = (imageUrl: string): string => {
@@ -114,7 +117,26 @@ export default function AirForcePage() {
   }, [sortBy]);
 
   return (
-    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '80vh', mt: 10, position: 'relative', pb: 12 }}>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000', 
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '80vh', 
+      pt: 10, // Add padding top for theme-aware whitespace
+      position: 'relative', 
+      pb: 12 
+    }}>
+      {/* Theme-aware whitespace above banner */}
+      <Box
+        sx={{
+          width: '100vw',
+          height: 80, // 80px height for whitespace
+          mx: 'calc(-50vw + 50%)',
+          bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      />
+      
       {/* Banner */}
       <Box
         sx={{
@@ -192,7 +214,7 @@ export default function AirForcePage() {
                 display: 'flex',
                 alignItems: 'center',
                 textDecoration: 'none',
-                color: 'inherit',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
                 fontWeight: 700,
                 marginRight: 2,
               }}
@@ -202,29 +224,39 @@ export default function AirForcePage() {
             <Link href="/" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Home
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Link href="/shoes" style={{ textDecoration: 'none' }}>
               <Typography
                 component="span"
-                sx={{ color: '#000', fontWeight: 400, fontSize: '1rem', transition: 'color 0.2s' }}
+                sx={{ 
+                  color: theme === THEME.LIGHT ? '#000' : '#fff', 
+                  fontWeight: 400, 
+                  fontSize: '1rem', 
+                  transition: 'color 0.2s' 
+                }}
               >
                 Shoes
               </Typography>
             </Link>
-            <Typography component="span" sx={{ color: '#000', mx: 0.5 }}>
+            <Typography component="span" sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff', mx: 0.5 }}>
               /
             </Typography>
             <Typography
               component="span"
               sx={{
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? '#000' : '#fff',
                 fontWeight: 500,
                 textDecoration: 'underline',
                 textUnderlineOffset: '4px',
@@ -235,10 +267,18 @@ export default function AirForcePage() {
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Typography variant="h3" component="h1" sx={{ fontWeight: 'bold', mb: 0 }}>
+            <Typography variant="h3" component="h1" sx={{ 
+              fontWeight: 'bold', 
+              mb: 0,
+              color: theme === THEME.LIGHT ? '#000' : '#fff'
+            }}>
               NIKE AIR FORCE
             </Typography>
-            <Typography variant="body2" sx={{ color: '#000', fontWeight: 400, ml: 1 }}>
+            <Typography variant="body2" sx={{ 
+              color: theme === THEME.LIGHT ? '#000' : '#fff', 
+              fontWeight: 400, 
+              ml: 1 
+            }}>
               [{products.length}]
             </Typography>
           </Box>
@@ -251,9 +291,45 @@ export default function AirForcePage() {
         sx={{ mb: 3, position: 'relative', zIndex: 2, mt: 6, px: { xs: 1, md: 4 } }}
       >
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl sx={{ 
+            minWidth: 200,
+            '& .MuiInputLabel-root': {
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#ddd' : '#444',
+              },
+              '&:hover fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#999' : '#666',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+              },
+            },
+            '& .MuiSelect-select': {
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            },
+          }}>
             <InputLabel>Sort By</InputLabel>
-            <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
+            <Select 
+              value={sortBy} 
+              label="Sort By" 
+              onChange={e => setSortBy(e.target.value)}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    '& .MuiMenuItem-root': {
+                      '&:hover': {
+                        bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                      },
+                    },
+                  },
+                },
+              }}
+            >
               <MenuItem value="newest">Newest</MenuItem>
               <MenuItem value="price-low">Price: Low to High</MenuItem>
               <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -266,7 +342,11 @@ export default function AirForcePage() {
           {loading ? (
             <Typography
               variant="h6"
-              sx={{ color: 'text.secondary', textAlign: 'center', width: '100%' }}
+              sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc', 
+                textAlign: 'center', 
+                width: '100%' 
+              }}
             >
               Loading...
             </Typography>
@@ -299,10 +379,15 @@ export default function AirForcePage() {
             ))
           ) : (
             <Box sx={{ textAlign: 'center', py: 8, width: '100%' }}>
-              <Typography variant="h5" sx={{ color: 'text.secondary', mb: 2 }}>
+              <Typography variant="h5" sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc', 
+                mb: 2 
+              }}>
                 Không tìm thấy sản phẩm Air Force
               </Typography>
-              <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+              <Typography variant="body1" sx={{ 
+                color: theme === THEME.LIGHT ? '#666' : '#ccc' 
+              }}>
                 Sản phẩm có thể đang được cập nhật hoặc tạm thời không có sẵn.
               </Typography>
             </Box>
