@@ -3,12 +3,14 @@ import axios from 'axios';
 // ==== Local Types to avoid any ==== 
 type Coupon = { id?: string; code?: string; [k: string]: unknown };
 type SepayTransaction = {
-  id: string;
+  _id: string;
+  type: 'sepay_payment' | 'points_used' | 'points_earned' | 'refund';
   amount: number;
   points: number;
   createdAt: string;
   transactionId?: string;
-  status?: string;
+  description?: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
 };
 type ConfirmSepayResponse = {
   success: boolean;
