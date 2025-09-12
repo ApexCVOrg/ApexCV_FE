@@ -16,10 +16,9 @@ import {
 import {
   AccountBalanceWallet as WalletIcon,
   Add as AddIcon,
-  Refresh as RefreshIcon,
-  History as HistoryIcon
+  Refresh as RefreshIcon
 } from '@mui/icons-material'
-import { getUserPoints, getPointsHistory } from '../../services/api'
+import { getUserPoints } from '../../services/api'
 import SepayPayment from '../payment/SepayPayment'
 
 interface UserPointsProps {
@@ -37,13 +36,13 @@ const UserPoints: React.FC<UserPointsProps> = ({ userId, showActions = true }) =
     fetchUserPoints()
   }, [userId])
 
-  const fetchUserPoints = async () => {
+  const fetchUserPoints = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
       const response = await getUserPoints()
       setPoints(response.data.points)
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError('Không thể tải thông tin điểm')
       console.error('Error fetching user points:', error)
     } finally {

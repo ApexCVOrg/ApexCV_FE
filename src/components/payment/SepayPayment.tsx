@@ -17,7 +17,6 @@ import {
   Stepper,
   Step,
   StepLabel,
-  Chip,
   Divider,
   IconButton,
   InputAdornment
@@ -27,7 +26,7 @@ import {
   AccountBalanceWallet as WalletIcon,
   CheckCircle as CheckCircleIcon,
   Close as CloseIcon,
-  ContentCopy as CopyIcon
+  
 } from '@mui/icons-material'
 import { createSepayPayment, checkPaymentStatus, getUserPoints } from '../../services/api'
 
@@ -130,8 +129,9 @@ const SepayPayment: React.FC<SepayPaymentProps> = ({ open, onClose, onSuccess })
       
       // Bắt đầu polling để kiểm tra trạng thái thanh toán
       startPolling(response.sessionId)
-    } catch (error: any) {
-      setError(error.message || 'Có lỗi xảy ra khi tạo QR code')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Có lỗi xảy ra khi tạo QR code'
+      setError(message)
     } finally {
       setLoading(false)
     }
@@ -154,10 +154,7 @@ const SepayPayment: React.FC<SepayPaymentProps> = ({ open, onClose, onSuccess })
     onClose()
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    setSuccess('Đã sao chép vào clipboard!')
-  }
+  // copyToClipboard removed (unused)
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {

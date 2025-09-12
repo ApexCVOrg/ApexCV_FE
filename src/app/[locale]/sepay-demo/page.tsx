@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   Box,
   Container,
@@ -10,25 +10,17 @@ import {
   Button,
   Grid,
   Alert,
-  Divider,
   Paper
 } from '@mui/material'
-import {
-  AccountBalanceWallet as WalletIcon,
-  QrCode as QrCodeIcon,
-  Payment as PaymentIcon
-} from '@mui/icons-material'
+import { QrCode as QrCodeIcon, Payment as PaymentIcon } from '@mui/icons-material'
 import UserPoints from '../../../components/user/UserPoints'
 import PointsHistory from '../../../components/user/PointsHistory'
 import SepayPayment from '../../../components/payment/SepayPayment'
 
 const SepayDemoPage: React.FC = () => {
   const [sepayOpen, setSepayOpen] = useState<boolean>(false)
-  const [userPoints, setUserPoints] = useState<number>(0)
 
-  const handleSepaySuccess = (points: number) => {
-    setUserPoints(points)
-  }
+  const handleSepaySuccess = () => {}
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

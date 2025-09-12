@@ -57,7 +57,7 @@ const PointsHistory: React.FC<PointsHistoryProps> = ({ userId }) => {
     fetchHistory()
   }, [page, userId])
 
-  const fetchHistory = async () => {
+  const fetchHistory = async (): Promise<void> => {
     try {
       setLoading(true)
       setError('')
@@ -65,7 +65,7 @@ const PointsHistory: React.FC<PointsHistoryProps> = ({ userId }) => {
       setTransactions(response.data.history)
       setTotalPages(response.data.pagination.pages)
       setTotal(response.data.pagination.total)
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError('Không thể tải lịch sử giao dịch')
       console.error('Error fetching points history:', error)
     } finally {
@@ -111,7 +111,7 @@ const PointsHistory: React.FC<PointsHistoryProps> = ({ userId }) => {
     }
   }
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string): 'success' | 'warning' | 'error' | 'default' => {
     switch (status) {
       case 'completed':
         return 'success'
@@ -256,7 +256,7 @@ const PointsHistory: React.FC<PointsHistoryProps> = ({ userId }) => {
                       <TableCell>
                         <Chip
                           label={transaction.status}
-                          color={getStatusColor(transaction.status) as any}
+                          color={getStatusColor(transaction.status)}
                           size="small"
                         />
                       </TableCell>
