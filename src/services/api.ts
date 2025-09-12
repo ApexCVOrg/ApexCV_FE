@@ -148,4 +148,191 @@ export async function getRefundHistoryByOrder(orderId: string): Promise<unknown[
   return [];
 }
 
+/**
+ * Lấy danh sách coupon khả dụng cho user/cart
+ */
+export async function getAvailableCoupons(): Promise<any[]> {
+  const res = await api.get('/coupon');
+  const data = res.data as { success?: boolean; data?: any[] };
+  if (data && data.success && Array.isArray(data.data)) return data.data;
+  return [];
+}
+
+/**
+ * Tạo QR code thanh toán Sepay
+ */
+export async function createSepayPayment(data: { amount: number; description?: string }): Promise<{
+  success: boolean;
+  qrCodeUrl: string;
+  sessionId: string;
+  amount: number;
+  message: string;
+}> {
+  const token = localStorage.getItem('auth_token');
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  const apiUrl = `${baseURL}/sepay/create`;
+
+  console.log('[Frontend] Calling Sepay API:', apiUrl);
+  console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
+
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+
+  console.log('[Frontend] Response status:', res.status);
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('[Frontend] API Error:', errorText);
+    throw new Error(`Tạo QR code thanh toán thất bại: ${res.status} - ${errorText}`);
+  }
+
+  const json = await res.json();
+  console.log('[Frontend] API Response:', json);
+  return json;
+}
+
+/**
+ * Xác nhận thanh toán Sepay
+ */
+export async function confirmSepayPayment(data: {
+  sessionId: string;
+  transactionId: string;
+  amount: number;
+}): Promise<{
+  success: boolean;
+  message: string;
+  data: {
+    transaction: any;
+    user: {
+      id: string;
+      points: number;
+    };
+  };
+  newBalance?: number;
+}> {
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+  const apiUrl = `${baseURL}/sepay/confirm`;
+
+  console.log('[Frontend] Calling Sepay Confirm API:', apiUrl);
+  console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
+
+  const res = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+
+  console.log('[Frontend] Response status:', res.status);
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('[Frontend] API Error:', errorText);
+    throw new Error(`Xác nhận thanh toán thất bại: ${res.status} - ${errorText}`);
+  }
+
+  const json = await res.json();
+  console.log('[Frontend] API Response:', json);
+  return json;
+}
+
+/**
+ * Lấy thông tin điểm của user
+ */
+export async function getUserPoints(): Promise<{
+  success: boolean;
+  data: {
+    userId: string;
+    username: string;
+    email: string;
+    points: number;
+  };
+}> {
+  const res = await api.get('/sepay/points');
+  return res.data as {
+    success: boolean;
+    data: {
+      userId: string;
+      username: string;
+      email: string;
+      points: number;
+    };
+  };
+}
+
+/**
+ * Kiểm tra trạng thái thanh toán
+ */
+export async function checkPaymentStatus(sessionId: string): Promise<{
+  success: boolean;
+  paid: boolean;
+  transaction?: {
+    id: string;
+    amount: number;
+    points: number;
+    createdAt: string;
+  };
+  user?: {
+    points: number;
+  };
+  message?: string;
+}> {
+  const res = await api.get(`/sepay/status/${sessionId}`);
+  return res.data as {
+    success: boolean;
+    paid: boolean;
+    transaction?: {
+      id: string;
+      amount: number;
+      points: number;
+      createdAt: string;
+    };
+    user?: {
+      points: number;
+    };
+    message?: string;
+  };
+}
+
+/**
+ * Lấy lịch sử giao dịch điểm
+ */
+export async function getPointsHistory(): Promise<{
+  success: boolean;
+  data: {
+    history: any[];
+    pagination: {
+      page: number;
+      limit: number;
+      total: number;
+      pages: number;
+    };
+  };
+}> {
+  const res = await api.get('/sepay/points/history');
+  return res.data as {
+    success: boolean;
+    data: {
+      history: any[];
+      pagination: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    };
+  };
+}
+
 export default api;

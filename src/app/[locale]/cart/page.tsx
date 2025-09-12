@@ -39,6 +39,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { profileService } from '@/services/profile';
 import React from 'react';
 import SizeRecommender from '@/components/SizeRecommender';
+import { getAvailableCoupons } from '@/services/api';
 import { useTheme } from '@/hooks/useTheme';
 import { THEME } from '@/lib/constants/constants';
 
@@ -259,6 +260,11 @@ export default function CartPage() {
   const t = useTranslations('cartPage');
   const { isAuthenticated } = useAuth();
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+
+  useEffect(() => {
+    getAvailableCoupons().then(setAvailableCoupons);
+  }, []);
   const { theme } = useTheme();
 
   const [localCartItems, setLocalCartItems] = useState<CartItemWithId[]>(cart?.cartItems as CartItemWithId[] || []);
@@ -1194,6 +1200,25 @@ export default function CartPage() {
                               </>
                             ) : null}
                           </Alert>
+                        )}
+
+                        {/* Gợi ý coupon */}
+                        {availableCoupons.length > 0 && (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+                            {availableCoupons.map((coupon) => (
+                              <Chip
+                                key={coupon.code}
+                                label={coupon.code + (coupon.description ? ` - ${coupon.description}` : '')}
+                                color="primary"
+                                variant="outlined"
+                                onClick={() => {
+                                  setCouponInputs(v => ({ ...v, [cartItem._id]: coupon.code }));
+                                  handleApplyCoupon(cartItem);
+                                }}
+                                sx={{ cursor: 'pointer', fontWeight: 700 }}
+                              />
+                            ))}
+                          </Box>
                         )}
 
                         {/* Quantity controls */}
