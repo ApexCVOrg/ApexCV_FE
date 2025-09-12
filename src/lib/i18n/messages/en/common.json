@@ -306,8 +306,10 @@
       "users": "Users",
       "customers": "Customers",
       "settings": "Settings",
+      "coupons": "Coupons",
       "chat": "Chat",
       "logout": "Logout",
+      "coupons": "Coupons",
       "auditLog": "Audit Log"
     },
     "categories": {
@@ -598,6 +600,8 @@
     "usernameLabel": "Username",
     "profile": "Profile",
     "logout": "Logout",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
     "errors": {
       "usernameRequired": "Username is required.",
       "usernameLength": "Username must be at least 3 characters.",

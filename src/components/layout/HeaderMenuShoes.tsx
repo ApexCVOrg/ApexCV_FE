@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Typography, List, ListItem, ListItemText } from '@mui/material';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants/constants';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 const allNewShoes = [
   { name: 'ADIZERO', route: '/shoes/adizero' },
@@ -39,11 +41,14 @@ const featured = [
 ];
 
 export default function HeaderMenuShoes() {
+  const { theme } = useTheme();
+
   return (
     <Box
       sx={{
-        bgcolor: 'white',
-        boxShadow: 3,
+        bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+        color: theme === THEME.LIGHT ? '#000' : '#fff',
+        boxShadow: theme === THEME.LIGHT ? 3 : '0 4px 20px rgba(0,0,0,0.3)',
         borderRadius: 2,
         p: 1.5,
         minWidth: 700,
@@ -58,7 +63,7 @@ export default function HeaderMenuShoes() {
           sx={{
             minWidth: 200,
             pr: 3,
-            borderRight: '1px solid #eee',
+            borderRight: `1px solid ${theme === THEME.LIGHT ? '#eee' : '#333'}`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -121,7 +126,7 @@ export default function HeaderMenuShoes() {
                   sx={{
                     width: 260,
                     height: 180,
-                    bgcolor: '#f7f7f7',
+                    bgcolor: theme === THEME.LIGHT ? '#f7f7f7' : '#2a2a2a',
                     borderRadius: 2,
                     overflow: 'hidden',
                     mb: 1,
@@ -146,7 +151,7 @@ export default function HeaderMenuShoes() {
           sx={{
             minWidth: 200,
             pr: 3,
-            borderRight: '1px solid #eee',
+            borderRight: `1px solid ${theme === THEME.LIGHT ? '#eee' : '#333'}`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-start',
@@ -209,7 +214,7 @@ export default function HeaderMenuShoes() {
                   sx={{
                     width: 260,
                     height: 180,
-                    bgcolor: '#f7f7f7',
+                    bgcolor: theme === THEME.LIGHT ? '#f7f7f7' : '#2a2a2a',
                     borderRadius: 2,
                     overflow: 'hidden',
                     mb: 1,

@@ -65,7 +65,7 @@ const Footer = () => {
               <Link href={ROUTES.ACCESSORIES.ROOT} style={linkStyle}>
                 Accessories
               </Link>
-              <Link href={ROUTES.SALE.ROOT} style={linkStyle}>
+              <Link href={ROUTES.OUTLET.ROOT} style={linkStyle}>
                 Sale
               </Link>
             </Stack>

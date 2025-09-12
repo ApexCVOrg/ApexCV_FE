@@ -7,137 +7,193 @@ import ProductCard from "@/components/card";
 import StarIcon from '@mui/icons-material/Star';
 import api from '@/services/api';
 import { Rating, Button, Card, CardContent, Typography, Box, CircularProgress, TextField, Grid, Chip } from '@mui/material';
-import styled from '@emotion/styled';
+import { styled } from '@mui/material/styles';
 import { getRefundHistoryByOrder } from '@/services/api';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 // Styled components for better organization and reusability of styles
-const PageContainer = styled(Box)`
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 24px;
-`;
+const PageContainer = styled(Box)(({ theme }) => ({
+  maxWidth: '100%',
+  margin: '0 auto',
+  padding: 16,
+  minHeight: '100vh',
+  backgroundColor: 'transparent',
+}));
 
-const SectionTitle = styled(Typography)`
-  font-weight: 600; /* Adjusted font-weight for consistency */
-  margin-bottom: 24px;
-  color: #111a2f;
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif; /* Ensuring consistent font family */
-`;
+const SectionTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 600,
+  padding: 56,
+  marginBottom: 16,
+  color: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
+  fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
+}));
 
-const OrderCard = styled(Card)`
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease-in-out;
-  &:hover {
-    transform: translateY(-4px);
-  }
-`;
+const OrderCard = styled(Card)(({ theme }) => ({
+  borderRadius: 8,
+  border: `1px solid ${theme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+  boxShadow: theme.palette.mode === 'light' 
+    ? '0 2px 8px rgba(0,0,0,0.05)' 
+    : '0 2px 8px rgba(0,0,0,0.3)',
+  transition: 'transform 0.2s ease-in-out',
+  backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+  width: '100%',
+  marginBottom: 12,
+  '& .MuiCardContent-root': {
+    backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+    padding: '16px',
+  },
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: theme.palette.mode === 'light' 
+      ? '0 4px 16px rgba(0,0,0,0.1)' 
+      : '0 4px 16px rgba(0,0,0,0.5)',
+  },
+}));
 
-const ProductItemContainer = styled(Box)`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 8px 0;
-  border-bottom: 1px dashed #eee;
-  &:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-`;
+const ProductItemContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  marginBottom: 8,
+  padding: '6px 0',
+  borderBottom: `1px dashed ${theme.palette.mode === 'light' ? '#eee' : '#333'}`,
+  '&:last-child': {
+    borderBottom: 'none',
+    marginBottom: 0,
+  },
+}));
 
-const ProductImage = styled('img')`
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid #eee;
-`;
+const ProductImage = styled('img')(({ theme }) => ({
+  width: 50,
+  height: 50,
+  objectFit: 'cover',
+  borderRadius: 6,
+  border: `1px solid ${theme.palette.mode === 'light' ? '#eee' : '#444'}`,
+}));
 
-const ReviewCard = styled(Card)`
-  margin-top: 16px;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-`;
+const ReviewCard = styled(Card)(({ theme }) => ({
+  marginTop: 12,
+  backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+  border: `1px solid ${theme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+  borderRadius: 8,
+  padding: 12,
+  width: '100%',
+  boxShadow: theme.palette.mode === 'light' 
+    ? '0 2px 8px rgba(0,0,0,0.04)' 
+    : '0 2px 8px rgba(0,0,0,0.2)',
+  '& .MuiCardContent-root': {
+    backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+    padding: '16px',
+  },
+}));
 
-const ReviewFormCard = styled(Card)`
-  margin-top: 16px;
-  background: #fff;
-  border: 1px solid #111a2f;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-`;
+const ReviewFormCard = styled(Card)(({ theme }) => ({
+  marginTop: 12,
+  backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+  border: `1px solid ${theme.palette.mode === 'light' ? '#111a2f' : '#666'}`,
+  borderRadius: 8,
+  padding: 12,
+  width: '100%',
+  boxShadow: theme.palette.mode === 'light' 
+    ? '0 2px 8px rgba(0,0,0,0.06)' 
+    : '0 2px 8px rgba(0,0,0,0.3)',
+  '& .MuiCardContent-root': {
+    backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+    padding: '16px',
+  },
+}));
 
-const StyledRatingContainer = styled(Box)`
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-`;
+const StyledRatingContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: 12,
+}));
 
-const StyledStarIcon = styled(StarIcon)`
-  font-size: 28px;
-  cursor: pointer;
-  transition: color 0.2s;
-`;
+const StyledStarIcon = styled(StarIcon)(({ theme }) => ({
+  fontSize: 28,
+  cursor: 'pointer',
+  transition: 'color 0.2s',
+  color: theme.palette.mode === 'light' ? '#e0e0e0' : '#444',
+  '&:hover': {
+    color: '#FFD600',
+  },
+}));
 
-const StyledTextArea = styled(TextField)`
-  width: 100%;
-  margin-bottom: 16px;
-  .MuiOutlinedInput-root {
-    border-radius: 8px;
-    background: #fafbfc;
-    font-weight: 500;
-  }
-  .MuiOutlinedInput-notchedOutline {
-    border-color: #e0e0e0;
-  }
-  &:hover .MuiOutlinedInput-notchedOutline {
-    border-color: #111a2f;
-  }
-  &.Mui-focused .MuiOutlinedInput-notchedOutline {
-    border-color: #111a2f;
-    border-width: 2px;
-  }
-`;
+const StyledTextArea = styled(TextField)(({ theme }) => ({
+  width: '100%',
+  marginBottom: 16,
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 8,
+    backgroundColor: theme.palette.mode === 'light' ? '#fafbfc' : '#2a2a2a',
+    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+    fontWeight: 500,
+  },
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: theme.palette.mode === 'light' ? '#e0e0e0' : '#444',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: theme.palette.mode === 'light' ? '#111a2f' : '#666',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
+    borderWidth: 2,
+  },
+  '& .MuiInputLabel-root': {
+    color: theme.palette.mode === 'light' ? '#666' : '#ccc',
+    '&.Mui-focused': {
+      color: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
+    },
+  },
+  '& .MuiInputBase-input': {
+    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+  },
+}));
 
-const SubmitButton = styled(Button)`
-  background: ${props => (props.disabled ? '#bdbdbd' : '#111a2f')};
-  color: #fff;
-  border-radius: 8px;
-  padding: 10px 24px;
-  font-weight: 700;
-  font-size: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  transition: background 0.2s, transform 0.2s;
-  &:hover {
-    background: ${props => (props.disabled ? '#bdbdbd' : '#222c4c')};
-    transform: translateY(-2px);
-  }
-  &:disabled {
-    cursor: not-allowed;
-  }
-`;
+const SubmitButton = styled(Button)(({ theme }) => ({
+  background: theme.palette.mode === 'light' ? '#111a2f' : '#fff',
+  color: theme.palette.mode === 'light' ? '#fff' : '#000',
+  borderRadius: 8,
+  padding: '10px 24px',
+  fontWeight: 700,
+  fontSize: 16,
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  transition: 'background 0.2s, transform 0.2s',
+  '&:hover': {
+    background: theme.palette.mode === 'light' ? '#222c4c' : '#f0f0f0',
+    transform: 'translateY(-2px)',
+  },
+  '&:disabled': {
+    background: theme.palette.mode === 'light' ? '#bdbdbd' : '#666',
+    cursor: 'not-allowed',
+    transform: 'none',
+  },
+}));
+
+const PriceSummaryBox = styled(Box)(({ theme }) => ({
+  marginTop: 12,
+  marginBottom: 6,
+  padding: 12,
+  backgroundColor: theme.palette.mode === 'light' ? '#fafbfc' : '#2a2a2a',
+  borderRadius: 6,
+  border: `1px solid ${theme.palette.mode === 'light' ? '#eee' : '#444'}`,
+}));
 
 interface OrderItem {
   product: Product | { _id: string; name?: string; images?: string[]; price?: number; discountPrice?: number; } | string;
   quantity: number;
   price?: number;
   size?: { size: string; color?: string }[];
-  coupon?: { newPrice?: number }; // <-- Add this line
+  coupon?: { newPrice?: number };
 }
 
 interface Order {
   _id: string;
   createdAt: string;
   orderItems: OrderItem[];
-  orderStatus?: string; // Added orderStatus to the interface
-  shippingFee?: number; // Add this
-  shippingDiscount?: number; // Add this
+  orderStatus?: string;
+  shippingFee?: number;
+  shippingDiscount?: number;
 }
 
 interface Product {
@@ -152,6 +208,7 @@ interface Product {
 
 const HistoryPage = () => {
   const { isAuthenticated, getToken } = useAuth();
+  const { theme } = useTheme();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -290,7 +347,6 @@ const HistoryPage = () => {
       setRefreshKey(k => k + 1);
     } catch (error) {
       console.error(`Failed to submit review for product ${productId}:`, error);
-      // You could add a user-facing error message here
     } finally {
       setSubmitting(s => ({ ...s, [productId]: false }));
     }
@@ -302,6 +358,7 @@ const HistoryPage = () => {
     const price = product.discountPrice || product.price || item.price || 0;
     return sum + price * item.quantity;
   }, 0);
+  
   // Helper: Tính tổng giảm giá coupon sản phẩm
   const getProductCouponDiscount = (order: Order) => order.orderItems.reduce((sum, item) => {
     const product = typeof item.product === 'object' && item.product ? item.product as Partial<Product> : {};
@@ -312,9 +369,11 @@ const HistoryPage = () => {
     }
     return sum;
   }, 0);
-  // Helper: Lấy phí vận chuyển và giảm giá phí vận chuyển (giả sử có trường shippingFee, shippingDiscount trên order, nếu không thì mặc định)
+  
+  // Helper: Lấy phí vận chuyển và giảm giá phí vận chuyển
   const getShippingFee = (order: Order) => order.shippingFee ?? 30000;
   const getShippingDiscount = (order: Order) => order.shippingDiscount ?? 0;
+  
   // Helper: Tổng thanh toán
   const getOrderTotal = (order: Order) => {
     const subtotal = getProductSubtotal(order);
@@ -326,7 +385,14 @@ const HistoryPage = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '80vh',
+        bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        color: theme === THEME.LIGHT ? '#000' : '#fff',
+      }}>
         <CircularProgress />
         <Typography variant="h6" sx={{ ml: 2 }}>Đang tải lịch sử mua hàng...</Typography>
       </Box>
@@ -335,16 +401,41 @@ const HistoryPage = () => {
 
   if (!orders.length) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '80vh',
+        bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        color: theme === THEME.LIGHT ? '#000' : '#fff',
+      }}>
         <Typography variant="h6" color="text.secondary">Bạn chưa có đơn hàng nào.</Typography>
       </Box>
     );
   }
 
   return (
-    <PageContainer>
+    <PageContainer sx={{
+      backgroundColor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh',
+      width: '100%',
+      '& .MuiChip-root': {
+        backgroundColor: theme === THEME.LIGHT ? undefined : '#333',
+        color: theme === THEME.LIGHT ? undefined : '#fff',
+      },
+      '& .MuiButton-root': {
+        backgroundColor: theme === THEME.LIGHT ? undefined : 'transparent',
+      },
+      '& .MuiRating-root': {
+        backgroundColor: 'transparent',
+      },
+      '& .MuiCircularProgress-root': {
+        color: theme === THEME.LIGHT ? '#111a2f' : '#fff',
+      },
+    }}>
       <SectionTitle variant="h4">Lịch sử đơn hàng của bạn</SectionTitle>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 6 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
         {orders.map(order => {
           const refundHistory = refundHistories[order._id] || [];
           const rejectedRefunds = refundHistory.filter(r => r.status === 'rejected');
@@ -357,13 +448,36 @@ const HistoryPage = () => {
             return (
               <OrderCard key={order._id}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pb: 1, borderBottom: '1px solid #f0f0f0', position: 'relative' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#111a2f' }}>Mã đơn: #{order._id.slice(-8).toUpperCase()}</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>{new Date(order.createdAt).toLocaleString('vi-VN', {
-                      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    })}</Typography>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    mb: 2, 
+                    pb: 1, 
+                    borderBottom: `1px solid ${theme === THEME.LIGHT ? '#f0f0f0' : '#333'}`,
+                    position: 'relative' 
+                  }}>
+                    <Typography variant="h6" sx={{ 
+                      fontWeight: 700, 
+                      color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                    }}>
+                      Mã đơn: #{order._id.slice(-8).toUpperCase()}
+                    </Typography>
+                    <Typography variant="body2" sx={{ 
+                      color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                    }}>
+                      {new Date(order.createdAt).toLocaleString('vi-VN', {
+                        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </Typography>
                   </Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: '#333' }}>Các sản phẩm trong đơn:</Typography>
+                  <Typography variant="subtitle1" sx={{ 
+                    fontWeight: 600, 
+                    mb: 1, 
+                    color: theme === THEME.LIGHT ? '#333' : '#ccc' 
+                  }}>
+                    Các sản phẩm trong đơn:
+                  </Typography>
                   <Box component="ul" sx={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {order.orderItems.map((item, idx) => {
                       const productDetails = typeof item.product === 'object' && item.product ? item.product as Product : null;
@@ -375,8 +489,15 @@ const HistoryPage = () => {
                         <ProductItemContainer key={idx}>
                           {productImage && <ProductImage src={productImage} alt={productName} />}
                           <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#111a2f' }}>{productName}</Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            <Typography variant="body1" sx={{ 
+                              fontWeight: 600, 
+                              color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                            }}>
+                              {productName}
+                            </Typography>
+                            <Typography variant="body2" sx={{ 
+                              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                            }}>
                               Giá: <b>{itemPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</b>
                               {item.size && Array.isArray(item.size) && item.size.length > 0 && (
                                 <> | Size: **{item.size[0].size}** {item.size[0].color ? `| Màu: **${item.size[0].color}**` : ''}</>
@@ -388,7 +509,11 @@ const HistoryPage = () => {
                       );
                     })}
                   </Box>
-                  <Chip label="Đang chờ duyệt hoàn tiền" color="warning" sx={{ fontWeight: 700, fontSize: 15, mt: 2 }} />
+                  <Chip 
+                    label="Đang chờ duyệt hoàn tiền" 
+                    color="warning" 
+                    sx={{ fontWeight: 700, fontSize: 15, mt: 2 }} 
+                  />
                 </CardContent>
               </OrderCard>
             );
@@ -399,13 +524,36 @@ const HistoryPage = () => {
             return (
               <OrderCard key={order._id}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pb: 1, borderBottom: '1px solid #f0f0f0', position: 'relative' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 700, color: '#111a2f' }}>Mã đơn: #{order._id.slice(-8).toUpperCase()}</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>{new Date(order.createdAt).toLocaleString('vi-VN', {
-                      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                    })}</Typography>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    mb: 2, 
+                    pb: 1, 
+                    borderBottom: `1px solid ${theme === THEME.LIGHT ? '#f0f0f0' : '#333'}`,
+                    position: 'relative' 
+                  }}>
+                    <Typography variant="h6" sx={{ 
+                      fontWeight: 700, 
+                      color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                    }}>
+                      Mã đơn: #{order._id.slice(-8).toUpperCase()}
+                    </Typography>
+                    <Typography variant="body2" sx={{ 
+                      color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                    }}>
+                      {new Date(order.createdAt).toLocaleString('vi-VN', {
+                        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </Typography>
                   </Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: '#333' }}>Các sản phẩm trong đơn:</Typography>
+                  <Typography variant="subtitle1" sx={{ 
+                    fontWeight: 600, 
+                    mb: 1, 
+                    color: theme === THEME.LIGHT ? '#333' : '#ccc' 
+                  }}>
+                    Các sản phẩm trong đơn:
+                  </Typography>
                   <Box component="ul" sx={{ listStyle: 'none', padding: 0, margin: 0 }}>
                     {order.orderItems.map((item, idx) => {
                       const productDetails = typeof item.product === 'object' && item.product ? item.product as Product : null;
@@ -417,8 +565,15 @@ const HistoryPage = () => {
                         <ProductItemContainer key={idx}>
                           {productImage && <ProductImage src={productImage} alt={productName} />}
                           <Box>
-                            <Typography variant="body1" sx={{ fontWeight: 600, color: '#111a2f' }}>{productName}</Typography>
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            <Typography variant="body1" sx={{ 
+                              fontWeight: 600, 
+                              color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                            }}>
+                              {productName}
+                            </Typography>
+                            <Typography variant="body2" sx={{ 
+                              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                            }}>
                               Giá: <b>{itemPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</b>
                               {item.size && Array.isArray(item.size) && item.size.length > 0 && (
                                 <> | Size: **{item.size[0].size}** {item.size[0].color ? `| Màu: **${item.size[0].color}**` : ''}</>
@@ -430,9 +585,12 @@ const HistoryPage = () => {
                       );
                     })}
                   </Box>
-                  {/* Hiển thị Chip Đã hoàn tiền ở góc trái dưới */}
                   <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-                    <Chip label="Đã hoàn tiền" color="success" sx={{ fontWeight: 700, fontSize: 15, px: 2, py: 0.5 }} />
+                    <Chip 
+                      label="Đã hoàn tiền" 
+                      color="success" 
+                      sx={{ fontWeight: 700, fontSize: 15, px: 2, py: 0.5 }} 
+                    />
                   </Box>
                 </CardContent>
               </OrderCard>
@@ -442,13 +600,36 @@ const HistoryPage = () => {
           return (
             <OrderCard key={order._id}>
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, pb: 1, borderBottom: '1px solid #f0f0f0', position: 'relative' }}>
-                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#111a2f' }}>Mã đơn: #{order._id.slice(-8).toUpperCase()}</Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>{new Date(order.createdAt).toLocaleString('vi-VN', {
-                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                  })}</Typography>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  mb: 2, 
+                  pb: 1, 
+                  borderBottom: `1px solid ${theme === THEME.LIGHT ? '#f0f0f0' : '#333'}`,
+                  position: 'relative' 
+                }}>
+                  <Typography variant="h6" sx={{ 
+                    fontWeight: 700, 
+                    color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                  }}>
+                    Mã đơn: #{order._id.slice(-8).toUpperCase()}
+                  </Typography>
+                  <Typography variant="body2" sx={{ 
+                    color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                  }}>
+                    {new Date(order.createdAt).toLocaleString('vi-VN', {
+                      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    })}
+                  </Typography>
                 </Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1, color: '#333' }}>Các sản phẩm trong đơn:</Typography>
+                <Typography variant="subtitle1" sx={{ 
+                  fontWeight: 600, 
+                  mb: 1, 
+                  color: theme === THEME.LIGHT ? '#333' : '#ccc' 
+                }}>
+                  Các sản phẩm trong đơn:
+                </Typography>
                 <Box component="ul" sx={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {order.orderItems.map((item, idx) => {
                     const productDetails = typeof item.product === 'object' && item.product ? item.product as Product : null;
@@ -460,8 +641,15 @@ const HistoryPage = () => {
                       <ProductItemContainer key={idx}>
                         {productImage && <ProductImage src={productImage} alt={productName} />}
                         <Box>
-                          <Typography variant="body1" sx={{ fontWeight: 600, color: '#111a2f' }}>{productName}</Typography>
-                          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                          <Typography variant="body1" sx={{ 
+                            fontWeight: 600, 
+                            color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                          }}>
+                            {productName}
+                          </Typography>
+                          <Typography variant="body2" sx={{ 
+                            color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+                          }}>
                             Giá: <b>{itemPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</b>
                             {item.size && Array.isArray(item.size) && item.size.length > 0 && (
                               <> | Size: **{item.size[0].size}** {item.size[0].color ? `| Màu: **${item.size[0].color}**` : ''}</>
@@ -473,16 +661,29 @@ const HistoryPage = () => {
                     );
                   })}
                 </Box>
+                
                 {/* Trạng thái refund và nút retry */}
                 {lastRefund && lastRefund.status === 'pending' && (
-                  <Chip label="Đang chờ duyệt hoàn tiền" color="warning" sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} />
+                  <Chip 
+                    label="Đang chờ duyệt hoàn tiền" 
+                    color="warning" 
+                    sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} 
+                  />
                 )}
                 {hasAcceptedRefund && (
-                  <Chip label="Đã hoàn tiền" color="success" sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} />
+                  <Chip 
+                    label="Đã hoàn tiền" 
+                    color="success" 
+                    sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} 
+                  />
                 )}
                 {!hasAcceptedRefund && lastRefund && lastRefund.status === 'rejected' && !isRejectedLimit && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                    <Chip label="Bị từ chối hoàn tiền" color="error" sx={{ fontWeight: 700, fontSize: 15 }} />
+                    <Chip 
+                      label="Bị từ chối hoàn tiền" 
+                      color="error" 
+                      sx={{ fontWeight: 700, fontSize: 15 }} 
+                    />
                     <Button
                       variant="outlined"
                       color="error"
@@ -495,8 +696,13 @@ const HistoryPage = () => {
                   </Box>
                 )}
                 {!hasAcceptedRefund && isRejectedLimit && (
-                  <Chip label="Đã bị từ chối hoàn tiền 3 lần" color="error" sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} />
+                  <Chip 
+                    label="Đã bị từ chối hoàn tiền 3 lần" 
+                    color="error" 
+                    sx={{ fontWeight: 700, fontSize: 15, mb: 1 }} 
+                  />
                 )}
+                
                 {/* Nút gửi refund chỉ hiện nếu chưa từng bị từ chối, chưa refund thành công, chưa pending */}
                 {order.orderStatus !== 'refunded' && !isRejectedLimit && !hasAcceptedRefund && (!lastRefund || (lastRefund.status !== 'pending' && lastRefund.status !== 'rejected' && lastRefund.status !== 'accepted')) && (
                   <Button
@@ -508,35 +714,54 @@ const HistoryPage = () => {
                     Bạn muốn hoàn tiền?
                   </Button>
                 )}
+                
                 {/* Tổng quan giá */}
-                <Box sx={{ mt: 2, mb: 1, p: 2, bgcolor: '#fafbfc', borderRadius: 2, border: '1px solid #eee' }}>
+                <PriceSummaryBox>
                   <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography>Tổng tiền sản phẩm</Typography>
-                    <Typography>{getProductSubtotal(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Typography>
+                    <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                      Tổng tiền sản phẩm
+                    </Typography>
+                    <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                      {getProductSubtotal(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    </Typography>
                   </Box>
                   {getProductCouponDiscount(order) > 0 && (
                     <Box display="flex" justifyContent="space-between" mb={1}>
-                      <Typography>Giảm giá sản phẩm (coupon)</Typography>
-                      <Typography color="error">-{getProductCouponDiscount(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Typography>
+                      <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                        Giảm giá sản phẩm (coupon)
+                      </Typography>
+                      <Typography color="error">
+                        -{getProductCouponDiscount(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                      </Typography>
                     </Box>
                   )}
                   <Box display="flex" justifyContent="space-between" mb={1}>
-                    <Typography>Phí vận chuyển</Typography>
-                    <Typography>{getShippingFee(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Typography>
+                    <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                      Phí vận chuyển
+                    </Typography>
+                    <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                      {getShippingFee(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    </Typography>
                   </Box>
                   {getShippingDiscount(order) > 0 && (
                     <Box display="flex" justifyContent="space-between" mb={1}>
-                      <Typography>Giảm giá phí vận chuyển</Typography>
-                      <Typography color="error">-{getShippingDiscount(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</Typography>
+                      <Typography sx={{ color: theme === THEME.LIGHT ? '#333' : '#ccc' }}>
+                        Giảm giá phí vận chuyển
+                      </Typography>
+                      <Typography color="error">
+                        -{getShippingDiscount(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                      </Typography>
                     </Box>
                   )}
                   <Box display="flex" justifyContent="space-between" alignItems="center" mt={2}>
-                    <Typography fontWeight={700} fontSize={16}>Tổng thanh toán</Typography>
+                    <Typography fontWeight={700} fontSize={16} sx={{ color: theme === THEME.LIGHT ? '#333' : '#fff' }}>
+                      Tổng thanh toán
+                    </Typography>
                     <Typography fontWeight={900} fontSize={18} color="error">
                       {getOrderTotal(order).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                     </Typography>
                   </Box>
-                </Box>
+                </PriceSummaryBox>
               </CardContent>
             </OrderCard>
           );
@@ -544,9 +769,24 @@ const HistoryPage = () => {
       </Box>
 
       <SectionTitle variant="h5">Đánh giá sản phẩm đã mua</SectionTitle>
-      <Box display="flex" flexWrap="wrap" gap={3}>
+      <Box display="flex" flexWrap="wrap" gap={2} sx={{
+        '& .MuiCard-root': {
+          backgroundColor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+        },
+        '& .MuiCardContent-root': {
+          backgroundColor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+        },
+        '& .product-card': {
+          backgroundColor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+        },
+        '& .product-card-content': {
+          backgroundColor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+        },
+      }}>
         {allProducts.map((product, idx) => (
-          <Box key={product._id + idx} flex="1 1 300px" minWidth={280} maxWidth={400}>
+          <Box key={product._id + idx} flex="1 1 280px" minWidth={250} maxWidth={350} sx={{
+            backgroundColor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+          }}>
             <ProductCard
               _id={product._id}
               name={product.name}
@@ -562,11 +802,34 @@ const HistoryPage = () => {
               <ReviewCard>
                 <CardContent sx={{ paddingBottom: '16px !important' }}>
                   <StyledRatingContainer>
-                    <Rating value={userReviews[product._id].rating} readOnly precision={0.5} size="medium" />
-                    <Typography variant="body1" sx={{ marginLeft: 1, fontWeight: 700, color: '#111a2f' }}>{userReviews[product._id].rating}/5</Typography>
+                    <Rating 
+                      value={userReviews[product._id].rating} 
+                      readOnly 
+                      precision={0.5} 
+                      size="medium" 
+                    />
+                    <Typography variant="body1" sx={{ 
+                      marginLeft: 1, 
+                      fontWeight: 700, 
+                      color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                    }}>
+                      {userReviews[product._id].rating}/5
+                    </Typography>
                   </StyledRatingContainer>
-                  <Typography variant="body2" sx={{ color: '#222', fontSize: 15, fontWeight: 500, mb: 1 }}>{userReviews[product._id].comment}</Typography>
-                  <Typography variant="caption" sx={{ color: '#888', mt: 1 }}>(Bạn đã đánh giá sản phẩm này)</Typography>
+                  <Typography variant="body2" sx={{ 
+                    color: theme === THEME.LIGHT ? '#222' : '#ccc', 
+                    fontSize: 15, 
+                    fontWeight: 500, 
+                    mb: 1 
+                  }}>
+                    {userReviews[product._id].comment}
+                  </Typography>
+                  <Typography variant="caption" sx={{ 
+                    color: theme === THEME.LIGHT ? '#888' : '#999', 
+                    mt: 1 
+                  }}>
+                    (Bạn đã đánh giá sản phẩm này)
+                  </Typography>
                 </CardContent>
               </ReviewCard>
             ) : (
@@ -576,11 +839,19 @@ const HistoryPage = () => {
                     {[1,2,3,4,5].map(i => (
                       <StyledStarIcon
                         key={i}
-                        sx={{ color: (form[product._id]?.rating || 0) >= i ? '#FFD600' : '#e0e0e0' }}
+                        sx={{ 
+                          color: (form[product._id]?.rating || 0) >= i ? '#FFD600' : (theme === THEME.LIGHT ? '#e0e0e0' : '#444')
+                        }}
                         onClick={() => handleRatingChange(product._id, i)}
                       />
                     ))}
-                    <Typography variant="body1" sx={{ marginLeft: 1.5, fontWeight: 700, color: '#111a2f' }}>{form[product._id]?.rating || 0}/5</Typography>
+                    <Typography variant="body1" sx={{ 
+                      marginLeft: 1.5, 
+                      fontWeight: 700, 
+                      color: theme === THEME.LIGHT ? '#111a2f' : '#fff' 
+                    }}>
+                      {form[product._id]?.rating || 0}/5
+                    </Typography>
                   </StyledRatingContainer>
                   <StyledTextArea
                     multiline

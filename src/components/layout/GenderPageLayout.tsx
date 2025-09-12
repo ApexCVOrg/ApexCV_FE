@@ -14,6 +14,8 @@ import Link from 'next/link';
 import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useParams, usePathname } from 'next/navigation';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -53,6 +55,7 @@ export default function GenderPageLayout({
   const { locale } = useParams();
   const pathname = usePathname();
   const productCount = products.length;
+  const { theme } = useTheme();
 
   // Detect gender from URL path
   const getGenderFromPath = () => {
@@ -82,7 +85,13 @@ export default function GenderPageLayout({
   }, [sortBy, fetchProducts]);
 
   return (
-    <Box sx={{ minHeight: '100vh', mt: 10, position: 'relative' }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      pt: 10, // Changed from mt: 10 to pt: 10 to eliminate whitespace
+      position: 'relative',
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+    }}>
       {/* Banner background with overlay - below header */}
       <Box
         sx={{
@@ -94,6 +103,7 @@ export default function GenderPageLayout({
           zIndex: 1,
           display: 'flex',
           alignItems: 'center',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000', // Theme background for whitespace
         }}
       >
         <img
@@ -232,11 +242,51 @@ export default function GenderPageLayout({
           px: { xs: 2, sm: 3, md: 4 },
           maxWidth: '1600px',
           width: '100%',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
         }}
       >
-        <FormControl sx={{ minWidth: 200, mr: { xs: 3, sm: 6, md: 8 } }}>
+        <FormControl 
+          sx={{ 
+            minWidth: 200, 
+            mr: { xs: 3, sm: 6, md: 8 },
+            '& .MuiInputLabel-root': {
+              color: theme === THEME.LIGHT ? '#666' : '#ccc',
+            },
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#ddd' : '#444',
+              },
+              '&:hover fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#999' : '#666',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+              },
+            },
+            '& .MuiSelect-select': {
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            },
+          }}
+        >
           <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={e => setSortBy(e.target.value)}>
+          <Select 
+            value={sortBy} 
+            label="Sort By" 
+            onChange={e => setSortBy(e.target.value)}
+            MenuProps={{
+              PaperProps: {
+                sx: {
+                  bgcolor: theme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                  color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  '& .MuiMenuItem-root': {
+                    '&:hover': {
+                      bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                    },
+                  },
+                },
+              },
+            }}
+          >
             <MenuItem value="newest">Newest</MenuItem>
             <MenuItem value="price-low">Price: Low to High</MenuItem>
             <MenuItem value="price-high">Price: High to Low</MenuItem>
@@ -247,10 +297,26 @@ export default function GenderPageLayout({
       {/* Product Grid */}
       <Container
         maxWidth={false}
-        sx={{ py: 4, px: { xs: 2, sm: 3, md: 4 }, maxWidth: '1600px', width: '100%' }}
+        sx={{ 
+          py: 4, 
+          px: { xs: 2, sm: 3, md: 4 }, 
+          maxWidth: '1600px', 
+          width: '100%',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+        }}
       >
         {error && (
-          <Typography variant="body1" sx={{ textAlign: 'center', color: 'error.main', py: 2 }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              textAlign: 'center', 
+              color: 'error.main', 
+              py: 2,
+              bgcolor: theme === THEME.LIGHT ? '#ffebee' : '#3d1f1f',
+              borderRadius: 1,
+              px: 2,
+            }}
+          >
             {error}
           </Typography>
         )}
@@ -263,12 +329,20 @@ export default function GenderPageLayout({
               minHeight: '50vh',
             }}
           >
-            <CircularProgress />
+            <CircularProgress sx={{ color: theme === THEME.LIGHT ? '#1976d2' : '#90caf9' }} />
           </Box>
         ) : (
           <>
             {products.length === 0 && (
-              <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
+              <Typography 
+                variant="body1" 
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 4,
+                  color: theme === THEME.LIGHT ? '#666' : '#ccc',
+                  fontSize: '1.1rem',
+                }}
+              >
                 {emptyMessage}
               </Typography>
             )}

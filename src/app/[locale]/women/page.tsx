@@ -16,6 +16,8 @@ import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface Product {
   _id: string;
@@ -50,6 +52,9 @@ export default function WomenPage() {
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
 
+  // Theme hook
+  const { theme } = useTheme();
+
   // Function to get team name from product categories
   // const getTeamNameFromProduct = (product: Product): string => {
   //   // Find team category (usually has a parent category that is gender)
@@ -63,13 +68,13 @@ export default function WomenPage() {
   //       'manchester united',
   //     ];
   //     const categoryNameLower = category.name.toLowerCase();
-
+      
   //     for (const team of teamNames) {
   //       if (categoryNameLower.includes(team) || categoryNameLower === team) {
   //         return team;
   //       }
   //     }
-
+      
   //     // Check parent category with optional chaining
   //     const parentCategory = (category as any).parentCategory;
   //     if (parentCategory) {
@@ -170,7 +175,11 @@ export default function WomenPage() {
   }
 
   return (
-    <>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh'
+    }}>
       {/* Hero Banner */}
       <Box
         sx={{
@@ -221,9 +230,9 @@ export default function WomenPage() {
               display: 'inline-block'
             }}
           >
-            <Typography
-              variant="h1"
-              component="h1"
+            <Typography 
+              variant="h1" 
+              component="h1" 
               sx={{
                 fontWeight: 'bold',
                 fontSize: { xs: '1.2rem', md: '1.6rem', lg: '2rem' },
@@ -249,9 +258,9 @@ export default function WomenPage() {
               display: 'inline-block'
             }}
           >
-            <Typography
-              variant="h6"
-              component="h2"
+            <Typography 
+              variant="h6" 
+              component="h2" 
               sx={{
                 fontWeight: 400,
                 fontSize: { xs: '0.75rem', md: '0.85rem', lg: '0.95rem' },
@@ -265,10 +274,10 @@ export default function WomenPage() {
 
           {/* CTA Button */}
           <Link href="/women/real-madrid" style={{ textDecoration: 'none' }}>
-            <Button
-              variant="contained"
+            <Button 
+              variant="contained" 
               size="small"
-              sx={{
+              sx={{ 
                 bgcolor: 'white',
                 color: 'black',
                 px: { xs: 2, md: 2.5 },
@@ -294,9 +303,9 @@ export default function WomenPage() {
         </Box>
       </Box>
       <Container maxWidth="xl" disableGutters>
-        {/* Categories Section */}
-        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
-          <Container maxWidth="lg">
+      {/* Categories Section */}
+        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: theme === THEME.LIGHT ? '#fff' : '#000' }}>
+        <Container maxWidth="lg">
             <Typography 
               variant="h3" 
               component="h2" 
@@ -304,7 +313,7 @@ export default function WomenPage() {
               sx={{
                 fontWeight: 'bold',
                 mb: 2,
-                color: 'text.primary'
+                color: theme === THEME.LIGHT ? '#000' : '#fff'
               }}
             >
               MUA SẮM THEO DANH MỤC
@@ -313,26 +322,26 @@ export default function WomenPage() {
               variant="h6" 
               align="center" 
               sx={{
-                color: 'text.secondary',
+                color: theme === THEME.LIGHT ? '#666' : '#ccc',
                 mb: 6,
                 fontWeight: 300
               }}
             >
               Khám phá bộ sưu tập đa dạng dành cho nữ giới
-            </Typography>
-            <Box sx={{ 
+          </Typography>
+          <Box sx={{ 
               display: 'grid',
               gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
               gap: { xs: 3, md: 3 },
               mt: 4,
               maxWidth: '1200px',
               mx: 'auto'
-            }}>
-              {[
+          }}>
+            {[
                 { name: 'Giày sneaker', image: '/assets/images/women/arsenal/Gazelle_Arsenal_Terrace_Icons_Shoes_White.avif', description: 'Phong cách và thoải mái', href: '/women/team-sneaker' },
                 { name: 'Áo đấu', image: '/assets/images/women/arsenal/Arsenal_2425_Jersey.jpg', description: 'Chính thức và đẳng cấp', href: '/women/Jersey-women' },
                 { name: 'Quần short', image: '/assets/images/women/arsenal/Arsenal_Women_Short.avif', description: 'Thoải mái vận động', href: '/women/shorttrouser-women' }
-              ].map((category) => (
+            ].map((category) => (
                 <Link key={category.name} href={category.href} style={{ textDecoration: 'none' }}>
                   <Card 
                     sx={{ 
@@ -349,68 +358,68 @@ export default function WomenPage() {
                       }
                     }}
                   >
-                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: '#f5f5f5' }}>
-                      <CardMedia
-                        component="img"
-                        image={category.image}
-                        alt={category.name}
-                        sx={{
-                          height: { xs: 240, sm: 280, md: 320 },
-                          objectFit: 'cover',
-                          width: '100%',
-                          transition: 'transform 0.4s ease',
-                          filter: 'brightness(0.95)',
-                          '&:hover': {
-                            transform: 'scale(1.05)',
-                            filter: 'brightness(1)'
-                          }
-                        }}
-                      />
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-                          color: 'white',
-                          p: { xs: 2, md: 3 },
-                          textAlign: 'center'
+                    <Box sx={{ position: 'relative', overflow: 'hidden', bgcolor: theme === THEME.LIGHT ? '#f5f5f5' : '#1a1a1a' }}>
+                <CardMedia
+                  component="img"
+                  image={category.image}
+                  alt={category.name}
+                      sx={{
+                        height: { xs: 240, sm: 280, md: 320 },
+                        objectFit: 'cover',
+                        width: '100%',
+                        transition: 'transform 0.4s ease',
+                        filter: 'brightness(0.95)',
+                        '&:hover': {
+                          transform: 'scale(1.05)',
+                          filter: 'brightness(1)'
+                        }
+                      }}
+                />
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                        color: 'white',
+                        p: { xs: 2, md: 3 },
+                        textAlign: 'center'
+                      }}
+                    >
+                      <Typography 
+                        variant="h5" 
+                        sx={{ 
+                          fontWeight: 'bold', 
+                          mb: 1,
+                          fontSize: { xs: '1.5rem', md: '1.75rem' },
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
                         }}
                       >
-                        <Typography 
-                          variant="h5" 
-                          sx={{ 
-                            fontWeight: 'bold', 
-                            mb: 1,
-                            fontSize: { xs: '1.5rem', md: '1.75rem' },
-                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
-                          }}
-                        >
-                          {category.name}
-                        </Typography>
-                        <Typography 
-                          variant="body1" 
-                          sx={{ 
-                            opacity: 0.95,
-                            fontSize: { xs: '0.9rem', md: '1rem' },
-                            textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
-                          }}
-                        >
-                          {category.description}
-                        </Typography>
-                      </Box>
+                    {category.name}
+                  </Typography>
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          opacity: 0.95,
+                          fontSize: { xs: '0.9rem', md: '1rem' },
+                          textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                        }}
+                      >
+                        {category.description}
+                      </Typography>
                     </Box>
-                  </Card>
+                  </Box>
+              </Card>
                 </Link>
-              ))}
-            </Box>
-          </Container>
-        </Box>
+            ))}
+          </Box>
+        </Container>
+      </Box>
 
-        {/* Featured Products */}
-        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
-          <Container maxWidth="lg">
+      {/* Featured Products */}
+        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#1a1a1a' }}>
+        <Container maxWidth="lg">
             <Box sx={{ 
               display: 'flex', 
               flexDirection: { xs: 'column', md: 'row' },
@@ -425,35 +434,35 @@ export default function WomenPage() {
                   component="h2"
                   sx={{
                     fontWeight: 'bold',
-                    color: 'text.primary',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     mb: 1
                   }}
                 >
                   SẢN PHẨM NỔI BẬT
-                </Typography>
+            </Typography>
                 <Typography 
                   variant="h6" 
-                  sx={{
-                    color: 'text.secondary',
+              sx={{ 
+                    color: theme === THEME.LIGHT ? '#666' : '#ccc',
                     fontWeight: 300
-                  }}
-                >
+              }}
+            >
                   Những sản phẩm được yêu thích nhất
                 </Typography>
-              </Box>
+          </Box>
 
-            </Box>
-            {loading && (
+          </Box>
+          {loading && (
               <Box sx={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center',
                 minHeight: '300px'
               }}>
-                <CircularProgress size={60} sx={{ color: 'black' }}/>
-              </Box>
-            )}
-            {error && (
+                <CircularProgress size={60} sx={{ color: theme === THEME.LIGHT ? '#000' : '#fff' }}/>
+            </Box>
+          )}
+          {error && (
               <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -463,45 +472,45 @@ export default function WomenPage() {
               }}>
                 <Typography color="error" align="center" variant="h6" sx={{ mb: 2 }}>
                   Đã xảy ra lỗi: {error}
-                </Typography>
+            </Typography>
                 <Button 
                   variant="outlined" 
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white'
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000'
                     }
                   }}
                 >
                   Thử lại
                 </Button>
               </Box>
-            )}
-            {!loading && !error && displayedProducts.length === 0 && (
-              <Box sx={{
-                display: 'flex',
+          )}
+          {!loading && !error && displayedProducts.length === 0 && (
+          <Box sx={{ 
+            display: 'flex', 
                 flexDirection: 'column',
                 alignItems: 'center',
                 minHeight: '300px',
                 justifyContent: 'center'
               }}>
-                <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
+                <Typography variant="h5" align="center" sx={{ mb: 2, color: theme === THEME.LIGHT ? '#666' : '#ccc' }}>
                   Không tìm thấy sản phẩm nào
                 </Typography>
                 <Button 
                   variant="outlined" 
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white'
+                      borderColor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      bgcolor: theme === THEME.LIGHT ? '#000' : '#fff',
+                      color: theme === THEME.LIGHT ? '#fff' : '#000'
                     }
                   }}
                 >
@@ -521,33 +530,41 @@ export default function WomenPage() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
-                    bgcolor: 'rgba(255,255,255,0.9)',
+                    bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
                     boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                    '&:hover': { bgcolor: 'white' },
+                    '&:hover': { 
+                      bgcolor: theme === THEME.LIGHT ? 'white' : 'rgba(0,0,0,0.9)',
+                      color: theme === THEME.LIGHT ? '#000' : '#fff'
+                    },
                     '&.Mui-disabled': { opacity: 0 }
                   }}
                 >
                   <ArrowBackIosIcon />
                 </IconButton>
 
-              {/* Right Navigation Button */}
-              <IconButton
-                onClick={handleCarouselNext}
-                disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
-                sx={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  zIndex: 2,
-                  bgcolor: 'rgba(255,255,255,0.9)',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
-                  '&:hover': { bgcolor: 'white' },
+                {/* Right Navigation Button */}
+                <IconButton
+                  onClick={handleCarouselNext}
+                  disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
+                  sx={{
+                    position: 'absolute',
+                    right: 0,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    zIndex: 2,
+                  bgcolor: theme === THEME.LIGHT ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.8)',
+                  color: theme === THEME.LIGHT ? '#000' : '#fff',
+                    boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+                  '&:hover': { 
+                    bgcolor: theme === THEME.LIGHT ? 'white' : 'rgba(0,0,0,0.9)',
+                    color: theme === THEME.LIGHT ? '#000' : '#fff'
+                  },
                   '&.Mui-disabled': { opacity: 0 },
-                }}
-              >
-                <ArrowForwardIosIcon />
-              </IconButton>
+                  }}
+                >
+                  <ArrowForwardIosIcon />
+                </IconButton>
 
                 <Box
                   ref={carouselRef}
@@ -608,11 +625,11 @@ export default function WomenPage() {
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#ccc' : '#666'),
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? '#000' : '#fff') : (theme === THEME.LIGHT ? '#999' : '#888'),
                           transform: 'scale(1.2)'
                         }
                       }}
@@ -621,9 +638,9 @@ export default function WomenPage() {
                 </Box>
               </Box>
             )}
-          </Container>
-        </Box>
-      </Container>
-    </>
+        </Container>
+      </Box>
+    </Container>
+    </Box>
   );
-}
+} 

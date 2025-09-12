@@ -4,32 +4,27 @@ import React, { useState, ReactNode, useEffect, useCallback } from 'react';
 import {
   CssBaseline,
   Box,
-  Drawer,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
   AppBar,
   Toolbar,
   Typography,
   Avatar,
   IconButton,
-  useTheme,
-  Divider,
   Button,
   Stack,
   Menu,
   MenuItem,
   Tooltip,
+  Container,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter } from 'next/navigation';
-import { useTheme as useCustomTheme } from '@/hooks/useTheme';
+
 import { ROUTES } from '@/lib/constants/constants';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
-import MenuIcon from '@mui/icons-material/Menu';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CategoryIcon from '@mui/icons-material/Category';
@@ -37,13 +32,11 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import HomeIcon from '@mui/icons-material/Home';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ThemeToggle from '@/components/ui/ThemeToggle';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import CouponIcon from '@mui/icons-material/LocalOffer';
-import StarIcon from '@mui/icons-material/Star';
+import ChatIcon from '@mui/icons-material/Chat';
+
 // Các ngôn ngữ hỗ trợ
 const LANGUAGES = ['en', 'vi'] as const;
 type Language = (typeof LANGUAGES)[number];
@@ -53,11 +46,7 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const t = useTranslations('admin.layout');
-  const theme = useTheme();
-  const { theme: currentTheme } = useCustomTheme();
   const pathname = usePathname();
   const router = useRouter();
   const [language, setLanguage] = useState<Language>('en');
@@ -77,25 +66,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     setLanguage(getCurrentLanguage());
   }, [pathname, getCurrentLanguage]);
 
-  useEffect(() => {
-    const handleOpenSidebar = () => setMobileOpen(true);
-    window.addEventListener('open-manager-sidebar', handleOpenSidebar);
-    return () => window.removeEventListener('open-manager-sidebar', handleOpenSidebar);
-  }, []);
-
-  const handleDrawerToggle = () => {
-    setMobileOpen(prev => {
-      if (prev) {
-        window.dispatchEvent(new CustomEvent('close-manager-sidebar'));
-      }
-      return !prev;
-    });
-  };
-
-  const handleSidebarToggle = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
-
   const toggleLanguage = () => {
     const newLang: Language = language === 'en' ? 'vi' : 'en';
     const pathParts = pathname.split('/');
@@ -114,9 +84,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     handleClose();
@@ -129,123 +101,38 @@ export default function RootLayout({ children }: RootLayoutProps) {
   };
 
   const menuItems = [
-    { icon: <HomeIcon />, text: t('home'), href: ROUTES.HOME },
-    { icon: <DashboardIcon />, text: t('dashboard'), href: ROUTES.ADMIN.DASHBOARD },
-    { icon: <InventoryIcon />, text: t('products'), href: ROUTES.ADMIN.PRODUCTS },
-    { icon: <CategoryIcon />, text: t('categories'), href: ROUTES.ADMIN.CATEGORIES },
-    { icon: <LocalShippingIcon />, text: t('orders'), href: ROUTES.ADMIN.ORDERS },
-    { icon: <PeopleIcon />, text: t('customers'), href: ROUTES.ADMIN.CUSTOMERS },
-    { icon: <StarIcon />, text: 'Quản lí đánh giá', href: ROUTES.ADMIN.REVIEWS },
-    { icon: <CouponIcon />, text: t('coupons'), href: ROUTES.ADMIN.COUPONS },
-    {
-      icon: <ListAltIcon />,
-      text: t('auditLog', { defaultValue: 'Audit Log' }),
-      href: ROUTES.ADMIN.LOGS,
-    },
-    { icon: <SettingsIcon />, text: t('settings'), href: ROUTES.ADMIN.SETTINGS },
+    { icon: <DashboardIcon />, text: t('dashboard'), href: ROUTES.ADMIN.DASHBOARD, value: 'dashboard' },
+    { icon: <InventoryIcon />, text: t('products'), href: ROUTES.ADMIN.PRODUCTS, value: 'products' },
+    { icon: <CategoryIcon />, text: t('categories'), href: ROUTES.ADMIN.CATEGORIES, value: 'categories' },
+    { icon: <LocalShippingIcon />, text: t('orders'), href: ROUTES.ADMIN.ORDERS, value: 'orders' },
+    { icon: <PeopleIcon />, text: t('customers'), href: ROUTES.ADMIN.CUSTOMERS, value: 'customers' },
+    { icon: <CouponIcon />, text: t('coupons'), href: ROUTES.ADMIN.COUPONS, value: 'coupons' },
+    { icon: <ChatIcon />, text: t('chat', { defaultValue: 'Chat' }), href: ROUTES.ADMIN.CHAT, value: 'chats' },
+    { icon: <ListAltIcon />, text: t('auditLog', { defaultValue: 'Audit Log' }), href: ROUTES.ADMIN.LOGS, value: 'logs' },
+    { icon: <SettingsIcon />, text: t('settings'), href: ROUTES.ADMIN.SETTINGS, value: 'settings' },
   ];
 
-  const drawerWidth = sidebarCollapsed ? 80 : 200;
+  // Determine current tab value based on pathname
+  const getCurrentTab = () => {
+    const currentPath = pathname;
+    if (currentPath?.includes('/dashboard')) return 'dashboard';
+    if (currentPath?.includes('/products')) return 'products';
+    if (currentPath?.includes('/categories')) return 'categories';
+    if (currentPath?.includes('/orders')) return 'orders';
+    if (currentPath?.includes('/customers')) return 'customers';
+    if (currentPath?.includes('/coupons')) return 'coupons';
+    if (currentPath?.includes('/chats') || currentPath?.includes('/messages')) return 'chats';
+    if (currentPath?.includes('/logs')) return 'logs';
+    if (currentPath?.includes('/settings')) return 'settings';
+    return 'dashboard';
+  };
 
-  const drawer = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Toolbar
-        sx={{
-          fontWeight: 900,
-          fontSize: sidebarCollapsed ? 20 : 28,
-          p: sidebarCollapsed ? 2 : 3,
-          fontFamily: "'Anton', sans-serif",
-          letterSpacing: 2,
-          color: theme.palette.primary.main,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        {!sidebarCollapsed && 'NIDAS'}
-        <IconButton
-          onClick={handleSidebarToggle}
-          sx={{
-            color: theme.palette.primary.main,
-            '&:hover': {
-              backgroundColor: 'rgba(25, 118, 210, 0.04)',
-            },
-          }}
-        >
-          {sidebarCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-        </IconButton>
-      </Toolbar>
-      <Divider />
-      <List sx={{ flexGrow: 1, px: sidebarCollapsed ? 1 : 2 }}>
-        {menuItems.map(item => (
-          <ListItemButton
-            key={item.text}
-            href={item.href}
-            sx={{
-              borderRadius: 2,
-              mb: 1,
-              minHeight: 48,
-              justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-              '&:hover': {
-                backgroundColor: 'rgba(0, 0, 0, 0.04)',
-              },
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: sidebarCollapsed ? 0 : 40,
-                justifyContent: 'center',
-              }}
-            >
-              {item.icon}
-            </ListItemIcon>
-            {!sidebarCollapsed && (
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontWeight: 500,
-                  fontSize: '0.95rem',
-                }}
-              />
-            )}
-          </ListItemButton>
-        ))}
-      </List>
-      <Divider />
-      <List sx={{ px: sidebarCollapsed ? 1 : 2 }}>
-        <ListItemButton
-          sx={{
-            borderRadius: 2,
-            color: theme.palette.error.main,
-            minHeight: 48,
-            justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
-            '&:hover': {
-              backgroundColor: 'rgba(211, 47, 47, 0.04)',
-            },
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: sidebarCollapsed ? 0 : 40,
-              color: 'inherit',
-              justifyContent: 'center',
-            }}
-          >
-            <LogoutIcon />
-          </ListItemIcon>
-          {!sidebarCollapsed && (
-            <ListItemText
-              primary={t('logout')}
-              primaryTypographyProps={{
-                fontWeight: 500,
-                fontSize: '0.95rem',
-              }}
-            />
-          )}
-        </ListItemButton>
-      </List>
-    </Box>
-  );
+  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    const menuItem = menuItems.find(item => item.value === newValue);
+    if (menuItem) {
+      router.push(menuItem.href);
+    }
+  };
 
   return (
     <>
@@ -253,99 +140,104 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <Box
         sx={{
           display: 'flex',
+          flexDirection: 'column',
           minHeight: '100vh',
-          backgroundColor: currentTheme === 'dark' ? '#000' : '#f5f5f5',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)'
+            : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         }}
       >
+        {/* Top AppBar */}
         <AppBar
           position="fixed"
           sx={{
             zIndex: theme => theme.zIndex.drawer + 1,
-            backgroundColor: currentTheme === 'dark' ? '#000' : '#fff',
-            color: currentTheme === 'dark' ? '#fff' : '#000',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            width: { sm: `calc(100vw - ${drawerWidth}px)` },
-            ml: { sm: `${drawerWidth}px` },
-            transition:
-              'width 0.5s cubic-bezier(.4,2,.6,1), margin-left 0.5s cubic-bezier(.4,2,.6,1)',
-            height: 64,
-            display: 'flex',
-            justifyContent: 'center',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,26,46,0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.2)'
+              : '1px solid rgba(0,0,0,0.08)',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
           }}
         >
           <Toolbar
             sx={{
-              px: { xs: 2, sm: 3 },
-              minHeight: 64,
-              display: 'flex',
-              alignItems: 'center',
               justifyContent: 'space-between',
+              px: { xs: 2, md: 4 },
+              py: 1,
             }}
           >
+            {/* Left - Brand */}
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {/* Nút back chỉ hiện ở trang messages */}
-              {pathname?.includes('/manager/messages') && (
-                <IconButton onClick={() => router.back()} sx={{ mr: 1 }}>
-                  <ArrowBackIcon />
-                </IconButton>
-              )}
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-                sx={{
-                  mr: 2,
-                  display: { sm: 'none' },
-                  width: 40,
-                  height: 40,
-                }}
-              >
-                <MenuIcon />
-              </IconButton>
               <Typography
-                variant="h6"
+                variant="h5"
                 noWrap
                 component="div"
                 sx={{
-                  fontWeight: 700,
-                  fontSize: '1.15rem',
-                  letterSpacing: 1,
-                  minWidth: 200,
+                  fontWeight: 900,
+                  fontSize: { xs: '1.25rem', md: '1.5rem' },
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  letterSpacing: 2,
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                    : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                NIDAS
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  ml: 2,
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  display: { xs: 'none', md: 'block' },
                 }}
               >
                 {t('adminDashboard')}
               </Typography>
             </Box>
+
+            {/* Right - Controls */}
             <Stack
               direction="row"
               spacing={2}
               alignItems="center"
-              sx={{
-                minWidth: 300,
-                justifyContent: 'flex-end',
-              }}
             >
-              <ThemeToggle />
+              <Box sx={{ 
+                '& .MuiIconButton-root': { 
+                  color: 'text.primary',
+                  '&:hover': {
+                    backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                  },
+                } 
+              }}>
+                <ThemeToggle />
+              </Box>
               <Tooltip title="Change Language">
                 <Button
                   variant="outlined"
                   size="small"
                   onClick={toggleLanguage}
                   sx={{
-                    color: 'inherit',
-                    borderColor: 'inherit',
+                    color: 'text.primary',
+                    borderColor: 'divider',
                     textTransform: 'uppercase',
                     minWidth: 48,
                     height: 36,
                     fontWeight: 'bold',
-                    fontSize: '0.875rem',
-                    px: 2,
+                    fontSize: '0.75rem',
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
                     borderRadius: 2,
                     '&:hover': {
-                      borderColor: currentTheme === 'dark' ? 'white' : 'black',
-                      backgroundColor:
-                        currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                      borderColor: 'error.main',
+                      backgroundColor: 'rgba(211, 47, 47, 0.08)',
                     },
                   }}
                 >
@@ -355,13 +247,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
               <Tooltip title="Notifications">
                 <IconButton
                   sx={{
-                    width: 40,
-                    height: 40,
-                    color: 'inherit',
-                    borderRadius: 2,
+                    color: 'text.primary',
                     '&:hover': {
-                      backgroundColor:
-                        currentTheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                      backgroundColor: 'rgba(211, 47, 47, 0.08)',
                     },
                   }}
                 >
@@ -369,117 +257,143 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 </IconButton>
               </Tooltip>
               <Tooltip title="Account">
-                <IconButton onClick={handleAvatarClick} sx={{ ml: 2, borderRadius: 2 }}>
-                  <Avatar />
+                <IconButton onClick={handleAvatarClick}>
+                  <Avatar 
+                    sx={{ 
+                      width: 32, 
+                      height: 32,
+                      backgroundColor: 'error.main',
+                    }}
+                  />
                 </IconButton>
               </Tooltip>
             </Stack>
           </Toolbar>
+
+          {/* Navigation Tabs */}
+          <Box sx={{ 
+            borderTop: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.2)'
+              : '1px solid rgba(0,0,0,0.08)',
+          }}>
+            <Container maxWidth="xl">
+              <Tabs
+                value={getCurrentTab()}
+                onChange={handleTabChange}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                  '& .MuiTabs-indicator': {
+                    backgroundColor: 'error.main',
+                    height: 3,
+                  },
+                  '& .MuiTab-root': {
+                    minHeight: 48,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    color: 'text.secondary',
+                    '&.Mui-selected': {
+                      color: 'error.main',
+                    },
+                    '&:hover': {
+                      color: 'error.main',
+                      backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                    },
+                  },
+                }}
+              >
+                {menuItems.map((item) => (
+                  <Tab
+                    key={item.value}
+                    label={item.text}
+                    value={item.value}
+                    icon={item.icon}
+                    iconPosition="start"
+                    sx={{ 
+                      minWidth: 120,
+                      px: 2,
+                    }}
+                  />
+                ))}
+              </Tabs>
+            </Container>
+          </Box>
         </AppBar>
-        <Box
-          component="nav"
-          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-          aria-label="sidebar folders"
-        >
-          <Drawer
-            variant="permanent"
-            sx={{
-              display: { xs: 'none', sm: 'block' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: drawerWidth,
-                borderRight: '1px solid rgba(0, 0, 0, 0.12)',
-                backgroundColor: currentTheme === 'dark' ? '#111' : '#fff',
-                color: currentTheme === 'dark' ? '#fff' : '#000',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'width 0.5s cubic-bezier(.4,2,.6,1)',
-                overflowX: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                py: 1,
-              },
-            }}
-            open
-          >
-            <Box sx={{ width: '100%' }}>{drawer}</Box>
-          </Drawer>
-          <Drawer
-            variant="temporary"
-            open={mobileOpen}
-            onClose={handleDrawerToggle}
-            ModalProps={{
-              keepMounted: true,
-            }}
-            sx={{
-              display: { xs: 'block', sm: 'none' },
-              '& .MuiDrawer-paper': {
-                boxSizing: 'border-box',
-                width: 200,
-                backgroundColor: currentTheme === 'dark' ? '#111' : '#fff',
-                color: currentTheme === 'dark' ? '#fff' : '#000',
-              },
-            }}
-          >
-            {drawer}
-          </Drawer>
-        </Box>
+
+        {/* Main Content */}
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            width: { xs: '100vw', sm: `calc(100vw - ${drawerWidth}px)` },
-            pt: '64px',
-            color: currentTheme === 'dark' ? '#fff' : '#000',
-            minHeight: 'calc(100vh - 64px)',
-            boxSizing: 'border-box',
-            overflowX: 'auto',
-            p: { xs: 2, md: 3 },
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            transition: 'width 0.5s cubic-bezier(.4,2,.6,1)',
+            pt: '112px', // Account for AppBar height + tabs
+            minHeight: '100vh',
+            width: '100%',
           }}
         >
-          <Box
+          {children}
+        </Box>
+
+        {/* Account Menu */}
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{
+            sx: {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(0,0,0,0.95) 100%)'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+              backdropFilter: 'blur(10px)',
+              border: (theme) => theme.palette.mode === 'dark'
+                ? '1px solid rgba(100, 120, 150, 0.2)'
+                : '1px solid rgba(0,0,0,0.08)',
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+            },
+          }}
+        >
+          <MenuItem 
+            onClick={handleHome}
             sx={{
-              width: '100%',
-              maxWidth: '1200px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              '&:hover': {
+                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+              },
             }}
           >
-            <Menu
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-              <MenuItem onClick={handleHome}>
-                <ListItemIcon>
-                  <HomeIcon fontSize="small" />
-                </ListItemIcon>
-                Home
-              </MenuItem>
-              <MenuItem onClick={handleClose}>
-                <ListItemIcon>
-                  <PersonIcon fontSize="small" />
-                </ListItemIcon>
-                Account
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <ListItemIcon>
-                  <LogoutIcon fontSize="small" />
-                </ListItemIcon>
-                Logout
-              </MenuItem>
-            </Menu>
-            {children}
-          </Box>
-        </Box>
+            <HomeIcon sx={{ mr: 2 }} />
+            Home
+          </MenuItem>
+          <MenuItem 
+            onClick={handleClose}
+            sx={{
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              '&:hover': {
+                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+              },
+            }}
+          >
+            <PersonIcon sx={{ mr: 2 }} />
+            Account
+          </MenuItem>
+          <MenuItem 
+            onClick={handleLogout}
+            sx={{
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              color: 'error.main',
+              '&:hover': {
+                backgroundColor: 'rgba(211, 47, 47, 0.08)',
+              },
+            }}
+          >
+            <LogoutIcon sx={{ mr: 2 }} />
+            Logout
+          </MenuItem>
+        </Menu>
       </Box>
     </>
   );

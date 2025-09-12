@@ -16,13 +16,13 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Chip,
   IconButton,
   Button,
   CircularProgress,
   Alert,
   SelectChangeEvent,
+  Stack,
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -32,7 +32,6 @@ import {
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-
 
 interface ChatSession {
   _id: string;
@@ -95,7 +94,7 @@ const ChatSessionsPage = () => {
       });
 
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/chats?${queryParams}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/manager/chats?${queryParams}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -225,14 +224,47 @@ const ChatSessionsPage = () => {
   }
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', px: { xs: 1, md: 3 }, pt: 2, pb: 4 }}>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: '100%', 
+      mx: 'auto', 
+      p: { xs: 2, md: 4 },
+      pt: { xs: 4, md: 6 },
+      overflowX: 'auto' 
+    }}>
       {/* Header */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+        sx={{ 
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Box>
-          <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: '1.75rem', md: '2.25rem' },
+              letterSpacing: '0.5px',
+              color: 'text.primary',
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              mb: 1,
+            }}
+          >
             Quản lý Chat Sessions
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography 
+            variant="body2" 
+            color="text.secondary"
+            sx={{
+              fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            }}
+          >
             Quản lý và theo dõi các cuộc trò chuyện với khách hàng
           </Typography>
         </Box>
@@ -240,40 +272,135 @@ const ChatSessionsPage = () => {
           variant="contained"
           color="primary"
           onClick={() => router.push('/manager/messages')}
-          sx={{ minWidth: 180, fontWeight: 600 }}
+          sx={{ 
+            minWidth: 180, 
+            fontWeight: 600,
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&:hover': {
+              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+              transform: 'translateY(-1px)',
+            },
+            transition: 'all 0.2s ease-in-out',
+          }}
         >
           Xem list tin nhắn
         </Button>
-      </Box>
+      </Stack>
 
       {/* Filters and Search */}
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', flex: 1 }}>
-            {/* Search */}
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Stack spacing={3}>
+          {/* Search Bar */}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
               placeholder="Tìm theo userId hoặc chatId..."
               value={searchTerm}
               onChange={handleSearch}
-              size="small"
-              sx={{ minWidth: 250 }}
+              sx={{ 
+                flexGrow: 1,
+                minWidth: 250,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
               }}
             />
+            <IconButton 
+              onClick={handleRefresh} 
+              disabled={loading}
+              sx={{
+                borderRadius: 2,
+                px: 2,
+                py: 1.5,
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Box>
 
-            {/* Status Filter */}
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Trạng thái</InputLabel>
-              <Select value={statusFilter} label="Trạng thái" onChange={handleStatusFilterChange}>
+          {/* Filter Row */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 3,
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              width: '100%',
+              overflowX: 'auto',
+            }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                Trạng thái
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 150,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
+                <Select 
+                  value={statusFilter} 
+                  onChange={handleStatusFilterChange}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
+                >
                 <MenuItem value="all">Tất cả</MenuItem>
                 <MenuItem value="active">Đang hoạt động</MenuItem>
                 <MenuItem value="closed">Đã đóng</MenuItem>
@@ -281,12 +408,8 @@ const ChatSessionsPage = () => {
               </Select>
             </FormControl>
           </Box>
-
-          {/* Refresh Button */}
-          <IconButton onClick={handleRefresh} disabled={loading}>
-            <RefreshIcon />
-          </IconButton>
         </Box>
+        </Stack>
       </Paper>
 
       {/* Error Alert */}
@@ -297,18 +420,146 @@ const ChatSessionsPage = () => {
       )}
 
       {/* Table */}
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 600 }}>
-          <Table stickyHeader>
+      <TableContainer component={Paper} sx={{
+        width: '100%',
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Table sx={{
+          width: '100%',
+          tableLayout: 'fixed',
+          '& .MuiTableRow-root:hover': {
+            backgroundColor: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(255,255,255,0.05)'
+              : 'rgba(0,0,0,0.02)',
+            transition: 'background-color 0.2s ease-in-out',
+          },
+        }}>
             <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 600 }}>Chat ID</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Người dùng</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Tin nhắn cuối</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Số tin nhắn</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Trạng thái</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Cập nhật lúc</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Thao tác</TableCell>
+            <TableRow sx={{ 
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.12)' 
+                : 'rgba(0,0,0,0.12)' 
+            }}>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '12%',
+              }}>
+                Chat ID
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '15%',
+              }}>
+                Người dùng
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '20%',
+              }}>
+                Tin nhắn cuối
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '10%',
+              }}>
+                Số tin nhắn
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '12%',
+              }}>
+                Trạng thái
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '15%',
+              }}>
+                Cập nhật lúc
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '16%',
+              }}>
+                Thao tác
+              </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -332,21 +583,49 @@ const ChatSessionsPage = () => {
                 </TableRow>
               ) : (
                 sessions.map(session => (
-                  <TableRow key={session._id} hover>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                <TableRow 
+                  key={session._id}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: (theme) => theme.palette.mode === 'dark'
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(0,0,0,0.02)',
+                    },
+                    transition: 'background-color 0.2s ease-in-out',
+                  }}
+                >
+                  <TableCell sx={{ py: 2 }}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        fontWeight: 500,
+                      }}
+                    >
                         {session.chatId}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight={500}>
+                  <TableCell sx={{ py: 2 }}>
+                    <Typography 
+                      variant="body2" 
+                      fontWeight={500}
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
                         {session.userName}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                    <Typography 
+                      variant="caption" 
+                      color="text.secondary"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                      }}
+                    >
                         ID: {session.userId}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                       <Typography
                         variant="body2"
                         sx={{
@@ -354,36 +633,72 @@ const ChatSessionsPage = () => {
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
                         }}
                       >
                         {getMessageContent(session.lastMessage)}
                       </Typography>
                     </TableCell>
-                    <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                       <Chip
                         label={session.messageCount}
                         size="small"
                         color="primary"
                         variant="outlined"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
                       />
                     </TableCell>
-                    <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                       <Chip
                         label={getStatusText(session.status)}
                         color={getStatusColor(session.status) as 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning'}
                         size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
                       />
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">{formatDate(session.updatedAt)}</Typography>
+                  <TableCell sx={{ py: 2 }}>
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        fontSize: '0.875rem',
+                      }}
+                    >
+                      {formatDate(session.updatedAt)}
+                    </Typography>
                     </TableCell>
-                    <TableCell>
+                  <TableCell align="center" sx={{ py: 2 }}>
                       <Button
                         variant="outlined"
                         size="small"
                         startIcon={<ViewIcon />}
                         onClick={() => handleViewChat(session.chatId)}
-                        sx={{ textTransform: 'none' }}
+                      sx={{ 
+                        textTransform: 'none',
+                        borderRadius: 2,
+                        px: 2,
+                        py: 1,
+                        fontWeight: 500,
+                        fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                        '&:hover': {
+                          transform: 'translateY(-1px)',
+                        },
+                        transition: 'all 0.2s ease-in-out',
+                      }}
                       >
                         Xem
                       </Button>
@@ -393,9 +708,18 @@ const ChatSessionsPage = () => {
               )}
             </TableBody>
           </Table>
-        </TableContainer>
 
         {/* Pagination */}
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: 4,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: (theme) => theme.palette.mode === 'dark' 
+            ? 'rgba(255,255,255,0.05)' 
+            : 'rgba(0,0,0,0.02)',
+        }}>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25, 50]}
           component="div"
@@ -408,8 +732,18 @@ const ChatSessionsPage = () => {
           labelDisplayedRows={({ from, to, count }) =>
             `${from}-${to} trong ${count !== -1 ? count : `hơn ${to}`}`
           }
-        />
-      </Paper>
+            sx={{
+              '& .MuiPaginationItem-root': {
+                borderRadius: 1,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                },
+              },
+            }}
+          />
+        </Box>
+      </TableContainer>
     </Box>
   );
 };

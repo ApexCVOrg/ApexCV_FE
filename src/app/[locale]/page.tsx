@@ -25,6 +25,8 @@ import { motion } from 'framer-motion';
 // import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 // import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import TabCarousel from '@/components/TabCarousel';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 import ProductDetailSidebar from '@/components/ui/ProductDetailSidebar';
 // import { ProductLabel, PRODUCT_LABELS } from '@/types/components/label';
@@ -175,6 +177,9 @@ export default function HomePage() {
   // State lưu hướng chuyển động (slide direction)
   // const [tabSlideDirection, setTabSlideDirection] = useState<'left' | 'right'>('right');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  
+  // Theme hook
+  const { theme } = useTheme();
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -607,7 +612,11 @@ export default function HomePage() {
   }
 
   return (
-    <>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh'
+    }}>
       {/* Banner luôn hiển thị ở đầu trang, fade out + trượt lên khi cuộn */}
       <HomepageBanner scrollY={scrollY} />
       {/* HÀNG SẢN PHẨM LIB NGAY DƯỚI BANNER */}
@@ -698,7 +707,7 @@ export default function HomePage() {
           </Box>
           <Typography
             variant="subtitle1"
-            color="text.secondary"
+            color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
             sx={{ mb: 4, textAlign: 'center', maxWidth: 700, mx: 'auto' }}
           >
             Khám phá các mẫu giày Nike Air Max hot nhất, thiết kế thời thượng, hiệu năng vượt trội.
@@ -757,6 +766,7 @@ export default function HomePage() {
           zIndex: 1,
           marginRight: { md: isProductDetailSidebarOpen ? '400px' : '0px' }, // Để chừa chỗ cho sidebar bên phải
           transition: 'margin-right 0.3s ease',
+          bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
         }}
       >
         <Box sx={{ maxWidth: 1200, mx: 'auto', width: '100%' }}>
@@ -792,7 +802,7 @@ export default function HomePage() {
               </Typography>
               <Typography
                 variant="h6"
-                color="text.secondary"
+                color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                 sx={{
                   '@media screen and (width: 1440px) and (height: 1920px)': {
                     fontSize: '1.5rem',
@@ -841,6 +851,7 @@ export default function HomePage() {
                     variant="h6"
                     sx={{
                       mb: 2,
+                      color: theme === THEME.LIGHT ? '#000' : '#fff',
                       '@media screen and (width: 1440px) and (height: 1920px)': {
                         fontSize: '1.8rem',
                         marginBottom: '1.5rem',
@@ -884,6 +895,7 @@ export default function HomePage() {
                       variant="subtitle1"
                       sx={{
                         mb: 1,
+                        color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
@@ -938,6 +950,7 @@ export default function HomePage() {
                       variant="subtitle1"
                       sx={{
                         mb: 1,
+                        color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
@@ -961,6 +974,7 @@ export default function HomePage() {
                       variant="subtitle1"
                       sx={{
                         mb: 1,
+                        color: theme === THEME.LIGHT ? '#000' : '#fff',
                         '@media screen and (width: 1440px) and (height: 1920px)': {
                           fontSize: '1.3rem',
                           marginBottom: '1rem',
@@ -1067,7 +1081,7 @@ export default function HomePage() {
                     <Box sx={{ textAlign: 'center', py: 4, gridColumn: '1/-1' }}>
                       <Typography
                         variant="h6"
-                        color="text.secondary"
+                        color={theme === THEME.LIGHT ? 'text.secondary' : 'text.primary'}
                         sx={{
                           '@media screen and (width: 1440px) and (height: 1920px)': {
                             fontSize: '1.5rem',
@@ -1087,13 +1101,13 @@ export default function HomePage() {
                     variant="outlined"
                     onClick={() => setVisibleCount(c => c + 3)}
                     sx={{
-                      color: '#111',
-                      borderColor: '#111',
+                      color: theme === THEME.LIGHT ? '#111' : '#fff',
+                      borderColor: theme === THEME.LIGHT ? '#111' : '#fff',
                       fontWeight: 700,
                       '&:hover': {
-                        borderColor: '#111',
-                        background: 'rgba(0,0,0,0.04)',
-                        color: '#111',
+                        borderColor: theme === THEME.LIGHT ? '#111' : '#fff',
+                        background: theme === THEME.LIGHT ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)',
+                        color: theme === THEME.LIGHT ? '#111' : '#fff',
                       },
                     }}
                   >
@@ -1118,13 +1132,13 @@ export default function HomePage() {
                   variant="standard"
                   sx={{
                     '& .MuiTabs-flexContainer': { justifyContent: 'center' },
-                    '& .MuiTabs-indicator': { backgroundColor: '#111' },
+                    '& .MuiTabs-indicator': { backgroundColor: theme === THEME.LIGHT ? '#111' : '#fff' },
                     '& .MuiTab-root': {
-                      color: '#444',
+                      color: theme === THEME.LIGHT ? '#444' : '#ccc',
                       fontWeight: 600,
                     },
                     '& .Mui-selected': {
-                      color: '#111 !important',
+                      color: theme === THEME.LIGHT ? '#111 !important' : '#fff !important',
                     },
                     '@media screen and (width: 1440px) and (height: 1920px)': {
                       '& .MuiTab-root': {
@@ -1195,6 +1209,6 @@ export default function HomePage() {
           }}
         />
       )}
-    </>
+    </Box>
   );
 }

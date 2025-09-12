@@ -20,6 +20,8 @@ import FavoriteButton from '@/components/ui/FavoriteButton';
 import Rating from '@mui/material/Rating';
 import ColorPicker from '@/components/ui/ColorPicker';
 import SizeRecommender from '@/components/SizeRecommender';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface ProductDetailSidebarProps {
   productId: string | null;
@@ -78,6 +80,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
   const { addToCart } = useCartContext();
   const { getToken } = useAuth();
+  const { theme } = useTheme();
+  const isDarkMode = theme === THEME.DARK;
 
   useEffect(() => {
     if (!productId) {
@@ -225,8 +229,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
             width: '400px',
             height: '100vh',
             zIndex: 1400,
-            background: '#fff',
-            boxShadow: '-4px 0 24px rgba(0,0,0,0.15)',
+            background: isDarkMode ? '#1e1e1e' : '#fff',
+            boxShadow: isDarkMode ? '-4px 0 24px rgba(0,0,0,0.4)' : '-4px 0 24px rgba(0,0,0,0.15)',
             overflow: 'hidden',
           }}
         >
@@ -235,8 +239,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
             <Box
               sx={{
                 p: 3,
-                borderBottom: '1px solid #f0f0f0',
-                background: '#fff',
+                borderBottom: `1px solid ${isDarkMode ? '#333' : '#f0f0f0'}`,
+                background: isDarkMode ? '#1e1e1e' : '#fff',
               }}
             >
               <Box
@@ -247,20 +251,20 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                   mb: 2,
                 }}
               >
-                <Typography variant="h5" fontWeight={700} color="#1a1a1a">
+                <Typography variant="h5" fontWeight={700} color={isDarkMode ? '#fff' : '#1a1a1a'}>
                   Detail Product
                 </Typography>
                 <IconButton
                   onClick={onClose}
                   sx={{
-                    color: '#666',
-                    '&:hover': { color: '#1a1a1a' },
+                    color: isDarkMode ? '#ccc' : '#666',
+                    '&:hover': { color: isDarkMode ? '#fff' : '#1a1a1a' },
                   }}
                 >
                   <CloseIcon />
                 </IconButton>
               </Box>
-              <Typography variant="body2" color="#666" sx={{ fontStyle: 'italic' }}>
+              <Typography variant="body2" color={isDarkMode ? '#ccc' : '#666'} sx={{ fontStyle: 'italic' }}>
                 Legendary Style, All-Day Comfort
               </Typography>
             </Box>
@@ -276,10 +280,10 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                     height: '50vh',
                   }}
                 >
-                  <CircularProgress size={60} />
+                  <CircularProgress size={60} sx={{ color: isDarkMode ? '#fff' : '#1976d2' }} />
                 </Box>
               ) : error ? (
-                <Alert severity="error" sx={{ m: 3 }}>
+                <Alert severity="error" sx={{ m: 3, bgcolor: isDarkMode ? '#2a1a1a' : '#ffebee', color: isDarkMode ? '#ffcdd2' : 'black' }}>
                   {error}
                 </Alert>
               ) : product ? (
@@ -294,7 +298,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         borderRadius: 2,
                         overflow: 'hidden',
                         mb: 2,
-                        background: '#f8f9fa',
+                        background: isDarkMode ? '#333' : '#f8f9fa',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -325,7 +329,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                               overflow: 'hidden',
                               cursor: 'pointer',
                               border:
-                                selectedImage === idx ? '2px solid #1976d2' : '1px solid #e0e0e0',
+                                selectedImage === idx ? `2px solid ${isDarkMode ? '#fff' : '#1976d2'}` : `1px solid ${isDarkMode ? '#555' : '#e0e0e0'}`,
                               opacity: selectedImage === idx ? 1 : 0.7,
                               transition: 'all 0.2s',
                               '&:hover': { opacity: 1 },
@@ -348,7 +352,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
                   {/* Product Info */}
                   <Box sx={{ mb: 3 }}>
-                    <Typography variant="h5" fontWeight={700} color="#1a1a1a" gutterBottom>
+                    <Typography variant="h5" fontWeight={700} color={isDarkMode ? '#fff' : '#1a1a1a'} gutterBottom>
                       {product.name}
                     </Typography>
 
@@ -363,9 +367,9 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                               size="small"
                               variant="outlined"
                               sx={{
-                                bgcolor: '#f5f5f5',
-                                borderColor: '#e0e0e0',
-                                color: '#666',
+                                bgcolor: isDarkMode ? '#333' : '#f5f5f5',
+                                borderColor: isDarkMode ? '#555' : '#e0e0e0',
+                                color: isDarkMode ? '#ccc' : '#666',
                                 fontWeight: 500,
                               }}
                             />
@@ -383,7 +387,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         mb: 3,
                       }}
                     >
-                      <Typography variant="h4" fontWeight={700} color="#1976d2">
+                      <Typography variant="h4" fontWeight={700} color={isDarkMode ? '#fff' : '#1976d2'}>
                         {product.discountPrice
                           ? product.discountPrice.toLocaleString('vi-VN', {
                               style: 'currency',
@@ -399,7 +403,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           variant="h6"
                           sx={{
                             textDecoration: 'line-through',
-                            color: '#999',
+                            color: isDarkMode ? '#999' : '#999',
                           }}
                         >
                           {product.price.toLocaleString('vi-VN', {
@@ -413,7 +417,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
                   {/* Color Selection */}
                   {hasColors && (
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }}>
                       <ColorPicker
                         colors={product.colors?.filter((color, index, self) => 
                           index === self.findIndex(c => c === color)
@@ -429,7 +433,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
 
                   {/* Size Selection */}
                   {hasSizes && (
-                    <Box sx={{ mb: 3 }}>
+                    <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }}>
                       <Box
                         sx={{
                           display: 'flex',
@@ -438,13 +442,20 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                           mb: 1,
                         }}
                       >
-                        <Typography variant="subtitle1" fontWeight={600} color="#1a1a1a">
-                          SIZE: {selectedSize && `US ${selectedSize} (Only One Left)`}
+                        <Typography variant="subtitle1" fontWeight={600} color={isDarkMode ? '#fff' : '#1a1a1a'}>
+                          SIZE: {selectedSize ? `US ${selectedSize}` : 'Select Size'}
                         </Typography>
                         <Typography
                           variant="body2"
-                          color="#1976d2"
-                          sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+                          color={isDarkMode ? '#4fc3f7' : '#1976d2'}
+                          sx={{ 
+                            cursor: 'pointer', 
+                            textDecoration: 'underline',
+                            fontWeight: 500,
+                            '&:hover': {
+                              color: isDarkMode ? '#81d4fa' : '#1565c0',
+                            }
+                          }}
                         >
                           Size Chart
                         </Typography>
@@ -482,11 +493,21 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                                 px: 1,
                                 fontSize: '0.875rem',
                                 fontWeight: 500,
-                                borderColor: '#e0e0e0',
-                                color: selectedSize === size.size ? '#fff' : '#1a1a1a',
-                                bgcolor: selectedSize === size.size ? '#1976d2' : 'transparent',
+                                borderColor: isDarkMode ? '#555' : '#e0e0e0',
+                                color: selectedSize === size.size 
+                                  ? (isDarkMode ? '#000' : '#fff') 
+                                  : (isDarkMode ? '#fff' : '#1a1a1a'),
+                                bgcolor: selectedSize === size.size 
+                                  ? (isDarkMode ? '#fff' : '#1976d2') 
+                                  : 'transparent',
                                 '&:hover': {
-                                  bgcolor: selectedSize === size.size ? '#1565c0' : '#f5f5f5',
+                                  bgcolor: selectedSize === size.size 
+                                    ? (isDarkMode ? '#e0e0e0' : '#1565c0') 
+                                    : (isDarkMode ? '#444' : '#f5f5f5'),
+                                },
+                                '&:disabled': {
+                                  bgcolor: isDarkMode ? '#555' : '#e0e0e0',
+                                  color: isDarkMode ? '#999' : '#999',
                                 },
                               }}
                             >
@@ -509,8 +530,8 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         addToCartLoading ? <CircularProgress size={20} /> : <ShoppingCartIcon />
                       }
                       sx={{
-                        bgcolor: '#1976d2',
-                        color: '#fff',
+                        bgcolor: isDarkMode ? '#fff' : '#1976d2',
+                        color: isDarkMode ? '#000' : '#fff',
                         py: 1.5,
                         fontSize: '1rem',
                         fontWeight: 600,
@@ -518,11 +539,11 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         borderRadius: 2,
                         mb: 2,
                         '&:hover': {
-                          bgcolor: '#1565c0',
+                          bgcolor: isDarkMode ? '#e0e0e0' : '#1565c0',
                         },
                         '&:disabled': {
-                          bgcolor: '#e0e0e0',
-                          color: '#999',
+                          bgcolor: isDarkMode ? '#555' : '#e0e0e0',
+                          color: isDarkMode ? '#999' : '#999',
                         },
                       }}
                     >
@@ -557,16 +578,16 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: 2,
-                        border: '2px solid #1976d2',
+                        border: `2px solid ${isDarkMode ? '#fff' : '#1976d2'}`,
                         borderRadius: 2,
                         py: 1.5,
                         px: 2,
                         cursor: 'pointer',
                         transition: 'all 0.2s ease',
-                        color: '#1976d2',
+                        color: isDarkMode ? '#fff' : '#1976d2',
                         '&:hover': {
-                          borderColor: '#1565c0',
-                          bgcolor: 'rgba(25, 118, 210, 0.04)',
+                          borderColor: isDarkMode ? '#e0e0e0' : '#1565c0',
+                          bgcolor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(25, 118, 210, 0.04)',
                         },
                       }}
                     >
@@ -594,7 +615,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         sx={{
                           justifyContent: 'space-between',
                           textTransform: 'none',
-                          color: '#1a1a1a',
+                          color: isDarkMode ? '#fff' : '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
                           '&:hover': { bgcolor: 'transparent' },
@@ -605,7 +626,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       </Button>
                       {expandedSections.details && (
                         <Box sx={{ pl: 2, pb: 2 }}>
-                          <Typography variant="body2" color="#666">
+                          <Typography variant="body2" color={isDarkMode ? '#ccc' : '#666'}>
                             {product.description || 'Chi tiết sản phẩm sẽ được hiển thị ở đây.'}
                           </Typography>
                         </Box>
@@ -620,7 +641,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         sx={{
                           justifyContent: 'space-between',
                           textTransform: 'none',
-                          color: '#1a1a1a',
+                          color: isDarkMode ? '#fff' : '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
                           '&:hover': { bgcolor: 'transparent' },
@@ -632,22 +653,28 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       {expandedSections.reviews && (
                         <Box sx={{ pl: 2, pb: 2 }}>
                           {reviews.length === 0 ? (
-                            <Typography variant="body2" color="#666">
+                            <Typography variant="body2" color={isDarkMode ? '#ccc' : '#666'}>
                               Chưa có đánh giá nào cho sản phẩm này.
                             </Typography>
                           ) : (
                             reviews.map((review, idx) => (
-                              <Box key={`${product._id}-review-${idx}-${review._id}`} sx={{ mb: 2, p: 1.5, border: '1px solid #eee', borderRadius: 2, background: '#fafafa' }}>
-                                <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>
+                              <Box key={`${product._id}-review-${idx}-${review._id}`} sx={{ 
+                                mb: 2, 
+                                p: 1.5, 
+                                border: `1px solid ${isDarkMode ? '#444' : '#eee'}`, 
+                                borderRadius: 2, 
+                                background: isDarkMode ? '#333' : '#fafafa' 
+                              }}>
+                                <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5, color: isDarkMode ? '#fff' : '#1a1a1a' }}>
                                   {typeof review.user === 'object' ? review.user.fullName || 'Người dùng' : 'Người dùng'}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                   <Rating value={review.rating} readOnly size="small" precision={0.5} sx={{ mr: 1 }} />
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography variant="caption" color={isDarkMode ? '#ccc' : 'text.secondary'}>
                                     {new Date(review.createdAt).toLocaleDateString('vi-VN')}
                                   </Typography>
                                 </Box>
-                                <Typography variant="body1" sx={{ color: '#222' }}>{review.comment}</Typography>
+                                <Typography variant="body1" sx={{ color: isDarkMode ? '#fff' : '#222' }}>{review.comment}</Typography>
                               </Box>
                             ))
                           )}
@@ -663,7 +690,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         sx={{
                           justifyContent: 'space-between',
                           textTransform: 'none',
-                          color: '#1a1a1a',
+                          color: isDarkMode ? '#fff' : '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
                           '&:hover': { bgcolor: 'transparent' },
@@ -676,7 +703,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       </Button>
                       {expandedSections.shipping && (
                         <Box sx={{ pl: 2, pb: 2 }}>
-                          <Typography variant="body2" color="#666">
+                          <Typography variant="body2" color={isDarkMode ? '#ccc' : '#666'}>
                             Miễn phí vận chuyển cho đơn hàng trên 500k. Chính sách đổi trả trong 30
                             ngày.
                           </Typography>
@@ -692,7 +719,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         sx={{
                           justifyContent: 'space-between',
                           textTransform: 'none',
-                          color: '#1a1a1a',
+                          color: isDarkMode ? '#fff' : '#1a1a1a',
                           fontWeight: 600,
                           py: 1,
                           '&:hover': { bgcolor: 'transparent' },
@@ -703,7 +730,7 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                       </Button>
                       {expandedSections.care && (
                         <Box sx={{ pl: 2, pb: 2 }}>
-                          <Typography variant="body2" color="#666">
+                          <Typography variant="body2" color={isDarkMode ? '#ccc' : '#666'}>
                             Giặt bằng tay với nước lạnh. Không sử dụng chất tẩy rửa mạnh.
                           </Typography>
                         </Box>
@@ -719,7 +746,11 @@ const ProductDetailSidebar: React.FC<ProductDetailSidebarProps> = ({
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                       >
-                        <Alert severity="success" sx={{ mb: 2 }}>
+                        <Alert severity="success" sx={{ 
+                          mb: 2, 
+                          bgcolor: isDarkMode ? '#1a2a1a' : '#edf7ed', 
+                          color: isDarkMode ? '#c8e6c9' : 'black' 
+                        }}>
                           Sản phẩm đã được thêm vào giỏ hàng!
                         </Alert>
                       </motion.div>

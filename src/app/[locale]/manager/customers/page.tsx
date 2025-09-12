@@ -335,32 +335,99 @@ export default function CustomersPage() {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1400, mx: 'auto', p: { xs: 1, md: 3 }, overflowX: 'auto' }}>
+    <Box sx={{ 
+      width: '100%', 
+      maxWidth: '100%', 
+      mx: 'auto', 
+      p: { xs: 2, md: 4 },
+      pt: { xs: 4, md: 6 },
+      overflowX: 'auto' 
+    }}>
       <Stack
         direction="row"
         justifyContent="space-between"
         alignItems="center"
-        mb={3}
-        sx={{ flexWrap: 'wrap' }}
+        mb={4}
+        sx={{ 
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold">
+        <Typography 
+          variant="h4" 
+          component="h1" 
+          sx={{
+            fontWeight: 800,
+            fontSize: { xs: '1.75rem', md: '2.25rem' },
+            letterSpacing: '0.5px',
+            color: 'text.primary',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+          }}
+        >
           {t('title')}
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />} 
+          onClick={() => handleOpenDialog()}
+          sx={{
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            fontWeight: 600,
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            '&:hover': {
+              boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+              transform: 'translateY(-1px)',
+            },
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
           {t('addNew')}
         </Button>
       </Stack>
 
       {/* Search and Filter Section */}
-      <Paper sx={{ p: 2, mb: 2, maxWidth: '100%', overflowX: 'auto' }}>
-        <Stack spacing={2}>
+      <Paper sx={{ 
+        p: 3, 
+        mb: 3, 
+        maxWidth: '100%', 
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Stack spacing={3}>
           {/* Search Bar */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
             <TextField
               placeholder={t('search.searchUsers')}
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              sx={{ flexGrow: 1 }}
+              sx={{ 
+                flexGrow: 1,
+                minWidth: 250,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}
               InputProps={{
                 startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />,
               }}
@@ -375,6 +442,18 @@ export default function CustomersPage() {
                 statusFilter === 'all' &&
                 verificationFilter === 'all'
               }
+              sx={{
+                borderRadius: 2,
+                px: 3,
+                py: 1.5,
+                fontWeight: 500,
+                textTransform: 'none',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
             >
               {t('search.clearFilters')}
             </Button>
@@ -384,19 +463,50 @@ export default function CustomersPage() {
           <Box
             sx={{
               display: 'flex',
-              gap: 2,
+              gap: 3,
               flexWrap: 'wrap',
               alignItems: 'center',
               width: '100%',
               overflowX: 'auto',
             }}
           >
-            <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>{t('role')}</InputLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                {t('role')}
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 120,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={roleFilter}
                 onChange={e => setRoleFilter(e.target.value)}
-                label={t('role')}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">{t('search.allRoles')}</MenuItem>
                 <MenuItem value="user">{t('roles.user')}</MenuItem>
@@ -404,13 +514,45 @@ export default function CustomersPage() {
                 <MenuItem value="manager">{t('roles.manager')}</MenuItem>
               </Select>
             </FormControl>
+            </Box>
 
-            <FormControl sx={{ minWidth: 120 }}>
-              <InputLabel>{t('status')}</InputLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                {t('status')}
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 120,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={statusFilter}
                 onChange={e => setStatusFilter(e.target.value)}
-                label={t('status')}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">{t('search.allStatus')}</MenuItem>
                 <MenuItem value="active">{t('statuses.active')}</MenuItem>
@@ -418,23 +560,69 @@ export default function CustomersPage() {
                 <MenuItem value="suspended">{t('statuses.suspended')}</MenuItem>
               </Select>
             </FormControl>
+            </Box>
 
-            <FormControl sx={{ minWidth: 150 }}>
-              <InputLabel>{t('verification')}</InputLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: 'text.secondary',
+                  mb: 0.5,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                }}
+              >
+                {t('verification')}
+              </Typography>
+              <FormControl sx={{ 
+                minWidth: 150,
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  '&:hover': {
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: 'primary.main',
+                    },
+                  },
+                },
+              }}>
               <Select
                 value={verificationFilter}
                 onChange={e => setVerificationFilter(e.target.value)}
-                label={t('verification')}
+                  displayEmpty
+                  sx={{
+                    '& .MuiSelect-select': {
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      py: 1.5,
+                      fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    },
+                  }}
               >
                 <MenuItem value="all">{t('search.allVerification')}</MenuItem>
                 <MenuItem value="verified">{t('verificationStatus.verified')}</MenuItem>
                 <MenuItem value="unverified">{t('verificationStatus.unverified')}</MenuItem>
               </Select>
             </FormControl>
+            </Box>
 
             {/* Results Count */}
-            <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-              <Typography variant="body2" color="text.secondary">
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              ml: 'auto',
+              px: 2,
+              py: 1,
+              borderRadius: 2,
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.08)' 
+                : 'rgba(0,0,0,0.04)',
+            }}>
+              <Typography variant="body2" color="text.secondary" sx={{ 
+                fontWeight: 500,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 {t('search.resultsCount', {
                   filtered: filteredUsers.length,
                   total: totalUsers,
@@ -446,21 +634,210 @@ export default function CustomersPage() {
         </Stack>
       </Paper>
 
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{
+        width: '100%',
+        overflowX: 'auto',
+        borderRadius: 3,
+        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+        background: (theme) => theme.palette.mode === 'dark' 
+          ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+          : 'background.paper',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(100, 120, 150, 0.3)'
+          : '1px solid rgba(0,0,0,0.06)',
+      }}>
+        <Table sx={{
+          width: '100%',
+          tableLayout: 'fixed',
+          '& .MuiTableRow-root:hover': {
+            backgroundColor: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(255,255,255,0.05)'
+              : 'rgba(0,0,0,0.02)',
+            transition: 'background-color 0.2s ease-in-out',
+          },
+        }}>
           <TableHead>
-            <TableRow>
-              <TableCell>{t('avatar')}</TableCell>
-              <TableCell>{t('username')}</TableCell>
-              <TableCell>{t('email')}</TableCell>
-              <TableCell>{t('fullName')}</TableCell>
-              <TableCell>{t('phone')}</TableCell>
-              <TableCell>{t('role')}</TableCell>
-              <TableCell>{t('status')}</TableCell>
-              <TableCell>{t('verification')}</TableCell>
-              <TableCell>{t('addresses')}</TableCell>
-              <TableCell>{t('createdAt')}</TableCell>
-              <TableCell align="right">{t('actions')}</TableCell>
+            <TableRow sx={{ 
+              backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                ? 'rgba(255,255,255,0.12)' 
+                : 'rgba(0,0,0,0.12)' 
+            }}>
+                              <TableCell sx={{ 
+                  fontWeight: 700, 
+                  fontSize: '0.95rem',
+                  color: 'text.primary',
+                  borderBottom: (theme) => theme.palette.mode === 'dark'
+                    ? '2px solid rgba(255,255,255,0.15)'
+                    : '2px solid rgba(0,0,0,0.2)',
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                    ? 'rgba(255,255,255,0.12)' 
+                    : 'rgba(0,0,0,0.12)',
+                  py: 2,
+                  width: '8%',
+                }}>
+                  {t('avatar')}
+                </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '10%',
+              }}>
+                {t('username')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '15%',
+              }}>
+                {t('email')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '12%',
+              }}>
+                {t('fullName')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '10%',
+              }}>
+                {t('phone')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '8%',
+              }}>
+                {t('role')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '8%',
+              }}>
+                {t('status')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '10%',
+              }}>
+                {t('verification')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '8%',
+              }}>
+                {t('addresses')}
+              </TableCell>
+              <TableCell sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '12%',
+              }}>
+                {t('createdAt')}
+              </TableCell>
+              <TableCell align="right" sx={{ 
+                fontWeight: 700, 
+                fontSize: '0.95rem',
+                color: 'text.primary',
+                borderBottom: (theme) => theme.palette.mode === 'dark'
+                  ? '2px solid rgba(255,255,255,0.15)'
+                  : '2px solid rgba(0,0,0,0.2)',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                backgroundColor: (theme) => theme.palette.mode === 'dark' 
+                  ? 'rgba(255,255,255,0.12)' 
+                  : 'rgba(0,0,0,0.12)',
+                py: 2,
+                width: '9%',
+              }}>
+                {t('actions')}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -478,17 +855,59 @@ export default function CustomersPage() {
               </TableRow>
             ) : Array.isArray(filteredUsers) ? (
               filteredUsers.map(user => (
-                <TableRow key={user._id}>
-                  <TableCell>
-                    <Avatar src={user.avatar} alt={user.fullName} sx={{ width: 40, height: 40 }}>
+                <TableRow 
+                  key={user._id}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: (theme) => theme.palette.mode === 'dark'
+                        ? 'rgba(255,255,255,0.05)'
+                        : 'rgba(0,0,0,0.02)',
+                    },
+                    transition: 'background-color 0.2s ease-in-out',
+                  }}
+                >
+                  <TableCell sx={{ py: 2 }}>
+                    <Avatar 
+                      src={user.avatar} 
+                      alt={user.fullName} 
+                      sx={{ 
+                        width: 40, 
+                        height: 40,
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        backgroundColor: (theme) => theme.palette.primary.main,
+                      }}
+                    >
                       {user.fullName?.charAt(0) || user.username?.charAt(0)}
                     </Avatar>
                   </TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.fullName}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{ 
+                    py: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    fontWeight: 500,
+                  }}>
+                    {user.username}
+                  </TableCell>
+                  <TableCell sx={{ 
+                    py: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {user.email}
+                  </TableCell>
+                  <TableCell sx={{ 
+                    py: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    fontWeight: 500,
+                  }}>
+                    {user.fullName}
+                  </TableCell>
+                  <TableCell sx={{ 
+                    py: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {user.phone}
+                  </TableCell>
+                  <TableCell sx={{ py: 2 }}>
                     <Chip
                       label={t(`roles.${user.role}`)}
                       color={
@@ -499,9 +918,17 @@ export default function CustomersPage() {
                             : 'default'
                       }
                       size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                     <Chip
                       label={t(`statuses.${user.status || 'active'}`)}
                       color={
@@ -512,9 +939,17 @@ export default function CustomersPage() {
                             : 'default'
                       }
                       size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                     <Chip
                       label={
                         user.isVerified
@@ -523,25 +958,76 @@ export default function CustomersPage() {
                       }
                       color={user.isVerified ? 'success' : 'default'}
                       size="small"
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.75rem',
+                        height: 24,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
                     />
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{ py: 2 }}>
                     <Tooltip title={getDefaultAddress(user.addresses)}>
                       <Chip
                         label={`${getAddressCount(user.addresses)} ${t('addresses')}`}
                         size="small"
                         variant="outlined"
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: '0.75rem',
+                          height: 24,
+                          '& .MuiChip-label': {
+                            px: 1,
+                          },
+                        }}
                       />
                     </Tooltip>
                   </TableCell>
-                  <TableCell>{formatDate(user.createdAt)}</TableCell>
-                  <TableCell align="right">
-                    <IconButton size="small" onClick={() => handleOpenDialog(user)} sx={{ mr: 1 }}>
+                  <TableCell sx={{ 
+                    py: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    fontSize: '0.875rem',
+                  }}>
+                    {formatDate(user.createdAt)}
+                  </TableCell>
+                  <TableCell align="center" sx={{ py: 2 }}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      alignItems: 'center',
+                      gap: 1,
+                    }}>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleOpenDialog(user)} 
+                        sx={{ 
+                          color: 'primary.main',
+                          '&:hover': {
+                            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                            transform: 'scale(1.1)',
+                          },
+                          transition: 'all 0.2s ease-in-out',
+                        }}
+                      >
                       <EditIcon />
                     </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(user._id)} color="error">
+                      <IconButton 
+                        size="small" 
+                        onClick={() => handleDelete(user._id)} 
+                        color="error"
+                        sx={{
+                          '&:hover': {
+                            backgroundColor: 'rgba(211, 47, 47, 0.08)',
+                            transform: 'scale(1.1)',
+                          },
+                          transition: 'all 0.2s ease-in-out',
+                        }}
+                      >
                       <DeleteIcon />
                     </IconButton>
+                    </Box>
                   </TableCell>
                 </TableRow>
               ))
@@ -558,7 +1044,16 @@ export default function CustomersPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          mt: 4,
+          p: 2,
+          borderRadius: 2,
+          backgroundColor: (theme) => theme.palette.mode === 'dark' 
+            ? 'rgba(255,255,255,0.05)' 
+            : 'rgba(0,0,0,0.02)',
+        }}>
           <Pagination
             count={totalPages}
             page={page}
@@ -566,15 +1061,114 @@ export default function CustomersPage() {
             color="primary"
             showFirstButton
             showLastButton
+            sx={{
+              '& .MuiPaginationItem-root': {
+                borderRadius: 1,
+                fontWeight: 500,
+                '&:hover': {
+                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                },
+              },
+            }}
           />
         </Box>
       )}
 
       {/* Add/Edit Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>{selectedUser ? t('editUser') : t('addUser')}</DialogTitle>
+      <Dialog 
+        open={openDialog} 
+        onClose={handleCloseDialog} 
+        maxWidth="sm" 
+        fullWidth
+        sx={{
+          '& .MuiDialog-container': {
+            alignItems: 'center',
+          },
+        }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }
+          }
+        }}
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(26, 26, 46, 0.98) 0%, rgba(0, 0, 0, 0.98) 100%)'
+              : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            borderRadius: 3,
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          background: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+            : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(100, 120, 150, 0.3)'
+            : '1px solid rgba(0,0,0,0.1)',
+          py: 3,
+          px: 4,
+        }}>
+          <Typography variant="h5" sx={{
+            fontWeight: 700,
+            fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+            color: 'text.primary'
+          }}>
+            {selectedUser ? t('editUser') : t('addUser')}
+          </Typography>
+        </DialogTitle>
         <form onSubmit={handleSubmit}>
-          <DialogContent>
+          <DialogContent sx={{ 
+            p: 4,
+            maxHeight: '60vh',
+            overflowY: 'auto',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(20, 25, 35, 0.8) 0%, rgba(15, 20, 30, 0.8) 100%)'
+              : 'linear-gradient(135deg, rgba(252, 254, 255, 0.8) 0%, rgba(245, 248, 252, 0.8) 100%)',
+            // Custom scrollbar styling
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'rgba(30, 40, 60, 0.3)'
+                : 'rgba(0, 0, 0, 0.05)',
+              borderRadius: '10px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(100, 120, 150, 0.6) 0%, rgba(80, 100, 130, 0.8) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.4) 0%, rgba(21, 101, 192, 0.6) 100%)',
+              borderRadius: '10px',
+              border: (theme) => theme.palette.mode === 'dark'
+                ? '1px solid rgba(100, 120, 150, 0.3)'
+                : '1px solid rgba(25, 118, 210, 0.3)',
+            },
+            '&::-webkit-scrollbar-thumb:hover': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(120, 140, 170, 0.8) 0%, rgba(100, 120, 150, 1) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.6) 0%, rgba(21, 101, 192, 0.8) 100%)',
+            },
+            '&::-webkit-scrollbar-thumb:active': {
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, rgba(140, 160, 190, 1) 0%, rgba(120, 140, 170, 1) 100%)'
+                : 'linear-gradient(135deg, rgba(25, 118, 210, 0.8) 0%, rgba(21, 101, 192, 1) 100%)',
+            },
+            // Firefox scrollbar
+            scrollbarWidth: 'thin',
+            scrollbarColor: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(100, 120, 150, 0.6) rgba(30, 40, 60, 0.3)'
+              : 'rgba(25, 118, 210, 0.4) rgba(0, 0, 0, 0.05)',
+          }}>
             <Stack spacing={3}>
               <TextField
                 name="username"
@@ -583,6 +1177,18 @@ export default function CustomersPage() {
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
               <TextField
@@ -593,6 +1199,18 @@ export default function CustomersPage() {
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
               <TextField
@@ -602,6 +1220,18 @@ export default function CustomersPage() {
                 onChange={handleInputChange}
                 required
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
               <TextField
@@ -610,9 +1240,29 @@ export default function CustomersPage() {
                 value={formData.phone}
                 onChange={handleInputChange}
                 fullWidth
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputBase-input': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  },
+                }}
               />
 
-              <FormControl fullWidth required>
+              <FormControl fullWidth required sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}>
                 <InputLabel>{t('role')}</InputLabel>
                 <Select
                   name="role"
@@ -624,24 +1274,62 @@ export default function CustomersPage() {
                     }))
                   }
                   label={t('role')}
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}
                 >
-                  <MenuItem value="user">{t('roles.user')}</MenuItem>
-                  <MenuItem value="admin">{t('roles.admin')}</MenuItem>
-                  <MenuItem value="manager">{t('roles.manager')}</MenuItem>
+                  <MenuItem value="user" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('roles.user')}
+                  </MenuItem>
+                  <MenuItem value="admin" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('roles.admin')}
+                  </MenuItem>
+                  <MenuItem value="manager" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('roles.manager')}
+                  </MenuItem>
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth required>
+              <FormControl fullWidth required sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: 2,
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+                '& .MuiInputLabel-root': {
+                  fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                },
+              }}>
                 <InputLabel>{t('status')}</InputLabel>
                 <Select
                   name="status"
                   value={formData.status}
                   onChange={e => setFormData(prev => ({ ...prev, status: e.target.value }))}
                   label={t('status')}
+                  sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}
                 >
-                  <MenuItem value="active">{t('statuses.active')}</MenuItem>
-                  <MenuItem value="inactive">{t('statuses.inactive')}</MenuItem>
-                  <MenuItem value="suspended">{t('statuses.suspended')}</MenuItem>
+                  <MenuItem value="active" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('statuses.active')}
+                  </MenuItem>
+                  <MenuItem value="inactive" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('statuses.inactive')}
+                  </MenuItem>
+                  <MenuItem value="suspended" sx={{
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                  }}>
+                    {t('statuses.suspended')}
+                  </MenuItem>
                 </Select>
               </FormControl>
 
@@ -650,15 +1338,75 @@ export default function CustomersPage() {
                   <Switch
                     checked={formData.isVerified}
                     onChange={e => setFormData(prev => ({ ...prev, isVerified: e.target.checked }))}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'primary.main',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: 'primary.main',
+                      },
+                    }}
                   />
                 }
                 label={t('isVerified')}
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                    fontWeight: 500,
+                  },
+                }}
               />
             </Stack>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>{t('cancel')}</Button>
-            <Button type="submit" variant="contained">
+          <DialogActions sx={{
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, rgba(25, 35, 50, 0.95) 0%, rgba(30, 40, 60, 0.95) 100%)'
+              : 'linear-gradient(135deg, rgba(248, 250, 252, 0.95) 0%, rgba(255, 255, 255, 0.95) 100%)',
+            borderTop: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(100, 120, 150, 0.3)'
+              : '1px solid rgba(0,0,0,0.1)',
+            px: 4,
+            py: 3,
+            gap: 2,
+          }}>
+            <Button 
+              onClick={handleCloseDialog}
+              variant="outlined"
+              sx={{
+                px: 3,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                '&:hover': {
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
+              {t('cancel')}
+            </Button>
+            <Button 
+              type="submit" 
+              variant="contained"
+              sx={{
+                px: 4,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 600,
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+                background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 203, 243, .3)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1976D2 30%, #1CB5E0 90%)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 6px 10px 4px rgba(33, 203, 243, .3)',
+                },
+                transition: 'all 0.2s ease-in-out'
+              }}
+            >
               {selectedUser ? t('update') : t('create')}
             </Button>
           </DialogActions>

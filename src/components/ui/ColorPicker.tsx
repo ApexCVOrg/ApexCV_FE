@@ -2,6 +2,8 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import CheckIcon from '@mui/icons-material/Check';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface ColorPickerProps {
   colors: string[];
@@ -22,6 +24,9 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   size = 'medium',
   variant = 'circle',
 }) => {
+  const { theme } = useTheme();
+  const isDarkMode = theme === THEME.DARK;
+  
   const sizeMap = {
     small: { width: 32, height: 32, fontSize: 12 },
     medium: { width: 40, height: 40, fontSize: 14 },
@@ -41,11 +46,11 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
           mb: 2,
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: isDarkMode ? '#fff' : '#1a1a1a' }}>
           {title}:
         </Typography>
         {showSelectedLabel && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color={isDarkMode ? '#ccc' : 'text.secondary'}>
             {selectedColor ? `Selected: ${selectedColor}` : 'Choose a color'}
           </Typography>
         )}
@@ -66,17 +71,21 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                 width: currentSize.width,
                 height: currentSize.height,
                 borderRadius: variant === 'circle' ? '50%' : '8px',
-                border: selectedColor === color ? '3px solid #1976d2' : '2px solid #e0e0e0',
+                border: selectedColor === color 
+                  ? (isDarkMode ? '3px solid #fff' : '3px solid #1976d2') 
+                  : (isDarkMode ? '2px solid #555' : '2px solid #e0e0e0'),
                 cursor: 'pointer',
                 bgcolor: color.toLowerCase(),
                 transition: 'all 0.2s ease',
                 boxShadow: selectedColor === color 
-                  ? '0 4px 12px rgba(25, 118, 210, 0.3)' 
-                  : '0 2px 8px rgba(0,0,0,0.1)',
-                '&:hover': {
-                  transform: 'scale(1.1)',
-                  boxShadow: '0 6px 16px rgba(0,0,0,0.2)',
-                },
+                  ? (isDarkMode ? '0 4px 12px rgba(255, 255, 255, 0.3)' : '0 4px 12px rgba(25, 118, 210, 0.3)')
+                  : (isDarkMode ? '0 2px 8px rgba(255,255,255,0.1)' : '0 2px 8px rgba(0,0,0,0.1)'),
+                                  '&:hover': {
+                    transform: 'scale(1.1)',
+                    boxShadow: isDarkMode 
+                      ? '0 6px 16px rgba(255,255,255,0.2)' 
+                      : '0 6px 16px rgba(0,0,0,0.2)',
+                  },
                 '&::before': {
                   content: '""',
                   position: 'absolute',
@@ -126,15 +135,17 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
                       />
                     </Box>
                   ) : (
-                    <CheckIcon 
-                      sx={{ 
-                        color: '#fff', 
-                        fontSize: currentSize.fontSize,
-                        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))',
-                        stroke: '#000',
-                        strokeWidth: 1,
-                      }} 
-                    />
+                                          <CheckIcon 
+                        sx={{ 
+                          color: isDarkMode ? '#000' : '#fff', 
+                          fontSize: currentSize.fontSize,
+                          filter: isDarkMode 
+                            ? 'drop-shadow(0 1px 2px rgba(255,255,255,0.3))' 
+                            : 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))',
+                          stroke: isDarkMode ? '#fff' : '#000',
+                          strokeWidth: 1,
+                        }} 
+                      />
                   )}
                 </motion.div>
               )}
@@ -145,7 +156,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
 
       {/* Selected Color Label */}
       {selectedColor && showSelectedLabel && (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1, fontStyle: 'italic' }}>
+        <Typography variant="body2" color={isDarkMode ? '#ccc' : 'text.secondary'} sx={{ mt: 1, fontStyle: 'italic' }}>
           Color: {selectedColor.charAt(0).toUpperCase() + selectedColor.slice(1)}
         </Typography>
       )}

@@ -164,7 +164,7 @@ export default function ManagerSettingsPage() {
         onChange={(_, newValue) => setTab(newValue)}
         sx={{
           borderRight: { md: 1, xs: 0 },
-          borderColor: 'divider',
+          borderColor: 'error.main',
           minWidth: { md: 220, xs: '100%' },
           width: { md: 220, xs: '100%' },
           mb: { xs: 2, md: 0 },
@@ -172,6 +172,9 @@ export default function ManagerSettingsPage() {
           borderRadius: { md: '16px 0 0 16px', xs: '16px 16px 0 0' },
           boxShadow: { md: 2, xs: 0 },
           p: { xs: 1, md: 2 },
+          '& .MuiTabs-indicator': {
+            backgroundColor: 'error.main',
+          },
         }}
         aria-label="Manager Settings Tabs"
       >
@@ -194,7 +197,22 @@ export default function ManagerSettingsPage() {
               fontSize: '1rem',
               borderRadius: 2,
               transition: 'background 0.2s',
-              '&:hover': { bgcolor: 'action.hover' },
+              color: 'text.primary',
+              '&:hover': { 
+                bgcolor: 'rgba(244, 67, 54, 0.08)',
+                color: 'error.main',
+              },
+              '&.Mui-selected': {
+                color: 'error.main',
+                bgcolor: 'rgba(244, 67, 54, 0.12)',
+                '& .MuiSvgIcon-root': {
+                  color: 'error.main',
+                },
+              },
+              '& .MuiSvgIcon-root': {
+                color: 'inherit',
+                transition: 'color 0.2s',
+              },
             }}
           />
         ))}
@@ -223,7 +241,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Shop Information
               </Typography>
               {loading && <Typography color="text.secondary">Loading...</Typography>}
@@ -295,7 +322,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Save
@@ -317,7 +348,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Profile
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -329,7 +369,12 @@ export default function ManagerSettingsPage() {
                 </Box>
               </Box>
               <Divider sx={{ my: 3 }} />
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ 
+                mb: 2, 
+                fontWeight: 600,
+                color: 'error.main',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Change Password
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -373,7 +418,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Update
@@ -395,7 +444,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 User List
               </Typography>
               <Box sx={{ mb: 2 }}>
@@ -412,14 +470,23 @@ export default function ManagerSettingsPage() {
                   fontSize: '1rem',
                   boxShadow: 1,
                   transition: 'box-shadow 0.2s',
-                  '&:hover': { boxShadow: 4 },
+                  background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                  '&:hover': { 
+                    boxShadow: 4,
+                    background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                  },
                   mb: 2,
                 }}
               >
                 Add User
               </Button>
               <Divider sx={{ my: 3 }} />
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+              <Typography variant="h6" sx={{ 
+                mb: 2, 
+                fontWeight: 600,
+                color: 'error.main',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Roles
               </Typography>
               <Box>
@@ -441,7 +508,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Order & Inventory Rules
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -477,7 +553,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Save
@@ -499,7 +579,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Language & Localization
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -536,7 +625,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Save
@@ -558,7 +651,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 Notification Settings
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -584,7 +686,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Save
@@ -606,7 +712,16 @@ export default function ManagerSettingsPage() {
             }}
           >
             <CardContent sx={{ p: { xs: 2, md: 3 } }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
+              <Typography variant="h5" sx={{ 
+                mb: 2, 
+                fontWeight: 700,
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)'
+                  : 'linear-gradient(45deg, #d32f2f 30%, #b71c1c 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontFamily: "'Inter', 'Roboto', 'Noto Sans', 'Segoe UI', sans-serif",
+              }}>
                 API & Integrations
               </Typography>
               <Box sx={{ display: 'flex', flexWrap: 'wrap', mx: -1 }}>
@@ -629,7 +744,11 @@ export default function ManagerSettingsPage() {
                     fontSize: '1rem',
                     boxShadow: 1,
                     transition: 'box-shadow 0.2s',
-                    '&:hover': { boxShadow: 4 },
+                    background: 'linear-gradient(45deg, #f44336 30%, #d32f2f 90%)',
+                    '&:hover': { 
+                      boxShadow: 4,
+                      background: 'linear-gradient(45deg, #d32f2f 30%, #c62828 90%)',
+                    },
                   }}
                 >
                   Save

@@ -15,6 +15,8 @@ import ProductCard from '@/components/card';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import Link from 'next/link';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 
 interface Product {
@@ -47,6 +49,9 @@ export default function MenPage() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const productsPerPage = 8;
   const carouselRef = useRef<HTMLDivElement>(null);
+  
+  // Theme hook
+  const { theme } = useTheme();
 
   // Function to get team name from product categories
   // const getTeamNameFromProduct = (product: Product): string => {
@@ -140,6 +145,7 @@ export default function MenPage() {
 
 
 
+
   const handleCarouselNext = () => {
     const maxIndex = Math.max(0, products.length - 4);
     setCarouselIndex(prev => Math.min(prev + 1, maxIndex));
@@ -160,7 +166,12 @@ export default function MenPage() {
   }
 
   return (
-    <>
+    <Box sx={{ 
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+      minHeight: '100vh',
+      pt: 8 // Add padding top for fixed header
+    }}>
       {/* Hero Banner */}
       <Box
         sx={{
@@ -175,6 +186,7 @@ export default function MenPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          mt: -8, // Compensate for the padding top
         }}
       >
         <Image
@@ -285,8 +297,12 @@ export default function MenPage() {
       </Box>
       <Container maxWidth="xl" disableGutters>
         {/* Categories Section */}
-        <Box sx={{ py: { xs: 4, md: 8 }, bgcolor: 'white' }}>
-          <Container maxWidth="lg">
+        <Box sx={{ 
+          py: { xs: 4, md: 8 }, 
+          bgcolor: theme === THEME.LIGHT ? 'white' : '#1a1a1a',
+          width: '100%'
+        }}>
+          <Container maxWidth="xl" disableGutters>
             <Typography
               variant="h3"
               component="h2"
@@ -294,7 +310,7 @@ export default function MenPage() {
               sx={{
                 fontWeight: 'bold',
                 mb: 2,
-                color: 'text.primary',
+                color: theme === THEME.LIGHT ? 'text.primary' : 'text.primary',
               }}
             >
               MUA SẮM THEO DANH MỤC
@@ -303,7 +319,7 @@ export default function MenPage() {
               variant="h6"
               align="center"
               sx={{
-                color: 'text.secondary',
+                color: theme === THEME.LIGHT ? 'text.secondary' : 'text.primary',
                 mb: 6,
                 fontWeight: 300,
               }}
@@ -316,8 +332,9 @@ export default function MenPage() {
                 gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' },
                 gap: { xs: 3, md: 3 },
                 mt: 4,
-                maxWidth: '1200px',
+                maxWidth: '100%',
                 mx: 'auto',
+                px: { xs: 2, md: 4 },
               }}
             >
               {[
@@ -416,8 +433,12 @@ export default function MenPage() {
         </Box>
 
         {/* Featured Products */}
-        <Box sx={{ py: { xs: 6, md: 10 }, bgcolor: '#f8f9fa' }}>
-          <Container maxWidth="lg">
+        <Box sx={{ 
+          py: { xs: 6, md: 10 }, 
+          bgcolor: theme === THEME.LIGHT ? '#f8f9fa' : '#000',
+          width: '100%'
+        }}>
+          <Container maxWidth="xl" disableGutters>
             <Box
               sx={{
                 display: 'flex',
@@ -426,6 +447,7 @@ export default function MenPage() {
                 alignItems: { xs: 'flex-start', md: 'center' },
                 mb: 6,
                 gap: { xs: 3, md: 0 },
+                px: { xs: 2, md: 4 },
               }}
             >
               <Box>
@@ -434,7 +456,7 @@ export default function MenPage() {
                   component="h2"
                   sx={{
                     fontWeight: 'bold',
-                    color: 'text.primary',
+                    color: theme === THEME.LIGHT ? 'text.primary' : 'text.primary',
                     mb: 1,
                   }}
                 >
@@ -443,7 +465,7 @@ export default function MenPage() {
                 <Typography
                   variant="h6"
                   sx={{
-                    color: 'text.secondary',
+                    color: theme === THEME.LIGHT ? 'text.secondary' : 'text.primary',
                     fontWeight: 300,
                   }}
                 >
@@ -460,7 +482,7 @@ export default function MenPage() {
                   minHeight: '300px',
                 }}
               >
-                <CircularProgress size={60} sx={{ color: 'black' }} />
+                <CircularProgress size={60} sx={{ color: theme === THEME.LIGHT ? 'black' : 'white' }} />
               </Box>
             )}
             {error && (
@@ -480,12 +502,12 @@ export default function MenPage() {
                   variant="outlined"
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? 'black' : 'white',
+                    color: theme === THEME.LIGHT ? 'black' : 'white',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white',
+                      borderColor: theme === THEME.LIGHT ? 'black' : 'white',
+                      bgcolor: theme === THEME.LIGHT ? 'black' : 'white',
+                      color: theme === THEME.LIGHT ? 'white' : 'black',
                     },
                   }}
                 >
@@ -503,19 +525,19 @@ export default function MenPage() {
                   justifyContent: 'center',
                 }}
               >
-                <Typography variant="h5" align="center" sx={{ mb: 2, color: 'text.secondary' }}>
+                <Typography variant="h5" align="center" sx={{ mb: 2, color: theme === THEME.LIGHT ? 'text.secondary' : 'text.primary' }}>
                   Không tìm thấy sản phẩm nào
                 </Typography>
                 <Button
                   variant="outlined"
                   onClick={refreshProducts}
                   sx={{
-                    borderColor: 'black',
-                    color: 'black',
+                    borderColor: theme === THEME.LIGHT ? 'black' : 'white',
+                    color: theme === THEME.LIGHT ? 'black' : 'white',
                     '&:hover': {
-                      borderColor: 'black',
-                      bgcolor: 'black',
-                      color: 'white',
+                      borderColor: theme === THEME.LIGHT ? 'black' : 'white',
+                      bgcolor: theme === THEME.LIGHT ? 'black' : 'white',
+                      color: theme === THEME.LIGHT ? 'white' : 'black',
                     },
                   }}
                 >
@@ -524,14 +546,14 @@ export default function MenPage() {
               </Box>
             )}
             {!loading && !error && products.length > 0 && (
-              <Box sx={{ position: 'relative', overflow: 'hidden' }}>
+              <Box sx={{ position: 'relative', overflow: 'hidden', px: { xs: 2, md: 4 } }}>
                 {/* Left Navigation Button */}
                 <IconButton
                   onClick={handleCarouselPrev}
                   disabled={carouselIndex === 0}
                   sx={{
                     position: 'absolute',
-                    left: 0,
+                    left: { xs: 8, md: 16 },
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
@@ -550,7 +572,7 @@ export default function MenPage() {
                   disabled={carouselIndex >= Math.ceil(products.length / 4) - 1}
                   sx={{
                     position: 'absolute',
-                    right: 0,
+                    right: { xs: 8, md: 16 },
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 2,
@@ -624,11 +646,11 @@ export default function MenPage() {
                         width: 12,
                         height: 12,
                         borderRadius: '50%',
-                        bgcolor: carouselIndex === index ? 'black' : 'grey.300',
+                        bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? 'black' : 'white') : (theme === THEME.LIGHT ? 'grey.300' : 'grey.600'),
                         cursor: 'pointer',
                         transition: 'all 0.3s ease',
                         '&:hover': {
-                          bgcolor: carouselIndex === index ? 'black' : 'grey.500',
+                          bgcolor: carouselIndex === index ? (theme === THEME.LIGHT ? 'black' : 'white') : (theme === THEME.LIGHT ? 'grey.500' : 'grey.400'),
                           transform: 'scale(1.2)',
                         },
                       }}
@@ -640,6 +662,6 @@ export default function MenPage() {
           </Container>
         </Box>
       </Container>
-    </>
+    </Box>
   );
 }

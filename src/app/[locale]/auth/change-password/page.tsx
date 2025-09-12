@@ -9,57 +9,78 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import axios from 'axios';
+import { useTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 interface ChangePasswordResponse {
   success: boolean;
   message: string;
 }
 
-const StyledPaper = styled(Paper)({
+const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: '2rem',
   maxWidth: '500px',
   margin: '2rem auto',
   borderRadius: '12px',
-  boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-});
+  boxShadow: theme.palette.mode === 'light'
+    ? '0 4px 24px rgba(0,0,0,0.12)' 
+    : '0 4px 24px rgba(0,0,0,0.5)',
+  backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#1a1a1a',
+  color: theme.palette.mode === 'light' ? '#000' : '#fff',
+  border: `1px solid ${theme.palette.mode === 'light' ? '#e0e0e0' : '#333'}`,
+}));
 
-const StyledTextField = styled(TextField)({
+const StyledTextField = styled(TextField)(({ theme }) => ({
   '& .MuiOutlinedInput-root': {
     borderRadius: '12px',
+    backgroundColor: theme.palette.mode === 'light' ? '#fff' : '#2a2a2a',
     '& fieldset': {
-      borderColor: '#e0e0e0',
+      borderColor: theme.palette.mode === 'light' ? '#e0e0e0' : '#444',
     },
     '&:hover fieldset': {
-      borderColor: '#000',
+      borderColor: theme.palette.mode === 'light' ? '#000' : '#666',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#000',
+      borderColor: theme.palette.mode === 'light' ? '#000' : '#fff',
     },
   },
   '& .MuiInputLabel-root': {
+    color: theme.palette.mode === 'light' ? '#666' : '#ccc',
     '&.Mui-focused': {
-      color: '#000',
+      color: theme.palette.mode === 'light' ? '#000' : '#fff',
     },
   },
-});
+  '& .MuiInputBase-input': {
+    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+  },
+}));
 
-const StyledButton = styled(Button)({
+const StyledButton = styled(Button)(({ theme }) => ({
   borderRadius: '24px',
   padding: '12px 24px',
   fontWeight: 700,
   textTransform: 'none',
   fontSize: '1rem',
   '&.MuiButton-contained': {
-    backgroundColor: '#000',
+    backgroundColor: theme.palette.mode === 'light' ? '#000' : '#fff',
+    color: theme.palette.mode === 'light' ? '#fff' : '#000',
     '&:hover': {
-      backgroundColor: '#333',
+      backgroundColor: theme.palette.mode === 'light' ? '#333' : '#f0f0f0',
     },
   },
-});
+  '&.MuiButton-outlined': {
+    borderColor: theme.palette.mode === 'light' ? '#000' : '#fff',
+    color: theme.palette.mode === 'light' ? '#000' : '#fff',
+    '&:hover': {
+      backgroundColor: theme.palette.mode === 'light' ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.08)',
+    },
+  },
+}));
 
 export default function ChangePasswordPage() {
   const t = useTranslations('changePassword');
   const router = useRouter();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -128,15 +149,40 @@ export default function ChangePasswordPage() {
       setLoading(false);
     }
   };
+  
   return (
-    <Box sx={{ minHeight: '100vh', py: 4, px: 2 }}>
+    <Box sx={{ 
+      minHeight: '100vh', 
+      py: 4, 
+      px: 2,
+      bgcolor: theme === THEME.LIGHT ? '#fff' : '#000',
+      color: theme === THEME.LIGHT ? '#000' : '#fff',
+    }}>
       <StyledPaper>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <LockIcon sx={{ fontSize: 48, color: '#000', mb: 2 }} />
-          <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
+          <LockIcon sx={{ 
+            fontSize: 48, 
+            color: theme === THEME.LIGHT ? '#000' : '#fff', 
+            mb: 2 
+          }} />
+          <Typography 
+            variant="h4" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 700, 
+              mb: 1,
+              color: theme === THEME.LIGHT ? '#000' : '#fff',
+            }}
+          >
             {t('changePassword')}
           </Typography>
-          <Typography color="text.secondary">{t('changePasswordDescription')}</Typography>
+          <Typography 
+            sx={{ 
+              color: theme === THEME.LIGHT ? 'text.secondary' : '#ccc' 
+            }}
+          >
+            {t('changePasswordDescription')}
+          </Typography>
         </Box>
 
         {error && (
@@ -165,7 +211,11 @@ export default function ChangePasswordPage() {
               endAdornment: (
                 <Button
                   onClick={() => setShowPassword(!showPassword)}
-                  sx={{ minWidth: 'auto', p: 1 }}
+                  sx={{ 
+                    minWidth: 'auto', 
+                    p: 1,
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  }}
                 >
                   {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                 </Button>
@@ -186,7 +236,11 @@ export default function ChangePasswordPage() {
               endAdornment: (
                 <Button
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  sx={{ minWidth: 'auto', p: 1 }}
+                  sx={{ 
+                    minWidth: 'auto', 
+                    p: 1,
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  }}
                 >
                   {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                 </Button>
@@ -207,7 +261,11 @@ export default function ChangePasswordPage() {
               endAdornment: (
                 <Button
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  sx={{ minWidth: 'auto', p: 1 }}
+                  sx={{ 
+                    minWidth: 'auto', 
+                    p: 1,
+                    color: theme === THEME.LIGHT ? '#000' : '#fff',
+                  }}
                 >
                   {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                 </Button>
@@ -220,11 +278,15 @@ export default function ChangePasswordPage() {
               variant="outlined"
               fullWidth
               onClick={() => router.back()}
-              sx={{ borderColor: '#000', color: '#000' }}
             >
               {t('cancel')}
             </StyledButton>
-            <StyledButton type="submit" variant="contained" fullWidth disabled={loading}>
+            <StyledButton 
+              type="submit" 
+              variant="contained" 
+              fullWidth 
+              disabled={loading}
+            >
               {loading ? <CircularProgress size={24} color="inherit" /> : t('changePassword')}
             </StyledButton>
           </Box>

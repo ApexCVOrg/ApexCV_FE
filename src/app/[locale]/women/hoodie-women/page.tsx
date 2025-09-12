@@ -10,13 +10,14 @@ export default function WomenHoodiePage() {
     
     try {
       // Fetch only women's products with sorting
-      const queryParams = new URLSearchParams({
+        const queryParams = new URLSearchParams({
         status: 'active',
         gender: 'women',
-        sortBy: apiSortBy,
-        sortOrder: sortOrder,
+          sortBy: apiSortBy,
+          sortOrder: sortOrder,
       });
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/products?${queryParams}`);
+      // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?${queryParams}`);
       const data = await res.json();
       
       // Lọc sản phẩm hoodie cho women

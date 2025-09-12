@@ -22,6 +22,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ProductCard from '@/components/card';
 import { useTranslations } from 'next-intl';
 import api from '@/services/api';
+import { useTheme as useCustomTheme } from '@/hooks/useTheme';
+import { THEME } from '@/lib/constants/constants';
 
 import '@/styles/components/_outlet.scss';
 
@@ -45,6 +47,7 @@ export default function OutletPage() {
   const t = useTranslations('outletPage');
   const router = useRouter();
   const theme = useTheme();
+  const { theme: customTheme } = useCustomTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -153,40 +156,48 @@ export default function OutletPage() {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Typography 
-          variant="h3" 
-          component="h1" 
-          sx={{ 
-            fontWeight: 900, 
-            textAlign: 'center', 
-            mb: 2,
-            background: 'linear-gradient(45deg,rgb(0, 0, 0),rgb(19, 22, 24))',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
+    <Box sx={{ 
+      minHeight: '100vh',
+      bgcolor: customTheme === THEME.LIGHT ? '#fff' : '#000',
+      color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+      fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    }}>
+      <Container maxWidth="xl" sx={{ py: 4, pt: 10 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
-          {t('title')}
-        </Typography>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            textAlign: 'center', 
-            mb: 6, 
-            color: 'text.secondary',
-            maxWidth: 600,
-            mx: 'auto'
-          }}
-        >
-          {t('subtitle')}
-        </Typography>
-      </motion.div>
+          <Typography 
+            variant="h3" 
+            component="h1" 
+            sx={{ 
+              fontWeight: 900, 
+              textAlign: 'center', 
+              mb: 2,
+              background: customTheme === THEME.LIGHT 
+                ? 'linear-gradient(45deg,rgb(0, 0, 0),rgb(19, 22, 24))'
+                : 'linear-gradient(45deg,rgb(255, 255, 255),rgb(200, 200, 200))',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            {t('title')}
+          </Typography>
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              textAlign: 'center', 
+              mb: 6, 
+              color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
+              maxWidth: 600,
+              mx: 'auto'
+            }}
+          >
+            {t('subtitle')}
+          </Typography>
+        </motion.div>
 
       {/* Categories Section */}
       <motion.div
@@ -201,7 +212,7 @@ export default function OutletPage() {
               fontWeight: 700, 
               mb: 4, 
               textAlign: 'center',
-              color: '#1a1a1a'
+              color: customTheme === THEME.LIGHT ? '#1a1a1a' : '#fff'
             }}
           >
             Chọn Danh Mục
@@ -310,6 +321,7 @@ export default function OutletPage() {
                         textShadow: '0 2px 8px rgba(0,0,0,0.5)',
                         fontSize: { xs: '1.25rem', md: '1.5rem' },
                         letterSpacing: '0.5px',
+                        fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", "Noto Sans", "Noto Sans Vietnamese", sans-serif',
                       }}
                     >
                       {category.name}
@@ -396,21 +408,48 @@ export default function OutletPage() {
             flexWrap: 'wrap',
             gap: 2
           }}>
-            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Typography variant="h6" sx={{ 
+              fontWeight: 600,
+              color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+            }}>
               {products.length} sản phẩm • Trang {currentPage} / {totalPages}
             </Typography>
-            <FormControl sx={{ minWidth: 200 }}>
+            <FormControl sx={{ 
+              minWidth: 200,
+              '& .MuiInputLabel-root': {
+                color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
+              },
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: customTheme === THEME.LIGHT ? '#ddd' : '#444',
+                },
+                '&:hover fieldset': {
+                  borderColor: customTheme === THEME.LIGHT ? '#999' : '#666',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                },
+              },
+              '& .MuiSelect-select': {
+                color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+              },
+            }}>
               <InputLabel>Sort By</InputLabel>
               <Select 
                 value={sortBy} 
                 label="Sort By" 
                 onChange={e => setSortBy(e.target.value)}
-                sx={{
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#e0e0e0',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#1976d2',
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: customTheme === THEME.LIGHT ? '#fff' : '#1a1a1a',
+                      color: customTheme === THEME.LIGHT ? '#000' : '#fff',
+                      '& .MuiMenuItem-root': {
+                        '&:hover': {
+                          bgcolor: customTheme === THEME.LIGHT ? '#f5f5f5' : '#333',
+                        },
+                      },
+                    },
                   },
                 }}
               >
@@ -431,7 +470,7 @@ export default function OutletPage() {
             alignItems: 'center', 
             minHeight: 400 
           }}>
-            <CircularProgress size={60} />
+            <CircularProgress size={60} sx={{ color: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9' }} />
           </Box>
         )}
 
@@ -488,8 +527,9 @@ export default function OutletPage() {
             </Box>
           </motion.div>
         </AnimatePresence>
+      </Box>
 
-        {/* Pagination */}
+      {/* Pagination */}
         {totalPages > 1 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -508,13 +548,14 @@ export default function OutletPage() {
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
                 sx={{
-                  border: '2px solid #e0e0e0',
+                  border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
+                  color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                   '&:hover': {
-                    borderColor: '#1976d2',
-                    backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                    borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                    backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                   },
                   '&.Mui-disabled': {
-                    borderColor: '#f0f0f0',
+                    borderColor: customTheme === THEME.LIGHT ? '#f0f0f0' : '#333',
                   }
                 }}
               >
@@ -531,19 +572,20 @@ export default function OutletPage() {
                 size={isMobile ? "small" : "medium"}
                 sx={{
                   '& .MuiPaginationItem-root': {
-                    border: '2px solid #e0e0e0',
+                    border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
                     fontWeight: 600,
+                    color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                     '&:hover': {
-                      borderColor: '#1976d2',
-                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                      borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                      backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                     },
                   },
                   '& .Mui-selected': {
-                    backgroundColor: '#1976d2 !important',
-                    color: 'white !important',
-                    borderColor: '#1976d2 !important',
+                    backgroundColor: customTheme === THEME.LIGHT ? '#1976d2 !important' : '#90caf9 !important',
+                    color: customTheme === THEME.LIGHT ? 'white !important' : '#000 !important',
+                    borderColor: customTheme === THEME.LIGHT ? '#1976d2 !important' : '#90caf9 !important',
                     '&:hover': {
-                      backgroundColor: '#1565c0 !important',
+                      backgroundColor: customTheme === THEME.LIGHT ? '#1565c0 !important' : '#64b5f6 !important',
                     },
                   },
                 }}
@@ -554,13 +596,14 @@ export default function OutletPage() {
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
                 sx={{
-                  border: '2px solid #e0e0e0',
+                  border: `2px solid ${customTheme === THEME.LIGHT ? '#e0e0e0' : '#444'}`,
+                  color: customTheme === THEME.LIGHT ? '#000' : '#fff',
                   '&:hover': {
-                    borderColor: '#1976d2',
-                    backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                    borderColor: customTheme === THEME.LIGHT ? '#1976d2' : '#90caf9',
+                    backgroundColor: customTheme === THEME.LIGHT ? 'rgba(25, 118, 210, 0.04)' : 'rgba(144, 202, 249, 0.1)',
                   },
                   '&.Mui-disabled': {
-                    borderColor: '#f0f0f0',
+                    borderColor: customTheme === THEME.LIGHT ? '#f0f0f0' : '#333',
                   }
                 }}
               >
@@ -574,7 +617,7 @@ export default function OutletPage() {
               sx={{ 
                 textAlign: 'center', 
                 mt: 2, 
-                color: 'text.secondary',
+                color: customTheme === THEME.LIGHT ? '#666' : '#ccc',
                 fontWeight: 500
               }}
             >
@@ -582,7 +625,7 @@ export default function OutletPage() {
             </Typography>
           </motion.div>
         )}
-      </Box>
-    </Container>
+      </Container>
+    </Box>
   );
 }
