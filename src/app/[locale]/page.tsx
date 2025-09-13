@@ -15,6 +15,7 @@ import {
   Tab,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import PaymentIcon from '@mui/icons-material/Payment';
 import CategoryTreeFilter from '@/components/forms/CategoryTreeFilter';
 import { Category, CategoryTree } from '@/types/components/category';
 import { buildCategoryTree } from '@/lib/utils/categoryUtils';
@@ -812,6 +813,33 @@ export default function HomePage() {
               >
                 Shop the latest trends, best sellers, and exclusive deals
               </Typography>
+              <Box sx={{ mt: 3 }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  startIcon={<PaymentIcon />}
+                  href="/sepay-demo"
+                  sx={{
+                    backgroundColor: '#1976d2',
+                    color: 'white',
+                    fontWeight: 600,
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '1.1rem',
+                    '&:hover': {
+                      backgroundColor: '#1565c0',
+                    },
+                    '@media screen and (width: 1440px) and (height: 1920px)': {
+                      fontSize: '1.3rem',
+                      padding: '1rem 3rem',
+                    },
+                  }}
+                >
+                  Nạp điểm qua Sepay
+                </Button>
+              </Box>
             </Box>
           </motion.div>
           <Box
