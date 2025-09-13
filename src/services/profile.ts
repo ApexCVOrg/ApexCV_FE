@@ -42,7 +42,7 @@ class ProfileService {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/users/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/users/profile`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -62,7 +62,7 @@ class ProfileService {
       throw new Error('No authentication token found');
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/users/profile`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/users/profile`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

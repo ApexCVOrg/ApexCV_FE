@@ -1,5 +1,34 @@
 import axios from 'axios';
 
+// ==== Local Types to avoid any ==== 
+type Coupon = { id?: string; code?: string; [k: string]: unknown };
+type SepayTransaction = {
+  _id: string;
+  type: 'sepay_payment' | 'points_used' | 'points_earned' | 'refund';
+  amount: number;
+  points: number;
+  createdAt: string;
+  transactionId?: string;
+  description?: string;
+  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+};
+type ConfirmSepayResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    transaction: SepayTransaction;
+    user: { id: string; points: number };
+  };
+  newBalance?: number;
+};
+type PointsHistoryResponse = {
+  success: boolean;
+  data: {
+    history: SepayTransaction[];
+    pagination: { page: number; limit: number; total: number; pages: number };
+  };
+};
+
 interface RefreshTokenResponse {
   token: string;
 }
@@ -151,10 +180,10 @@ export async function getRefundHistoryByOrder(orderId: string): Promise<unknown[
 /**
  * Lấy danh sách coupon khả dụng cho user/cart
  */
-export async function getAvailableCoupons(): Promise<any[]> {
+export async function getAvailableCoupons(): Promise<Coupon[]> {
   const res = await api.get('/coupon');
-  const data = res.data as { success?: boolean; data?: any[] };
-  if (data && data.success && Array.isArray(data.data)) return data.data;
+  const data = res.data as { success?: boolean; data?: Coupon[] };
+  if (data && data.success && Array.isArray(data.data)) return data.data as Coupon[];
   return [];
 }
 
@@ -206,18 +235,7 @@ export async function confirmSepayPayment(data: {
   sessionId: string;
   transactionId: string;
   amount: number;
-}): Promise<{
-  success: boolean;
-  message: string;
-  data: {
-    transaction: any;
-    user: {
-      id: string;
-      points: number;
-    };
-  };
-  newBalance?: number;
-}> {
+}): Promise<ConfirmSepayResponse> {
   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const apiUrl = `${baseURL}/sepay/confirm`;
@@ -242,7 +260,7 @@ export async function confirmSepayPayment(data: {
     throw new Error(`Xác nhận thanh toán thất bại: ${res.status} - ${errorText}`);
   }
 
-  const json = await res.json();
+  const json = (await res.json()) as ConfirmSepayResponse;
   console.log('[Frontend] API Response:', json);
   return json;
 }
@@ -308,31 +326,9 @@ export async function checkPaymentStatus(sessionId: string): Promise<{
 /**
  * Lấy lịch sử giao dịch điểm
  */
-export async function getPointsHistory(): Promise<{
-  success: boolean;
-  data: {
-    history: any[];
-    pagination: {
-      page: number;
-      limit: number;
-      total: number;
-      pages: number;
-    };
-  };
-}> {
+export async function getPointsHistory(): Promise<PointsHistoryResponse> {
   const res = await api.get('/sepay/points/history');
-  return res.data as {
-    success: boolean;
-    data: {
-      history: any[];
-      pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        pages: number;
-      };
-    };
-  };
+  return res.data as PointsHistoryResponse;
 }
 
 export default api;

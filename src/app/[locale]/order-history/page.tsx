@@ -245,7 +245,7 @@ const HistoryPage = () => {
       try {
         const token = getToken();
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "https://nidas-be.onrender.com/api"}/orders/history`,
+          `${process.env.NEXT_PUBLIC_API_URL || "https://nidas-be-jnwz.onrender.com"}/orders/history`,
           {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include",

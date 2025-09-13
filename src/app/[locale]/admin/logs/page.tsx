@@ -84,7 +84,7 @@ export default function AuditLogPage() {
     const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : '';
     
     // Fetch admins
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/admin/admins`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/admin/admins`, {
       headers: {
         Authorization: token ? `Bearer ${token}` : '',
         'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ export default function AuditLogPage() {
       .catch(() => {});
     
     // Fetch managers
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/managers`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/manager/managers`, {
       headers: {
         Authorization: token ? `Bearer ${token}` : '',
         'Content-Type': 'application/json',
@@ -123,8 +123,8 @@ export default function AuditLogPage() {
       if (action) params.append('action', action);
       
       const baseUrl = logType === 'admin' 
-        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/admin/logs`
-        : `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/logs`;
+        ? `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/admin/logs`
+        : `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/manager/logs`;
       
       if (logType === 'admin' && adminId) {
         params.append('adminId', adminId);

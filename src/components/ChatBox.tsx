@@ -65,7 +65,7 @@ interface ChatSession {
   lastMessageAt?: Date;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com';
 const AI_CHAT_STORAGE_KEY = 'nidas_ai_chat_messages';
 const SHOP_CHAT_STORAGE_KEY = 'nidas_shop_chat_session';
 
