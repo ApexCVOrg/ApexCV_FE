@@ -56,7 +56,7 @@ export const API_ENDPOINTS = {
 };
 
 // API Base URL
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com';
 
 // Local Storage Keys
 export const STORAGE_KEYS = {

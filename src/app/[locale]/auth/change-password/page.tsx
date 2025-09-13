@@ -114,7 +114,7 @@ export default function ChangePasswordPage() {
     try {
       setLoading(true);
       const response = await axios.post<ChangePasswordResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/change-password`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/auth/change-password`,
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,

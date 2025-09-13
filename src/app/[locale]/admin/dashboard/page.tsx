@@ -238,7 +238,7 @@ export default function DashboardPage() {
       setError(null);
       try {
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/manager/dashboard/summary`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/manager/dashboard/summary`,
           {
             method: 'GET',
             headers: {

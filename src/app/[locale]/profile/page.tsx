@@ -304,7 +304,7 @@ export default function ProfilePage() {
       if (formData.email !== user?.email) {
         const token = localStorage.getItem('auth_token');
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com/api'}/auth/send-email-change-verification`,
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be-jnwz.onrender.com'}/auth/send-email-change-verification`,
           {
             method: 'POST',
             headers: {
