@@ -198,7 +198,7 @@ export async function createSepayPayment(data: { amount: number; description?: s
   message: string;
 }> {
   const token = localStorage.getItem('auth_token');
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
 
   const apiUrl = `${baseURL}/api/sepay/create`;
 
@@ -236,7 +236,7 @@ export async function confirmSepayPayment(data: {
   transactionId: string;
   amount: number;
 }): Promise<ConfirmSepayResponse> {
-  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://nidas-be.onrender.com';
 
   const apiUrl = `${baseURL}/api/sepay/confirm`;
 
