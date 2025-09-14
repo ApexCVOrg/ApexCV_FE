@@ -8,7 +8,7 @@ const URL_REPLACEMENTS = {
   'http://localhost:5000': 'https://nidas-be.onrender.com',
   'ws://localhost:5000': 'wss://nidas-be.onrender.com',
   'ws://localhost:3001': 'wss://nidas-be.onrender.com',
-      'http://localhost:3000': 'https://nidas-fe.vercel.app'
+      'http://localhost:3000': 'https://nidas-fe-git-feature-thindde180805ho-5e4ed2-thydynh03s-projects.vercel.app'
 };
 
 // Thư mục cần kiểm tra

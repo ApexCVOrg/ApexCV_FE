@@ -200,7 +200,7 @@ export async function createSepayPayment(data: { amount: number; description?: s
   const token = localStorage.getItem('auth_token');
   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-  const apiUrl = `${baseURL}/sepay/create`;
+  const apiUrl = `${baseURL}/api/sepay/create`;
 
   console.log('[Frontend] Calling Sepay API:', apiUrl);
   console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
@@ -238,7 +238,7 @@ export async function confirmSepayPayment(data: {
 }): Promise<ConfirmSepayResponse> {
   const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-  const apiUrl = `${baseURL}/sepay/confirm`;
+  const apiUrl = `${baseURL}/api/sepay/confirm`;
 
   console.log('[Frontend] Calling Sepay Confirm API:', apiUrl);
   console.log('[Frontend] Request data:', JSON.stringify(data, null, 2));
@@ -277,7 +277,7 @@ export async function getUserPoints(): Promise<{
     points: number;
   };
 }> {
-  const res = await api.get('/sepay/points');
+  const res = await api.get('/api/sepay/points');
   return res.data as {
     success: boolean;
     data: {
@@ -306,7 +306,7 @@ export async function checkPaymentStatus(sessionId: string): Promise<{
   };
   message?: string;
 }> {
-  const res = await api.get(`/sepay/status/${sessionId}`);
+  const res = await api.get(`/api/sepay/status/${sessionId}`);
   return res.data as {
     success: boolean;
     paid: boolean;
@@ -327,7 +327,7 @@ export async function checkPaymentStatus(sessionId: string): Promise<{
  * Lấy lịch sử giao dịch điểm
  */
 export async function getPointsHistory(): Promise<PointsHistoryResponse> {
-  const res = await api.get('/sepay/points/history');
+  const res = await api.get('/api/sepay/points/history');
   return res.data as PointsHistoryResponse;
 }
 
