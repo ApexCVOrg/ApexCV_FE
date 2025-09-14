@@ -85,15 +85,33 @@ const SepayPayment: React.FC<SepayPaymentProps> = ({ open, onClose, onSuccess })
       try {
         const status = await checkPaymentStatus(sessionId)
         if (status.paid && status.transaction) {
-          // Thanh toán thành công
-          setSuccess(`Thanh toán thành công! Bạn đã nhận được ${status.transaction.points} điểm`)
-          setActiveStep(2)
-          setUserPoints(status.user?.points || 0)
-          
-          // Gọi callback success nếu có
-          if (onSuccess && status.user) {
-            onSuccess(status.user.points)
+          // 1. Update user points after success - fetch latest balance
+          try {
+            const userPointsResponse = await getUserPoints()
+            const latestPoints = userPointsResponse.data.points
+            setUserPoints(latestPoints)
+            
+            // 2. Show success message from backend if available
+            const successMessage = status.message || `Thanh toán thành công! Bạn đã nhận được ${status.transaction.points} điểm`
+            setSuccess(successMessage)
+            
+            // Also pass the updated balance to the optional onSuccess callback
+            if (onSuccess) {
+              onSuccess(latestPoints)
+            }
+          } catch (pointsError) {
+            console.error('Error fetching updated points:', pointsError)
+            // Fallback to status data if getUserPoints fails
+            setUserPoints(status.user?.points || 0)
+            const successMessage = status.message || `Thanh toán thành công! Bạn đã nhận được ${status.transaction.points} điểm`
+            setSuccess(successMessage)
+            
+            if (onSuccess && status.user) {
+              onSuccess(status.user.points)
+            }
           }
+          
+          setActiveStep(2)
           
           // Dừng polling
           clearInterval(interval)
@@ -138,11 +156,27 @@ const SepayPayment: React.FC<SepayPaymentProps> = ({ open, onClose, onSuccess })
   }
 
 
-  const handleClose = () => {
+  const handleClose = async () => {
     // Dừng polling nếu đang chạy
     if (pollingInterval) {
       clearInterval(pollingInterval)
       setPollingInterval(null)
+    }
+    
+    // 3. Ensure dialog closes cleanly - refresh points one more time (just to be safe)
+    if (activeStep === 2) {
+      try {
+        const userPointsResponse = await getUserPoints()
+        const latestPoints = userPointsResponse.data.points
+        setUserPoints(latestPoints)
+        
+        // Update parent component with latest points
+        if (onSuccess) {
+          onSuccess(latestPoints)
+        }
+      } catch (error) {
+        console.error('Error fetching final points balance:', error)
+      }
     }
     
     setAmount(10000)
